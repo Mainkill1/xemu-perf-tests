@@ -11,12 +11,20 @@
  */
 class TestHost : public PBKitPlusPlus::NV2AState {
  public:
+  enum class GpuCompletionMode {
+    ENQUEUE,
+    BATCH_COMPLETE,
+    PER_ITERATION,
+  };
+
   struct ProfileResults {
     uint32_t iterations;
+    uint32_t warmup_iterations;
     uint32_t total_time_microseconds;
     uint32_t average_time_microseconds;
     uint32_t maximum_time_microseconds;
     uint32_t minimum_time_microseconds;
+    uint32_t completion_wait_microseconds;
     std::vector<uint32_t> raw_results;
   };
 
@@ -36,6 +44,16 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   [[nodiscard]] bool GetSaveResults() const { return save_results_; }
   void SetSaveResults(bool enable = true) { save_results_ = enable; }
 
+  [[nodiscard]] GpuCompletionMode GetGpuCompletionMode() const { return gpu_completion_mode_; }
+  void SetGpuCompletionMode(GpuCompletionMode mode) { gpu_completion_mode_ = mode; }
+  [[nodiscard]] const char *GetGpuCompletionModeName() const;
+
+  [[nodiscard]] uint32_t GetWarmupIterations() const { return warmup_iterations_; }
+  void SetWarmupIterations(uint32_t iterations) { warmup_iterations_ = iterations; }
+
+  void WaitForGpu() const;
+  void ResetResultLogState() { first_result_ = true; }
+
   [[nodiscard]] const double &GetPerformanceCounterFrequency() const { return perf_counter_frequency_; }
   [[nodiscard]] uint32_t GetMicrosecondsSince(const LARGE_INTEGER &previous) const;
 
@@ -47,7 +65,12 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   }
 
  private:
+  [[nodiscard]] uint64_t HashBackBuffer() const;
+
   bool save_results_{true};
+  bool first_result_{true};
+  GpuCompletionMode gpu_completion_mode_{GpuCompletionMode::ENQUEUE};
+  uint32_t warmup_iterations_{0};
 
   static constexpr auto kFrameTimeWindow = 10;
   double perf_counter_frequency_;

@@ -1,6 +1,8 @@
 #include "test_host.h"
 
 #include <SDL.h>
+#include <cstddef>
+#include <cstdio>
 #include <strings.h>
 
 #pragma clang diagnostic push
@@ -9,6 +11,7 @@
 #pragma clang diagnostic pop
 
 #include <texture_generator.h>
+#include <pbkit/pbkit.h>
 #include <xboxkrnl/xboxkrnl.h>
 
 #include "debug_output.h"
@@ -59,6 +62,17 @@ void TestHost::EnsureFolderExists(const std::string &folder_path) {
 }
 
 void TestHost::FinishDraw(const std::string &suite_name, const std::string &test_name, const ProfileResults &results) {
+  // Validation is deliberately outside the measured region. Waiting here
+  // makes the CPU read deterministic even when the selected measurement mode
+  // only times enqueue work.
+  WaitForGpu();
+  const uint64_t framebuffer_hash = HashBackBuffer();
+  char framebuffer_hash_string[17] = {};
+  snprintf(framebuffer_hash_string, sizeof(framebuffer_hash_string), "%016llx",
+           static_cast<unsigned long long>(framebuffer_hash));
+  PrintMsg("CORRECTNESS_HASH %s::%s fnv1a64=%s\n", suite_name.c_str(), test_name.c_str(),
+           framebuffer_hash_string);
+
   SetVertexShaderProgram(nullptr);
   SetXDKDefaultViewportAndFixedFunctionMatrices();
 
@@ -96,9 +110,17 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   NV2AState::FinishDraw();
 
   if (save_results_) {
+    if (!first_result_) {
+      Logger::Log() << "," << std::endl;
+    }
+    first_result_ = false;
     Logger::Log() << "  {" << std::endl;
+    Logger::Log() << "    \"schema_version\": 1," << std::endl;
     Logger::Log() << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
     Logger::Log() << "    \"iterations\": " << results.iterations << "," << std::endl;
+    Logger::Log() << "    \"warmup_iterations\": " << results.warmup_iterations << "," << std::endl;
+    Logger::Log() << R"(    "gpu_completion_mode": ")" << GetGpuCompletionModeName() << "\"," << std::endl;
+    Logger::Log() << "    \"completion_wait_us\": " << results.completion_wait_microseconds << "," << std::endl;
     Logger::Log() << "    \"total_us\": " << results.total_time_microseconds << "," << std::endl;
     Logger::Log() << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
     Logger::Log() << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
@@ -111,8 +133,9 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
       Logger::Log() << "      " << val;
     }
     Logger::Log() << std::endl;
-    Logger::Log() << "    ]" << std::endl;
-    Logger::Log() << "  }," << std::endl;
+    Logger::Log() << "    ]," << std::endl;
+    Logger::Log() << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"" << std::endl;
+    Logger::Log() << "  }" << std::endl;
   } else {
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
@@ -134,6 +157,45 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
       average_frame_rate_ = 1.0f / avg_delta;
     }
   }
+
+  PrintMsg("TEST_END %s::%s\n", suite_name.c_str(), test_name.c_str());
+}
+
+const char *TestHost::GetGpuCompletionModeName() const {
+  switch (gpu_completion_mode_) {
+    case GpuCompletionMode::ENQUEUE:
+      return "enqueue";
+    case GpuCompletionMode::BATCH_COMPLETE:
+      return "batch_complete";
+    case GpuCompletionMode::PER_ITERATION:
+      return "per_iteration";
+  }
+  return "unknown";
+}
+
+void TestHost::WaitForGpu() const {
+  while (pb_busy()) {
+  }
+  pb_wait_until_gr_not_busy();
+}
+
+uint64_t TestHost::HashBackBuffer() const {
+  static constexpr uint64_t kFnvOffsetBasis = 14695981039346656037ULL;
+  static constexpr uint64_t kFnvPrime = 1099511628211ULL;
+
+  const auto *base = reinterpret_cast<const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  const uint32_t row_bytes = pb_back_buffer_width() * sizeof(uint32_t);
+  const uint32_t height = pb_back_buffer_height();
+  uint64_t hash = kFnvOffsetBasis;
+  for (uint32_t y = 0; y < height; ++y) {
+    const auto *row = base + static_cast<size_t>(y) * pitch;
+    for (uint32_t x = 0; x < row_bytes; ++x) {
+      hash ^= row[x];
+      hash *= kFnvPrime;
+    }
+  }
+  return hash;
 }
 
 void TestHost::SetupFixedFunctionPassthrough() {

@@ -168,6 +168,30 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     return false;
   }
 
+  if (!LoadUint32(settings, "warmup_iterations", warmup_iterations_)) {
+    errors.emplace_back("settings[warmup_iterations] must be an integer");
+    return false;
+  }
+
+  std::string gpu_completion_mode;
+  if (!LoadString(settings, "gpu_completion_mode", gpu_completion_mode)) {
+    errors.emplace_back("settings[gpu_completion_mode] must be a string");
+    return false;
+  }
+  if (!gpu_completion_mode.empty()) {
+    if (gpu_completion_mode == "enqueue") {
+      gpu_completion_mode_ = TestHost::GpuCompletionMode::ENQUEUE;
+    } else if (gpu_completion_mode == "batch_complete") {
+      gpu_completion_mode_ = TestHost::GpuCompletionMode::BATCH_COMPLETE;
+    } else if (gpu_completion_mode == "per_iteration") {
+      gpu_completion_mode_ = TestHost::GpuCompletionMode::PER_ITERATION;
+    } else {
+      errors.emplace_back(
+          "settings[gpu_completion_mode] must be enqueue, batch_complete, or per_iteration");
+      return false;
+    }
+  }
+
   auto test_suites = json_getProperty(root, "test_suites");
   if (!test_suites) {
     return true;

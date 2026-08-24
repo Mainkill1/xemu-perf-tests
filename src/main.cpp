@@ -112,6 +112,8 @@ int main() {
 
   std::vector<std::shared_ptr<TestSuite>> test_suites;
   TestHost host(kFramebufferWidth, kFramebufferHeight);
+  host.SetWarmupIterations(config.warmup_iterations());
+  host.SetGpuCompletionMode(config.gpu_completion_mode());
   RegisterSuites(host, config, test_suites, config.output_directory_path());
 
   {
@@ -188,6 +190,7 @@ static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   std::string log_file = config.output_directory_path() + "\\" + kLogFileName;
   DeleteFile(log_file.c_str());
   Logger::Initialize(log_file, true);
+  host.ResetResultLogState();
 
   TestDriver driver(host, test_suites, kFramebufferWidth, kFramebufferHeight, false, config.disable_autorun(),
                     config.enable_autorun_immediately());

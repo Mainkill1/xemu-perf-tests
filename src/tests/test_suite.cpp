@@ -270,10 +270,12 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
                                             const std::function<void(void)>& body) const {
   TestHost::ProfileResults ret{
       .iterations = num_iterations,
+      .warmup_iterations = 0,
       .total_time_microseconds = 0xFFFFFFFF,
       .average_time_microseconds = 0xFFFFFFFF,
       .maximum_time_microseconds = 0,
       .minimum_time_microseconds = 0xFFFFFFFF,
+      .completion_wait_microseconds = 0,
   };
 
   if (!host_.GetSaveResults()) {
@@ -282,7 +284,21 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
 
   auto run_times = std::make_unique<uint32_t[]>(num_iterations);
 
-  PrintMsg("Starting %s::%s\n", suite_name_.c_str(), test_name.c_str());
+  const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());
+  if (warmup_iterations) {
+    PrintMsg("WARMUP_BEGIN %s::%s iterations=%lu\n", suite_name_.c_str(), test_name.c_str(), warmup_iterations);
+    for (uint32_t i = 0; i < warmup_iterations; ++i) {
+      body();
+      host_.WaitForGpu();
+    }
+    PrintMsg("WARMUP_END %s::%s\n", suite_name_.c_str(), test_name.c_str());
+  }
+
+  // Never let warmup work leak into the first measured sample.
+  host_.WaitForGpu();
+  PrintMsg("MEASURE_BEGIN %s::%s iterations=%lu mode=%s\n", suite_name_.c_str(), test_name.c_str(), num_iterations,
+           host_.GetGpuCompletionModeName());
 
   LARGE_INTEGER profile_start;
   LARGE_INTEGER iteration_start;
@@ -292,19 +308,33 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   for (auto i = 0; i < num_iterations; ++i) {
     QueryPerformanceCounter(&iteration_start);
     body();
+    if (host_.GetGpuCompletionMode() == TestHost::GpuCompletionMode::PER_ITERATION) {
+      LARGE_INTEGER wait_start;
+      QueryPerformanceCounter(&wait_start);
+      host_.WaitForGpu();
+      ret.completion_wait_microseconds += host_.GetMicrosecondsSince(wait_start);
+    }
     run_times[i] = host_.GetMicrosecondsSince(iteration_start);
+  }
+
+  if (host_.GetGpuCompletionMode() == TestHost::GpuCompletionMode::BATCH_COMPLETE) {
+    LARGE_INTEGER wait_start;
+    QueryPerformanceCounter(&wait_start);
+    host_.WaitForGpu();
+    ret.completion_wait_microseconds = host_.GetMicrosecondsSince(wait_start);
   }
 
   auto duration = host_.GetMicrosecondsSince(profile_start);
 
-  PrintMsg("  Completed '%s::%s' in %fms\n", suite_name_.c_str(), test_name.c_str(),
-           static_cast<double>(duration) / 1000.f);
+  PrintMsg("MEASURE_END %s::%s duration_us=%lu completion_wait_us=%lu\n", suite_name_.c_str(), test_name.c_str(),
+           duration, ret.completion_wait_microseconds);
 
   if (!host_.GetSaveResults()) {
     return ret;
   }
 
   ret.iterations = num_iterations;
+  ret.warmup_iterations = warmup_iterations;
   ret.total_time_microseconds = 0;
   for (auto i = 0; i < num_iterations; ++i) {
     auto time = run_times[i];

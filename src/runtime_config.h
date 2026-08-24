@@ -46,6 +46,8 @@ class RuntimeConfig {
   [[nodiscard]] bool enable_shutdown_on_completion() const { return enable_shutdown_on_completion_; }
   [[nodiscard]] bool skip_tests_by_default() const { return skip_tests_by_default_; }
   [[nodiscard]] uint32_t reboot_or_shutdown_delay_ms() const { return reboot_or_shutdown_delay_ms_; }
+  [[nodiscard]] uint32_t warmup_iterations() const { return warmup_iterations_; }
+  [[nodiscard]] TestHost::GpuCompletionMode gpu_completion_mode() const { return gpu_completion_mode_; }
 
   [[nodiscard]] const std::string& output_directory_path() const { return output_directory_path_; }
 
@@ -57,6 +59,8 @@ class RuntimeConfig {
   bool enable_shutdown_on_completion_ = DEFAULT_ENABLE_SHUTDOWN;
   bool skip_tests_by_default_ = DEFAULT_SKIP_TESTS_BY_DEFAULT;
   uint32_t reboot_or_shutdown_delay_ms_ = 10000;
+  uint32_t warmup_iterations_ = 0;
+  TestHost::GpuCompletionMode gpu_completion_mode_ = TestHost::GpuCompletionMode::ENQUEUE;
 
   std::string output_directory_path_ = SanitizePath(DEFAULT_OUTPUT_DIRECTORY_PATH);
 

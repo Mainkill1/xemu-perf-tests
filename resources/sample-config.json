@@ -5,6 +5,9 @@
     "enable_shutdown_on_completion": false,
     "skip_tests_by_default": false,
     "delay_milliseconds_between_tests": 0,
+    "reboot_or_shutdown_delay": 0,
+    "warmup_iterations": 2,
+    "gpu_completion_mode": "per_iteration",
     "output_directory_path": "e:/xemu_perf_tests"
   },
   "test_suites": {
