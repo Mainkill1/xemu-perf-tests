@@ -27,6 +27,9 @@ class SurfaceRenderingTests : public TestSuite {
 
   void TestXemuSurfaceListLookup(const char *test_name,
                                  uint32_t surface_count);
+
+  void TestXemuFramebufferWorkingSet(const char *test_name,
+                                     uint32_t active_surface_count);
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H

@@ -25,6 +25,14 @@ static constexpr char kXemuSurfaceListLookup032TestName[] =
     "XemuSurfaceListLookup032";
 static constexpr char kXemuSurfaceListLookup128TestName[] =
     "XemuSurfaceListLookup128";
+static constexpr char kXemuFramebufferWorkingSet002TestName[] =
+    "XemuFramebufferWorkingSet002";
+static constexpr char kXemuFramebufferWorkingSet008TestName[] =
+    "XemuFramebufferWorkingSet008";
+static constexpr char kXemuFramebufferWorkingSet032TestName[] =
+    "XemuFramebufferWorkingSet032";
+static constexpr char kXemuFramebufferWorkingSet064TestName[] =
+    "XemuFramebufferWorkingSet064";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -59,6 +67,18 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuSurfaceListLookup128TestName] = [this]() {
     TestXemuSurfaceListLookup(kXemuSurfaceListLookup128TestName, 128);
+  };
+  tests_[kXemuFramebufferWorkingSet002TestName] = [this]() {
+    TestXemuFramebufferWorkingSet(kXemuFramebufferWorkingSet002TestName, 2);
+  };
+  tests_[kXemuFramebufferWorkingSet008TestName] = [this]() {
+    TestXemuFramebufferWorkingSet(kXemuFramebufferWorkingSet008TestName, 8);
+  };
+  tests_[kXemuFramebufferWorkingSet032TestName] = [this]() {
+    TestXemuFramebufferWorkingSet(kXemuFramebufferWorkingSet032TestName, 32);
+  };
+  tests_[kXemuFramebufferWorkingSet064TestName] = [this]() {
+    TestXemuFramebufferWorkingSet(kXemuFramebufferWorkingSet064TestName, 64);
   };
 }
 
@@ -500,6 +520,72 @@ void SurfaceRenderingTests::TestXemuSurfaceListLookup(
 
   // Display the oldest target at the stage-0 base so every list-size variant
   // has a deterministic correctness guard independent of scan timing.
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kSurfaceWidth, kSurfaceHeight);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
+                               kSurfaceWidth, kSurfaceHeight);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
+
+  host_.FinishDraw(suite_name_, test_name, results);
+}
+
+void SurfaceRenderingTests::TestXemuFramebufferWorkingSet(
+    const char *test_name, uint32_t active_surface_count) {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kSurfaceWidth = 16;
+  static constexpr uint32_t kSurfaceHeight = 16;
+  static constexpr uint32_t kSurfaceBytes =
+      kSurfaceWidth * kSurfaceHeight * sizeof(uint32_t);
+  static constexpr uint32_t kRequestsPerIteration = 64;
+  static constexpr uint32_t kProfileIterations = 20;
+
+  assert(active_surface_count >= 2 && active_surface_count <= 64);
+  assert(kRequestsPerIteration % active_surface_count == 0);
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+
+  // Populate all active surfaces before measurement, then complete that GPU
+  // work. The measured phase has the same 1,280 requests in every variant and
+  // differs only in reuse distance. This separates framebuffer working-set
+  // capacity from surface construction and total guest method count.
+  for (uint32_t i = 0; i < active_surface_count; ++i) {
+    host_.RenderToSurfaceStart(
+        surface_memory + i * kSurfaceBytes,
+        PBKitPlusPlus::NV2AState::SCF_A8R8G8B8, kSurfaceWidth,
+        kSurfaceHeight, false);
+    host_.ClearColorRegion(0xFF000000 | (i * 0x00010101), 0, 0,
+                           kSurfaceWidth, kSurfaceHeight);
+    host_.RenderToSurfaceEnd();
+  }
+  host_.WaitForGpu();
+
+  auto results = Profile(test_name, kProfileIterations,
+                         [this, surface_memory, active_surface_count] {
+    for (uint32_t request = 0; request < kRequestsPerIteration; ++request) {
+      const uint32_t index = request % active_surface_count;
+      host_.RenderToSurfaceStart(
+          surface_memory + index * kSurfaceBytes,
+          PBKitPlusPlus::NV2AState::SCF_A8R8G8B8, kSurfaceWidth,
+          kSurfaceHeight, false);
+      host_.ClearColorRegion(0xFF203040 | index, 0, 0, kSurfaceWidth,
+                             kSurfaceHeight);
+      host_.RenderToSurfaceEnd();
+    }
+  });
+
+  // Surface zero receives a fixed clear in every variant. Displaying it after
+  // the measured markers gives the runner a deterministic output guard without
+  // contaminating the timed phase with correctness readback work.
   auto &texture_stage = host_.GetTextureStage(0);
   texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
