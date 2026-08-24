@@ -40,10 +40,18 @@ Behavior can optionally be determined via a JSON configuration file loaded from 
     "enable_shutdown_on_completion": false,
     "skip_tests_by_default": false,
     "delay_milliseconds_between_tests": 0,
+    "measurement_iterations_multiplier": 1,
     "output_directory_path": "e:/xemu_perf_tests"
   }
 }
 ```
+
+`measurement_iterations_multiplier` scales the fixed measured iteration count
+of every selected test without changing its warmup count. A host runner can use
+a short baseline-only calibration to choose enough fixed work for a sustained
+15-30 second measurement, then reuse that exact multiplier for all baseline and
+candidate runs. Valid values are 1 through 100000. Never calibrate the candidate
+independently, because that would compare different amounts of guest work.
 
 In the default release build, the program will look for this file in the `output_directory_path` (
 `e:/xemu_perf_tests/xemu_perf_tests_config.json`) and `d:\xemu_perf_tests_config.json`, taking whichever is found

@@ -51,6 +51,13 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   [[nodiscard]] uint32_t GetWarmupIterations() const { return warmup_iterations_; }
   void SetWarmupIterations(uint32_t iterations) { warmup_iterations_ = iterations; }
 
+  [[nodiscard]] uint32_t GetMeasurementIterationsMultiplier() const {
+    return measurement_iterations_multiplier_;
+  }
+  void SetMeasurementIterationsMultiplier(uint32_t multiplier) {
+    measurement_iterations_multiplier_ = multiplier;
+  }
+
   void WaitForGpu() const;
   void ResetResultLogState() { first_result_ = true; }
 
@@ -71,6 +78,7 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   bool first_result_{true};
   GpuCompletionMode gpu_completion_mode_{GpuCompletionMode::ENQUEUE};
   uint32_t warmup_iterations_{0};
+  uint32_t measurement_iterations_multiplier_{1};
 
   static constexpr auto kFrameTimeWindow = 10;
   double perf_counter_frequency_;

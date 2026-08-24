@@ -115,6 +115,7 @@ int main() {
   std::vector<std::shared_ptr<TestSuite>> test_suites;
   TestHost host(kFramebufferWidth, kFramebufferHeight);
   host.SetWarmupIterations(config.warmup_iterations());
+  host.SetMeasurementIterationsMultiplier(config.measurement_iterations_multiplier());
   host.SetGpuCompletionMode(config.gpu_completion_mode());
   RegisterSuites(host, config, test_suites, config.output_directory_path());
 

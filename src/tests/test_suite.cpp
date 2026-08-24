@@ -268,6 +268,15 @@ void TestSuite::Initialize() {
 
 TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32_t num_iterations,
                                             const std::function<void(void)>& body) const {
+  if (host_.GetSaveResults()) {
+    const auto multiplier = host_.GetMeasurementIterationsMultiplier();
+    ASSERT(multiplier > 0);
+    ASSERT(num_iterations <= UINT32_MAX / multiplier);
+    num_iterations *= multiplier;
+  } else {
+    num_iterations = 1;
+  }
+
   TestHost::ProfileResults ret{
       .iterations = num_iterations,
       .warmup_iterations = 0,
@@ -277,10 +286,6 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
       .minimum_time_microseconds = 0xFFFFFFFF,
       .completion_wait_microseconds = 0,
   };
-
-  if (!host_.GetSaveResults()) {
-    num_iterations = 1;
-  }
 
   auto run_times = std::make_unique<uint32_t[]>(num_iterations);
 

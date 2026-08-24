@@ -173,6 +173,12 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     return false;
   }
 
+  if (!LoadUint32(settings, "measurement_iterations_multiplier", measurement_iterations_multiplier_) ||
+      measurement_iterations_multiplier_ < 1 || measurement_iterations_multiplier_ > 100000) {
+    errors.emplace_back("settings[measurement_iterations_multiplier] must be an integer from 1 through 100000");
+    return false;
+  }
+
   std::string gpu_completion_mode;
   if (!LoadString(settings, "gpu_completion_mode", gpu_completion_mode)) {
     errors.emplace_back("settings[gpu_completion_mode] must be a string");
