@@ -17,6 +17,10 @@ class SurfaceRenderingTests : public TestSuite {
 
   void TestXemuForceSurfaceDownloadPath();
 
+  void TestXemuOverlappingSurfaceChurn(const char *test_name,
+                                       uint32_t cycles_per_iteration,
+                                       uint32_t iterations);
+
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H

@@ -6,6 +6,10 @@
 
 static constexpr char kBasicTestName[] = "SurfaceRendering";
 static constexpr char kXemuSurfaceDownloadTestName[] = "XemuSurfaceDownloadPath";
+static constexpr char kXemuOverlapRepresentativeTestName[] =
+    "XemuOverlappingSurfaceChurnRepresentative";
+static constexpr char kXemuOverlapStressTestName[] =
+    "XemuOverlappingSurfaceChurnStress";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -17,6 +21,12 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
     : TestSuite(host, std::move(output_dir), "SurfaceRendering", config) {
   tests_[kBasicTestName] = [this]() { Test(); };
   tests_[kXemuSurfaceDownloadTestName] = [this]() { TestXemuForceSurfaceDownloadPath(); };
+  tests_[kXemuOverlapRepresentativeTestName] = [this]() {
+    TestXemuOverlappingSurfaceChurn(kXemuOverlapRepresentativeTestName, 1, 100);
+  };
+  tests_[kXemuOverlapStressTestName] = [this]() {
+    TestXemuOverlappingSurfaceChurn(kXemuOverlapStressTestName, 20, 10);
+  };
 }
 
 /**
@@ -234,4 +244,63 @@ void SurfaceRenderingTests::TestXemuForceSurfaceDownloadPath() {
   });
 
   host_.FinishDraw(suite_name_, kXemuSurfaceDownloadTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuOverlappingSurfaceChurn(
+    const char *test_name, uint32_t cycles_per_iteration,
+    uint32_t iterations) {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  struct Target {
+    uint32_t offset;
+    uint32_t width;
+    uint32_t height;
+    uint32_t color;
+  };
+
+  // This generated layout is reduced from the repeating surface geometry in
+  // Jesse's Halo 2 trace. The 160x120 targets partially overlap the two
+  // adjacent 128x128 targets, forcing xemu's overlap-eviction policy without
+  // using any title data.
+  static constexpr Target kTargets[] = {
+      {0x00000, 128, 128, 0xFFB04040},
+      {0x10000, 128, 128, 0xFF40B040},
+      {0x16800, 160, 120, 0xFF4040B0},
+      {0x00000, 160, 120, 0xFFB09040},
+  };
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  auto results = Profile(test_name, iterations,
+                         [this, surface_memory, cycles_per_iteration] {
+    for (uint32_t cycle = 0; cycle < cycles_per_iteration; ++cycle) {
+      for (const auto &target : kTargets) {
+        host_.RenderToSurfaceStart(
+            surface_memory + target.offset,
+            PBKitPlusPlus::NV2AState::SCF_A8R8G8B8, target.width,
+            target.height, false);
+        host_.ClearColorRegion(target.color, 0, 0, target.width,
+                               target.height);
+        host_.RenderToSurfaceEnd();
+      }
+    }
+  });
+
+  // Correctness work is outside Profile's measured markers. The final target
+  // always occupies the stage-0 base as a 160x120 linear A8R8G8B8 image.
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  texture_stage.SetTextureDimensions(160, 120);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f, 160, 120);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
+
+  host_.FinishDraw(suite_name_, test_name, results);
 }
