@@ -33,6 +33,10 @@ static constexpr char kXemuFramebufferWorkingSet032TestName[] =
     "XemuFramebufferWorkingSet032";
 static constexpr char kXemuFramebufferWorkingSet064TestName[] =
     "XemuFramebufferWorkingSet064";
+static constexpr char kXemuCpuReadCleanSurfaceTestName[] =
+    "XemuCpuReadCleanSurface";
+static constexpr char kXemuCpuReadAfterGpuWriteTestName[] =
+    "XemuCpuReadAfterGpuWrite";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -79,6 +83,12 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuFramebufferWorkingSet064TestName] = [this]() {
     TestXemuFramebufferWorkingSet(kXemuFramebufferWorkingSet064TestName, 64);
+  };
+  tests_[kXemuCpuReadCleanSurfaceTestName] = [this]() {
+    TestXemuCpuReadCleanSurface();
+  };
+  tests_[kXemuCpuReadAfterGpuWriteTestName] = [this]() {
+    TestXemuCpuReadAfterGpuWrite();
   };
 }
 
@@ -602,4 +612,85 @@ void SurfaceRenderingTests::TestXemuFramebufferWorkingSet(
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
   host_.FinishDraw(suite_name_, test_name, results);
+}
+
+void SurfaceRenderingTests::TestXemuCpuReadCleanSurface() {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kWidth = 64;
+  static constexpr uint32_t kHeight = 64;
+  static constexpr uint32_t kWordCount = kWidth * kHeight;
+  static constexpr uint32_t kProfileIterations = 100;
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  auto *const mutable_words = reinterpret_cast<uint32_t *>(surface_memory);
+  auto *const words = reinterpret_cast<volatile uint32_t *>(surface_memory);
+  for (uint32_t i = 0; i < kWordCount; ++i) {
+    mutable_words[i] = 0x10203040u ^ i;
+  }
+
+  // Bind a valid surface without drawing to it. Its CPU memory remains newer
+  // than the host image, so every read below is a coherency no-op even though
+  // xemu must still recognize that the address belongs to a surface.
+  host_.RenderToSurfaceStart(
+      surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+      kWidth, kHeight, false);
+  host_.RenderToSurfaceEnd();
+  host_.WaitForGpu();
+
+  uint64_t checksum = 14695981039346656037ULL;
+  auto results = Profile(kXemuCpuReadCleanSurfaceTestName,
+                         kProfileIterations, [&checksum, words] {
+    for (uint32_t i = 0; i < kWordCount; ++i) {
+      checksum ^= words[i];
+      checksum *= 1099511628211ULL;
+    }
+  });
+
+  host_.ClearColorRegion(0xFF000000 | static_cast<uint32_t>(checksum),
+                         0, 0,
+                         static_cast<uint32_t>(host_.GetFramebufferWidthF()),
+                         static_cast<uint32_t>(host_.GetFramebufferHeightF()));
+  host_.FinishDraw(suite_name_, kXemuCpuReadCleanSurfaceTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuCpuReadAfterGpuWrite() {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kWidth = 32;
+  static constexpr uint32_t kHeight = 32;
+  static constexpr uint32_t kWordCount = kWidth * kHeight;
+  static constexpr uint32_t kProfileIterations = 20;
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  auto *const words = reinterpret_cast<volatile uint32_t *>(surface_memory);
+  uint32_t iteration = 0;
+  uint64_t checksum = 14695981039346656037ULL;
+
+  auto results = Profile(kXemuCpuReadAfterGpuWriteTestName,
+                         kProfileIterations,
+                         [this, surface_memory, words, &iteration, &checksum] {
+    const uint32_t color = 0xFF102030u + iteration++;
+    host_.RenderToSurfaceStart(
+        surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+        kWidth, kHeight, false);
+    host_.ClearColorRegion(color, 0, 0, kWidth, kHeight);
+    host_.RenderToSurfaceEnd();
+    host_.WaitForGpu();
+
+    // The first read must download newer GPU contents. The rest deliberately
+    // exercise clean reads from the now-synchronized surface.
+    for (uint32_t i = 0; i < kWordCount; ++i) {
+      checksum ^= words[i];
+      checksum *= 1099511628211ULL;
+    }
+  });
+
+  host_.ClearColorRegion(0xFF000000 | static_cast<uint32_t>(checksum),
+                         0, 0,
+                         static_cast<uint32_t>(host_.GetFramebufferWidthF()),
+                         static_cast<uint32_t>(host_.GetFramebufferHeightF()));
+  host_.FinishDraw(suite_name_, kXemuCpuReadAfterGpuWriteTestName, results);
 }

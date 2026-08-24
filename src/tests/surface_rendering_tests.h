@@ -30,6 +30,10 @@ class SurfaceRenderingTests : public TestSuite {
 
   void TestXemuFramebufferWorkingSet(const char *test_name,
                                      uint32_t active_surface_count);
+
+  void TestXemuCpuReadCleanSurface();
+
+  void TestXemuCpuReadAfterGpuWrite();
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H
