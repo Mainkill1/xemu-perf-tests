@@ -291,12 +291,14 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
     for (uint32_t i = 0; i < warmup_iterations; ++i) {
       body();
       host_.WaitForGpu();
+      EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
     }
     PrintMsg("WARMUP_END %s::%s\n", suite_name_.c_str(), test_name.c_str());
   }
 
   // Never let warmup work leak into the first measured sample.
   host_.WaitForGpu();
+  EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
   EmitXemuPerfMarker(kXemuPerfMarkerMeasureBegin);
   PrintMsg("MEASURE_BEGIN %s::%s iterations=%lu mode=%s\n", suite_name_.c_str(), test_name.c_str(), num_iterations,
            host_.GetGpuCompletionModeName());
@@ -313,6 +315,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
       LARGE_INTEGER wait_start;
       QueryPerformanceCounter(&wait_start);
       host_.WaitForGpu();
+      EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
       ret.completion_wait_microseconds += host_.GetMicrosecondsSince(wait_start);
     }
     run_times[i] = host_.GetMicrosecondsSince(iteration_start);
@@ -322,6 +325,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
     LARGE_INTEGER wait_start;
     QueryPerformanceCounter(&wait_start);
     host_.WaitForGpu();
+    EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
     ret.completion_wait_microseconds = host_.GetMicrosecondsSince(wait_start);
   }
 

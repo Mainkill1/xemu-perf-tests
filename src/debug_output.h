@@ -19,6 +19,7 @@ static constexpr uint16_t kXemuPerfMarkerPort = 0xE9;
 static constexpr uint8_t kXemuPerfMarkerReadback = 0x58;
 static constexpr uint8_t kXemuPerfMarkerMeasureBegin = 0xF0;
 static constexpr uint8_t kXemuPerfMarkerMeasureEnd = 0xF1;
+static constexpr uint8_t kXemuPerfMarkerGpuComplete = 0xF2;
 
 inline void EmitXemuPerfMarker(uint8_t marker) {
   uint8_t readback;
