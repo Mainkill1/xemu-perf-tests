@@ -24,6 +24,9 @@ class SurfaceRenderingTests : public TestSuite {
   void TestXemuFullClearElisionGuard();
 
   void TestXemuPartialChannelClearGuard();
+
+  void TestXemuSurfaceListLookup(const char *test_name,
+                                 uint32_t surface_count);
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H

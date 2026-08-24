@@ -1,5 +1,6 @@
 #include "surface_rendering_tests.h"
 
+#include <cassert>
 #include <cstring>
 
 #include <texture_generator.h>
@@ -16,6 +17,14 @@ static constexpr char kXemuFullClearElisionGuardTestName[] =
     "XemuFullClearElisionGuard";
 static constexpr char kXemuPartialChannelClearGuardTestName[] =
     "XemuPartialChannelClearGuard";
+static constexpr char kXemuSurfaceListLookup002TestName[] =
+    "XemuSurfaceListLookup002";
+static constexpr char kXemuSurfaceListLookup008TestName[] =
+    "XemuSurfaceListLookup008";
+static constexpr char kXemuSurfaceListLookup032TestName[] =
+    "XemuSurfaceListLookup032";
+static constexpr char kXemuSurfaceListLookup128TestName[] =
+    "XemuSurfaceListLookup128";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -38,6 +47,18 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuPartialChannelClearGuardTestName] = [this]() {
     TestXemuPartialChannelClearGuard();
+  };
+  tests_[kXemuSurfaceListLookup002TestName] = [this]() {
+    TestXemuSurfaceListLookup(kXemuSurfaceListLookup002TestName, 2);
+  };
+  tests_[kXemuSurfaceListLookup008TestName] = [this]() {
+    TestXemuSurfaceListLookup(kXemuSurfaceListLookup008TestName, 8);
+  };
+  tests_[kXemuSurfaceListLookup032TestName] = [this]() {
+    TestXemuSurfaceListLookup(kXemuSurfaceListLookup032TestName, 32);
+  };
+  tests_[kXemuSurfaceListLookup128TestName] = [this]() {
+    TestXemuSurfaceListLookup(kXemuSurfaceListLookup128TestName, 128);
   };
 }
 
@@ -430,4 +451,69 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
   host_.FinishDraw(suite_name_, kXemuPartialChannelClearGuardTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuSurfaceListLookup(
+    const char *test_name, uint32_t surface_count) {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kSurfaceWidth = 16;
+  static constexpr uint32_t kSurfaceHeight = 16;
+  static constexpr uint32_t kSurfaceBytes =
+      kSurfaceWidth * kSurfaceHeight * sizeof(uint32_t);
+  static constexpr uint32_t kSwitchPairsPerIteration = 32;
+  static constexpr uint32_t kProfileIterations = 20;
+
+  assert(surface_count >= 2 && surface_count <= 128);
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+
+  // Populate non-overlapping surfaces before the measured marker. xemu keeps
+  // them in insertion order. Alternating the oldest and newest address then
+  // gives a stable long-scan/short-scan pair without measuring construction.
+  for (uint32_t i = 0; i < surface_count; ++i) {
+    host_.RenderToSurfaceStart(
+        surface_memory + i * kSurfaceBytes,
+        PBKitPlusPlus::NV2AState::SCF_A8R8G8B8, kSurfaceWidth,
+        kSurfaceHeight, false);
+    host_.ClearColorRegion(0xFF000000 | (i * 0x00010101), 0, 0,
+                           kSurfaceWidth, kSurfaceHeight);
+    host_.RenderToSurfaceEnd();
+  }
+  host_.WaitForGpu();
+
+  auto results = Profile(test_name, kProfileIterations,
+                         [this, surface_memory, surface_count] {
+    for (uint32_t pair = 0; pair < kSwitchPairsPerIteration; ++pair) {
+      const uint32_t indices[] = {surface_count - 1, 0};
+      for (uint32_t index : indices) {
+        host_.RenderToSurfaceStart(
+            surface_memory + index * kSurfaceBytes,
+            PBKitPlusPlus::NV2AState::SCF_A8R8G8B8, kSurfaceWidth,
+            kSurfaceHeight, false);
+        host_.ClearColorRegion(0xFF203040 | index, 0, 0, kSurfaceWidth,
+                               kSurfaceHeight);
+        host_.RenderToSurfaceEnd();
+      }
+    }
+  });
+
+  // Display the oldest target at the stage-0 base so every list-size variant
+  // has a deterministic correctness guard independent of scan timing.
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kSurfaceWidth, kSurfaceHeight);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
+                               kSurfaceWidth, kSurfaceHeight);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
+
+  host_.FinishDraw(suite_name_, test_name, results);
 }
