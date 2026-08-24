@@ -11,10 +11,10 @@ static constexpr char kIndirectDispatchStressTest[] = "IndirectDispatchStress";
 static constexpr uint32_t kProfileIterations = 10;
 static constexpr uint32_t kDirectOperations = 4000000;
 static constexpr uint32_t kIndirectOperations = 1000000;
-static constexpr uint32_t kIndirectStressOperations = 5000000;
+static constexpr uint32_t kIndirectStressOperations = 20000000;
 static constexpr uint32_t kDirectExpected = 0x8CECF231;
 static constexpr uint32_t kIndirectExpected = 0xD561B779;
-static constexpr uint32_t kIndirectStressExpected = 0x3276967F;
+static constexpr uint32_t kIndirectStressExpected = 0xC4FDFFCD;
 
 static volatile uint32_t g_cpu_result;
 

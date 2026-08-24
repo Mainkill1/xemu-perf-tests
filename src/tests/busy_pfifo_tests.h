@@ -15,6 +15,7 @@ class BusyPfifoTests : public TestSuite {
 
  private:
   void Test();
+  void TestPgraphPatternPolling();
 };
 
 #endif  // XEMU_PERF_TESTS_BUSY_PFIFO_TESTS_H
