@@ -7,11 +7,14 @@
 
 static constexpr char kDirectLoopTest[] = "DirectLoop";
 static constexpr char kIndirectDispatchTest[] = "IndirectDispatch";
+static constexpr char kIndirectDispatchStressTest[] = "IndirectDispatchStress";
 static constexpr uint32_t kProfileIterations = 10;
 static constexpr uint32_t kDirectOperations = 4000000;
 static constexpr uint32_t kIndirectOperations = 1000000;
+static constexpr uint32_t kIndirectStressOperations = 5000000;
 static constexpr uint32_t kDirectExpected = 0x8CECF231;
 static constexpr uint32_t kIndirectExpected = 0xD561B779;
+static constexpr uint32_t kIndirectStressExpected = 0x3276967F;
 
 static volatile uint32_t g_cpu_result;
 
@@ -65,9 +68,9 @@ static StepFunction volatile kIndirectSteps[] = {
     IndirectStep12, IndirectStep13, IndirectStep14, IndirectStep15,
 };
 
-static uint32_t RunIndirectDispatch() {
+static uint32_t RunIndirectDispatch(uint32_t operations) {
   uint32_t state = 0xC001D00D;
-  for (uint32_t i = 0; i < kIndirectOperations; ++i) {
+  for (uint32_t i = 0; i < operations; ++i) {
     StepFunction step = kIndirectSteps[state >> 28];
     state = step(state + i * 0x9E3779B9);
   }
@@ -78,6 +81,7 @@ CpuTranslationBlockTests::CpuTranslationBlockTests(TestHost &host, std::string o
     : TestSuite(host, std::move(output_dir), "CpuTranslationBlocks", config) {
   tests_[kDirectLoopTest] = [this]() { TestDirectLoop(); };
   tests_[kIndirectDispatchTest] = [this]() { TestIndirectDispatch(); };
+  tests_[kIndirectDispatchStressTest] = [this]() { TestIndirectDispatchStress(); };
 }
 
 void CpuTranslationBlockTests::TestDirectLoop() {
@@ -99,7 +103,7 @@ void CpuTranslationBlockTests::TestIndirectDispatch() {
   host_.PrepareDraw(0xFF101010);
   uint32_t checksum = 0;
   auto results = Profile(kIndirectDispatchTest, kProfileIterations, [&checksum]() {
-    checksum = RunIndirectDispatch();
+    checksum = RunIndirectDispatch(kIndirectOperations);
     g_cpu_result = checksum;
   });
 
@@ -108,4 +112,19 @@ void CpuTranslationBlockTests::TestIndirectDispatch() {
            kIndirectOperations, checksum);
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
   host_.FinishDraw(suite_name_, kIndirectDispatchTest, results);
+}
+
+void CpuTranslationBlockTests::TestIndirectDispatchStress() {
+  host_.PrepareDraw(0xFF101010);
+  uint32_t checksum = 0;
+  auto results = Profile(kIndirectDispatchStressTest, kProfileIterations, [&checksum]() {
+    checksum = RunIndirectDispatch(kIndirectStressOperations);
+    g_cpu_result = checksum;
+  });
+
+  ASSERT(checksum == kIndirectStressExpected);
+  PrintMsg("CPU_WORK CpuTranslationBlocks::%s operations=%lu checksum=%08lx\n", kIndirectDispatchStressTest,
+           kIndirectStressOperations, checksum);
+  host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
+  host_.FinishDraw(suite_name_, kIndirectDispatchStressTest, results);
 }

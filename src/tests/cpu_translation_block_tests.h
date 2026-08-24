@@ -15,6 +15,7 @@ class CpuTranslationBlockTests : public TestSuite {
  private:
   void TestDirectLoop();
   void TestIndirectDispatch();
+  void TestIndirectDispatchStress();
 };
 
 #endif  // XEMU_PERF_TESTS_CPU_TRANSLATION_BLOCK_TESTS_H
