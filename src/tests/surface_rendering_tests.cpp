@@ -1,5 +1,7 @@
 #include "surface_rendering_tests.h"
 
+#include <cstring>
+
 #include <texture_generator.h>
 
 #include "test_host.h"
@@ -10,6 +12,8 @@ static constexpr char kXemuOverlapRepresentativeTestName[] =
     "XemuOverlappingSurfaceChurnRepresentative";
 static constexpr char kXemuOverlapStressTestName[] =
     "XemuOverlappingSurfaceChurnStress";
+static constexpr char kXemuFullClearElisionGuardTestName[] =
+    "XemuFullClearElisionGuard";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -26,6 +30,9 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuOverlapStressTestName] = [this]() {
     TestXemuOverlappingSurfaceChurn(kXemuOverlapStressTestName, 20, 10);
+  };
+  tests_[kXemuFullClearElisionGuardTestName] = [this]() {
+    TestXemuFullClearElisionGuard();
   };
 }
 
@@ -303,4 +310,54 @@ void SurfaceRenderingTests::TestXemuOverlappingSurfaceChurn(
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
   host_.FinishDraw(suite_name_, test_name, results);
+}
+
+void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kSmallWidth = 128;
+  static constexpr uint32_t kSmallHeight = 128;
+  static constexpr uint32_t kLargeWidth = 160;
+  static constexpr uint32_t kLargeHeight = 120;
+  static constexpr uint32_t kIterations = 100;
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  std::memset(surface_memory, 0x39, kLargeWidth * kLargeHeight * 4);
+
+  auto results = Profile(kXemuFullClearElisionGuardTestName, kIterations,
+                         [this, surface_memory] {
+    host_.RenderToSurfaceStart(
+        surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+        kSmallWidth, kSmallHeight, false);
+    host_.ClearColorRegion(0xFFB04040, 0, 0, kSmallWidth, kSmallHeight);
+    host_.RenderToSurfaceEnd();
+
+    // Reinterpret the same base with a larger shape, but clear only the center.
+    // The untouched border must come from uploaded VRAM, so this rejects a
+    // candidate that treats every clear as a complete overwrite.
+    host_.RenderToSurfaceStart(
+        surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+        kLargeWidth, kLargeHeight, false);
+    host_.ClearColorRegion(0xFF4060B0, 16, 16,
+                           kLargeWidth - 32, kLargeHeight - 32);
+    host_.RenderToSurfaceEnd();
+  });
+
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
+                               kLargeWidth, kLargeHeight);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
+
+  host_.FinishDraw(suite_name_, kXemuFullClearElisionGuardTestName, results);
 }

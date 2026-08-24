@@ -21,6 +21,8 @@ class SurfaceRenderingTests : public TestSuite {
                                        uint32_t cycles_per_iteration,
                                        uint32_t iterations);
 
+  void TestXemuFullClearElisionGuard();
+
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H
