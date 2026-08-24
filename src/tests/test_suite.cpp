@@ -268,17 +268,21 @@ void TestSuite::Initialize() {
 
 TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32_t num_iterations,
                                             const std::function<void(void)>& body) const {
+  uint32_t measurement_iterations_multiplier = 1;
   if (host_.GetSaveResults()) {
-    const auto multiplier = host_.GetMeasurementIterationsMultiplier();
-    ASSERT(multiplier > 0);
-    ASSERT(num_iterations <= UINT32_MAX / multiplier);
-    num_iterations *= multiplier;
+    measurement_iterations_multiplier = host_.GetMeasurementIterationsMultiplier();
+    ASSERT(measurement_iterations_multiplier > 0);
+    ASSERT(num_iterations <= UINT32_MAX / measurement_iterations_multiplier);
   } else {
     num_iterations = 1;
   }
+  const uint32_t sample_count = num_iterations;
+  const uint32_t total_work_iterations = sample_count * measurement_iterations_multiplier;
 
   TestHost::ProfileResults ret{
-      .iterations = num_iterations,
+      .iterations = total_work_iterations,
+      .sample_count = sample_count,
+      .measurement_iterations_multiplier = measurement_iterations_multiplier,
       .warmup_iterations = 0,
       .total_time_microseconds = 0xFFFFFFFF,
       .average_time_microseconds = 0xFFFFFFFF,
@@ -287,7 +291,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
       .completion_wait_microseconds = 0,
   };
 
-  auto run_times = std::make_unique<uint32_t[]>(num_iterations);
+  auto run_times = std::make_unique<uint32_t[]>(sample_count);
 
   const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
   PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());
@@ -305,7 +309,8 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   host_.WaitForGpu();
   EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
   EmitXemuPerfMarker(kXemuPerfMarkerMeasureBegin);
-  PrintMsg("MEASURE_BEGIN %s::%s iterations=%lu mode=%s\n", suite_name_.c_str(), test_name.c_str(), num_iterations,
+  PrintMsg("MEASURE_BEGIN %s::%s iterations=%lu samples=%lu multiplier=%lu mode=%s\n", suite_name_.c_str(),
+           test_name.c_str(), total_work_iterations, sample_count, measurement_iterations_multiplier,
            host_.GetGpuCompletionModeName());
 
   LARGE_INTEGER profile_start;
@@ -313,17 +318,19 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
 
   QueryPerformanceCounter(&profile_start);
 
-  for (auto i = 0; i < num_iterations; ++i) {
+  for (uint32_t sample = 0; sample < sample_count; ++sample) {
     QueryPerformanceCounter(&iteration_start);
-    body();
-    if (host_.GetGpuCompletionMode() == TestHost::GpuCompletionMode::PER_ITERATION) {
-      LARGE_INTEGER wait_start;
-      QueryPerformanceCounter(&wait_start);
-      host_.WaitForGpu();
-      EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
-      ret.completion_wait_microseconds += host_.GetMicrosecondsSince(wait_start);
+    for (uint32_t repetition = 0; repetition < measurement_iterations_multiplier; ++repetition) {
+      body();
+      if (host_.GetGpuCompletionMode() == TestHost::GpuCompletionMode::PER_ITERATION) {
+        LARGE_INTEGER wait_start;
+        QueryPerformanceCounter(&wait_start);
+        host_.WaitForGpu();
+        EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
+        ret.completion_wait_microseconds += host_.GetMicrosecondsSince(wait_start);
+      }
     }
-    run_times[i] = host_.GetMicrosecondsSince(iteration_start);
+    run_times[sample] = host_.GetMicrosecondsSince(iteration_start);
   }
 
   if (host_.GetGpuCompletionMode() == TestHost::GpuCompletionMode::BATCH_COMPLETE) {
@@ -344,21 +351,21 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
     return ret;
   }
 
-  ret.iterations = num_iterations;
   ret.warmup_iterations = warmup_iterations;
   ret.total_time_microseconds = 0;
-  for (auto i = 0; i < num_iterations; ++i) {
-    auto time = run_times[i];
-    ret.raw_results.emplace_back(time);
-    ret.total_time_microseconds += time;
-    if (time < ret.minimum_time_microseconds) {
-      ret.minimum_time_microseconds = time;
+  for (uint32_t sample = 0; sample < sample_count; ++sample) {
+    const uint32_t aggregate_time = run_times[sample];
+    const uint32_t normalized_time = aggregate_time / measurement_iterations_multiplier;
+    ret.raw_results.emplace_back(normalized_time);
+    ret.total_time_microseconds += aggregate_time;
+    if (normalized_time < ret.minimum_time_microseconds) {
+      ret.minimum_time_microseconds = normalized_time;
     }
-    if (time > ret.maximum_time_microseconds) {
-      ret.maximum_time_microseconds = time;
+    if (normalized_time > ret.maximum_time_microseconds) {
+      ret.maximum_time_microseconds = normalized_time;
     }
   }
-  ret.average_time_microseconds = ret.total_time_microseconds / num_iterations;
+  ret.average_time_microseconds = ret.total_time_microseconds / total_work_iterations;
 
   return ret;
 }

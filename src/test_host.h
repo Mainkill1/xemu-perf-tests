@@ -19,6 +19,8 @@ class TestHost : public PBKitPlusPlus::NV2AState {
 
   struct ProfileResults {
     uint32_t iterations;
+    uint32_t sample_count{0};
+    uint32_t measurement_iterations_multiplier{1};
     uint32_t warmup_iterations;
     uint32_t total_time_microseconds;
     uint32_t average_time_microseconds;

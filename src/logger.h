@@ -8,12 +8,13 @@ class Logger {
  public:
   static void Initialize(const std::string &log_path, bool truncate_log);
 
-  static std::ofstream Log();
+  static std::ofstream &Log();
 
  private:
   explicit Logger(const std::string &path, bool truncate_log = false);
 
   std::string log_path_;
+  std::ofstream log_file_;
 
   static Logger *singleton_;
 };

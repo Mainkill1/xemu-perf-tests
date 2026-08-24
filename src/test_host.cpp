@@ -110,32 +110,38 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   NV2AState::FinishDraw();
 
   if (save_results_) {
+    auto& log = Logger::Log();
     if (!first_result_) {
-      Logger::Log() << "," << std::endl;
+      log << "," << std::endl;
     }
     first_result_ = false;
-    Logger::Log() << "  {" << std::endl;
-    Logger::Log() << "    \"schema_version\": 1," << std::endl;
-    Logger::Log() << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
-    Logger::Log() << "    \"iterations\": " << results.iterations << "," << std::endl;
-    Logger::Log() << "    \"warmup_iterations\": " << results.warmup_iterations << "," << std::endl;
-    Logger::Log() << R"(    "gpu_completion_mode": ")" << GetGpuCompletionModeName() << "\"," << std::endl;
-    Logger::Log() << "    \"completion_wait_us\": " << results.completion_wait_microseconds << "," << std::endl;
-    Logger::Log() << "    \"total_us\": " << results.total_time_microseconds << "," << std::endl;
-    Logger::Log() << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
-    Logger::Log() << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
-    Logger::Log() << "    \"max_us\": " << results.maximum_time_microseconds << "," << std::endl;
-    Logger::Log() << "    \"raw_results\": [";
+    log << "  {" << std::endl;
+    log << "    \"schema_version\": 1," << std::endl;
+    log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
+    log << "    \"iterations\": " << results.iterations << "," << std::endl;
+    log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
+    log << "    \"measurement_iterations_multiplier\": "
+        << results.measurement_iterations_multiplier << "," << std::endl;
+    log << "    \"warmup_iterations\": " << results.warmup_iterations << "," << std::endl;
+    log << R"(    "gpu_completion_mode": ")" << GetGpuCompletionModeName() << "\"," << std::endl;
+    log << "    \"completion_wait_us\": " << results.completion_wait_microseconds << "," << std::endl;
+    log << "    \"total_us\": " << results.total_time_microseconds << "," << std::endl;
+    log << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
+    log << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
+    log << "    \"max_us\": " << results.maximum_time_microseconds << "," << std::endl;
+    log << "    \"raw_results\": [";
     std::string separator;
     for (auto val : results.raw_results) {
-      Logger::Log() << separator << std::endl;
+      log << separator << std::endl;
       separator = ",";
-      Logger::Log() << "      " << val;
+      log << "      " << val;
     }
-    Logger::Log() << std::endl;
-    Logger::Log() << "    ]," << std::endl;
-    Logger::Log() << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"" << std::endl;
-    Logger::Log() << "  }" << std::endl;
+    log << std::endl;
+    log << "    ]," << std::endl;
+    log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"" << std::endl;
+    log << "  }" << std::endl;
+    log.flush();
+    ASSERT(log && "Failed to write benchmark result");
   } else {
     LARGE_INTEGER now;
     QueryPerformanceCounter(&now);
