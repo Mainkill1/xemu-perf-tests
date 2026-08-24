@@ -15,6 +15,19 @@
     PrintAssertAndWaitForever(#c, __FILE__, __LINE__); \
   }
 
+static constexpr uint16_t kXemuPerfMarkerPort = 0xE9;
+static constexpr uint8_t kXemuPerfMarkerReadback = 0x58;
+static constexpr uint8_t kXemuPerfMarkerMeasureBegin = 0xF0;
+static constexpr uint8_t kXemuPerfMarkerMeasureEnd = 0xF1;
+
+inline void EmitXemuPerfMarker(uint8_t marker) {
+  uint8_t readback;
+  asm volatile("inb %w1, %0" : "=a"(readback) : "Nd"(kXemuPerfMarkerPort));
+  if (readback == kXemuPerfMarkerReadback) {
+    asm volatile("outb %0, %w1" : : "a"(marker), "Nd"(kXemuPerfMarkerPort));
+  }
+}
+
 template <typename... VarArgs>
 inline void PrintMsg(const char *fmt, VarArgs &&...args) {
   int string_length = snprintf_(nullptr, 0, fmt, args...);

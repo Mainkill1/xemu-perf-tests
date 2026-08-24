@@ -297,6 +297,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
 
   // Never let warmup work leak into the first measured sample.
   host_.WaitForGpu();
+  EmitXemuPerfMarker(kXemuPerfMarkerMeasureBegin);
   PrintMsg("MEASURE_BEGIN %s::%s iterations=%lu mode=%s\n", suite_name_.c_str(), test_name.c_str(), num_iterations,
            host_.GetGpuCompletionModeName());
 
@@ -325,6 +326,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   }
 
   auto duration = host_.GetMicrosecondsSince(profile_start);
+  EmitXemuPerfMarker(kXemuPerfMarkerMeasureEnd);
 
   PrintMsg("MEASURE_END %s::%s duration_us=%lu completion_wait_us=%lu\n", suite_name_.c_str(), test_name.c_str(),
            duration, ret.completion_wait_microseconds);
