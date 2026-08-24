@@ -34,6 +34,7 @@ class VertexBufferAllocationTests : public TestSuite {
  private:
   void TestTinyAllocations(const std::string &name, DrawMode mode);
   void TestMixedSizes(const std::string &name, DrawMode mode);
+  void TestDisjointSamePageVertexUpdates();
 };
 
 #endif  // XEMU_PERF_TESTS_VERTEX_BUFFER_ALLOCATION_TESTS_H

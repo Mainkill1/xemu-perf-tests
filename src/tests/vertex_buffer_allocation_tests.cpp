@@ -1,6 +1,7 @@
 #include "vertex_buffer_allocation_tests.h"
 
 #include "debug_output.h"
+#include "pushbuffer.h"
 #include "shaders/passthrough_vertex_shader.h"
 #include "test_host.h"
 #include "vertex_buffer.h"
@@ -9,6 +10,8 @@ using namespace PBKitPlusPlus;
 
 static constexpr char kTinyAllocationTest[] = "TinyAlloc";
 static constexpr char kMixedVertexCountTest[] = "MixedVtxAlloc";
+static constexpr char kDisjointSamePageTest[] =
+    "XemuVertexRamDisjointSamePage";
 
 static constexpr uint32_t kMixedVertexBufferSizeMultiframeArrays[] = {
     0x2a12, 0x17cdc, 0xb43,  0x1f5,  0x1522, 0x1a0,  0x1292, 0x123,
@@ -116,6 +119,63 @@ VertexBufferAllocationTests::VertexBufferAllocationTests(TestHost &host, std::st
     name = MakeTestName(kTinyAllocationTest, draw_mode);
     tests_[name] = [this, name, draw_mode]() { TestTinyAllocations(name, draw_mode); };
   }
+  tests_[kDisjointSamePageTest] =
+      [this]() { TestDisjointSamePageVertexUpdates(); };
+}
+
+static uint32_t PackField(uint32_t mask, uint32_t value) {
+  return (value << (__builtin_ffs(mask) - 1)) & mask;
+}
+
+void VertexBufferAllocationTests::TestDisjointSamePageVertexUpdates() {
+  static constexpr uint32_t kIterations = 10;
+  static constexpr uint32_t kDraws = 1024;
+  static constexpr uint32_t kVerticesPerDraw = 3;
+  static constexpr uint32_t kAttributes = TestHost::POSITION | TestHost::DIFFUSE;
+
+  auto shader = std::make_shared<PassthroughVertexShader>();
+  host_.SetVertexShaderProgram(shader);
+  host_.PrepareDraw(0xFF101010);
+
+  auto vertex_buffer = host_.AllocateVertexBuffer(kDraws * kVerticesPerDraw);
+  vertex_buffer->SetPositionIncludesW(true);
+
+  auto results = Profile(kDisjointSamePageTest, kIterations,
+                         [this, vertex_buffer] {
+    for (uint32_t draw = 0; draw < kDraws; ++draw) {
+      uint32_t first_vertex = draw * kVerticesPerDraw;
+      auto vertex = vertex_buffer->Lock() + first_vertex;
+
+      float left = static_cast<float>((draw % 32) * 20);
+      float top = static_cast<float>((draw / 32) * 15);
+      float red = static_cast<float>((draw * 37) & 0xFF) / 255.0f;
+      float green = static_cast<float>((draw * 73) & 0xFF) / 255.0f;
+      float blue = static_cast<float>((draw * 109) & 0xFF) / 255.0f;
+
+      vertex->SetPosition(left, top, 1.0f);
+      vertex->SetDiffuse(red, green, blue, 1.0f);
+      ++vertex;
+      vertex->SetPosition(left + 12.0f, top, 1.0f);
+      vertex->SetDiffuse(red, green, blue, 1.0f);
+      ++vertex;
+      vertex->SetPosition(left + 6.0f, top + 10.0f, 1.0f);
+      vertex->SetDiffuse(red, green, blue, 1.0f);
+      vertex_buffer->Unlock();
+
+      host_.SetVertexBufferAttributes(kAttributes);
+      Pushbuffer::Begin();
+      Pushbuffer::Push(NV097_SET_BEGIN_END,
+                       NV097_SET_BEGIN_END_OP_TRIANGLES);
+      Pushbuffer::Push(
+          NV097_DRAW_ARRAYS,
+          PackField(NV097_DRAW_ARRAYS_COUNT, kVerticesPerDraw - 1) |
+              PackField(NV097_DRAW_ARRAYS_START_INDEX, first_vertex));
+      Pushbuffer::Push(NV097_SET_BEGIN_END, NV097_SET_BEGIN_END_OP_END);
+      Pushbuffer::End();
+    }
+  });
+
+  host_.FinishDraw(suite_name_, kDisjointSamePageTest, results);
 }
 
 static void CreateGeometry(TestHost &host, std::vector<uint32_t> &index_buffer, uint32_t target_array_entries) {
