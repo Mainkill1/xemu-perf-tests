@@ -14,6 +14,8 @@ static constexpr char kXemuOverlapStressTestName[] =
     "XemuOverlappingSurfaceChurnStress";
 static constexpr char kXemuFullClearElisionGuardTestName[] =
     "XemuFullClearElisionGuard";
+static constexpr char kXemuPartialChannelClearGuardTestName[] =
+    "XemuPartialChannelClearGuard";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -33,6 +35,9 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuFullClearElisionGuardTestName] = [this]() {
     TestXemuFullClearElisionGuard();
+  };
+  tests_[kXemuPartialChannelClearGuardTestName] = [this]() {
+    TestXemuPartialChannelClearGuard();
   };
 }
 
@@ -96,6 +101,21 @@ static void DrawBiTri(TestHost &host, float left, float top, float span_x, float
   host.SetTexCoord3(1.f, 1.f);
   host.SetVertex(left + span_x, top + span_y, kZ);
   host.End();
+}
+
+static void ClearColorRegionMasked(uint32_t argb, uint32_t left,
+                                   uint32_t top, uint32_t width,
+                                   uint32_t height, uint32_t channel_mask) {
+  PBKitPlusPlus::Pushbuffer::Begin();
+  PBKitPlusPlus::Pushbuffer::Push(
+      NV097_SET_CLEAR_RECT_HORIZONTAL,
+      ((left + width - 1) << 16) | (left & 0xFFFF));
+  PBKitPlusPlus::Pushbuffer::Push(
+      NV097_SET_CLEAR_RECT_VERTICAL,
+      ((top + height - 1) << 16) | (top & 0xFFFF));
+  PBKitPlusPlus::Pushbuffer::Push(NV097_SET_COLOR_CLEAR_VALUE, argb);
+  PBKitPlusPlus::Pushbuffer::Push(NV097_CLEAR_SURFACE, channel_mask);
+  PBKitPlusPlus::Pushbuffer::End();
 }
 
 void SurfaceRenderingTests::Test() {
@@ -360,4 +380,54 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
   host_.FinishDraw(suite_name_, kXemuFullClearElisionGuardTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+
+  static constexpr uint32_t kSmallWidth = 128;
+  static constexpr uint32_t kSmallHeight = 128;
+  static constexpr uint32_t kLargeWidth = 160;
+  static constexpr uint32_t kLargeHeight = 120;
+  static constexpr uint32_t kIterations = 100;
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  std::memset(surface_memory, 0x39, kLargeWidth * kLargeHeight * 4);
+
+  auto results = Profile(kXemuPartialChannelClearGuardTestName, kIterations,
+                         [this, surface_memory] {
+    host_.RenderToSurfaceStart(
+        surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+        kSmallWidth, kSmallHeight, false);
+    host_.ClearColorRegion(0xFFB04040, 0, 0, kSmallWidth, kSmallHeight);
+    host_.RenderToSurfaceEnd();
+
+    // Cover the full larger target but clear only alpha. RGB must be uploaded
+    // from VRAM, including the preceding small surface's downloaded contents.
+    // This rejects candidates that treat full geometry as a full-byte write.
+    host_.RenderToSurfaceStart(
+        surface_memory, PBKitPlusPlus::NV2AState::SCF_A8R8G8B8,
+        kLargeWidth, kLargeHeight, false);
+    ClearColorRegionMasked(0x7F000000, 0, 0, kLargeWidth, kLargeHeight,
+                           NV097_CLEAR_SURFACE_A);
+    host_.RenderToSurfaceEnd();
+  });
+
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
+                               kLargeWidth, kLargeHeight);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
+
+  host_.FinishDraw(suite_name_, kXemuPartialChannelClearGuardTestName, results);
 }

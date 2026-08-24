@@ -23,6 +23,7 @@ class SurfaceRenderingTests : public TestSuite {
 
   void TestXemuFullClearElisionGuard();
 
+  void TestXemuPartialChannelClearGuard();
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H
