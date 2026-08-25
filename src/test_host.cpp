@@ -61,7 +61,8 @@ void TestHost::EnsureFolderExists(const std::string &folder_path) {
   }
 }
 
-void TestHost::FinishDraw(const std::string &suite_name, const std::string &test_name, const ProfileResults &results) {
+void TestHost::FinishDraw(const std::string &suite_name, const std::string &test_name,
+                          const ProfileResults &results, const std::string &metadata_json) {
   // Validation is deliberately outside the measured region. Waiting here
   // makes the CPU read deterministic even when the selected measurement mode
   // only times enqueue work.
@@ -138,7 +139,13 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
     }
     log << std::endl;
     log << "    ]," << std::endl;
-    log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"" << std::endl;
+    log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"";
+    if (!metadata_json.empty()) {
+      log << "," << std::endl;
+      log << "    \"metadata\": " << metadata_json << std::endl;
+    } else {
+      log << std::endl;
+    }
     log << "  }" << std::endl;
     log.flush();
     ASSERT(log && "Failed to write benchmark result");

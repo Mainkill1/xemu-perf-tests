@@ -38,7 +38,8 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   static void EnsureFolderExists(const std::string &folder_path);
 
   //! Renders test results and swaps back buffer.
-  void FinishDraw(const std::string &suite_name, const std::string &test_name, const ProfileResults &results);
+  void FinishDraw(const std::string &suite_name, const std::string &test_name, const ProfileResults &results,
+                  const std::string &metadata_json = "");
 
   //! Sets up the projection matrix for passthrough operation / direct addressing of pixels.
   void SetupFixedFunctionPassthrough();

@@ -26,6 +26,7 @@
 #include "tests/cpu_floating_point_tests.h"
 #include "tests/cpu_translation_block_tests.h"
 #include "tests/fill_rate_tests.h"
+#include "tests/game_load_composite_tests.h"
 #include "tests/high_vertex_count_tests.h"
 #include "tests/primitive_type_tests.h"
 #include "tests/surface_rendering_tests.h"
@@ -234,6 +235,7 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(CpuFloatingPointTests)
   REG_TEST(CpuTranslationBlockTests)
   REG_TEST(FillRateTests)
+  REG_TEST(GameLoadCompositeTests)
   REG_TEST(HighVertexCountTests)
   REG_TEST(PrimitiveTypeTests)
   REG_TEST(SurfaceRenderingTests)

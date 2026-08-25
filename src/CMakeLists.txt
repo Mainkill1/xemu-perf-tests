@@ -83,6 +83,8 @@ add_library(
         tests/cpu_translation_block_tests.h
         tests/fill_rate_tests.cpp
         tests/fill_rate_tests.h
+        tests/game_load_composite_tests.cpp
+        tests/game_load_composite_tests.h
         tests/high_vertex_count_tests.cpp
         tests/high_vertex_count_tests.h
         tests/primitive_type_tests.cpp
