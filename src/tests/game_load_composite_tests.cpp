@@ -364,6 +364,21 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
       WaitForAudio();
       StopAudio();
     }
+  }, [this, &preset, phase, &iteration]() {
+    // Surface reuse in the last warmup can invalidate the stage-0 host image.
+    // Re-prime it after all warmups so an OpenGL startup upload cannot wander
+    // across the measurement marker. This draw is drained by Profile before F0.
+    aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(phase);
+    current_streaming_buffer_ = 0;
+    iteration = 0;
+    if (HasGpu(phase) || HasStreaming(phase)) {
+      memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
+             kStreamingBufferBytes);
+      host_.SetVertexBuffer(alpha_vertex_buffer_);
+      static constexpr uint32_t attributes =
+          TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+      host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    }
   });
 
   StopAudio();
