@@ -174,6 +174,56 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   PrintMsg("TEST_END %s::%s\n", suite_name.c_str(), test_name.c_str());
 }
 
+void TestHost::RecordProfileResult(const std::string &suite_name, const std::string &test_name,
+                                   const ProfileResults &results, const std::string &metadata_json) {
+  if (!save_results_) {
+    return;
+  }
+  WaitForGpu();
+  const uint64_t framebuffer_hash = HashBackBuffer();
+  char framebuffer_hash_string[17] = {};
+  snprintf(framebuffer_hash_string, sizeof(framebuffer_hash_string), "%016llx",
+           static_cast<unsigned long long>(framebuffer_hash));
+  auto &log = Logger::Log();
+  if (!first_result_) {
+    log << "," << std::endl;
+  }
+  first_result_ = false;
+  log << "  {" << std::endl;
+  log << "    \"schema_version\": 1," << std::endl;
+  log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
+  log << "    \"iterations\": " << results.iterations << "," << std::endl;
+  log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
+  log << "    \"measurement_iterations_multiplier\": "
+      << results.measurement_iterations_multiplier << "," << std::endl;
+  log << "    \"warmup_iterations\": " << results.warmup_iterations << "," << std::endl;
+  log << R"(    "gpu_completion_mode": ")" << GetGpuCompletionModeName() << "\"," << std::endl;
+  log << "    \"completion_wait_us\": " << results.completion_wait_microseconds << "," << std::endl;
+  log << "    \"total_us\": " << results.total_time_microseconds << "," << std::endl;
+  log << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
+  log << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
+  log << "    \"max_us\": " << results.maximum_time_microseconds << "," << std::endl;
+  log << "    \"raw_results\": [";
+  std::string separator;
+  for (auto value : results.raw_results) {
+    log << separator << std::endl;
+    separator = ",";
+    log << "      " << value;
+  }
+  log << std::endl;
+  log << "    ]," << std::endl;
+  log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"";
+  if (!metadata_json.empty()) {
+    log << "," << std::endl;
+    log << "    \"metadata\": " << metadata_json << std::endl;
+  } else {
+    log << std::endl;
+  }
+  log << "  }" << std::endl;
+  log.flush();
+  ASSERT(log && "Failed to write benchmark result");
+}
+
 const char *TestHost::GetGpuCompletionModeName() const {
   switch (gpu_completion_mode_) {
     case GpuCompletionMode::ENQUEUE:

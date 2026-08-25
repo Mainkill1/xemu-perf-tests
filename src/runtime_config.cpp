@@ -116,6 +116,119 @@ static bool LoadUint32(json_t const* object, const char* key, uint32_t& out) {
   return true;
 };
 
+static int GameLoadCompositeStageIndex(const std::string &name) {
+  if (name == "cpu") return 0;
+  if (name == "pfifo") return 1;
+  if (name == "alpha_overdraw") return 2;
+  if (name == "streaming_surface_reuse") return 3;
+  if (name == "combined") return 4;
+  if (name == "full_system") return 5;
+  return -1;
+}
+
+static bool ParseGameLoadCompositeStageValues(
+    json_t const *object, const char *name,
+    std::array<uint32_t, TestSuite::Config::kGameLoadCompositeStageCount> &values,
+    bool allow_zero, std::vector<std::string> &errors) {
+  auto stage_values = json_getProperty(object, name);
+  if (!stage_values) {
+    return true;
+  }
+  if (json_getType(stage_values) != JSON_OBJ) {
+    errors.emplace_back(std::string("game_load_composite.long_unlocked_scene[") + name +
+                        "] must be an object");
+    return false;
+  }
+  for (auto stage = json_getChild(stage_values); stage; stage = json_getSibling(stage)) {
+    const int index = GameLoadCompositeStageIndex(json_getName(stage));
+    if (index < 0 || json_getType(stage) != JSON_INTEGER) {
+      errors.emplace_back(std::string("game_load_composite.long_unlocked_scene[") + name +
+                          "] contains an invalid stage/value");
+      return false;
+    }
+    const auto value = json_getInteger(stage);
+    if (value < 0 || value > 100000 || (!allow_zero && value == 0)) {
+      errors.emplace_back(std::string("game_load_composite.long_unlocked_scene[") + name +
+                          "] values must be integers from " + (allow_zero ? "0" : "1") + " through 100000");
+      return false;
+    }
+    values[index] = static_cast<uint32_t>(value);
+  }
+  return true;
+}
+
+static bool ParseGameLoadCompositeConfig(json_t const *root, TestSuite::Config &config,
+                                         std::vector<std::string> &errors) {
+  auto game_load_composite = json_getProperty(root, "game_load_composite");
+  if (!game_load_composite) {
+    return true;
+  }
+  if (json_getType(game_load_composite) != JSON_OBJ) {
+    errors.emplace_back("game_load_composite must be an object");
+    return false;
+  }
+  auto long_scene = json_getProperty(game_load_composite, "long_unlocked_scene");
+  if (!long_scene) {
+    return true;
+  }
+  if (json_getType(long_scene) != JSON_OBJ) {
+    errors.emplace_back("game_load_composite[long_unlocked_scene] must be an object");
+    return false;
+  }
+
+  if (!LoadUint32(long_scene, "stage_mask", config.game_load_composite_stage_mask) ||
+      !config.game_load_composite_stage_mask ||
+      (config.game_load_composite_stage_mask & ~TestSuite::Config::kAllGameLoadCompositeStages)) {
+    errors.emplace_back("game_load_composite.long_unlocked_scene[stage_mask] must select bits 0 through 5");
+    return false;
+  }
+
+  auto stages = json_getProperty(long_scene, "stages");
+  if (stages) {
+    if (json_getType(stages) != JSON_OBJ) {
+      errors.emplace_back("game_load_composite.long_unlocked_scene[stages] must be an object");
+      return false;
+    }
+    uint32_t stage_list_mask = 0;
+    for (auto stage = json_getChild(stages); stage; stage = json_getSibling(stage)) {
+      const int index = GameLoadCompositeStageIndex(json_getName(stage));
+      if (index < 0 || json_getType(stage) != JSON_BOOLEAN) {
+        errors.emplace_back("game_load_composite.long_unlocked_scene[stages] contains an invalid stage/value");
+        return false;
+      }
+      if (json_getBoolean(stage)) {
+        stage_list_mask |= 1U << index;
+      }
+    }
+    config.game_load_composite_stage_mask &= stage_list_mask;
+    if (!config.game_load_composite_stage_mask) {
+      errors.emplace_back("game_load_composite.long_unlocked_scene selects no stages");
+      return false;
+    }
+  }
+
+  if (!ParseGameLoadCompositeStageValues(long_scene, "measurement_iterations_multiplier",
+                                         config.game_load_composite_stage_multipliers,
+                                         false, errors) ||
+      !ParseGameLoadCompositeStageValues(long_scene, "warmup_iterations",
+                                         config.game_load_composite_stage_warmups,
+                                         true, errors)) {
+    return false;
+  }
+
+  auto gpu_precondition = json_getProperty(long_scene, "gpu_precondition");
+  if (gpu_precondition) {
+    if (json_getType(gpu_precondition) != JSON_OBJ ||
+        !LoadUint32(gpu_precondition, "alpha_draws",
+                    config.game_load_composite_gpu_precondition_alpha_draws) ||
+        config.game_load_composite_gpu_precondition_alpha_draws > 1000000) {
+      errors.emplace_back("game_load_composite.long_unlocked_scene[gpu_precondition.alpha_draws] must be 0 through 1000000");
+      return false;
+    }
+  }
+  return true;
+}
+
 bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vector<std::string>& errors) {
   std::map<std::string, std::vector<std::string>> test_config;
 
@@ -196,6 +309,10 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
           "settings[gpu_completion_mode] must be enqueue, batch_complete, or per_iteration");
       return false;
     }
+  }
+
+  if (!ParseGameLoadCompositeConfig(root, test_suite_config_, errors)) {
+    return false;
   }
 
   auto test_suites = json_getProperty(root, "test_suites");

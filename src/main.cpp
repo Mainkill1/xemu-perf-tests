@@ -222,7 +222,7 @@ static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
 
 static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
                            std::vector<std::shared_ptr<TestSuite>>& test_suites, const std::string& output_directory) {
-  auto config = TestSuite::Config{};
+  const auto& config = runtime_config.test_suite_config();
 
 #define REG_TEST(CLASS_NAME)                                                   \
   {                                                                            \

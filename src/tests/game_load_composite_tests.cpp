@@ -4,6 +4,7 @@
 #include <cmath>
 #include <cstdio>
 #include <cstring>
+#include <limits>
 #include <sstream>
 
 #include <hal/audio.h>
@@ -41,6 +42,18 @@ static constexpr uint32_t kAudioBufferBytes = 24 * 1024;
 static constexpr uint32_t kAudioBuffersPerMeasurement = 16;
 static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
+static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
+static constexpr uint32_t kLongSceneSamples = 8;
+// Independent fixed-input KAT values for DoaxMenuStress. These must be
+// deliberately updated only after an audited workload-contract change.
+static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
+static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44CACC8;
+static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE599A1;
+static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A0774;
+static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
+static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
+static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
+static constexpr uint32_t kLongSceneFullSystemLoaderKatExpected = 0x2E10E673;
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
@@ -178,6 +191,11 @@ static void SubmitAudioBuffer(bool final) {
 
 GameLoadCompositeTests::GameLoadCompositeTests(TestHost &host, std::string output_dir, const Config &config)
     : TestSuite(host, std::move(output_dir), "GameLoadComposite", config) {
+  long_scene_stage_mask_ = config.game_load_composite_stage_mask;
+  long_scene_stage_multipliers_ = config.game_load_composite_stage_multipliers;
+  long_scene_stage_warmups_ = config.game_load_composite_stage_warmups;
+  long_scene_gpu_precondition_alpha_draws_ =
+      config.game_load_composite_gpu_precondition_alpha_draws;
   for (const auto &preset : kPresets) {
     const Preset *preset_ptr = &preset;
     for (const auto phase : kPhases) {
@@ -187,6 +205,10 @@ GameLoadCompositeTests::GameLoadCompositeTests(TestHost &host, std::string outpu
       tests_[name] = [this, preset_ptr, phase]() { RunTest(*preset_ptr, phase); };
     }
   }
+  // This test is intentionally registered as a normal named case. Existing
+  // runtime config can select it alone (or skip it) without adding a second
+  // configuration mechanism.
+  tests_[kLongUnlockedSceneName] = [this]() { RunLongUnlockedScene(); };
 }
 
 void GameLoadCompositeTests::Initialize() {
@@ -321,6 +343,8 @@ uint32_t GameLoadCompositeTests::WaitForLoader() {
 
 void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(phase);
+  SetXemuPerfEventContext(static_cast<uint32_t>(phase), aggregate_checksum_);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, preset.seed, aggregate_checksum_);
   current_streaming_buffer_ = 0;
   memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
          kStreamingBufferBytes);
@@ -367,6 +391,9 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   });
 
   StopAudio();
+  if (HasPfifo(phase)) {
+    ValidatePfifoTerminal();
+  }
   const WorkTotals totals = ExpectedWork(preset, phase);
   const uint64_t multiplier = results.iterations;
   const uint32_t work_checksum =
@@ -426,10 +453,289 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   metadata << "}";
 
   DrawCorrectnessResult(aggregate_checksum_, preset, phase);
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, work_checksum, aggregate_checksum_);
   host_.FinishDraw(suite_name_, test_name, results, metadata.str());
+  ClearXemuPerfEventContext();
 }
 
-void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uint32_t iteration) {
+void GameLoadCompositeTests::RunLongUnlockedScene() {
+  // A deliberately single-XBE scene for corruption triage. Each ordered stage
+  // has its own Profile window and identity, while the test remains one normal
+  // selectable case in the existing runtime configuration.
+  const Preset &preset = kPresets[1];
+  constexpr uint32_t kCpuStage = 0x8001;
+  constexpr uint32_t kPfifoStage = 0x8002;
+  constexpr uint32_t kGpuStage = 0x8003;
+  constexpr uint32_t kStreamingStage = 0x8004;
+  constexpr uint32_t kCombinedStage = 0x8005;
+  constexpr uint32_t kFullSystemStage = 0x8006;
+  constexpr uint32_t kCpuSeed = kLongSceneCpuKatSeed;
+  constexpr uint32_t kPfifoSeed = 0x21A40C12;
+  constexpr uint32_t kGpuSeed = 0x21A40C13;
+  constexpr uint32_t kStreamingSeed = 0x21A40C14;
+  constexpr uint32_t kCombinedIteration = 4;
+  constexpr uint32_t kFullSystemIteration = 5;
+  auto stage_enabled = [this](LongSceneStage stage) {
+    return long_scene_stage_mask_ & (1U << static_cast<uint32_t>(stage));
+  };
+  auto fold = [this](uint32_t stage, uint32_t value) {
+    aggregate_checksum_ = (aggregate_checksum_ ^ value) * 16777619U;
+    g_composite_result = aggregate_checksum_;
+    SetXemuPerfEventContext(stage, aggregate_checksum_);
+  };
+  auto begin_stage = [this, &preset](uint32_t stage, const char *name,
+                                     uint32_t multiplier, uint32_t warmup) {
+    SetXemuPerfEventContext(stage, aggregate_checksum_);
+    PrintMsg("COMPOSITE_SCENE_STAGE name=%s stage=%04lx seed=%08lx state=%08lx warmup=%lu multiplier=%lu gpu_precondition_alpha_draws=%lu\n",
+             name, stage, preset.seed, aggregate_checksum_, warmup, multiplier,
+             long_scene_gpu_precondition_alpha_draws_);
+    // CONTEXT expected/actual are the applied stage multiplier/warmup. The
+    // stage ID carries identity and final_state carries the prior aggregate.
+    EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, multiplier, warmup);
+  };
+  auto profile_stage = [this, &begin_stage](LongSceneStage stage, uint32_t event_stage,
+                                            const char *name,
+                                            const std::function<void(void)> &body) {
+    const uint32_t index = static_cast<uint32_t>(stage);
+    const uint32_t original_multiplier = host_.GetMeasurementIterationsMultiplier();
+    const uint32_t original_warmup = host_.GetWarmupIterations();
+    const uint32_t multiplier = long_scene_stage_multipliers_[index]
+                                    ? long_scene_stage_multipliers_[index]
+                                    : original_multiplier;
+    const uint32_t warmup = long_scene_stage_warmups_[index] == std::numeric_limits<uint32_t>::max()
+                                ? original_warmup
+                                : long_scene_stage_warmups_[index];
+    host_.SetMeasurementIterationsMultiplier(multiplier);
+    host_.SetWarmupIterations(warmup);
+    begin_stage(event_stage, name, multiplier, warmup);
+    auto results = Profile(name, kLongSceneSamples, body);
+    host_.SetMeasurementIterationsMultiplier(original_multiplier);
+    host_.SetWarmupIterations(original_warmup);
+    return results;
+  };
+
+  aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(Phase::LONG_UNLOCKED_SCENE);
+  current_streaming_buffer_ = 0;
+  memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
+         kStreamingBufferBytes);
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetBlend(true);
+  host_.PrepareDraw(0xFF101820);
+  TestHost::ProfileResults final_results{};
+  std::array<TestHost::ProfileResults, Config::kGameLoadCompositeStageCount> stage_results{};
+  std::array<bool, Config::kGameLoadCompositeStageCount> stage_ran{};
+  static constexpr const char *kStageRecordNames[] = {
+      "08-LongUnlockedScene-01-CPU",
+      "08-LongUnlockedScene-02-PFIFO",
+      "08-LongUnlockedScene-03-AlphaOverdraw",
+      "08-LongUnlockedScene-04-StreamingSurfaceReuse",
+      "08-LongUnlockedScene-05-Combined",
+      "08-LongUnlockedScene-06-FullSystem",
+  };
+  uint32_t actual_cpu = 0;
+  if (stage_enabled(LongSceneStage::CPU)) {
+    final_results = profile_stage(LongSceneStage::CPU, kCpuStage, "08-LongUnlockedScene-01-CPU", [&]() {
+      actual_cpu = RunCpuWork(preset, kCpuSeed);
+      fold(kCpuStage, actual_cpu);
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::CPU)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::CPU)] = true;
+    AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu, XemuPerfAssertion::COMPOSITE_SCENE_CPU,
+                        "actual_cpu == expected_cpu", __FILE__, __LINE__);
+    EmitXemuPerfHeartbeat();
+  }
+
+  if (stage_enabled(LongSceneStage::PFIFO)) {
+    final_results = profile_stage(LongSceneStage::PFIFO, kPfifoStage, "08-LongUnlockedScene-02-PFIFO", [&]() {
+      fold(kPfifoStage, RunPfifoWork(preset, kPfifoSeed));
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::PFIFO)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::PFIFO)] = true;
+    ValidatePfifoTerminal();
+    EmitXemuPerfHeartbeat();
+  }
+
+  const bool has_final_gpu_stage = stage_enabled(LongSceneStage::ALPHA_OVERDRAW) ||
+                                   stage_enabled(LongSceneStage::STREAMING_SURFACE_REUSE) ||
+                                   stage_enabled(LongSceneStage::COMBINED) ||
+                                   stage_enabled(LongSceneStage::FULL_SYSTEM);
+  if (has_final_gpu_stage && long_scene_gpu_precondition_alpha_draws_) {
+    static constexpr uint32_t attributes = TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+    for (uint32_t draw = 0; draw < long_scene_gpu_precondition_alpha_draws_; ++draw) {
+      host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    }
+    host_.WaitForGpu();
+    PrintMsg("COMPOSITE_SCENE_GPU_PRECONDITION alpha_draws=%lu\n",
+             long_scene_gpu_precondition_alpha_draws_);
+  }
+
+  if (stage_enabled(LongSceneStage::ALPHA_OVERDRAW)) {
+    final_results = profile_stage(LongSceneStage::ALPHA_OVERDRAW, kGpuStage,
+                                  "08-LongUnlockedScene-03-AlphaOverdraw", [&]() {
+      RunGpuWork(preset, kGpuSeed);
+      fold(kGpuStage, kGpuSeed);
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::ALPHA_OVERDRAW)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::ALPHA_OVERDRAW)] = true;
+    EmitXemuPerfHeartbeat();
+  }
+
+  if (stage_enabled(LongSceneStage::STREAMING_SURFACE_REUSE)) {
+    final_results = profile_stage(LongSceneStage::STREAMING_SURFACE_REUSE, kStreamingStage,
+                                  "08-LongUnlockedScene-04-StreamingSurfaceReuse", [&]() {
+      const uint32_t destination = current_streaming_buffer_ ^ 1;
+      StartLoader(kStreamingSeed ^ 0xDEC0DE01, preset.decode_bytes, destination);
+      const uint32_t streaming_decode = WaitForLoader();
+      RunStreamingWork(preset, kStreamingSeed, destination);
+      current_streaming_buffer_ = destination;
+      fold(kStreamingStage, kStreamingSeed ^ streaming_decode);
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::STREAMING_SURFACE_REUSE)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::STREAMING_SURFACE_REUSE)] = true;
+    (void)ValidateStreamingSurface(aggregate_checksum_, preset);
+    EmitXemuPerfHeartbeat();
+  }
+
+  if (stage_enabled(LongSceneStage::COMBINED)) {
+    final_results = profile_stage(LongSceneStage::COMBINED, kCombinedStage,
+                                  "08-LongUnlockedScene-05-Combined", [&]() {
+      RunIteration(preset, Phase::CPU_PFIFO_GPU_STREAMING, kCombinedIteration, kCombinedStage);
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::COMBINED)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::COMBINED)] = true;
+    ValidatePfifoTerminal();
+    EmitXemuPerfHeartbeat();
+  }
+
+  if (stage_enabled(LongSceneStage::FULL_SYSTEM)) {
+    StartAudio(preset.audio_voices);
+    final_results = profile_stage(LongSceneStage::FULL_SYSTEM, kFullSystemStage,
+                                  "08-LongUnlockedScene-06-FullSystem", [&]() {
+      RunIteration(preset, Phase::FULL_SYSTEM, kFullSystemIteration, kFullSystemStage);
+    });
+    stage_results[static_cast<uint32_t>(LongSceneStage::FULL_SYSTEM)] = final_results;
+    stage_ran[static_cast<uint32_t>(LongSceneStage::FULL_SYSTEM)] = true;
+    WaitForAudio();
+    StopAudio();
+    ValidatePfifoTerminal();
+    AssertXemuPerfEqual(kLongSceneFullSystemStreamingSeed, last_streaming_seed_,
+                        XemuPerfAssertion::COMPOSITE_SCENE_FINAL,
+                        "last_streaming_seed_ == kLongSceneFullSystemStreamingSeed",
+                        __FILE__, __LINE__);
+    EmitXemuPerfHeartbeat();
+  }
+
+  // DrawCorrectnessResult performs the final known surface-output checks and
+  // renders a deterministic final checksum image for the host framebuffer hash.
+  const bool has_streaming_output = stage_enabled(LongSceneStage::STREAMING_SURFACE_REUSE) ||
+                                    stage_enabled(LongSceneStage::COMBINED) ||
+                                    stage_enabled(LongSceneStage::FULL_SYSTEM);
+  const uint32_t expected_final_state = ExpectedLongSceneFinalState(preset);
+  AssertXemuPerfEqual(expected_final_state, aggregate_checksum_,
+                      XemuPerfAssertion::COMPOSITE_SCENE_FINAL,
+                      "aggregate_checksum_ == expected_final_state", __FILE__, __LINE__);
+  DrawCorrectnessResult(aggregate_checksum_, preset,
+                        has_streaming_output ? Phase::LONG_UNLOCKED_SCENE : Phase::CPU_ONLY);
+  for (uint32_t stage = 0; stage < Config::kGameLoadCompositeStageCount; ++stage) {
+    if (!stage_ran[stage]) {
+      continue;
+    }
+    std::ostringstream metadata;
+    metadata << "{\"schema_version\":1,\"kind\":\"game_load_composite_long_scene_stage\",";
+    metadata << "\"stage_id\":" << (0x8001 + stage) << ",";
+    metadata << "\"stage_mask\":" << long_scene_stage_mask_ << ",";
+    metadata << "\"applied_warmup_iterations\":" << stage_results[stage].warmup_iterations << ",";
+    metadata << "\"applied_measurement_iterations_multiplier\":"
+             << stage_results[stage].measurement_iterations_multiplier << ",";
+    metadata << "\"gpu_precondition_alpha_draws\":"
+             << long_scene_gpu_precondition_alpha_draws_ << ",";
+    metadata << "\"gpu_precondition_executed\":"
+             << (has_final_gpu_stage && long_scene_gpu_precondition_alpha_draws_ && stage >= 2 ? "true" : "false") << ",";
+    metadata << "\"expected_final_state\":" << expected_final_state << ",";
+    metadata << "\"actual_final_state\":" << aggregate_checksum_ << "}";
+    host_.RecordProfileResult(suite_name_, kStageRecordNames[stage], stage_results[stage], metadata.str());
+  }
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, preset.seed, aggregate_checksum_);
+  // This is an overall summary, deliberately extra to the per-stage records.
+  // Runner window accounting must map only kind=..._stage records to F0/F1.
+  std::ostringstream summary_metadata;
+  summary_metadata << "{\"schema_version\":1,\"kind\":\"game_load_composite_long_scene_summary\",";
+  summary_metadata << "\"exclude_from_stage_window_mapping\":true,";
+  summary_metadata << "\"stage_record_count\":";
+  uint32_t stage_record_count = 0;
+  for (bool ran : stage_ran) {
+    stage_record_count += ran ? 1 : 0;
+  }
+  summary_metadata << stage_record_count << ",";
+  summary_metadata << "\"expected_final_state\":" << expected_final_state << ",";
+  summary_metadata << "\"actual_final_state\":" << aggregate_checksum_ << "}";
+  host_.FinishDraw(suite_name_, kLongUnlockedSceneName, final_results, summary_metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+uint32_t GameLoadCompositeTests::ExpectedLongSceneFinalState(const Preset &preset) const {
+  // Every stage body uses a fixed input. This independent accumulator makes
+  // the configured exact warmup + measured invocation count part of the KAT,
+  // so two equally corrupted baseline/candidate runs cannot self-validate.
+  auto invocation_count = [this](LongSceneStage stage) {
+    if (!host_.GetSaveResults()) {
+      return 1U;
+    }
+    const uint32_t index = static_cast<uint32_t>(stage);
+    const uint32_t multiplier = long_scene_stage_multipliers_[index]
+                                    ? long_scene_stage_multipliers_[index]
+                                    : host_.GetMeasurementIterationsMultiplier();
+    const uint32_t warmup = long_scene_stage_warmups_[index] == std::numeric_limits<uint32_t>::max()
+                                ? host_.GetWarmupIterations()
+                                : long_scene_stage_warmups_[index];
+    return warmup + kLongSceneSamples * multiplier;
+  };
+  auto enabled = [this](LongSceneStage stage) {
+    return long_scene_stage_mask_ & (1U << static_cast<uint32_t>(stage));
+  };
+  auto fold = [](uint32_t &state, uint32_t value, uint32_t count) {
+    for (uint32_t invocation = 0; invocation < count; ++invocation) {
+      state = (state ^ value) * 16777619U;
+    }
+  };
+  const uint32_t combined_seed = preset.seed + 4 * 0x9E3779B9U;
+  const uint32_t full_system_seed = preset.seed + 5 * 0x9E3779B9U;
+  uint32_t expected = preset.seed ^ static_cast<uint32_t>(Phase::LONG_UNLOCKED_SCENE);
+  if (enabled(LongSceneStage::CPU)) {
+    fold(expected, kLongSceneCpuKatExpected, invocation_count(LongSceneStage::CPU));
+  }
+  if (enabled(LongSceneStage::PFIFO)) {
+    const uint32_t value = (kPatternPrefix | (0x21A40C12 & 0x00FFFFFF)) ^ preset.fence_reads;
+    fold(expected, value, invocation_count(LongSceneStage::PFIFO));
+  }
+  if (enabled(LongSceneStage::ALPHA_OVERDRAW)) {
+    fold(expected, 0x21A40C13, invocation_count(LongSceneStage::ALPHA_OVERDRAW));
+  }
+  if (enabled(LongSceneStage::STREAMING_SURFACE_REUSE)) {
+    fold(expected, 0x21A40C14 ^ kLongSceneStreamingLoaderKatExpected,
+         invocation_count(LongSceneStage::STREAMING_SURFACE_REUSE));
+  }
+  if (enabled(LongSceneStage::COMBINED)) {
+    const uint32_t value = combined_seed ^ kLongSceneCombinedCpuKatExpected ^
+                           ((kPatternPrefix | (combined_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
+                           kLongSceneCombinedLoaderKatExpected;
+    fold(expected, value, invocation_count(LongSceneStage::COMBINED));
+  }
+  if (enabled(LongSceneStage::FULL_SYSTEM)) {
+    const uint32_t value = full_system_seed ^ kLongSceneFullSystemCpuKatExpected ^
+                           ((kPatternPrefix | (full_system_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
+                           kLongSceneFullSystemLoaderKatExpected;
+    fold(expected, value, invocation_count(LongSceneStage::FULL_SYSTEM));
+  }
+  return expected;
+}
+
+void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
+                                          uint32_t event_phase) {
   const uint32_t seed = preset.seed + iteration * 0x9E3779B9U;
   const uint32_t destination = current_streaming_buffer_ ^ 1;
   const bool run_loader = HasCpu(phase) || HasStreaming(phase);
@@ -458,6 +764,10 @@ void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uin
 
   aggregate_checksum_ = (aggregate_checksum_ ^ checksum) * 16777619U;
   g_composite_result = aggregate_checksum_;
+  SetXemuPerfEventContext(event_phase == std::numeric_limits<uint32_t>::max()
+                              ? static_cast<uint32_t>(phase)
+                              : event_phase,
+                          aggregate_checksum_);
 }
 
 uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed) {
@@ -504,25 +814,33 @@ uint32_t GameLoadCompositeTests::RunPfifoWork(const Preset &preset, uint32_t see
     Pushbuffer::End();
   }
 
-  const uint32_t pattern = kPatternPrefix | (seed & 0x00FFFFFF);
-  SetPatternColor0(pattern);
+  last_pfifo_pattern_ = kPatternPrefix | (seed & 0x00FFFFFF);
+  SetPatternColor0(last_pfifo_pattern_);
   volatile const uint32_t *pattern_color0 =
       reinterpret_cast<volatile const uint32_t *>(kPgraphPatternColor0Address);
-  uint32_t observed = 0;
-  bool observed_pattern = false;
+  // These exact reads are the scheduled workload. Their values intentionally
+  // do not influence the returned checksum: PFIFO progress is asynchronous,
+  // so their interleaving is scheduler-dependent.
+  volatile uint32_t scheduled_observed = 0;
   for (uint32_t i = 0; i < preset.fence_reads; ++i) {
-    observed = *pattern_color0;
-    if (observed == pattern) {
-      observed_pattern = true;
-    } else {
-      // A stale value is valid before the asynchronous PFIFO method lands,
-      // but the fence must never regress after the new sequence is observed.
-      ASSERT(!observed_pattern);
-    }
+    scheduled_observed = *pattern_color0;
   }
-  g_composite_result = observed;
-  ASSERT(observed_pattern);
-  return pattern ^ preset.fence_reads;
+  (void)scheduled_observed;
+  return last_pfifo_pattern_ ^ preset.fence_reads;
+}
+
+void GameLoadCompositeTests::ValidatePfifoTerminal() {
+  // This mirrors BusyPfifo: correctness waits for a terminal value only after
+  // the scheduled polling workload has completed, so neither the assertion
+  // nor the output checksum depends on PFIFO/vCPU interleaving.
+  host_.WaitForGpu();
+  volatile const uint32_t *pattern_color0 =
+      reinterpret_cast<volatile const uint32_t *>(kPgraphPatternColor0Address);
+  const uint32_t terminal_observed = *pattern_color0;
+  g_composite_result = terminal_observed;
+  AssertXemuPerfEqual(last_pfifo_pattern_, terminal_observed,
+                      XemuPerfAssertion::COMPOSITE_PFIFO_TERMINAL,
+                      "terminal_observed == last_pfifo_pattern_", __FILE__, __LINE__);
 }
 
 void GameLoadCompositeTests::RunGpuWork(const Preset &preset, uint32_t seed) {
@@ -589,7 +907,10 @@ void GameLoadCompositeTests::WaitForAudio() {
   // AC97 drain status is not a portable completion primitive across xemu
   // audio backends. The exact contract is the generated and submitted batch;
   // the host audio worker overlaps for the duration of the measured phase.
-  ASSERT(g_audio_submitted_buffers == kAudioBuffersPerMeasurement);
+  AssertXemuPerfEqual(kAudioBuffersPerMeasurement, g_audio_submitted_buffers,
+                      XemuPerfAssertion::COMPOSITE_AUDIO_BATCH,
+                      "g_audio_submitted_buffers == kAudioBuffersPerMeasurement",
+                      __FILE__, __LINE__);
 }
 
 void GameLoadCompositeTests::StopAudio() {
@@ -599,22 +920,33 @@ void GameLoadCompositeTests::StopAudio() {
   XAudioPause();
 }
 
+uint32_t GameLoadCompositeTests::ValidateStreamingSurface(uint32_t checksum,
+                                                          const Preset &preset) {
+  // Validate the last timed surface clear through a CPU readback before the
+  // final framebuffer hash is created. This is outside the measured markers.
+  host_.WaitForGpu();
+  const uint32_t final_reuse = preset.surface_reuses - 1;
+  const uint32_t expected =
+      0xFF000000 | ((last_streaming_seed_ + (final_reuse * 0x10203)) & 0x00FFFFFF);
+  auto *surface = reinterpret_cast<volatile const uint32_t *>(
+      host_.GetTextureMemoryForStage(1));
+  const uint32_t first = surface[0];
+  const uint32_t center = surface[(120 / 2) * 160 + (160 / 2)];
+  const uint32_t last = surface[(120 * 160) - 1];
+  AssertXemuPerfEqual(expected, first, XemuPerfAssertion::COMPOSITE_SURFACE_FIRST,
+                      "surface[0] == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(expected, center, XemuPerfAssertion::COMPOSITE_SURFACE_CENTER,
+                      "surface[(120 / 2) * 160 + (160 / 2)] == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(expected, last, XemuPerfAssertion::COMPOSITE_SURFACE_LAST,
+                      "surface[(120 * 160) - 1] == expected", __FILE__, __LINE__);
+  return (checksum ^ expected) * 16777619U;
+}
+
 void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
                                                    const Preset &preset,
                                                    Phase phase) {
-  // Validate the last timed surface clear through a CPU readback before the
-  // final framebuffer hash is created. This is outside the measured markers.
   if (HasStreaming(phase)) {
-    host_.WaitForGpu();
-    const uint32_t final_reuse = preset.surface_reuses - 1;
-    const uint32_t expected =
-        0xFF000000 | ((last_streaming_seed_ + (final_reuse * 0x10203)) & 0x00FFFFFF);
-    auto *surface = reinterpret_cast<volatile const uint32_t *>(
-        host_.GetTextureMemoryForStage(1));
-    ASSERT(surface[0] == expected);
-    ASSERT(surface[(120 / 2) * 160 + (160 / 2)] == expected);
-    ASSERT(surface[(120 * 160) - 1] == expected);
-    checksum = (checksum ^ expected) * 16777619U;
+    checksum = ValidateStreamingSurface(checksum, preset);
   }
 
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
@@ -737,26 +1069,30 @@ const char *GameLoadCompositeTests::PhaseName(Phase phase) {
     case Phase::CPU_PFIFO_GPU: return "05-CPUPFIFOGPU";
     case Phase::CPU_PFIFO_GPU_STREAMING: return "06-CPUPFIFOGPUStreaming";
     case Phase::FULL_SYSTEM: return "07-FullSystem";
+    case Phase::LONG_UNLOCKED_SCENE: return "08-LongUnlockedScene";
   }
   return "Unknown";
 }
 
 bool GameLoadCompositeTests::HasCpu(Phase phase) {
   return phase == Phase::CPU_ONLY || phase == Phase::CPU_PFIFO_GPU ||
-         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM;
+         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM ||
+         phase == Phase::LONG_UNLOCKED_SCENE;
 }
 
 bool GameLoadCompositeTests::HasPfifo(Phase phase) {
   return phase == Phase::PFIFO_ONLY || phase == Phase::CPU_PFIFO_GPU ||
-         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM;
+         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM ||
+         phase == Phase::LONG_UNLOCKED_SCENE;
 }
 
 bool GameLoadCompositeTests::HasGpu(Phase phase) {
   return phase == Phase::GPU_ONLY || phase == Phase::CPU_PFIFO_GPU ||
-         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM;
+         phase == Phase::CPU_PFIFO_GPU_STREAMING || phase == Phase::FULL_SYSTEM ||
+         phase == Phase::LONG_UNLOCKED_SCENE;
 }
 
 bool GameLoadCompositeTests::HasStreaming(Phase phase) {
   return phase == Phase::STREAMING_ONLY || phase == Phase::CPU_PFIFO_GPU_STREAMING ||
-         phase == Phase::FULL_SYSTEM;
+         phase == Phase::FULL_SYSTEM || phase == Phase::LONG_UNLOCKED_SCENE;
 }

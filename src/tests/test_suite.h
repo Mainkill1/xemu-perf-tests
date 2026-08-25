@@ -2,6 +2,8 @@
 #define XEMU_PERF_TESTS_TEST_SUITE_H
 
 #include <chrono>
+#include <array>
+#include <limits>
 #include <functional>
 #include <map>
 #include <set>
@@ -16,7 +18,23 @@
 class TestSuite {
  public:
   //! Runtime configuration for TestSuites.
-  struct Config {};
+  struct Config {
+    static constexpr uint32_t kGameLoadCompositeStageCount = 6;
+    static constexpr uint32_t kAllGameLoadCompositeStages =
+        (1U << kGameLoadCompositeStageCount) - 1;
+
+    // Zero multiplier inherits the global setting. UINT32_MAX warmup inherits
+    // the global setting, allowing an explicit per-stage zero warmup.
+    uint32_t game_load_composite_stage_mask{kAllGameLoadCompositeStages};
+    std::array<uint32_t, kGameLoadCompositeStageCount>
+        game_load_composite_stage_multipliers{};
+    std::array<uint32_t, kGameLoadCompositeStageCount>
+        game_load_composite_stage_warmups{
+            std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max(),
+            std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max(),
+            std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
+    uint32_t game_load_composite_gpu_precondition_alpha_draws{8192};
+  };
 
  public:
   TestSuite() = delete;

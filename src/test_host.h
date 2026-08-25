@@ -41,6 +41,10 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   void FinishDraw(const std::string &suite_name, const std::string &test_name, const ProfileResults &results,
                   const std::string &metadata_json = "");
 
+  //! Writes a normal benchmark record without changing the framebuffer.
+  void RecordProfileResult(const std::string &suite_name, const std::string &test_name,
+                           const ProfileResults &results, const std::string &metadata_json = "");
+
   //! Sets up the projection matrix for passthrough operation / direct addressing of pixels.
   void SetupFixedFunctionPassthrough();
 

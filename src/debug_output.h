@@ -21,6 +21,33 @@ static constexpr uint8_t kXemuPerfMarkerMeasureBegin = 0xF0;
 static constexpr uint8_t kXemuPerfMarkerMeasureEnd = 0xF1;
 static constexpr uint8_t kXemuPerfMarkerGpuComplete = 0xF2;
 
+// Extended events deliberately use 0xF8 followed by 0xA0..0xAF nibbles.
+// Older marker receivers only recognize F0..F2, so they ignore an event
+// instead of mistaking an event payload for a timing marker.
+static constexpr uint8_t kXemuPerfEventPreamble = 0xF8;
+static constexpr uint8_t kXemuPerfEventNibbleBase = 0xA0;
+static constexpr uint8_t kXemuPerfEventVersion = 1;
+
+enum class XemuPerfEventType : uint8_t {
+  CONTEXT = 1,
+  HEARTBEAT = 2,
+  FAIL = 3,
+  PASS = 4,
+};
+
+// Stable assertion IDs used by the host-side event decoder.  Do not reuse an
+// ID for a different check: persisted failure artifacts use this as a key.
+enum class XemuPerfAssertion : uint16_t {
+  GENERIC_ASSERT = 1,
+  COMPOSITE_PFIFO_TERMINAL = 0x100,
+  COMPOSITE_AUDIO_BATCH = 0x101,
+  COMPOSITE_SURFACE_FIRST = 0x102,
+  COMPOSITE_SURFACE_CENTER = 0x103,
+  COMPOSITE_SURFACE_LAST = 0x104,
+  COMPOSITE_SCENE_CPU = 0x110,
+  COMPOSITE_SCENE_FINAL = 0x111,
+};
+
 inline void EmitXemuPerfMarker(uint8_t marker) {
   uint8_t readback;
   asm volatile("inb %w1, %0" : "=a"(readback) : "Nd"(kXemuPerfMarkerPort));
@@ -28,6 +55,18 @@ inline void EmitXemuPerfMarker(uint8_t marker) {
     asm volatile("outb %0, %w1" : : "a"(marker), "Nd"(kXemuPerfMarkerPort));
   }
 }
+
+// Event frames are sent only when the existing opt-in marker device reports
+// its 0x58 capability. The host receiver owns the durable event artifact;
+// this guest path does no filesystem I/O.
+void SetXemuPerfEventContext(uint32_t phase, uint32_t final_state);
+void ClearXemuPerfEventContext();
+void EmitXemuPerfEvent(XemuPerfEventType type, uint16_t assertion,
+                       uint32_t expected, uint32_t actual);
+void EmitXemuPerfHeartbeat();
+void AssertXemuPerfEqual(uint32_t expected, uint32_t actual,
+                         XemuPerfAssertion assertion, const char *assert_code,
+                         const char *filename, uint32_t line);
 
 template <typename... VarArgs>
 inline void PrintMsg(const char *fmt, VarArgs &&...args) {

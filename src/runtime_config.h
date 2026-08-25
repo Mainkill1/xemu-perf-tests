@@ -51,6 +51,7 @@ class RuntimeConfig {
     return measurement_iterations_multiplier_;
   }
   [[nodiscard]] TestHost::GpuCompletionMode gpu_completion_mode() const { return gpu_completion_mode_; }
+  [[nodiscard]] const TestSuite::Config &test_suite_config() const { return test_suite_config_; }
 
   [[nodiscard]] const std::string& output_directory_path() const { return output_directory_path_; }
 
@@ -65,6 +66,7 @@ class RuntimeConfig {
   uint32_t warmup_iterations_ = 0;
   uint32_t measurement_iterations_multiplier_ = 1;
   TestHost::GpuCompletionMode gpu_completion_mode_ = TestHost::GpuCompletionMode::ENQUEUE;
+  TestSuite::Config test_suite_config_{};
 
   std::string output_directory_path_ = SanitizePath(DEFAULT_OUTPUT_DIRECTORY_PATH);
 

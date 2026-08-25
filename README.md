@@ -144,6 +144,52 @@ under `Default suite`.
 }
 ```
 
+`GameLoadComposite` also provides `08-LongUnlockedScene`. It is one XBE test
+case with ordered CPU, PFIFO, alpha/overdraw, streaming/surface-reuse,
+combined, and full-system stages. Each stage has an independent guest marker
+window while the normal test-case filter can select it by name:
+
+```json
+{
+  "settings": { "skip_tests_by_default": true },
+  "test_suites": {
+    "GameLoadComposite": {
+      "08-LongUnlockedScene": { "skipped": false }
+    }
+  }
+}
+```
+
+Optional root `game_load_composite.long_unlocked_scene` settings keep the
+global values as their backward-compatible defaults while allowing calibration
+per retained stage. Stage mask bits are CPU=1, PFIFO=2, alpha/overdraw=4,
+streaming/surface-reuse=8, combined=16, and full-system=32. `stages` is an
+optional named-list filter intersected with `stage_mask`.
+
+```json
+{
+  "game_load_composite": {
+    "long_unlocked_scene": {
+      "stage_mask": 63,
+      "stages": { "cpu": true, "pfifo": true, "alpha_overdraw": true,
+                  "streaming_surface_reuse": true, "combined": true, "full_system": true },
+      "measurement_iterations_multiplier": { "cpu": 12, "pfifo": 4, "alpha_overdraw": 8 },
+      "warmup_iterations": { "cpu": 1, "pfifo": 0 },
+      "gpu_precondition": { "alpha_draws": 8192 }
+    }
+  }
+}
+```
+
+Omitted stage multipliers/warmups inherit the global settings. The fixed,
+untimed GPU precondition runs once immediately before the first retained GPU
+stage; `alpha_draws: 0` disables it. Each retained stage writes a normal result
+record with its applied warmup/multiplier and precondition metadata. The final
+`GameLoadComposite::08-LongUnlockedScene` result is an intentionally extra
+summary record (`kind: game_load_composite_long_scene_summary` and
+`exclude_from_stage_window_mapping: true`); consumers must map F0/F1 windows
+only to `kind: game_load_composite_long_scene_stage` records.
+
 # Building
 
 ## Prerequisites

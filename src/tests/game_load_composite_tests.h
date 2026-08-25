@@ -33,6 +33,7 @@ class GameLoadCompositeTests : public TestSuite {
     CPU_PFIFO_GPU,
     CPU_PFIFO_GPU_STREAMING,
     FULL_SYSTEM,
+    LONG_UNLOCKED_SCENE,
   };
 
   struct Preset {
@@ -53,6 +54,15 @@ class GameLoadCompositeTests : public TestSuite {
   };
 
  private:
+
+  enum class LongSceneStage : uint32_t {
+    CPU = 0,
+    PFIFO = 1,
+    ALPHA_OVERDRAW = 2,
+    STREAMING_SURFACE_REUSE = 3,
+    COMBINED = 4,
+    FULL_SYSTEM = 5,
+  };
 
   struct WorkTotals {
     uint64_t cpu_indirect_operations{0};
@@ -88,14 +98,19 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t WaitForLoader();
 
   void RunTest(const Preset &preset, Phase phase);
-  void RunIteration(const Preset &preset, Phase phase, uint32_t iteration);
+  void RunLongUnlockedScene();
+  uint32_t ExpectedLongSceneFinalState(const Preset &preset) const;
+  void RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
+                    uint32_t event_phase = std::numeric_limits<uint32_t>::max());
   uint32_t RunCpuWork(const Preset &preset, uint32_t seed);
   uint32_t RunPfifoWork(const Preset &preset, uint32_t seed);
+  void ValidatePfifoTerminal();
   void RunGpuWork(const Preset &preset, uint32_t seed);
   void RunStreamingWork(const Preset &preset, uint32_t seed, uint32_t buffer_index);
   void StartAudio(uint32_t voices);
   void WaitForAudio();
   void StopAudio();
+  uint32_t ValidateStreamingSurface(uint32_t checksum, const Preset &preset);
   void DrawCorrectnessResult(uint32_t checksum, const Preset &preset, Phase phase);
   WorkTotals ExpectedWork(const Preset &preset, Phase phase) const;
   uint32_t WorkChecksum(const Preset &preset, Phase phase,
@@ -119,8 +134,13 @@ class GameLoadCompositeTests : public TestSuite {
 
   uint32_t current_streaming_buffer_{0};
   uint32_t last_streaming_seed_{0};
+  uint32_t last_pfifo_pattern_{0};
   uint32_t aggregate_checksum_{0};
   uint32_t audio_voices_{0};
+  uint32_t long_scene_stage_mask_{Config::kAllGameLoadCompositeStages};
+  std::array<uint32_t, Config::kGameLoadCompositeStageCount> long_scene_stage_multipliers_{};
+  std::array<uint32_t, Config::kGameLoadCompositeStageCount> long_scene_stage_warmups_{};
+  uint32_t long_scene_gpu_precondition_alpha_draws_{0};
 };
 
 #endif  // XEMU_PERF_TESTS_GAME_LOAD_COMPOSITE_TESTS_H
