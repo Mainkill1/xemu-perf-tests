@@ -44,22 +44,27 @@ static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
 static constexpr uint32_t kLongSceneSamples = 8;
-// Synthetic regression oracle, captured from the exact deterministic guest
-// algorithm/build in the 2026-08-25 long-scene smoke. It is not a retail
-// hardware claim. Update only with an audited guest KAT capture.
+// Synthetic regression oracle captured from exact deterministic guest long-
+// scene smokes (2026-08-25). It is not a retail-hardware claim. Update only
+// with an audited guest KAT capture from this algorithm/build contract.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
 static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44B0F70;
-static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE599A1;
-static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A0774;
+static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE23A19;
+static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3DA4CC;
 static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
 static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
 static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
 static constexpr uint32_t kLongSceneFullSystemLoaderKatExpected = 0x2E10E673;
-// Stable event assertion IDs for post-F1 component-oracle capture.
-static constexpr auto kLongSceneCombinedComponentOracle =
+// Stable post-F1 component assertion IDs. Keep these numeric values stable:
+// the host persists them in immediate failure artifacts.
+static constexpr auto kLongSceneCombinedCpuKatAssertion =
     static_cast<XemuPerfAssertion>(0x112);
-static constexpr auto kLongSceneFullSystemComponentOracle =
+static constexpr auto kLongSceneCombinedLoaderKatAssertion =
     static_cast<XemuPerfAssertion>(0x113);
+static constexpr auto kLongSceneFullSystemCpuKatAssertion =
+    static_cast<XemuPerfAssertion>(0x114);
+static constexpr auto kLongSceneFullSystemLoaderKatAssertion =
+    static_cast<XemuPerfAssertion>(0x115);
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
@@ -614,13 +619,21 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     stage_results[static_cast<uint32_t>(LongSceneStage::COMBINED)] = final_results;
     stage_ran[static_cast<uint32_t>(LongSceneStage::COMBINED)] = true;
     ValidatePfifoTerminal();
-    // These synthetic literals have not yet been captured from a guest smoke.
-    // Print exact post-F1 component values before promoting them to typed KATs.
+    // This is post-F1: component validation and diagnostic transport cannot
+    // affect the stage timing window.
     PrintMsg("COMPOSITE_KAT stage=combined cpu=%08lx loader=%08lx\n",
              last_cpu_component_, last_loader_component_);
     EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
-                      static_cast<uint16_t>(kLongSceneCombinedComponentOracle),
+                      static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion),
                       last_cpu_component_, last_loader_component_);
+    AssertXemuPerfEqual(kLongSceneCombinedCpuKatExpected, last_cpu_component_,
+                        kLongSceneCombinedCpuKatAssertion,
+                        "last_cpu_component_ == kLongSceneCombinedCpuKatExpected",
+                        __FILE__, __LINE__);
+    AssertXemuPerfEqual(kLongSceneCombinedLoaderKatExpected, last_loader_component_,
+                        kLongSceneCombinedLoaderKatAssertion,
+                        "last_loader_component_ == kLongSceneCombinedLoaderKatExpected",
+                        __FILE__, __LINE__);
     EmitXemuPerfHeartbeat();
   }
 
@@ -642,8 +655,16 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     PrintMsg("COMPOSITE_KAT stage=full_system cpu=%08lx loader=%08lx\n",
              last_cpu_component_, last_loader_component_);
     EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
-                      static_cast<uint16_t>(kLongSceneFullSystemComponentOracle),
+                      static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion),
                       last_cpu_component_, last_loader_component_);
+    AssertXemuPerfEqual(kLongSceneFullSystemCpuKatExpected, last_cpu_component_,
+                        kLongSceneFullSystemCpuKatAssertion,
+                        "last_cpu_component_ == kLongSceneFullSystemCpuKatExpected",
+                        __FILE__, __LINE__);
+    AssertXemuPerfEqual(kLongSceneFullSystemLoaderKatExpected, last_loader_component_,
+                        kLongSceneFullSystemLoaderKatAssertion,
+                        "last_loader_component_ == kLongSceneFullSystemLoaderKatExpected",
+                        __FILE__, __LINE__);
     EmitXemuPerfHeartbeat();
   }
 
