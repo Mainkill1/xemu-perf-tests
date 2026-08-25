@@ -54,8 +54,7 @@ class TestSuite {
  protected:
   //! Runs the given body function a number of times and calculates profiling information.
   TestHost::ProfileResults Profile(const std::string &test_name, uint32_t num_iterations,
-                                   const std::function<void(void)> &body,
-                                   const std::function<void(void)> &pre_measurement = {}) const;
+                                   const std::function<void(void)> &body) const;
   void SetDefaultTextureFormat() const;
 
  protected:

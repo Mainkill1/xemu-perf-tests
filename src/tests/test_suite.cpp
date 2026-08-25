@@ -267,8 +267,7 @@ void TestSuite::Initialize() {
 }
 
 TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32_t num_iterations,
-                                            const std::function<void(void)>& body,
-                                            const std::function<void(void)>& pre_measurement) const {
+                                            const std::function<void(void)>& body) const {
   uint32_t measurement_iterations_multiplier = 1;
   if (host_.GetSaveResults()) {
     measurement_iterations_multiplier = host_.GetMeasurementIterationsMultiplier();
@@ -304,10 +303,6 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
       EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
     }
     PrintMsg("WARMUP_END %s::%s\n", suite_name_.c_str(), test_name.c_str());
-  }
-
-  if (pre_measurement) {
-    pre_measurement();
   }
 
   // Never let warmup work leak into the first measured sample.
