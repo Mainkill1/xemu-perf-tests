@@ -65,6 +65,8 @@ static constexpr auto kLongSceneFullSystemCpuKatAssertion =
     static_cast<XemuPerfAssertion>(0x114);
 static constexpr auto kLongSceneFullSystemLoaderKatAssertion =
     static_cast<XemuPerfAssertion>(0x115);
+static constexpr auto kLongSceneStreamingLoaderKatAssertion =
+    static_cast<XemuPerfAssertion>(0x116);
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
@@ -551,6 +553,9 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   if (stage_enabled(LongSceneStage::CPU)) {
     final_results = profile_stage(LongSceneStage::CPU, kCpuStage, "08-LongUnlockedScene-01-CPU", [&]() {
       actual_cpu = RunCpuWork(preset, kCpuSeed);
+      AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
+                          XemuPerfAssertion::COMPOSITE_SCENE_CPU,
+                          "actual_cpu == kLongSceneCpuKatExpected", __FILE__, __LINE__);
       fold(kCpuStage, actual_cpu);
     });
     stage_results[static_cast<uint32_t>(LongSceneStage::CPU)] = final_results;
@@ -601,6 +606,10 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
       const uint32_t destination = current_streaming_buffer_ ^ 1;
       StartLoader(kStreamingSeed ^ 0xDEC0DE01, preset.decode_bytes, destination);
       const uint32_t streaming_decode = WaitForLoader();
+      AssertXemuPerfEqual(kLongSceneStreamingLoaderKatExpected, streaming_decode,
+                          kLongSceneStreamingLoaderKatAssertion,
+                          "streaming_decode == kLongSceneStreamingLoaderKatExpected",
+                          __FILE__, __LINE__);
       RunStreamingWork(preset, kStreamingSeed, destination);
       current_streaming_buffer_ = destination;
       fold(kStreamingStage, kStreamingSeed ^ streaming_decode);
@@ -612,9 +621,16 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   }
 
   if (stage_enabled(LongSceneStage::COMBINED)) {
+    static constexpr IterationComponentKat kCombinedComponentKat{
+        kLongSceneCombinedCpuKatExpected,
+        kLongSceneCombinedLoaderKatExpected,
+        static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion),
+        static_cast<uint16_t>(kLongSceneCombinedLoaderKatAssertion),
+    };
     final_results = profile_stage(LongSceneStage::COMBINED, kCombinedStage,
                                   "08-LongUnlockedScene-05-Combined", [&]() {
-      RunIteration(preset, Phase::CPU_PFIFO_GPU_STREAMING, kCombinedIteration, kCombinedStage);
+      RunIteration(preset, Phase::CPU_PFIFO_GPU_STREAMING, kCombinedIteration, kCombinedStage,
+                   &kCombinedComponentKat);
     });
     stage_results[static_cast<uint32_t>(LongSceneStage::COMBINED)] = final_results;
     stage_ran[static_cast<uint32_t>(LongSceneStage::COMBINED)] = true;
@@ -638,10 +654,17 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   }
 
   if (stage_enabled(LongSceneStage::FULL_SYSTEM)) {
+    static constexpr IterationComponentKat kFullSystemComponentKat{
+        kLongSceneFullSystemCpuKatExpected,
+        kLongSceneFullSystemLoaderKatExpected,
+        static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion),
+        static_cast<uint16_t>(kLongSceneFullSystemLoaderKatAssertion),
+    };
     StartAudio(preset.audio_voices);
     final_results = profile_stage(LongSceneStage::FULL_SYSTEM, kFullSystemStage,
                                   "08-LongUnlockedScene-06-FullSystem", [&]() {
-      RunIteration(preset, Phase::FULL_SYSTEM, kFullSystemIteration, kFullSystemStage);
+      RunIteration(preset, Phase::FULL_SYSTEM, kFullSystemIteration, kFullSystemStage,
+                   &kFullSystemComponentKat);
     });
     stage_results[static_cast<uint32_t>(LongSceneStage::FULL_SYSTEM)] = final_results;
     stage_ran[static_cast<uint32_t>(LongSceneStage::FULL_SYSTEM)] = true;
@@ -774,7 +797,8 @@ uint32_t GameLoadCompositeTests::ExpectedLongSceneFinalState(const Preset &prese
 }
 
 void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
-                                          uint32_t event_phase) {
+                                          uint32_t event_phase,
+                                          const IterationComponentKat *component_kat) {
   const uint32_t seed = preset.seed + iteration * 0x9E3779B9U;
   const uint32_t destination = current_streaming_buffer_ ^ 1;
   const bool run_loader = HasCpu(phase) || HasStreaming(phase);
@@ -785,6 +809,12 @@ void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uin
   uint32_t checksum = seed;
   if (HasCpu(phase)) {
     last_cpu_component_ = RunCpuWork(preset, seed);
+    if (component_kat && component_kat->cpu_assertion) {
+      AssertXemuPerfEqual(component_kat->expected_cpu, last_cpu_component_,
+                          static_cast<XemuPerfAssertion>(component_kat->cpu_assertion),
+                          "last_cpu_component_ == component_kat->expected_cpu",
+                          __FILE__, __LINE__);
+    }
     checksum ^= last_cpu_component_;
   }
   if (HasPfifo(phase)) {
@@ -796,6 +826,12 @@ void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uin
 
   if (run_loader) {
     last_loader_component_ = WaitForLoader();
+    if (component_kat && component_kat->loader_assertion) {
+      AssertXemuPerfEqual(component_kat->expected_loader, last_loader_component_,
+                          static_cast<XemuPerfAssertion>(component_kat->loader_assertion),
+                          "last_loader_component_ == component_kat->expected_loader",
+                          __FILE__, __LINE__);
+    }
     checksum ^= last_loader_component_;
   }
   if (HasStreaming(phase)) {

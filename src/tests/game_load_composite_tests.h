@@ -90,6 +90,13 @@ class GameLoadCompositeTests : public TestSuite {
     uint32_t checksum{0};
   };
 
+  struct IterationComponentKat {
+    uint32_t expected_cpu{0};
+    uint32_t expected_loader{0};
+    uint16_t cpu_assertion{0};
+    uint16_t loader_assertion{0};
+  };
+
   static constexpr uint32_t kStreamingBufferBytes = 256 * 256 * 4;
 
   static unsigned long __stdcall LoaderThreadEntry(void *opaque);
@@ -101,7 +108,8 @@ class GameLoadCompositeTests : public TestSuite {
   void RunLongUnlockedScene();
   uint32_t ExpectedLongSceneFinalState(const Preset &preset) const;
   void RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
-                    uint32_t event_phase = std::numeric_limits<uint32_t>::max());
+                    uint32_t event_phase = std::numeric_limits<uint32_t>::max(),
+                    const IterationComponentKat *component_kat = nullptr);
   uint32_t RunCpuWork(const Preset &preset, uint32_t seed);
   uint32_t RunPfifoWork(const Preset &preset, uint32_t seed);
   void ValidatePfifoTerminal();
