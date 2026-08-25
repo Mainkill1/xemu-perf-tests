@@ -38,21 +38,18 @@ static constexpr uint32_t kPrimitivesPerDraw = 1;
 static constexpr uint32_t kVertexBytesPerUpdate = kVerticesPerDraw * 8 * sizeof(float);
 static constexpr uint32_t kFpOperationsPerCycle = 8;
 static constexpr uint32_t kAudioBufferBytes = 24 * 1024;
-static constexpr uint32_t kAudioBufferCount = 2;
 static constexpr uint32_t kAudioBuffersPerMeasurement = 16;
+static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
 
 static std::array<std::array<uint8_t, kAudioBufferBytes>, kAudioBufferCount> g_audio_buffers{};
-static volatile bool g_audio_active;
 static volatile uint32_t g_audio_voice_count;
 static volatile uint32_t g_audio_buffer_index;
 static volatile uint32_t g_audio_phase;
 static volatile uint32_t g_audio_submitted_buffers;
-static volatile uint32_t g_audio_completed_buffers;
-static void *g_audio_done_event;
 
 static uint32_t XorShift32(uint32_t &state) {
   state ^= state << 13;
@@ -153,11 +150,7 @@ static void SetPatternColor0(uint32_t value) {
   pb_end(push);
 }
 
-static void SubmitAudioBuffer() {
-  if (!g_audio_active) {
-    return;
-  }
-
+static void SubmitAudioBuffer(bool final) {
   const uint32_t buffer_index = g_audio_buffer_index++ % kAudioBufferCount;
   auto &buffer = g_audio_buffers[buffer_index];
   const uint32_t configured_voices = g_audio_voice_count;
@@ -177,21 +170,8 @@ static void SubmitAudioBuffer() {
     ++phase;
   }
   g_audio_phase = phase;
-  XAudioProvideSamples(buffer.data(), buffer.size(), false);
+  XAudioProvideSamples(buffer.data(), buffer.size(), final);
   ++g_audio_submitted_buffers;
-}
-
-static void AudioCallback(void *, void *) {
-  if (!g_audio_active) {
-    return;
-  }
-  ++g_audio_completed_buffers;
-  if (g_audio_submitted_buffers < kAudioBuffersPerMeasurement) {
-    SubmitAudioBuffer();
-  }
-  if (g_audio_completed_buffers >= kAudioBuffersPerMeasurement) {
-    SetEvent(g_audio_done_event);
-  }
 }
 
 }  // namespace
@@ -266,10 +246,8 @@ void GameLoadCompositeTests::Initialize() {
 
   loader_start_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
   loader_done_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
-  g_audio_done_event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
   ASSERT(loader_start_event_ != nullptr);
   ASSERT(loader_done_event_ != nullptr);
-  ASSERT(g_audio_done_event != nullptr);
   loader_thread_ = CreateThread(nullptr, 64 * 1024, LoaderThreadEntry, this, 0, nullptr);
   ASSERT(loader_thread_ != nullptr);
 }
@@ -282,11 +260,9 @@ void GameLoadCompositeTests::Deinitialize() {
   CloseHandle(loader_thread_);
   CloseHandle(loader_start_event_);
   CloseHandle(loader_done_event_);
-  CloseHandle(g_audio_done_event);
   loader_thread_ = nullptr;
   loader_start_event_ = nullptr;
   loader_done_event_ = nullptr;
-  g_audio_done_event = nullptr;
 
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetTextureStageEnabled(0, false);
@@ -593,18 +569,16 @@ void GameLoadCompositeTests::StartAudio(uint32_t voices) {
     return;
   }
   if (!audio_voices_) {
-    XAudioInit(16, 2, AudioCallback, nullptr);
+    XAudioInit(16, 2, nullptr, nullptr);
   }
   audio_voices_ = voices;
   g_audio_voice_count = voices;
   g_audio_phase = 0;
   g_audio_buffer_index = 0;
   g_audio_submitted_buffers = 0;
-  g_audio_completed_buffers = 0;
-  ResetEvent(g_audio_done_event);
-  g_audio_active = true;
-  SubmitAudioBuffer();
-  SubmitAudioBuffer();
+  for (uint32_t buffer = 0; buffer < kAudioBuffersPerMeasurement; ++buffer) {
+    SubmitAudioBuffer(buffer + 1 == kAudioBuffersPerMeasurement);
+  }
   XAudioPlay();
 }
 
@@ -612,16 +586,28 @@ void GameLoadCompositeTests::WaitForAudio() {
   if (!audio_voices_) {
     return;
   }
-  ASSERT(WaitForSingleObject(g_audio_done_event, 30000) == WAIT_OBJECT_0);
+  volatile const uint8_t *ac97 =
+      reinterpret_cast<volatile const uint8_t *>(0xFEC00000);
+  bool observed_running = false;
+  LARGE_INTEGER wait_start;
+  QueryPerformanceCounter(&wait_start);
+  while (true) {
+    const bool drained = (ac97[0x116] & 1) && (ac97[0x176] & 1);
+    if (!drained) {
+      observed_running = true;
+    } else if (observed_running) {
+      break;
+    }
+    ASSERT(host_.GetMicrosecondsSince(wait_start) < 10 * 1000 * 1000);
+    Sleep(0);
+  }
   ASSERT(g_audio_submitted_buffers == kAudioBuffersPerMeasurement);
-  ASSERT(g_audio_completed_buffers == kAudioBuffersPerMeasurement);
 }
 
 void GameLoadCompositeTests::StopAudio() {
   if (!audio_voices_) {
     return;
   }
-  g_audio_active = false;
   XAudioPause();
 }
 
