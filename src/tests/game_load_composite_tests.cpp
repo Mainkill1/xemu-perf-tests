@@ -44,16 +44,24 @@ static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
 static constexpr uint32_t kLongSceneSamples = 8;
-// Regression-only FP quarantine: xemu/TCG code layout can produce either of
-// two observed binary32 results despite explicit stores. CPU workload hashes
-// intentionally use only integer+memory state; a third FP result fails fast.
-// This is not a retail-hardware claim.
+// Scalar-SSE regression oracle.  The FP sequence below is fixed as explicit
+// single-precision instructions, so each operation rounds to binary32 and is
+// independent of compiler code layout or x87 register lifetime.  These are
+// synthetic guest regression values, not retail-hardware claims.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
 static constexpr uint32_t kLongSceneCpuKatExpected = 0xA3601189;
 static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xAAC924E0;
 static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x7D16BA35;
-static constexpr uint32_t kLongSceneFpBitsPrimary = 0x572CBD41;
-static constexpr uint32_t kLongSceneFpBitsAlternate = 0x572B1EF9;
+static constexpr uint32_t kLongSceneFpRepresentativeCycles = 32768;
+static constexpr uint32_t kLongSceneFpStressCycles = 65536;
+static constexpr uint32_t kLongSceneFpRepresentativeExpected = 0x4BA648A7;
+static constexpr uint32_t kLongSceneFpStressExpected = 0x572CBD41;
+static const float kCpuFpInitial = 0.625f;
+static const float kCpuFpScaleUp = 1.0009765625f;
+static const float kCpuFpBiasUp = 0.03125f;
+static const float kCpuFpBiasDown = 0.0306396484375f;
+static const float kCpuFpScaleDown = 0.99951171875f;
+static const float kCpuFpTailBias = 0.00030517578125f;
 static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
 static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
 static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
@@ -72,7 +80,7 @@ static constexpr auto kLongSceneStreamingLoaderKatAssertion =
     static_cast<XemuPerfAssertion>(0x116);
 static constexpr auto kLongSceneCpuCanonicalDiagnostic =
     static_cast<XemuPerfAssertion>(0x117);
-static constexpr auto kLongSceneFpBitsQuarantineAssertion =
+static constexpr auto kLongSceneFpBitsAssertion =
     static_cast<XemuPerfAssertion>(0x118);
 
 // Canonical Xbox-valid FP modes. x87 0x027F masks exceptions, selects 53-bit
@@ -882,16 +890,25 @@ uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed)
   asm volatile("fldcw %0" : : "m"(kCanonicalX87ControlWord) : "memory");
   asm volatile("ldmxcsr %0" : : "m"(kCanonicalMxcsr) : "memory");
 
-  // Each volatile store materializes IEEE binary32 before the next operator.
-  // This removes x87/SSE register-lifetime differences that made the first
-  // two profiler entries disagree despite identical FP control words.
-  volatile float fp = 0.625f;
+  // Keep the five original FP operations per cycle, but encode them as scalar
+  // SSE instructions.  Every add/subtract/multiply therefore rounds to IEEE
+  // binary32 at the instruction boundary; neither x87 precision nor compiler
+  // register allocation can affect this regression oracle.
+  float fp = kCpuFpInitial;
   for (uint32_t i = 0; i < preset.cpu_fp_cycles; ++i) {
-    fp = fp * 1.0009765625f;
-    fp = fp + 0.03125f;
-    fp = fp - 0.0306396484375f;
-    fp = fp * 0.99951171875f;
-    fp = fp + 0.00030517578125f;
+    asm volatile(
+        "movss %[value], %%xmm0\n\t"
+        "mulss %[scale_up], %%xmm0\n\t"
+        "addss %[bias_up], %%xmm0\n\t"
+        "subss %[bias_down], %%xmm0\n\t"
+        "mulss %[scale_down], %%xmm0\n\t"
+        "addss %[tail_bias], %%xmm0\n\t"
+        "movss %%xmm0, %[value]"
+        : [value] "+m"(fp)
+        : [scale_up] "m"(kCpuFpScaleUp), [bias_up] "m"(kCpuFpBiasUp),
+          [bias_down] "m"(kCpuFpBiasDown), [scale_down] "m"(kCpuFpScaleDown),
+          [tail_bias] "m"(kCpuFpTailBias)
+        : "xmm0", "memory");
   }
 
   const uint32_t memory_bytes = std::min<uint32_t>(preset.cpu_memory_bytes, cpu_memory_.size());
@@ -904,19 +921,27 @@ uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed)
   }
 
   uint32_t fp_bits;
-  const float fp_value = fp;
-  memcpy(&fp_bits, &fp_value, sizeof(fp_bits));
+  memcpy(&fp_bits, &fp, sizeof(fp_bits));
   asm volatile("fldcw %0" : : "m"(saved_x87_control_word) : "memory");
   asm volatile("ldmxcsr %0" : : "m"(saved_mxcsr) : "memory");
-  if (fp_bits != kLongSceneFpBitsPrimary && fp_bits != kLongSceneFpBitsAlternate) {
-    AssertXemuPerfEqual(kLongSceneFpBitsPrimary, fp_bits,
-                        kLongSceneFpBitsQuarantineAssertion,
-                        "fp_bits is an approved regression-quarantine value",
-                        __FILE__, __LINE__);
+  uint32_t expected_fp_bits = 0;
+  switch (preset.cpu_fp_cycles) {
+    case kLongSceneFpRepresentativeCycles:
+      expected_fp_bits = kLongSceneFpRepresentativeExpected;
+      break;
+    case kLongSceneFpStressCycles:
+      expected_fp_bits = kLongSceneFpStressExpected;
+      break;
+    default:
+      PrintAssertAndWaitForever("preset.cpu_fp_cycles has a scalar-SSE KAT", __FILE__,
+                                __LINE__);
   }
+  AssertXemuPerfEqual(expected_fp_bits, fp_bits, kLongSceneFpBitsAssertion,
+                      "fp_bits == expected_fp_bits", __FILE__, __LINE__);
 
-  // Do not fold the quarantined FP bits into the exact workload return. This
-  // leaves the deterministic integer dispatch and memory walk as the CPU KAT.
+  // The exact CPU workload return remains the integer dispatch and memory
+  // walk KAT.  The independently asserted scalar-SSE value cannot perturb
+  // long-scene folds or scheduler-independent checksums.
   return state ^ memory_checksum;
 }
 
