@@ -44,17 +44,12 @@ static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
 static constexpr uint32_t kLongSceneSamples = 8;
-// Synthetic regression oracle captured after canonical FP save/load/restore
-// in 2026-08-25 long-scene smokes. It validates both deterministic cold TCG/
-// guest execution primes and deterministic steady profiled execution; it is
-// not a retail-hardware claim. Update only from audited canonical-FP captures.
+// Synthetic regression oracle for explicit binary32 FP stores. It is not a
+// retail-hardware claim; update only from audited strict-FP guest captures.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
-static constexpr uint32_t kLongSceneCpuColdKatExpected = 0xF44CACC8;
-static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44B0F70;
-static constexpr uint32_t kLongSceneCombinedCpuColdKatExpected = 0xFDE599A1;
-static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE23A19;
-static constexpr uint32_t kLongSceneFullSystemCpuColdKatExpected = 0x2A3A0774;
-static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3DA4CC;
+static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44CD1E6;
+static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE5E48F;
+static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A7A5A;
 static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
 static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
 static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
@@ -73,15 +68,6 @@ static constexpr auto kLongSceneStreamingLoaderKatAssertion =
     static_cast<XemuPerfAssertion>(0x116);
 static constexpr auto kLongSceneCpuCanonicalDiagnostic =
     static_cast<XemuPerfAssertion>(0x117);
-// Cold-prime assertion IDs are distinct from the steady per-invocation KATs.
-static constexpr auto kLongSceneCpuColdKatAssertion =
-    static_cast<XemuPerfAssertion>(0x118);
-static constexpr auto kLongSceneCombinedCpuColdKatAssertion =
-    static_cast<XemuPerfAssertion>(0x119);
-static constexpr auto kLongSceneFullSystemCpuColdKatAssertion =
-    static_cast<XemuPerfAssertion>(0x11A);
-static constexpr auto kLongSceneCpuWarmupConfigAssertion =
-    static_cast<XemuPerfAssertion>(0x11B);
 
 // Canonical Xbox-valid FP modes. x87 0x027F masks exceptions, selects 53-bit
 // precision and round-to-nearest; MXCSR 0x1F80 masks SSE exceptions, selects
@@ -543,31 +529,10 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     host_.SetMeasurementIterationsMultiplier(multiplier);
     host_.SetWarmupIterations(warmup);
     begin_stage(event_stage, name, multiplier, warmup);
-    const bool cpu_bearing = stage == LongSceneStage::CPU ||
-                             stage == LongSceneStage::COMBINED ||
-                             stage == LongSceneStage::FULL_SYSTEM;
-    // The first Profile body entry is deterministically cold even after the
-    // out-of-profile prime. A warmup makes that entry explicit and prevents
-    // cold execution from leaking into the timed F0/F1 interval.
-    if (host_.GetSaveResults() && cpu_bearing) {
-      AssertXemuPerfEqual(1, warmup ? 1U : 0U, kLongSceneCpuWarmupConfigAssertion,
-                          "warmup >= 1 for CPU-bearing long-scene stage",
-                          __FILE__, __LINE__);
-    }
     auto results = Profile(name, kLongSceneSamples, body);
     host_.SetMeasurementIterationsMultiplier(original_multiplier);
     host_.SetWarmupIterations(original_warmup);
     return results;
-  };
-  auto prime_cpu = [this, &preset](uint32_t event_stage, uint32_t seed,
-                                   uint32_t expected, XemuPerfAssertion assertion,
-                                   const char *assert_code) {
-    // Cold TCG/guest execution has a distinct, deterministic first result.
-    // Prime it outside F0/F1 and outside aggregate folding; measured and
-    // warmup invocations below must therefore all satisfy the steady KAT.
-    SetXemuPerfEventContext(event_stage, aggregate_checksum_);
-    const uint32_t actual = RunCpuWork(preset, seed);
-    AssertXemuPerfEqual(expected, actual, assertion, assert_code, __FILE__, __LINE__);
   };
 
   aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(Phase::LONG_UNLOCKED_SCENE);
@@ -594,19 +559,11 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   };
   uint32_t actual_cpu = 0;
   if (stage_enabled(LongSceneStage::CPU)) {
-    prime_cpu(kCpuStage, kCpuSeed, kLongSceneCpuColdKatExpected,
-              kLongSceneCpuColdKatAssertion,
-              "cold_cpu == kLongSceneCpuColdKatExpected");
-    uint32_t cpu_profile_entry = 0;
     final_results = profile_stage(LongSceneStage::CPU, kCpuStage, "08-LongUnlockedScene-01-CPU", [&]() {
       actual_cpu = RunCpuWork(preset, kCpuSeed);
-      const bool first_entry = cpu_profile_entry++ == 0;
-      AssertXemuPerfEqual(first_entry ? kLongSceneCpuColdKatExpected : kLongSceneCpuKatExpected,
-                          actual_cpu,
-                          first_entry ? kLongSceneCpuColdKatAssertion
-                                      : XemuPerfAssertion::COMPOSITE_SCENE_CPU,
-                          first_entry ? "first_profile_cpu == kLongSceneCpuColdKatExpected"
-                                      : "steady_profile_cpu == kLongSceneCpuKatExpected",
+      AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
+                          XemuPerfAssertion::COMPOSITE_SCENE_CPU,
+                          "actual_cpu == kLongSceneCpuKatExpected",
                           __FILE__, __LINE__);
       fold(kCpuStage, actual_cpu);
     });
@@ -680,23 +637,13 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
 
   if (stage_enabled(LongSceneStage::COMBINED)) {
     IterationComponentKat combined_component_kat{
-        kLongSceneCombinedCpuColdKatExpected,
+        kLongSceneCombinedCpuKatExpected,
         kLongSceneCombinedLoaderKatExpected,
-        static_cast<uint16_t>(kLongSceneCombinedCpuColdKatAssertion),
+        static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion),
         static_cast<uint16_t>(kLongSceneCombinedLoaderKatAssertion),
     };
-    const uint32_t combined_seed = preset.seed + kCombinedIteration * 0x9E3779B9U;
-    prime_cpu(kCombinedStage, combined_seed, kLongSceneCombinedCpuColdKatExpected,
-              kLongSceneCombinedCpuColdKatAssertion,
-              "cold_cpu == kLongSceneCombinedCpuColdKatExpected");
-    uint32_t combined_profile_entry = 0;
     final_results = profile_stage(LongSceneStage::COMBINED, kCombinedStage,
                                   "08-LongUnlockedScene-05-Combined", [&]() {
-      const bool first_entry = combined_profile_entry++ == 0;
-      combined_component_kat.expected_cpu =
-          first_entry ? kLongSceneCombinedCpuColdKatExpected : kLongSceneCombinedCpuKatExpected;
-      combined_component_kat.cpu_assertion = static_cast<uint16_t>(
-          first_entry ? kLongSceneCombinedCpuColdKatAssertion : kLongSceneCombinedCpuKatAssertion);
       RunIteration(preset, Phase::CPU_PFIFO_GPU_STREAMING, kCombinedIteration, kCombinedStage,
                    &combined_component_kat);
     });
@@ -723,24 +670,14 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
 
   if (stage_enabled(LongSceneStage::FULL_SYSTEM)) {
     IterationComponentKat full_system_component_kat{
-        kLongSceneFullSystemCpuColdKatExpected,
+        kLongSceneFullSystemCpuKatExpected,
         kLongSceneFullSystemLoaderKatExpected,
-        static_cast<uint16_t>(kLongSceneFullSystemCpuColdKatAssertion),
+        static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion),
         static_cast<uint16_t>(kLongSceneFullSystemLoaderKatAssertion),
     };
-    const uint32_t full_system_seed = preset.seed + kFullSystemIteration * 0x9E3779B9U;
-    prime_cpu(kFullSystemStage, full_system_seed, kLongSceneFullSystemCpuColdKatExpected,
-              kLongSceneFullSystemCpuColdKatAssertion,
-              "cold_cpu == kLongSceneFullSystemCpuColdKatExpected");
     StartAudio(preset.audio_voices);
-    uint32_t full_system_profile_entry = 0;
     final_results = profile_stage(LongSceneStage::FULL_SYSTEM, kFullSystemStage,
                                   "08-LongUnlockedScene-06-FullSystem", [&]() {
-      const bool first_entry = full_system_profile_entry++ == 0;
-      full_system_component_kat.expected_cpu =
-          first_entry ? kLongSceneFullSystemCpuColdKatExpected : kLongSceneFullSystemCpuKatExpected;
-      full_system_component_kat.cpu_assertion = static_cast<uint16_t>(
-          first_entry ? kLongSceneFullSystemCpuColdKatAssertion : kLongSceneFullSystemCpuKatAssertion);
       RunIteration(preset, Phase::FULL_SYSTEM, kFullSystemIteration, kFullSystemStage,
                    &full_system_component_kat);
     });
@@ -842,19 +779,11 @@ uint32_t GameLoadCompositeTests::ExpectedLongSceneFinalState(const Preset &prese
       state = (state ^ value) * 16777619U;
     }
   };
-  auto fold_first_cold_then_steady = [&fold](uint32_t &state, uint32_t cold,
-                                             uint32_t steady, uint32_t count) {
-    ASSERT(count > 0);
-    fold(state, cold, 1);
-    fold(state, steady, count - 1);
-  };
   const uint32_t combined_seed = preset.seed + 4 * 0x9E3779B9U;
   const uint32_t full_system_seed = preset.seed + 5 * 0x9E3779B9U;
   uint32_t expected = preset.seed ^ static_cast<uint32_t>(Phase::LONG_UNLOCKED_SCENE);
   if (enabled(LongSceneStage::CPU)) {
-    fold_first_cold_then_steady(expected, kLongSceneCpuColdKatExpected,
-                                kLongSceneCpuKatExpected,
-                                invocation_count(LongSceneStage::CPU));
+    fold(expected, kLongSceneCpuKatExpected, invocation_count(LongSceneStage::CPU));
   }
   if (enabled(LongSceneStage::PFIFO)) {
     const uint32_t value = (kPatternPrefix | (0x21A40C12 & 0x00FFFFFF)) ^ preset.fence_reads;
@@ -868,22 +797,16 @@ uint32_t GameLoadCompositeTests::ExpectedLongSceneFinalState(const Preset &prese
          invocation_count(LongSceneStage::STREAMING_SURFACE_REUSE));
   }
   if (enabled(LongSceneStage::COMBINED)) {
-    const uint32_t common = combined_seed ^
-                            ((kPatternPrefix | (combined_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
-                            kLongSceneCombinedLoaderKatExpected;
-    fold_first_cold_then_steady(expected,
-                                common ^ kLongSceneCombinedCpuColdKatExpected,
-                                common ^ kLongSceneCombinedCpuKatExpected,
-                                invocation_count(LongSceneStage::COMBINED));
+    const uint32_t value = combined_seed ^ kLongSceneCombinedCpuKatExpected ^
+                           ((kPatternPrefix | (combined_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
+                           kLongSceneCombinedLoaderKatExpected;
+    fold(expected, value, invocation_count(LongSceneStage::COMBINED));
   }
   if (enabled(LongSceneStage::FULL_SYSTEM)) {
-    const uint32_t common = full_system_seed ^
-                            ((kPatternPrefix | (full_system_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
-                            kLongSceneFullSystemLoaderKatExpected;
-    fold_first_cold_then_steady(expected,
-                                common ^ kLongSceneFullSystemCpuColdKatExpected,
-                                common ^ kLongSceneFullSystemCpuKatExpected,
-                                invocation_count(LongSceneStage::FULL_SYSTEM));
+    const uint32_t value = full_system_seed ^ kLongSceneFullSystemCpuKatExpected ^
+                           ((kPatternPrefix | (full_system_seed & 0x00FFFFFF)) ^ preset.fence_reads) ^
+                           kLongSceneFullSystemLoaderKatExpected;
+    fold(expected, value, invocation_count(LongSceneStage::FULL_SYSTEM));
   }
   return expected;
 }
@@ -953,11 +876,16 @@ uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed)
   asm volatile("fldcw %0" : : "m"(kCanonicalX87ControlWord) : "memory");
   asm volatile("ldmxcsr %0" : : "m"(kCanonicalMxcsr) : "memory");
 
-  float fp = 0.625f;
+  // Each volatile store materializes IEEE binary32 before the next operator.
+  // This removes x87/SSE register-lifetime differences that made the first
+  // two profiler entries disagree despite identical FP control words.
+  volatile float fp = 0.625f;
   for (uint32_t i = 0; i < preset.cpu_fp_cycles; ++i) {
-    fp = (fp * 1.0009765625f + 0.03125f) - 0.0306396484375f;
-    fp = fp * 0.99951171875f + 0.00030517578125f;
-    asm volatile("" : "+x"(fp));
+    fp = fp * 1.0009765625f;
+    fp = fp + 0.03125f;
+    fp = fp - 0.0306396484375f;
+    fp = fp * 0.99951171875f;
+    fp = fp + 0.00030517578125f;
   }
 
   const uint32_t memory_bytes = std::min<uint32_t>(preset.cpu_memory_bytes, cpu_memory_.size());
@@ -970,7 +898,8 @@ uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed)
   }
 
   uint32_t fp_bits;
-  memcpy(&fp_bits, &fp, sizeof(fp_bits));
+  const float fp_value = fp;
+  memcpy(&fp_bits, &fp_value, sizeof(fp_bits));
   asm volatile("fldcw %0" : : "m"(saved_x87_control_word) : "memory");
   asm volatile("ldmxcsr %0" : : "m"(saved_mxcsr) : "memory");
   return state ^ memory_checksum ^ fp_bits;
