@@ -39,6 +39,8 @@ static constexpr uint32_t kVertexBytesPerUpdate = kVerticesPerDraw * 8 * sizeof(
 static constexpr uint32_t kFpOperationsPerCycle = 8;
 static constexpr uint32_t kAudioBufferBytes = 24 * 1024;
 static constexpr uint32_t kAudioBufferCount = 2;
+static constexpr uint32_t kAudioBuffersPerMeasurement = 16;
+static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
@@ -48,6 +50,9 @@ static volatile bool g_audio_active;
 static volatile uint32_t g_audio_voice_count;
 static volatile uint32_t g_audio_buffer_index;
 static volatile uint32_t g_audio_phase;
+static volatile uint32_t g_audio_submitted_buffers;
+static volatile uint32_t g_audio_completed_buffers;
+static void *g_audio_done_event;
 
 static uint32_t XorShift32(uint32_t &state) {
   state ^= state << 13;
@@ -148,7 +153,7 @@ static void SetPatternColor0(uint32_t value) {
   pb_end(push);
 }
 
-static void AudioCallback(void *, void *) {
+static void SubmitAudioBuffer() {
   if (!g_audio_active) {
     return;
   }
@@ -173,6 +178,20 @@ static void AudioCallback(void *, void *) {
   }
   g_audio_phase = phase;
   XAudioProvideSamples(buffer.data(), buffer.size(), false);
+  ++g_audio_submitted_buffers;
+}
+
+static void AudioCallback(void *, void *) {
+  if (!g_audio_active) {
+    return;
+  }
+  ++g_audio_completed_buffers;
+  if (g_audio_submitted_buffers < kAudioBuffersPerMeasurement) {
+    SubmitAudioBuffer();
+  }
+  if (g_audio_completed_buffers >= kAudioBuffersPerMeasurement) {
+    SetEvent(g_audio_done_event);
+  }
 }
 
 }  // namespace
@@ -218,8 +237,12 @@ void GameLoadCompositeTests::Initialize() {
   }
   alpha_vertex_buffer_->Unlock();
 
+  uint32_t streaming_seed = 0xC07EC7ED;
   for (auto &buffer : streaming_buffers_) {
     buffer.resize(kStreamingBufferBytes);
+    for (auto &value : buffer) {
+      value = static_cast<uint8_t>(XorShift32(streaming_seed));
+    }
   }
   cpu_memory_.resize(1024 * 1024);
   uint32_t seed = 0x58E6C21D;
@@ -243,8 +266,10 @@ void GameLoadCompositeTests::Initialize() {
 
   loader_start_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
   loader_done_event_ = CreateEvent(nullptr, FALSE, FALSE, nullptr);
+  g_audio_done_event = CreateEvent(nullptr, TRUE, FALSE, nullptr);
   ASSERT(loader_start_event_ != nullptr);
   ASSERT(loader_done_event_ != nullptr);
+  ASSERT(g_audio_done_event != nullptr);
   loader_thread_ = CreateThread(nullptr, 64 * 1024, LoaderThreadEntry, this, 0, nullptr);
   ASSERT(loader_thread_ != nullptr);
 }
@@ -257,9 +282,11 @@ void GameLoadCompositeTests::Deinitialize() {
   CloseHandle(loader_thread_);
   CloseHandle(loader_start_event_);
   CloseHandle(loader_done_event_);
+  CloseHandle(g_audio_done_event);
   loader_thread_ = nullptr;
   loader_start_event_ = nullptr;
   loader_done_event_ = nullptr;
+  g_audio_done_event = nullptr;
 
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetTextureStageEnabled(0, false);
@@ -319,6 +346,8 @@ uint32_t GameLoadCompositeTests::WaitForLoader() {
 void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(phase);
   current_streaming_buffer_ = 0;
+  memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
+         kStreamingBufferBytes);
   auto &texture_stage = host_.GetTextureStage(0);
   texture_stage.SetEnabled(true);
   host_.SetupTextureStages();
@@ -327,27 +356,48 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   host_.SetBlend(true);
   host_.PrepareDraw(0xFF101820);
 
-  if (phase == Phase::FULL_SYSTEM) {
-    StartAudio(preset.audio_voices);
-  }
-
   std::string test_name = preset.name;
   test_name += "-";
   test_name += PhaseName(phase);
+  const uint32_t warmup_iterations =
+      host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  const uint32_t measured_iterations =
+      host_.GetSaveResults() ?
+          kProfileSamples * host_.GetMeasurementIterationsMultiplier() : 1;
+  uint32_t invocation = 0;
   uint32_t iteration = 0;
-  auto results = Profile(test_name, kProfileSamples, [this, &preset, phase, &iteration]() {
+  auto results = Profile(test_name, kProfileSamples,
+                         [this, &preset, phase, warmup_iterations,
+                          measured_iterations, &invocation, &iteration]() {
+    if (invocation++ == warmup_iterations) {
+      // Warmups exercise identical paths but never influence measured seeds,
+      // the measured result checksum, streaming-buffer selection, or audio.
+      aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(phase);
+      current_streaming_buffer_ = 0;
+      iteration = 0;
+      if (phase == Phase::FULL_SYSTEM) {
+        StartAudio(preset.audio_voices);
+      }
+    }
     RunIteration(preset, phase, iteration++);
+    if (phase == Phase::FULL_SYSTEM && iteration == measured_iterations) {
+      WaitForAudio();
+      StopAudio();
+    }
   });
 
   StopAudio();
   const WorkTotals totals = ExpectedWork(preset, phase);
   const uint64_t multiplier = results.iterations;
+  const uint32_t work_checksum =
+      WorkChecksum(preset, phase, totals, results.iterations);
   PrintMsg(
       "COMPOSITE_WORK GameLoadComposite::%s preset=%s phase=%s seed=%08lx "
       "iterations=%lu cpu_indirect=%llu cpu_fp=%llu cpu_memory_bytes=%llu "
       "decode_bytes=%llu pfifo_methods=%llu fence_reads=%llu draws=%llu "
       "primitives=%llu alpha_pixels=%llu texture_bytes=%llu vertex_bytes=%llu "
-      "surface_reuses=%llu audio_voices=%llu checksum=%08lx\n",
+      "surface_reuses=%llu audio_voices=%llu audio_buffers=%llu audio_bytes=%llu "
+      "audio_mix_operations=%llu work_checksum=%08lx result_checksum=%08lx\n",
       test_name.c_str(), preset.name, PhaseName(phase), preset.seed, results.iterations,
       totals.cpu_indirect_operations * multiplier, totals.cpu_fp_operations * multiplier,
       totals.cpu_memory_bytes * multiplier, totals.decode_bytes * multiplier,
@@ -355,15 +405,19 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
       totals.draws * multiplier, totals.primitives * multiplier,
       totals.alpha_pixels * multiplier, totals.texture_bytes * multiplier,
       totals.vertex_bytes * multiplier, totals.surface_reuses * multiplier,
-      totals.audio_voices, aggregate_checksum_);
+      totals.audio_voices, totals.audio_buffers, totals.audio_bytes,
+      totals.audio_mix_operations, work_checksum, aggregate_checksum_);
 
   char seed_string[9] = {};
-  char checksum_string[9] = {};
+  char work_checksum_string[9] = {};
+  char result_checksum_string[9] = {};
   snprintf(seed_string, sizeof(seed_string), "%08lx", preset.seed);
-  snprintf(checksum_string, sizeof(checksum_string), "%08lx", aggregate_checksum_);
+  snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx", work_checksum);
+  snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
+           aggregate_checksum_);
   std::ostringstream metadata;
   metadata << "{";
-  metadata << "\"schema_version\":1,";
+  metadata << "\"schema_version\":2,";
   metadata << "\"kind\":\"game_load_composite\",";
   metadata << "\"preset\":\"" << preset.name << "\",";
   metadata << "\"phase\":\"" << PhaseName(phase) << "\",";
@@ -382,12 +436,16 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   metadata << "\"texture_bytes\":" << totals.texture_bytes * multiplier << ",";
   metadata << "\"vertex_bytes\":" << totals.vertex_bytes * multiplier << ",";
   metadata << "\"surface_reuses\":" << totals.surface_reuses * multiplier << ",";
-  metadata << "\"audio_voices\":" << totals.audio_voices;
+  metadata << "\"audio_voices\":" << totals.audio_voices << ",";
+  metadata << "\"audio_buffers\":" << totals.audio_buffers << ",";
+  metadata << "\"audio_bytes\":" << totals.audio_bytes << ",";
+  metadata << "\"audio_mix_operations\":" << totals.audio_mix_operations;
   metadata << "},";
-  metadata << "\"checksum\":\"" << checksum_string << "\"";
+  metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
+  metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
   metadata << "}";
 
-  DrawCorrectnessResult(aggregate_checksum_, phase);
+  DrawCorrectnessResult(aggregate_checksum_, preset, phase);
   host_.FinishDraw(suite_name_, test_name, results, metadata.str());
 }
 
@@ -439,7 +497,7 @@ uint32_t GameLoadCompositeTests::RunCpuWork(const Preset &preset, uint32_t seed)
   const uint32_t memory_bytes = std::min<uint32_t>(preset.cpu_memory_bytes, cpu_memory_.size());
   uint32_t offset = seed & (cpu_memory_.size() - 1);
   uint32_t memory_checksum = 2166136261U;
-  for (uint32_t i = 0; i < memory_bytes; i += 64) {
+  for (uint32_t i = 0; i < memory_bytes; ++i) {
     offset = (offset + ((state >> 8) | 1)) & (cpu_memory_.size() - 1);
     memory_checksum = (memory_checksum ^ cpu_memory_[offset]) * 16777619U;
     state = (state << 1) | (state >> 31);
@@ -471,11 +529,19 @@ uint32_t GameLoadCompositeTests::RunPfifoWork(const Preset &preset, uint32_t see
   volatile const uint32_t *pattern_color0 =
       reinterpret_cast<volatile const uint32_t *>(kPgraphPatternColor0Address);
   uint32_t observed = 0;
+  bool observed_pattern = false;
   for (uint32_t i = 0; i < preset.fence_reads; ++i) {
     observed = *pattern_color0;
+    if (observed == pattern) {
+      observed_pattern = true;
+    } else {
+      // A stale value is valid before the asynchronous PFIFO method lands,
+      // but the fence must never regress after the new sequence is observed.
+      ASSERT(!observed_pattern);
+    }
   }
   g_composite_result = observed;
-  ASSERT(observed == pattern);
+  ASSERT(observed_pattern);
   return pattern ^ preset.fence_reads;
 }
 
@@ -489,6 +555,7 @@ void GameLoadCompositeTests::RunGpuWork(const Preset &preset, uint32_t seed) {
 }
 
 void GameLoadCompositeTests::RunStreamingWork(const Preset &preset, uint32_t seed, uint32_t buffer_index) {
+  last_streaming_seed_ = seed;
   const uint32_t bytes = std::min<uint32_t>(preset.stream_bytes, kStreamingBufferBytes);
   memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[buffer_index].data(), bytes);
 
@@ -528,10 +595,22 @@ void GameLoadCompositeTests::StartAudio(uint32_t voices) {
   g_audio_voice_count = voices;
   g_audio_phase = 0;
   g_audio_buffer_index = 0;
+  g_audio_submitted_buffers = 0;
+  g_audio_completed_buffers = 0;
+  ResetEvent(g_audio_done_event);
   g_audio_active = true;
-  AudioCallback(nullptr, nullptr);
-  AudioCallback(nullptr, nullptr);
+  SubmitAudioBuffer();
+  SubmitAudioBuffer();
   XAudioPlay();
+}
+
+void GameLoadCompositeTests::WaitForAudio() {
+  if (!audio_voices_) {
+    return;
+  }
+  ASSERT(WaitForSingleObject(g_audio_done_event, 30000) == WAIT_OBJECT_0);
+  ASSERT(g_audio_submitted_buffers == kAudioBuffersPerMeasurement);
+  ASSERT(g_audio_completed_buffers == kAudioBuffersPerMeasurement);
 }
 
 void GameLoadCompositeTests::StopAudio() {
@@ -542,10 +621,52 @@ void GameLoadCompositeTests::StopAudio() {
   XAudioPause();
 }
 
-void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum, Phase phase) {
+void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
+                                                   const Preset &preset,
+                                                   Phase phase) {
+  // Validate the last timed surface clear through a CPU readback before the
+  // final framebuffer hash is created. This is outside the measured markers.
+  if (HasStreaming(phase)) {
+    host_.WaitForGpu();
+    const uint32_t final_reuse = preset.surface_reuses - 1;
+    const uint32_t expected =
+        0xFF000000 | ((last_streaming_seed_ + (final_reuse * 0x10203)) & 0x00FFFFFF);
+    auto *surface = reinterpret_cast<volatile const uint32_t *>(
+        host_.GetTextureMemoryForStage(1));
+    ASSERT(surface[0] == expected);
+    ASSERT(surface[(120 / 2) * 160 + (160 / 2)] == expected);
+    ASSERT(surface[(120 * 160) - 1] == expected);
+    checksum = (checksum ^ expected) * 16777619U;
+  }
+
+  host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
+  if (HasGpu(phase) || HasStreaming(phase)) {
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const std::array<std::array<float, 2>, 4> positions{{
+        {160.f, 120.f}, {480.f, 120.f}, {480.f, 360.f}, {160.f, 360.f},
+    }};
+    const std::array<std::array<float, 2>, 4> texcoords{{
+        {0.f, 0.f}, {1.f, 0.f}, {1.f, 1.f}, {0.f, 1.f},
+    }};
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      vertex->SetPosition(positions[i][0], positions[i][1], 1.f);
+      vertex->SetDiffuse(1.f, 1.f, 1.f, 1.f);
+      vertex->SetTexCoord0(texcoords[i][0], texcoords[i][1]);
+    }
+    alpha_vertex_buffer_->Unlock();
+    host_.SetTextureStageEnabled(0, true);
+    host_.SetupTextureStages();
+    host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+    host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+    host_.SetVertexBuffer(alpha_vertex_buffer_);
+    host_.SetBlend(false);
+    static constexpr uint32_t attributes =
+        TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+  }
+
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetTextureStageEnabled(0, false);
-  host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
   host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
   host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
   host_.Begin(TestHost::PRIMITIVE_QUADS);
@@ -586,8 +707,47 @@ GameLoadCompositeTests::WorkTotals GameLoadCompositeTests::ExpectedWork(const Pr
   }
   if (phase == Phase::FULL_SYSTEM) {
     totals.audio_voices = preset.audio_voices;
+    totals.audio_buffers = kAudioBuffersPerMeasurement;
+    totals.audio_bytes =
+        static_cast<uint64_t>(kAudioBuffersPerMeasurement) * kAudioBufferBytes;
+    totals.audio_mix_operations =
+        static_cast<uint64_t>(kAudioBuffersPerMeasurement) *
+        kAudioFramesPerBuffer * preset.audio_voices;
   }
   return totals;
+}
+
+uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
+                                              Phase phase,
+                                              const WorkTotals &totals,
+                                              uint32_t iterations) const {
+  uint32_t checksum = 2166136261U;
+  auto add = [&checksum](uint64_t value) {
+    for (uint32_t byte = 0; byte < sizeof(value); ++byte) {
+      checksum = (checksum ^ static_cast<uint8_t>(value >> (byte * 8))) *
+                 16777619U;
+    }
+  };
+  add(preset.seed);
+  add(static_cast<uint32_t>(phase));
+  add(iterations);
+  add(totals.cpu_indirect_operations * iterations);
+  add(totals.cpu_fp_operations * iterations);
+  add(totals.cpu_memory_bytes * iterations);
+  add(totals.decode_bytes * iterations);
+  add(totals.pfifo_methods * iterations);
+  add(totals.fence_reads * iterations);
+  add(totals.draws * iterations);
+  add(totals.primitives * iterations);
+  add(totals.alpha_pixels * iterations);
+  add(totals.texture_bytes * iterations);
+  add(totals.vertex_bytes * iterations);
+  add(totals.surface_reuses * iterations);
+  add(totals.audio_voices);
+  add(totals.audio_buffers);
+  add(totals.audio_bytes);
+  add(totals.audio_mix_operations);
+  return checksum;
 }
 
 const char *GameLoadCompositeTests::PhaseName(Phase phase) {

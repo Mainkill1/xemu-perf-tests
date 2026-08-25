@@ -68,6 +68,9 @@ class GameLoadCompositeTests : public TestSuite {
     uint64_t vertex_bytes{0};
     uint64_t surface_reuses{0};
     uint64_t audio_voices{0};
+    uint64_t audio_buffers{0};
+    uint64_t audio_bytes{0};
+    uint64_t audio_mix_operations{0};
   };
 
   struct LoaderJob {
@@ -91,9 +94,12 @@ class GameLoadCompositeTests : public TestSuite {
   void RunGpuWork(const Preset &preset, uint32_t seed);
   void RunStreamingWork(const Preset &preset, uint32_t seed, uint32_t buffer_index);
   void StartAudio(uint32_t voices);
+  void WaitForAudio();
   void StopAudio();
-  void DrawCorrectnessResult(uint32_t checksum, Phase phase);
+  void DrawCorrectnessResult(uint32_t checksum, const Preset &preset, Phase phase);
   WorkTotals ExpectedWork(const Preset &preset, Phase phase) const;
+  uint32_t WorkChecksum(const Preset &preset, Phase phase,
+                        const WorkTotals &totals, uint32_t iterations) const;
 
   static const char *PhaseName(Phase phase);
   static bool HasCpu(Phase phase);
@@ -112,6 +118,7 @@ class GameLoadCompositeTests : public TestSuite {
   LoaderJob loader_job_{};
 
   uint32_t current_streaming_buffer_{0};
+  uint32_t last_streaming_seed_{0};
   uint32_t aggregate_checksum_{0};
   uint32_t audio_voices_{0};
 };
