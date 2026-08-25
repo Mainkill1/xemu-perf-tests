@@ -369,7 +369,8 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   auto results = Profile(test_name, kProfileSamples,
                          [this, &preset, phase, warmup_iterations,
                           measured_iterations, &invocation, &iteration]() {
-    if (invocation++ == warmup_iterations) {
+    const bool measured = invocation >= warmup_iterations;
+    if (invocation == warmup_iterations) {
       // Warmups exercise identical paths but never influence measured seeds,
       // the measured result checksum, streaming-buffer selection, or audio.
       aggregate_checksum_ = preset.seed ^ static_cast<uint32_t>(phase);
@@ -379,7 +380,10 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
         StartAudio(preset.audio_voices);
       }
     }
-    RunIteration(preset, phase, iteration++);
+    const uint32_t workload_iteration =
+        measured ? iteration++ : 0x80000000U + invocation;
+    ++invocation;
+    RunIteration(preset, phase, workload_iteration);
     if (phase == Phase::FULL_SYSTEM && iteration == measured_iterations) {
       WaitForAudio();
       StopAudio();
