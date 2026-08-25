@@ -44,10 +44,9 @@ static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
 static constexpr uint32_t kLongSceneSamples = 8;
-// The prior CPU literals were captured before this file established the FP
-// environment. Do not treat them as canonical KATs; the next canonical smoke
-// captures replacements through post-F1 diagnostic heartbeats.
-static constexpr bool kLongSceneCanonicalCpuKatEstablished = false;
+// Synthetic regression oracle captured after canonical FP save/load/restore
+// in the 2026-08-25 long-scene smoke (run 2026-08-25-020154). It is not a
+// retail-hardware claim; update only from an audited canonical-FP KAT capture.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
 static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44B0F70;
 static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE23A19;
@@ -563,26 +562,21 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   if (stage_enabled(LongSceneStage::CPU)) {
     final_results = profile_stage(LongSceneStage::CPU, kCpuStage, "08-LongUnlockedScene-01-CPU", [&]() {
       actual_cpu = RunCpuWork(preset, kCpuSeed);
-      if (kLongSceneCanonicalCpuKatEstablished) {
-        AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
-                            XemuPerfAssertion::COMPOSITE_SCENE_CPU,
-                            "actual_cpu == kLongSceneCpuKatExpected", __FILE__, __LINE__);
-      }
+      AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
+                          XemuPerfAssertion::COMPOSITE_SCENE_CPU,
+                          "actual_cpu == kLongSceneCpuKatExpected", __FILE__, __LINE__);
       fold(kCpuStage, actual_cpu);
     });
     stage_results[static_cast<uint32_t>(LongSceneStage::CPU)] = final_results;
     stage_ran[static_cast<uint32_t>(LongSceneStage::CPU)] = true;
-    if (kLongSceneCanonicalCpuKatEstablished) {
-      AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
-                          XemuPerfAssertion::COMPOSITE_SCENE_CPU,
-                          "actual_cpu == expected_cpu", __FILE__, __LINE__);
-    } else {
-      PrintMsg("COMPOSITE_KAT_CANONICAL stage=cpu cpu=%08lx x87=%04x mxcsr=%08lx\n",
-               actual_cpu, kCanonicalX87ControlWord, kCanonicalMxcsr);
-      EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
-                        static_cast<uint16_t>(kLongSceneCpuCanonicalDiagnostic),
-                        actual_cpu, kCanonicalMxcsr);
-    }
+    PrintMsg("COMPOSITE_KAT_CANONICAL stage=cpu cpu=%08lx x87=%04x mxcsr=%08lx\n",
+             actual_cpu, kCanonicalX87ControlWord, kCanonicalMxcsr);
+    EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
+                      static_cast<uint16_t>(kLongSceneCpuCanonicalDiagnostic),
+                      actual_cpu, kCanonicalMxcsr);
+    AssertXemuPerfEqual(kLongSceneCpuKatExpected, actual_cpu,
+                        XemuPerfAssertion::COMPOSITE_SCENE_CPU,
+                        "actual_cpu == expected_cpu", __FILE__, __LINE__);
     EmitXemuPerfHeartbeat();
   }
 
@@ -645,9 +639,7 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     static constexpr IterationComponentKat kCombinedComponentKat{
         kLongSceneCombinedCpuKatExpected,
         kLongSceneCombinedLoaderKatExpected,
-        kLongSceneCanonicalCpuKatEstablished
-            ? static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion)
-            : 0,
+        static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion),
         static_cast<uint16_t>(kLongSceneCombinedLoaderKatAssertion),
     };
     final_results = profile_stage(LongSceneStage::COMBINED, kCombinedStage,
@@ -665,12 +657,10 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
                       static_cast<uint16_t>(kLongSceneCombinedCpuKatAssertion),
                       last_cpu_component_, last_loader_component_);
-    if (kLongSceneCanonicalCpuKatEstablished) {
-      AssertXemuPerfEqual(kLongSceneCombinedCpuKatExpected, last_cpu_component_,
-                          kLongSceneCombinedCpuKatAssertion,
-                          "last_cpu_component_ == kLongSceneCombinedCpuKatExpected",
-                          __FILE__, __LINE__);
-    }
+    AssertXemuPerfEqual(kLongSceneCombinedCpuKatExpected, last_cpu_component_,
+                        kLongSceneCombinedCpuKatAssertion,
+                        "last_cpu_component_ == kLongSceneCombinedCpuKatExpected",
+                        __FILE__, __LINE__);
     AssertXemuPerfEqual(kLongSceneCombinedLoaderKatExpected, last_loader_component_,
                         kLongSceneCombinedLoaderKatAssertion,
                         "last_loader_component_ == kLongSceneCombinedLoaderKatExpected",
@@ -682,9 +672,7 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     static constexpr IterationComponentKat kFullSystemComponentKat{
         kLongSceneFullSystemCpuKatExpected,
         kLongSceneFullSystemLoaderKatExpected,
-        kLongSceneCanonicalCpuKatEstablished
-            ? static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion)
-            : 0,
+        static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion),
         static_cast<uint16_t>(kLongSceneFullSystemLoaderKatAssertion),
     };
     StartAudio(preset.audio_voices);
@@ -707,12 +695,10 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
                       static_cast<uint16_t>(kLongSceneFullSystemCpuKatAssertion),
                       last_cpu_component_, last_loader_component_);
-    if (kLongSceneCanonicalCpuKatEstablished) {
-      AssertXemuPerfEqual(kLongSceneFullSystemCpuKatExpected, last_cpu_component_,
-                          kLongSceneFullSystemCpuKatAssertion,
-                          "last_cpu_component_ == kLongSceneFullSystemCpuKatExpected",
-                          __FILE__, __LINE__);
-    }
+    AssertXemuPerfEqual(kLongSceneFullSystemCpuKatExpected, last_cpu_component_,
+                        kLongSceneFullSystemCpuKatAssertion,
+                        "last_cpu_component_ == kLongSceneFullSystemCpuKatExpected",
+                        __FILE__, __LINE__);
     AssertXemuPerfEqual(kLongSceneFullSystemLoaderKatExpected, last_loader_component_,
                         kLongSceneFullSystemLoaderKatAssertion,
                         "last_loader_component_ == kLongSceneFullSystemLoaderKatExpected",
@@ -726,14 +712,9 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
                                     stage_enabled(LongSceneStage::COMBINED) ||
                                     stage_enabled(LongSceneStage::FULL_SYSTEM);
   const uint32_t expected_final_state = ExpectedLongSceneFinalState(preset);
-  if (kLongSceneCanonicalCpuKatEstablished) {
-    AssertXemuPerfEqual(expected_final_state, aggregate_checksum_,
-                        XemuPerfAssertion::COMPOSITE_SCENE_FINAL,
-                        "aggregate_checksum_ == expected_final_state", __FILE__, __LINE__);
-  } else {
-    PrintMsg("COMPOSITE_KAT_CANONICAL stage=final expected=%08lx actual=%08lx\n",
-             expected_final_state, aggregate_checksum_);
-  }
+  AssertXemuPerfEqual(expected_final_state, aggregate_checksum_,
+                      XemuPerfAssertion::COMPOSITE_SCENE_FINAL,
+                      "aggregate_checksum_ == expected_final_state", __FILE__, __LINE__);
   DrawCorrectnessResult(aggregate_checksum_, preset,
                         has_streaming_output ? Phase::LONG_UNLOCKED_SCENE : Phase::CPU_ONLY);
   for (uint32_t stage = 0; stage < Config::kGameLoadCompositeStageCount; ++stage) {
