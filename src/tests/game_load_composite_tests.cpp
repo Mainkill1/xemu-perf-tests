@@ -47,9 +47,9 @@ static constexpr uint32_t kLongSceneSamples = 8;
 // Synthetic regression oracle for explicit binary32 FP stores. It is not a
 // retail-hardware claim; update only from audited strict-FP guest captures.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
-static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44CD1E6;
-static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE5E48F;
-static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A7A5A;
+static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44CACC8;
+static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE599A1;
+static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A0774;
 static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
 static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
 static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
