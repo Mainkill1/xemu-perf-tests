@@ -135,6 +135,8 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t current_streaming_buffer_{0};
   uint32_t last_streaming_seed_{0};
   uint32_t last_pfifo_pattern_{0};
+  uint32_t last_cpu_component_{0};
+  uint32_t last_loader_component_{0};
   uint32_t aggregate_checksum_{0};
   uint32_t audio_voices_{0};
   uint32_t long_scene_stage_mask_{Config::kAllGameLoadCompositeStages};

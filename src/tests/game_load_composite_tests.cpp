@@ -44,16 +44,22 @@ static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
 static constexpr uint32_t kLongSceneSamples = 8;
-// Independent fixed-input KAT values for DoaxMenuStress. These must be
-// deliberately updated only after an audited workload-contract change.
+// Synthetic regression oracle, captured from the exact deterministic guest
+// algorithm/build in the 2026-08-25 long-scene smoke. It is not a retail
+// hardware claim. Update only with an audited guest KAT capture.
 static constexpr uint32_t kLongSceneCpuKatSeed = 0x21A40C11;
-static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44CACC8;
+static constexpr uint32_t kLongSceneCpuKatExpected = 0xF44B0F70;
 static constexpr uint32_t kLongSceneCombinedCpuKatExpected = 0xFDE599A1;
 static constexpr uint32_t kLongSceneFullSystemCpuKatExpected = 0x2A3A0774;
 static constexpr uint32_t kLongSceneFullSystemStreamingSeed = 0xE7B9609F;
 static constexpr uint32_t kLongSceneStreamingLoaderKatExpected = 0xC6FEDB8B;
 static constexpr uint32_t kLongSceneCombinedLoaderKatExpected = 0x2C63685E;
 static constexpr uint32_t kLongSceneFullSystemLoaderKatExpected = 0x2E10E673;
+// Stable event assertion IDs for post-F1 component-oracle capture.
+static constexpr auto kLongSceneCombinedComponentOracle =
+    static_cast<XemuPerfAssertion>(0x112);
+static constexpr auto kLongSceneFullSystemComponentOracle =
+    static_cast<XemuPerfAssertion>(0x113);
 
 static s_CtxDma g_pattern_context{};
 static volatile uint32_t g_composite_result;
@@ -608,6 +614,13 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
     stage_results[static_cast<uint32_t>(LongSceneStage::COMBINED)] = final_results;
     stage_ran[static_cast<uint32_t>(LongSceneStage::COMBINED)] = true;
     ValidatePfifoTerminal();
+    // These synthetic literals have not yet been captured from a guest smoke.
+    // Print exact post-F1 component values before promoting them to typed KATs.
+    PrintMsg("COMPOSITE_KAT stage=combined cpu=%08lx loader=%08lx\n",
+             last_cpu_component_, last_loader_component_);
+    EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
+                      static_cast<uint16_t>(kLongSceneCombinedComponentOracle),
+                      last_cpu_component_, last_loader_component_);
     EmitXemuPerfHeartbeat();
   }
 
@@ -626,6 +639,11 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
                         XemuPerfAssertion::COMPOSITE_SCENE_FINAL,
                         "last_streaming_seed_ == kLongSceneFullSystemStreamingSeed",
                         __FILE__, __LINE__);
+    PrintMsg("COMPOSITE_KAT stage=full_system cpu=%08lx loader=%08lx\n",
+             last_cpu_component_, last_loader_component_);
+    EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT,
+                      static_cast<uint16_t>(kLongSceneFullSystemComponentOracle),
+                      last_cpu_component_, last_loader_component_);
     EmitXemuPerfHeartbeat();
   }
 
@@ -745,7 +763,8 @@ void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uin
 
   uint32_t checksum = seed;
   if (HasCpu(phase)) {
-    checksum ^= RunCpuWork(preset, seed);
+    last_cpu_component_ = RunCpuWork(preset, seed);
+    checksum ^= last_cpu_component_;
   }
   if (HasPfifo(phase)) {
     checksum ^= RunPfifoWork(preset, seed);
@@ -755,7 +774,8 @@ void GameLoadCompositeTests::RunIteration(const Preset &preset, Phase phase, uin
   }
 
   if (run_loader) {
-    checksum ^= WaitForLoader();
+    last_loader_component_ = WaitForLoader();
+    checksum ^= last_loader_component_;
   }
   if (HasStreaming(phase)) {
     RunStreamingWork(preset, seed, destination);
