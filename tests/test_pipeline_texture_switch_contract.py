@@ -30,6 +30,12 @@ FNV32_OFFSET = 2166136261
 FNV32_PRIME = 16777619
 FNV64_OFFSET = 14695981039346656037
 FNV64_PRIME = 1099511628211
+BOUNDARY_CLEAR = 0xFF202830
+CLEAR_BOUNDARIES = 128
+CLEAR_TEXTURE_CHANGES = 2
+CLEAR_NORMAL_DRAWS = 2
+CLEAR_OPERATIONS = 640
+CLEAR_TEST_ID = "pipeline.clear-texture-normal"
 TEST_IDS = (
     "pipeline.texture-switch",
     "pipeline.shader-negative-control",
@@ -61,6 +67,14 @@ def solid_frame_kat(color: int) -> int:
     return checksum
 
 
+def folded_state(multiplier: int) -> int:
+    checksum = SEED ^ 0x1503
+    for _ in range(8 * multiplier):
+        for value in (0x1A404C43, 0x1503, CLEAR_BOUNDARIES, 0x50C0069D):
+            checksum = ((checksum ^ value) * FNV32_PRIME) & 0xFFFFFFFF
+    return checksum
+
+
 class PipelineTextureSwitchContractTests(unittest.TestCase):
     def load(self, name: str) -> dict:
         return json.loads((ROOT / "resources" / name).read_text())
@@ -83,6 +97,35 @@ class PipelineTextureSwitchContractTests(unittest.TestCase):
             self.assertIn(test_id, SOURCE)
             self.assertIn(test_id, README)
             self.assertIn(test_id, DOC)
+
+    def test_third_phase_has_dedicated_exact_job_selection(self):
+        plans = {
+            "pipeline-clear-texture-normal-fast-smoke.json": (1, 1, "enqueue"),
+            "pipeline-clear-texture-normal-quick.json": (64, 32, "batch_complete"),
+            "pipeline-clear-texture-normal-sustained.json": (160, 80, "batch_complete"),
+        }
+        for resource, expected in plans.items():
+            config = self.load(resource)
+            self.assertTrue(config["settings"]["skip_tests_by_default"])
+            self.assertEqual(
+                (
+                    config["settings"]["warmup_iterations"],
+                    config["settings"]["measurement_iterations_multiplier"],
+                    config["settings"]["gpu_completion_mode"],
+                ),
+                expected,
+            )
+            self.assertEqual(
+                config["test_suites"],
+                {
+                    "PipelineTextureSwitch": {
+                        CLEAR_TEST_ID: {"skipped": False}
+                    }
+                },
+            )
+        self.assertIn(CLEAR_TEST_ID, SOURCE)
+        self.assertIn(CLEAR_TEST_ID, README)
+        self.assertIn(CLEAR_TEST_ID, DOC)
 
     def test_exact_generated_input_and_backing_kats(self):
         backing_a = texture_kat(TEXTURE_A)
@@ -157,6 +200,89 @@ class PipelineTextureSwitchContractTests(unittest.TestCase):
             self.assertIn(f"{expected:016X}", DOC.upper())
         self.assertIn("expected_framebuffer_fnv1a64", SOURCE)
         self.assertIn("HashBackBuffer()", SOURCE)
+
+    def test_clear_texture_normal_exact_oracles(self):
+        backing_a = texture_kat(TEXTURE_A)
+        backing_b = texture_kat(TEXTURE_B)
+        input_kat = word_kat(
+            (
+                SEED,
+                0xA9CA7145,
+                CLEAR_BOUNDARIES,
+                BOUNDARY_CLEAR,
+                backing_b,
+                backing_a,
+                CLEAR_NORMAL_DRAWS,
+            )
+        )
+        pixel_kat = word_kat((TEXTURE_A,) * 4)
+        frame_kat = solid_frame_kat(0xFF305060)
+        self.assertEqual(input_kat, 0x1A404C43)
+        self.assertEqual(pixel_kat, 0x50C0069D)
+        self.assertEqual(frame_kat, 0x22BA4F1405CDA325)
+        self.assertEqual(folded_state(1), 0x418E6684)
+        self.assertEqual(folded_state(32), 0xBF18BC54)
+        self.assertEqual(folded_state(80), 0x96C62554)
+        for value, width in (
+            (input_kat, 8),
+            (pixel_kat, 8),
+            (frame_kat, 16),
+        ):
+            literal = f"{value:0{width}X}"
+            self.assertIn(literal, SOURCE.upper())
+            self.assertIn(literal, DOC.upper())
+        self.assertIn("ExpectedClearTextureNormalFinalState", SOURCE)
+        self.assertIn("expected_final_state", SOURCE)
+        self.assertIn("actual_final_state", SOURCE)
+
+    def test_clear_boundary_order_and_counter_contract(self):
+        iteration = SOURCE[
+            SOURCE.index(
+                "void PipelineTextureSwitchTests::RunClearTextureNormalIteration"
+            ) : SOURCE.index(
+                "uint32_t PipelineTextureSwitchTests::ValidatePixels"
+            )
+        ]
+        clear = iteration.index("host_.ClearColorRegion(")
+        texture_b = iteration.index("NV097_SET_TEXTURE_OFFSET, texture_b")
+        first_draw = iteration.index("host_.DrawTexturedScreenQuadEx", texture_b)
+        texture_a = iteration.index("NV097_SET_TEXTURE_OFFSET, texture_a", first_draw)
+        second_draw = iteration.index("host_.DrawTexturedScreenQuadEx", texture_a)
+        self.assertLess(clear, texture_b)
+        self.assertLess(texture_b, first_draw)
+        self.assertLess(first_draw, texture_a)
+        self.assertLess(texture_a, second_draw)
+        for literal in (
+            "kClearBoundariesPerIteration = 128",
+            "kClearTextureChangesPerBoundary = 2",
+            "kClearNormalDrawsPerBoundary = 2",
+            '\\"expected_vertex_bindings\\":0',
+            '\\"expected_pipeline_dirty_clear_binding\\"',
+            '\\"expected_pipeline_texture_with_other_dirty\\"',
+            '\\"expected_pipeline_texture_only_bypass\\"',
+            '\\"PIPELINE_DIRTY_CLEAR_BINDING\\":\\">0\\"',
+            '\\"clear_boundary_counts_as_TEXTURE_ONLY_BYPASS\\":false',
+            '\\"PIPELINE_TEXTURE_ONLY_BYPASS\\":\\">0 after normal bind\\"',
+        ):
+            self.assertIn(literal, SOURCE)
+        self.assertEqual(
+            CLEAR_OPERATIONS,
+            CLEAR_BOUNDARIES
+            * (1 + CLEAR_TEXTURE_CHANGES + CLEAR_NORMAL_DRAWS),
+        )
+        self.assertIn("inline_immediate", SOURCE)
+        self.assertIn('"texture_stage_count', SOURCE)
+        self.assertIn("PIPELINE_DIRTY_CLEAR_BINDING", DOC)
+        self.assertIn("each\nequal the emitted boundary count", DOC)
+        self.assertIn("counter miss", DOC)
+
+    def test_existing_phase_initialization_semantics_are_unchanged(self):
+        initialize = SOURCE[
+            SOURCE.index("void PipelineTextureSwitchTests::Initialize()") :
+            SOURCE.index("void PipelineTextureSwitchTests::Run(")
+        ]
+        self.assertNotIn("kClearTextureNormal", initialize)
+        self.assertNotIn("kBoundaryClearColor", initialize)
 
     def test_f1_precedes_f2_and_all_correctness_reads(self):
         run = SOURCE[SOURCE.index("void PipelineTextureSwitchTests::Run(") :]

@@ -415,12 +415,17 @@ that exact failure has an explicit source/backend/scale compatibility allowance.
 generated same-format texture backings plus address and sampler state over 512
 fixed textured quads per invocation, and
 `pipeline.shader-negative-control`, which holds those texture states fixed
-while alternating shader combiner state. Both phases provide exact input,
-backing, rendered-pixel, terminal-state, operation-count, and framebuffer
-contracts with live failure/progress events. Smoke, initial roughly
+while alternating shader combiner state. A third exact phase,
+`pipeline.clear-texture-normal`, alternates a clear pipeline, a texture-only
+change into a zero-binding normal inline draw, then a safe texture-only normal
+draw. It requires a nonzero clear-binding dirty count, rejects attributing that
+boundary as a texture-only bypass, and requires a later safe bypass. All phases
+provide exact input, backing, rendered-pixel, terminal-state, operation-count,
+and framebuffer contracts with live failure/progress events. Smoke, initial roughly
 2-second/8-second quick, and 5-second/20-second formal configs are in
-`resources/pipeline-texture-switch-*.json`; duration claims still require
-control-only calibration and identical fixed work. See
+`resources/pipeline-texture-switch-*.json`; dedicated third-phase configs are
+in `resources/pipeline-clear-texture-normal-*.json`. Duration claims still
+require control-only calibration and identical fixed work. See
 [`docs/pipeline-texture-switch-workload.md`](docs/pipeline-texture-switch-workload.md).
 
 Framebuffer provenance remains mandatory. Emulator-produced hashes are

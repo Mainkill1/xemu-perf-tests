@@ -18,6 +18,8 @@ namespace {
 static constexpr char kTextureSwitchName[] = "pipeline.texture-switch";
 static constexpr char kShaderNegativeControlName[] =
     "pipeline.shader-negative-control";
+static constexpr char kClearTextureNormalName[] =
+    "pipeline.clear-texture-normal";
 
 static constexpr uint32_t kSeed = 0x50545357;  // "PTSW"
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
@@ -29,11 +31,18 @@ static constexpr uint32_t kProfileSamples = 8;
 static constexpr uint32_t kOperationsPerIteration = 512;
 static constexpr uint32_t kTextureStageCount = 1;
 static constexpr uint32_t kHeartbeatInterval = 32;
+static constexpr uint32_t kClearBoundariesPerIteration = 128;
+static constexpr uint32_t kClearTextureChangesPerBoundary = 2;
+static constexpr uint32_t kClearNormalDrawsPerBoundary = 2;
+static constexpr uint32_t kClearOperationsPerIteration =
+    kClearBoundariesPerIteration *
+    (1 + kClearTextureChangesPerBoundary + kClearNormalDrawsPerBoundary);
 
 static constexpr uint32_t kTextureAColor = 0xFFFF0000;
 static constexpr uint32_t kTextureBColor = 0xFF0000FF;
 static constexpr uint32_t kDiffuseColor = 0xFF00FF00;
 static constexpr uint32_t kBackgroundColor = 0xFF101820;
+static constexpr uint32_t kBoundaryClearColor = 0xFF202830;
 
 static constexpr uint32_t kRepeatAddress = 0x00010101;
 static constexpr uint32_t kClampAddress = 0x00030303;
@@ -46,6 +55,8 @@ static constexpr uint32_t kTextureBBackingKat = 0xC40ABDC5;
 static constexpr uint32_t kInputKat = 0xA9CA7145;
 static constexpr uint32_t kTextureSwitchPixelKat = 0xBB0EC8ED;
 static constexpr uint32_t kShaderNegativePixelKat = 0x08C5E8A1;
+static constexpr uint32_t kClearTextureNormalInputKat = 0x1A404C43;
+static constexpr uint32_t kClearTextureNormalPixelKat = 0x50C0069D;
 
 static constexpr uint32_t kTextureSwitchFinalColor = 0xFF18405A;
 static constexpr uint32_t kShaderNegativeFinalColor = 0xFF4A2038;
@@ -53,6 +64,9 @@ static constexpr uint64_t kTextureSwitchFinalFrameHash =
     0x8AE05D31FB00C325ULL;
 static constexpr uint64_t kShaderNegativeFinalFrameHash =
     0xF110C8BD6338C325ULL;
+static constexpr uint32_t kClearTextureNormalFinalColor = 0xFF305060;
+static constexpr uint64_t kClearTextureNormalFinalFrameHash =
+    0x22BA4F1405CDA325ULL;
 
 struct Quad {
   float left;
@@ -99,6 +113,18 @@ uint32_t ExpectedFinalState(uint32_t phase, uint32_t expected_pixel_kat,
   return state;
 }
 
+uint32_t ExpectedClearTextureNormalFinalState(uint32_t measured_iterations) {
+  static constexpr uint32_t kPhase = 0x1503;
+  uint32_t state = kSeed ^ kPhase;
+  for (uint32_t iteration = 0; iteration < measured_iterations; ++iteration) {
+    state = FoldKnownOutput(state, kClearTextureNormalInputKat);
+    state = FoldKnownOutput(state, kPhase);
+    state = FoldKnownOutput(state, kClearBoundariesPerIteration);
+    state = FoldKnownOutput(state, kClearTextureNormalPixelKat);
+  }
+  return state;
+}
+
 uint64_t HashBackBuffer() {
   static constexpr uint64_t kOffset = 14695981039346656037ULL;
   static constexpr uint64_t kPrime = 1099511628211ULL;
@@ -138,6 +164,7 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
   tests_[kTextureSwitchName] = [this]() { Run(kTextureSwitch); };
   tests_[kShaderNegativeControlName] =
       [this]() { Run(kShaderNegativeControl); };
+  tests_[kClearTextureNormalName] = [this]() { RunClearTextureNormal(); };
 }
 
 void PipelineTextureSwitchTests::Initialize() {
@@ -335,6 +362,204 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
   ClearXemuPerfEventContext();
 }
 
+void PipelineTextureSwitchTests::RunClearTextureNormal() {
+  static constexpr uint32_t kPhase = 0x1503;
+  uint32_t clear_texture_normal_input_kat = kFnvOffsetBasis;
+  const uint32_t clear_input_words[]{
+      kSeed,
+      input_kat_,
+      kClearBoundariesPerIteration,
+      kBoundaryClearColor,
+      backing_b_kat_,
+      backing_a_kat_,
+      kClearNormalDrawsPerBoundary,
+  };
+  for (uint32_t value : clear_input_words) {
+    clear_texture_normal_input_kat =
+        Fnv1aAddWord(clear_texture_normal_input_kat, value);
+  }
+  const uint32_t measured_iterations =
+      host_.GetSaveResults()
+          ? kProfileSamples * host_.GetMeasurementIterationsMultiplier()
+          : 1;
+  const uint32_t warmup_iterations =
+      host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  const uint32_t expected_final =
+      ExpectedClearTextureNormalFinalState(measured_iterations);
+  uint32_t actual_final = kSeed ^ kPhase;
+  uint32_t invocation = 0;
+
+  SetXemuPerfEventContext(kPhase, expected_final);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0,
+                    host_.GetMeasurementIterationsMultiplier(),
+                    warmup_iterations);
+  AssertXemuPerfEqual(kTextureABackingKat, backing_a_kat_,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "clear_texture_normal_input_a == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kTextureBBackingKat, backing_b_kat_,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "clear_texture_normal_input_b == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kClearTextureNormalInputKat,
+                      clear_texture_normal_input_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "clear_texture_normal_input == expected", __FILE__,
+                      __LINE__);
+
+  ConfigureTexturePipeline();
+  host_.PrepareDraw(kBackgroundColor);
+
+  auto results = Profile(kClearTextureNormalName, kProfileSamples, [&]() {
+    RunClearTextureNormalIteration();
+    if (invocation >= warmup_iterations) {
+      actual_final =
+          FoldKnownOutput(actual_final, clear_texture_normal_input_kat);
+      actual_final = FoldKnownOutput(actual_final, kPhase);
+      actual_final =
+          FoldKnownOutput(actual_final, kClearBoundariesPerIteration);
+      actual_final =
+          FoldKnownOutput(actual_final, kClearTextureNormalPixelKat);
+    }
+    if ((invocation % kHeartbeatInterval) == 0) {
+      EmitXemuPerfHeartbeat();
+    }
+    ++invocation;
+  });
+
+  SynchronizeCorrectness(host_);
+  auto *texture_a = reinterpret_cast<volatile const uint32_t *>(
+      host_.GetTextureMemoryForStage(0));
+  auto *texture_b = reinterpret_cast<volatile const uint32_t *>(
+      host_.GetTextureMemoryForStage(1));
+  const uint32_t actual_backing_a = HashWords(texture_a, kTexturePixels);
+  const uint32_t actual_backing_b = HashWords(texture_b, kTexturePixels);
+  AssertXemuPerfEqual(kTextureABackingKat, actual_backing_a,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "clear_texture_normal_backing_a_unchanged", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kTextureBBackingKat, actual_backing_b,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "clear_texture_normal_backing_b_unchanged", __FILE__,
+                      __LINE__);
+
+  const uint32_t actual_pixel_kat = ValidateClearTextureNormalPixels();
+  AssertXemuPerfEqual(kClearTextureNormalPixelKat, actual_pixel_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                      "clear_texture_normal_pixel_kat == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(expected_final, actual_final,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
+                      "clear_texture_normal_final_state == expected", __FILE__,
+                      __LINE__);
+
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetupTextureStages();
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.SetBlend(false);
+  host_.PrepareDraw(kClearTextureNormalFinalColor);
+  SynchronizeCorrectness(host_);
+  const uint64_t actual_frame_hash = HashBackBuffer();
+  AssertXemuPerfEqual(
+      static_cast<uint32_t>(kClearTextureNormalFinalFrameHash >> 32),
+      static_cast<uint32_t>(actual_frame_hash >> 32),
+      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+      "clear_texture_normal_framebuffer_hash_hi == expected", __FILE__,
+      __LINE__);
+  AssertXemuPerfEqual(
+      static_cast<uint32_t>(kClearTextureNormalFinalFrameHash),
+      static_cast<uint32_t>(actual_frame_hash),
+      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+      "clear_texture_normal_framebuffer_hash_lo == expected", __FILE__,
+      __LINE__);
+
+  const uint64_t total_boundaries =
+      static_cast<uint64_t>(kClearBoundariesPerIteration) *
+      results.iterations;
+  const uint64_t total_texture_changes =
+      total_boundaries * kClearTextureChangesPerBoundary;
+  const uint64_t total_normal_draws =
+      total_boundaries * kClearNormalDrawsPerBoundary;
+  const uint64_t total_operations =
+      static_cast<uint64_t>(kClearOperationsPerIteration) *
+      results.iterations;
+  PrintMsg(
+      "PIPELINE_CLEAR_TEXTURE_WORK PipelineTextureSwitch::%s seed=%08lx "
+      "iterations=%lu operations=%llu clear_pipeline_uses=%llu "
+      "descriptor_changes=%llu normal_draws=%llu "
+      "clear_to_normal=%llu safe_texture_only=%llu vertex_bindings=0 "
+      "input=%08lx backing_a=%08lx backing_b=%08lx pixels=%08lx "
+      "final=%08lx frame=%016llx\n",
+      kClearTextureNormalName, kSeed, results.iterations,
+      static_cast<unsigned long long>(total_operations),
+      static_cast<unsigned long long>(total_boundaries),
+      static_cast<unsigned long long>(total_texture_changes),
+      static_cast<unsigned long long>(total_normal_draws),
+      static_cast<unsigned long long>(total_boundaries),
+      static_cast<unsigned long long>(total_boundaries),
+      clear_texture_normal_input_kat, actual_backing_a, actual_backing_b,
+      actual_pixel_kat, actual_final,
+      static_cast<unsigned long long>(actual_frame_hash));
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,";
+  metadata << "\"kind\":\"pipeline_clear_texture_normal_capsule\",";
+  metadata << "\"test_id\":\"" << kClearTextureNormalName << "\",";
+  metadata << "\"oracle_provenance\":\"REGRESSION_ONLY\",";
+  metadata << "\"seed\":\"50545357\",";
+  metadata << "\"phase\":\"clear_texture_normal\",";
+  metadata << "\"texture_stage_count\":" << kTextureStageCount << ",";
+  metadata << "\"operations_per_iteration\":"
+           << kClearOperationsPerIteration << ",";
+  metadata << "\"total_operations\":" << total_operations << ",";
+  metadata << "\"clear_pipeline_uses\":" << total_boundaries << ",";
+  metadata << "\"descriptor_changes\":" << total_texture_changes << ",";
+  metadata << "\"normal_draws\":" << total_normal_draws << ",";
+  metadata << "\"clear_to_normal_transitions\":" << total_boundaries
+           << ",";
+  metadata << "\"safe_texture_only_transitions\":" << total_boundaries
+           << ",";
+  metadata << "\"vertex_binding_mode\":\"inline_immediate\",";
+  metadata << "\"expected_vertex_bindings\":0,";
+  metadata << "\"expected_pipeline_dirty_clear_binding\":"
+           << total_boundaries << ",";
+  metadata << "\"expected_pipeline_texture_with_other_dirty\":"
+           << total_boundaries << ",";
+  metadata << "\"expected_pipeline_texture_only_bypass\":"
+           << total_boundaries << ",";
+  metadata << "\"counter_contract\":{";
+  metadata << "\"PIPELINE_DIRTY_CLEAR_BINDING\":\">0\",";
+  metadata << "\"clear_boundary_counts_as_TEXTURE_ONLY_BYPASS\":false,";
+  metadata << "\"PIPELINE_TEXTURE_ONLY_BYPASS\":\">0 after normal bind\"},";
+  metadata << "\"input_kat\":{\"expected\":"
+           << kClearTextureNormalInputKat << ",\"actual\":"
+           << clear_texture_normal_input_kat << "},";
+  metadata << "\"backing_kat\":{\"a_expected\":"
+           << kTextureABackingKat << ",\"a_actual\":" << actual_backing_a
+           << ",\"b_expected\":" << kTextureBBackingKat
+           << ",\"b_actual\":" << actual_backing_b << "},";
+  metadata << "\"rendered_pixel_kat\":{\"expected\":"
+           << kClearTextureNormalPixelKat << ",\"actual\":"
+           << actual_pixel_kat << "},";
+  metadata << "\"expected_final_state\":" << expected_final << ",";
+  metadata << "\"actual_final_state\":" << actual_final << ",";
+  metadata << "\"terminal_fence\":\"F2 after F1\",";
+  char hash_string[17]{};
+  snprintf(hash_string, sizeof(hash_string), "%016llx",
+           static_cast<unsigned long long>(
+               kClearTextureNormalFinalFrameHash));
+  metadata << "\"expected_framebuffer_fnv1a64\":\"" << hash_string
+           << "\",";
+  metadata << "\"framebuffer_contract\":\"FinishDraw framebuffer_fnv1a64\"}";
+
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_final, actual_final);
+  host_.FinishDraw(suite_name_, kClearTextureNormalName, results,
+                   metadata.str());
+  ClearXemuPerfEventContext();
+}
+
 void PipelineTextureSwitchTests::ConfigureTexturePipeline() const {
   host_.SetVertexShaderProgram(nullptr);
   host_.SetupFixedFunctionPassthrough();
@@ -400,6 +625,44 @@ void PipelineTextureSwitchTests::RunIteration(const Recipe &recipe) const {
   }
 }
 
+void PipelineTextureSwitchTests::RunClearTextureNormalIteration() const {
+  const uint32_t texture_a =
+      reinterpret_cast<uint32_t>(host_.GetTextureMemoryForStage(0)) &
+      0x03FFFFFF;
+  const uint32_t texture_b =
+      reinterpret_cast<uint32_t>(host_.GetTextureMemoryForStage(1)) &
+      0x03FFFFFF;
+
+  for (uint32_t boundary = 0; boundary < kClearBoundariesPerIteration;
+       ++boundary) {
+    const Quad &quad = kQuads[boundary & 3];
+    host_.ClearColorRegion(
+        kBoundaryClearColor, static_cast<uint32_t>(quad.left),
+        static_cast<uint32_t>(quad.top),
+        static_cast<uint32_t>(quad.right - quad.left),
+        static_cast<uint32_t>(quad.bottom - quad.top));
+
+    // The clear pipeline is now bound. This texture-only descriptor change
+    // must force a normal pipeline bind and must not be attributed to the
+    // texture-only bypass.
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, texture_b);
+    Pushbuffer::End();
+    host_.DrawTexturedScreenQuadEx(
+        quad.left, quad.top, quad.right, quad.bottom, 1.f, -16.f, -16.f,
+        80.f, -16.f, 80.f, 80.f, -16.f, 80.f);
+
+    // A normal zero-binding inline/immediate pipeline is now active. The
+    // second descriptor-only transition exercises the safe bypass path.
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, texture_a);
+    Pushbuffer::End();
+    host_.DrawTexturedScreenQuadEx(
+        quad.left, quad.top, quad.right, quad.bottom, 1.f, -16.f, -16.f,
+        80.f, -16.f, 80.f, 80.f, -16.f, 80.f);
+  }
+}
+
 uint32_t PipelineTextureSwitchTests::ValidatePixels(
     const Recipe &recipe) const {
   const auto *base = reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
@@ -422,6 +685,29 @@ uint32_t PipelineTextureSwitchTests::ValidatePixels(
                         XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
                         "pipeline_texture_tile_pixel == expected", __FILE__,
                         __LINE__);
+    kat = Fnv1aAddWord(kat, actual);
+  }
+  return kat;
+}
+
+uint32_t PipelineTextureSwitchTests::ValidateClearTextureNormalPixels() const {
+  const auto *base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  uint32_t kat = kFnvOffsetBasis;
+  for (uint32_t tile = 0; tile < 4; ++tile) {
+    const Quad &quad = kQuads[tile];
+    const uint32_t x =
+        static_cast<uint32_t>((quad.left + quad.right) * 0.5f);
+    const uint32_t y =
+        static_cast<uint32_t>((quad.top + quad.bottom) * 0.5f);
+    const auto *row =
+        reinterpret_cast<volatile const uint32_t *>(base + y * pitch);
+    const uint32_t actual = row[x];
+    AssertXemuPerfEqual(kTextureAColor, actual,
+                        XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                        "clear_texture_normal_tile_pixel == texture_a",
+                        __FILE__, __LINE__);
     kat = Fnv1aAddWord(kat, actual);
   }
   return kat;

@@ -1,0 +1,14 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "warmup_iterations": 1,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "test_suites": {
+    "PipelineTextureSwitch": {
+      "pipeline.clear-texture-normal": { "skipped": false }
+    }
+  }
+}
