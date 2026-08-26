@@ -411,6 +411,18 @@ on. A mismatch is still a failed oracle; it no longer becomes an assertion
 screen that discards all later stability records. Host tooling decides whether
 that exact failure has an explicit source/backend/scale compatibility allowance.
 
+`PipelineTextureSwitch` adds `pipeline.texture-switch`, which alternates two
+generated same-format texture backings plus address and sampler state over 512
+fixed textured quads per invocation, and
+`pipeline.shader-negative-control`, which holds those texture states fixed
+while alternating shader combiner state. Both phases provide exact input,
+backing, rendered-pixel, terminal-state, operation-count, and framebuffer
+contracts with live failure/progress events. Smoke, initial roughly
+2-second/8-second quick, and 5-second/20-second formal configs are in
+`resources/pipeline-texture-switch-*.json`; duration claims still require
+control-only calibration and identical fixed work. See
+[`docs/pipeline-texture-switch-workload.md`](docs/pipeline-texture-switch-workload.md).
+
 Framebuffer provenance remains mandatory. Emulator-produced hashes are
 regression oracles, not proof of retail Xbox correctness. Promote an oracle to
 `RETAIL_XBOX` only after independent hardware runs of the exact XISO/job agree.
