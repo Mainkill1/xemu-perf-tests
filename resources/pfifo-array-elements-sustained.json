@@ -1,0 +1,16 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "warmup_iterations": 750,
+    "measurement_iterations_multiplier": 375,
+    "gpu_completion_mode": "batch_complete",
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "test_suites": {
+    "PFIFOArrayElements": {
+      "pfifo.array-element16": { "skipped": false },
+      "pfifo.array-element32": { "skipped": false },
+      "pfifo.array-element-pgr2": { "skipped": false }
+    }
+  }
+}

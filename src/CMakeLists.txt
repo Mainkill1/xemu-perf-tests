@@ -87,6 +87,8 @@ add_library(
         tests/game_load_composite_tests.h
         tests/high_vertex_count_tests.cpp
         tests/high_vertex_count_tests.h
+        tests/pfifo_array_element_tests.cpp
+        tests/pfifo_array_element_tests.h
         tests/primitive_type_tests.cpp
         tests/primitive_type_tests.h
         tests/surface_rendering_tests.cpp

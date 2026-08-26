@@ -392,6 +392,19 @@ tiles (`texture_writes=2`, `texture_binds=17`, `payload_generations=1`,
 KATs. ENG367 timing is diagnostic only until this tiled oracle passes on the
 same builds.
 
+`PFIFOArrayElements` adds three independently selectable, generated packet
+capsules in the same XISO: `pfifo.array-element16` uses the Morrowind-shaped
+38-word non-incrementing 16-bit payload, `pfifo.array-element32` renders the
+equivalent 76-index geometry through a 76-word 32-bit payload, and
+`pfifo.array-element-pgr2` uses the PGR2-shaped 29-word 16-bit payload. Each
+has literal input/payload, rendered-pixel, final-state, and framebuffer hashes;
+all are marked `REGRESSION_ONLY` until retail-Xbox corroboration. Smoke,
+roughly 2-second/8-second quick, and 5-second/20-second sustained starting
+configs are in `resources/pfifo-array-elements-*.json`. Duration claims require
+baseline calibration and an identical fixed multiplier for both builds; short
+runs are correctness/path checks only. See
+[`docs/pfifo-array-element-workloads.md`](docs/pfifo-array-element-workloads.md).
+
 The tile oracle is nonfatal. Every cell records `oracle_status`, failure count,
 failure mask, reason, provenance, and compatibility key before the suite moves
 on. A mismatch is still a failed oracle; it no longer becomes an assertion
