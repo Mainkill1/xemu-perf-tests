@@ -57,19 +57,97 @@ static constexpr uint32_t kFactorRgba8Bytes = kTextureWidth * kTextureHeight * 4
 static constexpr uint32_t kFactorDxt1Bytes = kTextureWidth * kTextureHeight / 2;
 static constexpr uint32_t kFactorRingStride = kFactorRgba8Bytes;
 static constexpr uint32_t kFactorRingBytes = kFactorRingSlots * kFactorRingStride;
+static constexpr uint32_t kFactorTileColumns = 4;
+static constexpr uint32_t kFactorTileRows = 4;
+static constexpr uint32_t kFactorTileMarginX = 32;
+static constexpr uint32_t kFactorTileMarginY = 24;
+static constexpr uint32_t kFactorTileGapX = 8;
+static constexpr uint32_t kFactorTileGapY = 8;
+static constexpr uint32_t kFactorFramebufferWidth = 640;
+static constexpr uint32_t kFactorFramebufferHeight = 480;
+static constexpr uint32_t kFactorTileWidth =
+    (kFactorFramebufferWidth - 2 * kFactorTileMarginX -
+     (kFactorTileColumns - 1) * kFactorTileGapX) /
+    kFactorTileColumns;
+static constexpr uint32_t kFactorTileHeight =
+    (kFactorFramebufferHeight - 2 * kFactorTileMarginY -
+     (kFactorTileRows - 1) * kFactorTileGapY) /
+    kFactorTileRows;
+static constexpr uint32_t kFactorVertices = kFactorDraws * kVerticesPerDraw;
+static constexpr uint32_t kFactorFloatsWrittenPerVertex = 4 + 4 + 2;
+static constexpr uint32_t kFactorVertexBytes =
+    kFactorVertices * kFactorFloatsWrittenPerVertex * sizeof(float);
+static constexpr uint32_t kFactorTileAlpha = 0xFF;
 static constexpr std::array<uint16_t, kFactorDraws> kFactorColors = {
     0x0000, 0xFFFF, 0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F, 0x07FF,
-    0xFFFF, 0x0000, 0x07E0, 0xF800, 0x07FF, 0xF81F, 0xFFE0, 0x001F,
+    0x7800, 0x03E0, 0x000F, 0x7BEF, 0xFC10, 0x83E0, 0x8010, 0x0410,
 };
+
+static constexpr bool FactorColorsAreDistinct() {
+  for (uint32_t first = 0; first < kFactorColors.size(); ++first) {
+    for (uint32_t second = first + 1; second < kFactorColors.size(); ++second) {
+      if (kFactorColors[first] == kFactorColors[second]) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+static constexpr bool FactorTilesAreDisjoint() {
+  for (uint32_t first = 0; first < kFactorDraws; ++first) {
+    const uint32_t first_column = first % kFactorTileColumns;
+    const uint32_t first_row = first / kFactorTileColumns;
+    const uint32_t first_left =
+        kFactorTileMarginX +
+        first_column * (kFactorTileWidth + kFactorTileGapX);
+    const uint32_t first_top =
+        kFactorTileMarginY + first_row * (kFactorTileHeight + kFactorTileGapY);
+    for (uint32_t second = first + 1; second < kFactorDraws; ++second) {
+      const uint32_t second_column = second % kFactorTileColumns;
+      const uint32_t second_row = second / kFactorTileColumns;
+      const uint32_t second_left =
+          kFactorTileMarginX +
+          second_column * (kFactorTileWidth + kFactorTileGapX);
+      const uint32_t second_top =
+          kFactorTileMarginY +
+          second_row * (kFactorTileHeight + kFactorTileGapY);
+      const bool separated =
+          first_left + kFactorTileWidth <= second_left ||
+          second_left + kFactorTileWidth <= first_left ||
+          first_top + kFactorTileHeight <= second_top ||
+          second_top + kFactorTileHeight <= first_top;
+      if (!separated) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+
+static_assert(kFactorDraws == kFactorTileColumns * kFactorTileRows);
+static_assert(kFactorVertices == 64);
+static_assert(kFactorTileWidth > 0 && kFactorTileHeight > 0);
+static_assert(kFactorTileMarginX +
+                      kFactorTileColumns * kFactorTileWidth +
+                      (kFactorTileColumns - 1) * kFactorTileGapX <=
+                  kFactorFramebufferWidth &&
+              kFactorTileMarginY + kFactorTileRows * kFactorTileHeight +
+                      (kFactorTileRows - 1) * kFactorTileGapY <=
+                  kFactorFramebufferHeight);
+static_assert(FactorColorsAreDistinct(),
+              "Every factor draw needs a distinct visible color oracle");
+static_assert(FactorTilesAreDisjoint(),
+              "Every factor draw must survive in a disjoint framebuffer tile");
 static constexpr auto kS3tcSyncFactorResultAssertion =
     static_cast<XemuPerfAssertion>(0x12A);
 static constexpr auto kS3tcSyncFactorS3tcSourceAssertion =
     static_cast<XemuPerfAssertion>(0x12B);
 static constexpr auto kS3tcSyncFactorRgba8SourceAssertion =
     static_cast<XemuPerfAssertion>(0x12C);
-static constexpr uint32_t kS3tcSyncFactorS3tcSourceKat = 0x362F9DC5;
-static constexpr uint32_t kS3tcSyncFactorRgba8SourceKat = 0xA46C9DC5;
-static constexpr uint32_t kS3tcSyncFactorResultKat = 0x995AFBCA;
+static constexpr uint32_t kS3tcSyncFactorS3tcSourceKat = 0x0EA3DDC5;
+static constexpr uint32_t kS3tcSyncFactorRgba8SourceKat = 0x9B909DC5;
+static constexpr uint32_t kS3tcSyncFactorResultKat = 0x1A4FF923;
 
 struct S3tcSyncFactorDefinition {
   const char *record_name;
@@ -124,6 +202,9 @@ struct S3tcSyncFactorWork {
   uint32_t per_draw_waits;
   uint32_t gpu_waits;
   uint32_t vertex_bytes;
+  uint32_t visible_tiles;
+  uint32_t unique_colors;
+  uint32_t pattern_checksum;
 };
 
 static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(bool compressed,
@@ -137,7 +218,10 @@ static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(bool compressed,
       .distinct_addresses = per_draw_wait ? 1U : kFactorRingSlots,
       .per_draw_waits = per_draw_wait ? kFactorDraws : 0U,
       .gpu_waits = (per_draw_wait ? kFactorDraws : 0U) + 1U,
-      .vertex_bytes = kVertexBytesPerUpdate,
+      .vertex_bytes = kFactorVertexBytes,
+      .visible_tiles = kFactorDraws,
+      .unique_colors = kFactorDraws,
+      .pattern_checksum = kS3tcSyncFactorResultKat,
   };
 }
 
@@ -146,7 +230,12 @@ static_assert(kS3tcSameWaitWork.draws == 16 &&
               kS3tcSameWaitWork.texture_bytes == 512 * 1024 &&
               kS3tcSameWaitWork.distinct_addresses == 1 &&
               kS3tcSameWaitWork.per_draw_waits == 16 &&
-              kS3tcSameWaitWork.gpu_waits == 17);
+              kS3tcSameWaitWork.gpu_waits == 17 &&
+              kS3tcSameWaitWork.vertex_bytes == 2560 &&
+              kS3tcSameWaitWork.visible_tiles == 16 &&
+              kS3tcSameWaitWork.unique_colors == 16 &&
+              kS3tcSameWaitWork.pattern_checksum ==
+                  kS3tcSyncFactorResultKat);
 static constexpr auto kS3tcRingWork = MakeS3tcSyncFactorWork(true, false);
 static_assert(kS3tcRingWork.draws == 16 &&
               kS3tcRingWork.texture_bytes == 512 * 1024 &&
@@ -231,7 +320,7 @@ static uint32_t HashBytes(uint32_t hash, const uint8_t *data, size_t size) {
   return hash;
 }
 
-static uint32_t HashUint64(uint32_t hash, uint64_t value) {
+static constexpr uint32_t HashUint64(uint32_t hash, uint64_t value) {
   for (uint32_t byte = 0; byte < sizeof(value); ++byte) {
     hash = (hash ^ static_cast<uint8_t>(value >> (byte * 8))) * 16777619U;
   }
@@ -260,7 +349,52 @@ static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &defin
       HashUint64(checksum, static_cast<uint64_t>(work.gpu_waits) * iterations);
   checksum =
       HashUint64(checksum, static_cast<uint64_t>(work.vertex_bytes) * iterations);
+  checksum = HashUint64(checksum, work.visible_tiles);
+  checksum = HashUint64(checksum, work.unique_colors);
+  checksum = HashUint64(checksum, work.pattern_checksum);
   return checksum;
+}
+
+static constexpr uint32_t FactorTileResultChecksum(uint32_t seed) {
+  uint32_t checksum = seed;
+  for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
+    const uint32_t column = tile % kFactorTileColumns;
+    const uint32_t row = tile / kFactorTileColumns;
+    const uint32_t left =
+        kFactorTileMarginX + column * (kFactorTileWidth + kFactorTileGapX);
+    const uint32_t top =
+        kFactorTileMarginY + row * (kFactorTileHeight + kFactorTileGapY);
+    checksum = HashUint64(checksum, tile);
+    checksum = HashUint64(checksum, kFactorColors[tile]);
+    checksum = HashUint64(checksum, left);
+    checksum = HashUint64(checksum, top);
+    checksum = HashUint64(checksum, left + kFactorTileWidth);
+    checksum = HashUint64(checksum, top + kFactorTileHeight);
+    checksum = HashUint64(checksum, kFactorTileAlpha);
+  }
+  return checksum;
+}
+
+static_assert(FactorTileResultChecksum(kS3tcSyncFactorSeed) ==
+                  kS3tcSyncFactorResultKat,
+              "The tiled result KAT must cover every tile definition");
+
+static uint32_t PackField(uint32_t mask, uint32_t value) {
+  return (value << (__builtin_ffs(mask) - 1)) & mask;
+}
+
+static void DrawFactorTile(TestHost &host, uint32_t attributes,
+                           uint32_t tile) {
+  ASSERT(tile < kFactorDraws);
+  host.SetVertexBufferAttributes(attributes);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_BEGIN_END, NV097_SET_BEGIN_END_OP_QUADS);
+  Pushbuffer::Push(
+      NV097_DRAW_ARRAYS,
+      PackField(NV097_DRAW_ARRAYS_COUNT, kVerticesPerDraw - 1) |
+          PackField(NV097_DRAW_ARRAYS_START_INDEX, tile * kVerticesPerDraw));
+  Pushbuffer::Push(NV097_SET_BEGIN_END, NV097_SET_BEGIN_END_OP_END);
+  Pushbuffer::End();
 }
 
 static void FillSolidDxt1(std::vector<uint8_t> &destination, uint16_t color) {
@@ -290,7 +424,7 @@ static void FillSolidRgba8(std::vector<uint8_t> &destination, uint16_t color) {
     destination[offset + 0] = red;
     destination[offset + 1] = green;
     destination[offset + 2] = blue;
-    destination[offset + 3] = 0xFF;
+    destination[offset + 3] = kFactorTileAlpha;
   }
 }
 
@@ -876,6 +1010,8 @@ void GameLoadCompositeTests::Initialize() {
   }
   alpha_vertex_buffer_->Unlock();
 
+  factor_vertex_buffer_ = host_.AllocateVertexBuffer(kFactorVertices);
+
   uint32_t streaming_seed = 0xC07EC7ED;
   for (uint32_t buffer_index = 0; buffer_index < streaming_buffers_.size();
        ++buffer_index) {
@@ -948,6 +1084,7 @@ void GameLoadCompositeTests::Deinitialize() {
   host_.SetTextureStageEnabled(0, false);
   host_.ClearVertexBuffer();
   alpha_vertex_buffer_.reset();
+  factor_vertex_buffer_.reset();
   if (factor_texture_ring_) {
     MmFreeContiguousMemory(factor_texture_ring_);
     factor_texture_ring_ = nullptr;
@@ -1414,6 +1551,7 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
         "synchronization=%s iterations=%lu draws=%llu texture_writes=%llu "
         "texture_bytes=%llu texture_binds=%llu distinct_addresses=%lu "
         "per_draw_waits=%llu gpu_waits=%llu vertex_bytes=%llu "
+        "visible_tiles=%lu unique_colors=%lu pattern_checksum=%08lx "
         "work_checksum=%08lx result_checksum=%08lx\n",
         definition.record_name, definition.texture_representation,
         definition.synchronization, results.iterations,
@@ -1424,7 +1562,9 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
         work.distinct_addresses,
         static_cast<uint64_t>(work.per_draw_waits) * multiplier,
         static_cast<uint64_t>(work.gpu_waits) * multiplier,
-        static_cast<uint64_t>(work.vertex_bytes) * multiplier, work_checksum,
+        static_cast<uint64_t>(work.vertex_bytes) * multiplier,
+        work.visible_tiles, work.unique_colors, work.pattern_checksum,
+        work_checksum,
         kS3tcSyncFactorResultKat);
 
     std::ostringstream metadata;
@@ -1450,7 +1590,11 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << "\"per_draw_waits\":" << work.per_draw_waits * multiplier
              << ",";
     metadata << "\"gpu_waits\":" << work.gpu_waits * multiplier << ",";
-    metadata << "\"vertex_bytes\":" << work.vertex_bytes * multiplier;
+    metadata << "\"vertex_bytes\":" << work.vertex_bytes * multiplier << ",";
+    metadata << "\"visible_tiles\":" << work.visible_tiles << ",";
+    metadata << "\"unique_colors\":" << work.unique_colors << ",";
+    metadata << "\"pattern_checksum\":\"1a4ff923\",";
+    metadata << "\"overwrite_only_oracle\":false";
     metadata << "},";
     metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
     metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
@@ -2382,24 +2526,33 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
   host_.SetTextureStageEnabled(0, true);
   host_.SetupTextureStages();
-  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetVertexBuffer(factor_vertex_buffer_);
   host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
   host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
   host_.SetBlend(false);
   host_.PrepareDraw(0xFF141820);
 
-  // Geometry is written once before the draw burst. This keeps the texture
-  // address/wait factor independent from dynamic-vertex synchronization.
-  auto vertex = alpha_vertex_buffer_->Lock();
-  for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
-    const float x = 160.f + ((i == 1 || i == 2) ? 320.f : 0.f);
-    const float y = 120.f + (i >= 2 ? 240.f : 0.f);
-    vertex->SetPosition(x, y, 1.f);
-    vertex->SetDiffuse(1.f, 1.f, 1.f, 1.f);
-    vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
-                         i >= 2 ? 1.f : 0.f);
+  // Geometry is written once before the draw burst. Each draw has a disjoint
+  // visible tile, so the final framebuffer proves that no intermediate
+  // texture update was skipped or replaced by a later same-address update.
+  auto vertex = factor_vertex_buffer_->Lock();
+  for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
+    const uint32_t column = tile % kFactorTileColumns;
+    const uint32_t row = tile / kFactorTileColumns;
+    const float left = static_cast<float>(
+        kFactorTileMarginX + column * (kFactorTileWidth + kFactorTileGapX));
+    const float top = static_cast<float>(
+        kFactorTileMarginY + row * (kFactorTileHeight + kFactorTileGapY));
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x = left + ((i == 1 || i == 2) ? kFactorTileWidth : 0.f);
+      const float y = top + (i >= 2 ? kFactorTileHeight : 0.f);
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(1.f, 1.f, 1.f, 1.f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                           i >= 2 ? 1.f : 0.f);
+    }
   }
-  alpha_vertex_buffer_->Unlock();
+  factor_vertex_buffer_->Unlock();
 
   uint32_t state = seed;
   for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
@@ -2411,20 +2564,17 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
     memcpy(destination, source.data(), source.size());
     BindTextureStage0Address(destination);
 
-    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    DrawFactorTile(host_, attributes, draw);
     if (per_draw_wait) {
       host_.WaitForGpu();
     }
-
-    state = (state ^ kFactorColors[draw] ^ (draw * 0x9E3779B9U)) *
-            16777619U;
   }
 
   // Both synchronization cells end at the same guest-visible boundary. The
   // ring cell has no per-draw wait and retains every referenced texture until
   // this one final completion.
   host_.WaitForGpu();
-  return state;
+  return FactorTileResultChecksum(state);
 }
 
 uint32_t GameLoadCompositeTests::RunS3tcStreamingFencedDrawsWork(

@@ -151,6 +151,7 @@ class GameLoadCompositeTests : public TestSuite {
   static bool HasStreaming(Phase phase);
 
   std::shared_ptr<PBKitPlusPlus::VertexBuffer> alpha_vertex_buffer_;
+  std::shared_ptr<PBKitPlusPlus::VertexBuffer> factor_vertex_buffer_;
   std::array<std::vector<uint8_t>, 2> streaming_buffers_;
   std::array<uint32_t, 2> streaming_buffer_checksums_{};
   std::array<std::vector<uint8_t>, 16> factor_s3tc_sources_;

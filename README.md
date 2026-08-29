@@ -262,6 +262,15 @@ draws, and vertex bytes. Fixed source and result KATs detect corruption. The
 four cells are deliberately seconds-scale as one named unattended test; they
 are not nanosecond microbenchmarks.
 
+ENG379 supersedes ENG367's overwrite-only framebuffer oracle. Each of the 16
+draws now targets one disjoint tile in a 4x4 grid and uses one unique RGB565
+color with opaque alpha. The final framebuffer therefore preserves every
+sampled texture update. Compile-time assertions require 16 tiles, 64 vertices,
+unique colors, and an in-bounds grid; metadata reports `visible_tiles=16`,
+`unique_colors=16`, and `overwrite_only_oracle=false`. Draw, texture, address,
+bind, and wait factors are unchanged. ENG367 timing is diagnostic only until
+this tiled oracle passes on the same builds.
+
 Framebuffer provenance remains mandatory. Emulator-produced hashes are
 regression oracles, not proof of retail Xbox correctness. Promote an oracle to
 `RETAIL_XBOX` only after independent hardware runs of the exact XISO/job agree.
