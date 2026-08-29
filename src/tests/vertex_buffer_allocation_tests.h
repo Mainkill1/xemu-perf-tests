@@ -35,6 +35,11 @@ class VertexBufferAllocationTests : public TestSuite {
   void TestTinyAllocations(const std::string &name, DrawMode mode);
   void TestMixedSizes(const std::string &name, DrawMode mode);
   void TestDisjointSamePageVertexUpdates();
+  void FinishProfileWithOracle(const std::string &name, DrawMode mode,
+                               const TestHost::ProfileResults &results,
+                               uint32_t work_checksum,
+                               uint64_t embedded_completion_wait_us,
+                               uint32_t embedded_completion_wait_calls);
 };
 
 #endif  // XEMU_PERF_TESTS_VERTEX_BUFFER_ALLOCATION_TESTS_H
