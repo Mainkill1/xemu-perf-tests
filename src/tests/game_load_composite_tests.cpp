@@ -50,6 +50,114 @@ static constexpr uint32_t kRepeatedDisplayBoostedHoldMs = 33;
 static constexpr uint32_t kRepeatedDisplayIdleHoldMs = 0;
 static constexpr uint32_t kLongSceneSamples = 8;
 static constexpr uint32_t kCrossTitleSeed = 0x43525458;
+static constexpr uint32_t kS3tcSyncFactorSeed = 0x46544352;
+static constexpr uint32_t kFactorDraws = 16;
+static constexpr uint32_t kFactorRingSlots = kFactorDraws;
+static constexpr uint32_t kFactorRgba8Bytes = kTextureWidth * kTextureHeight * 4;
+static constexpr uint32_t kFactorDxt1Bytes = kTextureWidth * kTextureHeight / 2;
+static constexpr uint32_t kFactorRingStride = kFactorRgba8Bytes;
+static constexpr uint32_t kFactorRingBytes = kFactorRingSlots * kFactorRingStride;
+static constexpr std::array<uint16_t, kFactorDraws> kFactorColors = {
+    0x0000, 0xFFFF, 0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F, 0x07FF,
+    0xFFFF, 0x0000, 0x07E0, 0xF800, 0x07FF, 0xF81F, 0xFFE0, 0x001F,
+};
+static constexpr auto kS3tcSyncFactorResultAssertion =
+    static_cast<XemuPerfAssertion>(0x12A);
+static constexpr auto kS3tcSyncFactorS3tcSourceAssertion =
+    static_cast<XemuPerfAssertion>(0x12B);
+static constexpr auto kS3tcSyncFactorRgba8SourceAssertion =
+    static_cast<XemuPerfAssertion>(0x12C);
+static constexpr uint32_t kS3tcSyncFactorS3tcSourceKat = 0x362F9DC5;
+static constexpr uint32_t kS3tcSyncFactorRgba8SourceKat = 0xA46C9DC5;
+static constexpr uint32_t kS3tcSyncFactorResultKat = 0x995AFBCA;
+
+struct S3tcSyncFactorDefinition {
+  const char *record_name;
+  const char *stage_key;
+  const char *texture_representation;
+  const char *synchronization;
+  bool compressed;
+  bool per_draw_wait;
+};
+
+static constexpr S3tcSyncFactorDefinition kS3tcSyncFactorStages[] = {
+    {
+        .record_name = "10-S3tcSyncFactor-01-S3tcSameAddressWait",
+        .stage_key = "s3tc_same_address_wait",
+        .texture_representation = "s3tc_dxt1",
+        .synchronization = "same_address_per_draw_wait",
+        .compressed = true,
+        .per_draw_wait = true,
+    },
+    {
+        .record_name = "10-S3tcSyncFactor-02-S3tcRingNoPerDrawWait",
+        .stage_key = "s3tc_ring_no_per_draw_wait",
+        .texture_representation = "s3tc_dxt1",
+        .synchronization = "distinct_address_ring_final_wait",
+        .compressed = true,
+        .per_draw_wait = false,
+    },
+    {
+        .record_name = "10-S3tcSyncFactor-03-Rgba8SameAddressWait",
+        .stage_key = "rgba8_same_address_wait",
+        .texture_representation = "rgba8",
+        .synchronization = "same_address_per_draw_wait",
+        .compressed = false,
+        .per_draw_wait = true,
+    },
+    {
+        .record_name = "10-S3tcSyncFactor-04-Rgba8RingNoPerDrawWait",
+        .stage_key = "rgba8_ring_no_per_draw_wait",
+        .texture_representation = "rgba8",
+        .synchronization = "distinct_address_ring_final_wait",
+        .compressed = false,
+        .per_draw_wait = false,
+    },
+};
+
+struct S3tcSyncFactorWork {
+  uint32_t draws;
+  uint32_t texture_writes;
+  uint32_t texture_bytes;
+  uint32_t texture_binds;
+  uint32_t distinct_addresses;
+  uint32_t per_draw_waits;
+  uint32_t gpu_waits;
+  uint32_t vertex_bytes;
+};
+
+static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(bool compressed,
+                                                            bool per_draw_wait) {
+  return {
+      .draws = kFactorDraws,
+      .texture_writes = kFactorDraws,
+      .texture_bytes =
+          kFactorDraws * (compressed ? kFactorDxt1Bytes : kFactorRgba8Bytes),
+      .texture_binds = kFactorDraws,
+      .distinct_addresses = per_draw_wait ? 1U : kFactorRingSlots,
+      .per_draw_waits = per_draw_wait ? kFactorDraws : 0U,
+      .gpu_waits = (per_draw_wait ? kFactorDraws : 0U) + 1U,
+      .vertex_bytes = kVertexBytesPerUpdate,
+  };
+}
+
+static constexpr auto kS3tcSameWaitWork = MakeS3tcSyncFactorWork(true, true);
+static_assert(kS3tcSameWaitWork.draws == 16 &&
+              kS3tcSameWaitWork.texture_bytes == 512 * 1024 &&
+              kS3tcSameWaitWork.distinct_addresses == 1 &&
+              kS3tcSameWaitWork.per_draw_waits == 16 &&
+              kS3tcSameWaitWork.gpu_waits == 17);
+static constexpr auto kS3tcRingWork = MakeS3tcSyncFactorWork(true, false);
+static_assert(kS3tcRingWork.draws == 16 &&
+              kS3tcRingWork.texture_bytes == 512 * 1024 &&
+              kS3tcRingWork.distinct_addresses == 16 &&
+              kS3tcRingWork.per_draw_waits == 0 && kS3tcRingWork.gpu_waits == 1);
+static constexpr auto kRgba8SameWaitWork = MakeS3tcSyncFactorWork(false, true);
+static_assert(kRgba8SameWaitWork.texture_bytes == 4 * 1024 * 1024 &&
+              kRgba8SameWaitWork.gpu_waits == 17);
+static constexpr auto kRgba8RingWork = MakeS3tcSyncFactorWork(false, false);
+static_assert(kRgba8RingWork.texture_bytes == 4 * 1024 * 1024 &&
+              kRgba8RingWork.gpu_waits == 1);
 // Scalar-SSE regression oracle.  The FP sequence below is fixed as explicit
 // single-precision instructions, so each operation rounds to binary32 and is
 // independent of compiler code layout or x87 register lifetime.  Both cycle
@@ -114,6 +222,83 @@ static uint32_t XorShift32(uint32_t &state) {
   state ^= state >> 17;
   state ^= state << 5;
   return state;
+}
+
+static uint32_t HashBytes(uint32_t hash, const uint8_t *data, size_t size) {
+  for (size_t i = 0; i < size; ++i) {
+    hash = (hash ^ data[i]) * 16777619U;
+  }
+  return hash;
+}
+
+static uint32_t HashUint64(uint32_t hash, uint64_t value) {
+  for (uint32_t byte = 0; byte < sizeof(value); ++byte) {
+    hash = (hash ^ static_cast<uint8_t>(value >> (byte * 8))) * 16777619U;
+  }
+  return hash;
+}
+
+static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &definition,
+                                           const S3tcSyncFactorWork &work,
+                                           uint32_t iterations) {
+  uint32_t checksum = 2166136261U;
+  checksum = HashUint64(checksum, kS3tcSyncFactorSeed);
+  checksum = HashUint64(checksum, definition.compressed);
+  checksum = HashUint64(checksum, definition.per_draw_wait);
+  checksum = HashUint64(checksum, iterations);
+  checksum = HashUint64(checksum, static_cast<uint64_t>(work.draws) * iterations);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.texture_writes) * iterations);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.texture_bytes) * iterations);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.texture_binds) * iterations);
+  checksum = HashUint64(checksum, work.distinct_addresses);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.per_draw_waits) * iterations);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.gpu_waits) * iterations);
+  checksum =
+      HashUint64(checksum, static_cast<uint64_t>(work.vertex_bytes) * iterations);
+  return checksum;
+}
+
+static void FillSolidDxt1(std::vector<uint8_t> &destination, uint16_t color) {
+  destination.resize(kFactorDxt1Bytes);
+  for (size_t offset = 0; offset < destination.size(); offset += 8) {
+    destination[offset + 0] = static_cast<uint8_t>(color);
+    destination[offset + 1] = static_cast<uint8_t>(color >> 8);
+    destination[offset + 2] = static_cast<uint8_t>(color);
+    destination[offset + 3] = static_cast<uint8_t>(color >> 8);
+    destination[offset + 4] = 0;
+    destination[offset + 5] = 0;
+    destination[offset + 6] = 0;
+    destination[offset + 7] = 0;
+  }
+}
+
+static void FillSolidRgba8(std::vector<uint8_t> &destination, uint16_t color) {
+  const uint8_t red5 = static_cast<uint8_t>((color >> 11) & 0x1F);
+  const uint8_t green6 = static_cast<uint8_t>((color >> 5) & 0x3F);
+  const uint8_t blue5 = static_cast<uint8_t>(color & 0x1F);
+  const uint8_t red = static_cast<uint8_t>((red5 << 3) | (red5 >> 2));
+  const uint8_t green = static_cast<uint8_t>((green6 << 2) | (green6 >> 4));
+  const uint8_t blue = static_cast<uint8_t>((blue5 << 3) | (blue5 >> 2));
+
+  destination.resize(kFactorRgba8Bytes);
+  for (size_t offset = 0; offset < destination.size(); offset += 4) {
+    destination[offset + 0] = red;
+    destination[offset + 1] = green;
+    destination[offset + 2] = blue;
+    destination[offset + 3] = 0xFF;
+  }
+}
+
+static void BindTextureStage0Address(const uint8_t *address) {
+  uint32_t *push = pb_begin();
+  push = pb_push1(push, NV097_SET_TEXTURE_OFFSET,
+                  reinterpret_cast<uint32_t>(address) & 0x03FFFFFFU);
+  pb_end(push);
 }
 
 using StepFunction = uint32_t (*)(uint32_t);
@@ -652,6 +837,7 @@ GameLoadCompositeTests::GameLoadCompositeTests(TestHost &host, std::string outpu
   // configuration mechanism.
   tests_[kLongUnlockedSceneName] = [this]() { RunLongUnlockedScene(); };
   tests_[kCrossTitleHotpathName] = [this]() { RunCrossTitleHotpath(); };
+  tests_[kS3tcSyncFactorName] = [this]() { RunS3tcSyncFactor(); };
   tests_[kRepeatedDisplayBoostedName] = [this]() {
     RunRepeatedDisplay(kRepeatedDisplayBoostedName, kRepeatedDisplayBoostedHoldMs,
                        0x12B0057D);
@@ -708,6 +894,22 @@ void GameLoadCompositeTests::Initialize() {
     value = static_cast<uint8_t>(XorShift32(seed));
   }
 
+  factor_s3tc_source_checksum_ = 2166136261U;
+  factor_rgba8_source_checksum_ = 2166136261U;
+  for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
+    FillSolidDxt1(factor_s3tc_sources_[draw], kFactorColors[draw]);
+    FillSolidRgba8(factor_rgba8_sources_[draw], kFactorColors[draw]);
+    factor_s3tc_source_checksum_ =
+        HashBytes(factor_s3tc_source_checksum_, factor_s3tc_sources_[draw].data(),
+                  factor_s3tc_sources_[draw].size());
+    factor_rgba8_source_checksum_ =
+        HashBytes(factor_rgba8_source_checksum_, factor_rgba8_sources_[draw].data(),
+                  factor_rgba8_sources_[draw].size());
+  }
+  factor_texture_ring_ = static_cast<uint8_t *>(MmAllocateContiguousMemoryEx(
+      kFactorRingBytes, 0, MAXRAM, 0, PAGE_WRITECOMBINE | PAGE_READWRITE));
+  ASSERT(factor_texture_ring_ != nullptr);
+
   auto &texture_stage = host_.GetTextureStage(0);
   texture_stage.SetFormat(GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
   texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
@@ -746,6 +948,10 @@ void GameLoadCompositeTests::Deinitialize() {
   host_.SetTextureStageEnabled(0, false);
   host_.ClearVertexBuffer();
   alpha_vertex_buffer_.reset();
+  if (factor_texture_ring_) {
+    MmFreeContiguousMemory(factor_texture_ring_);
+    factor_texture_ring_ = nullptr;
+  }
   TestSuite::Deinitialize();
 }
 
@@ -1146,6 +1352,119 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
   summary_metadata << "\"stage_record_count\":" << stage_record_count << "}";
   host_.FinishDraw(suite_name_, kCrossTitleHotpathName, final_results,
                    summary_metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void GameLoadCompositeTests::RunS3tcSyncFactor() {
+  SetXemuPerfEventContext(0xA000U, kS3tcSyncFactorSeed);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0,
+                    kS3tcSyncFactorS3tcSourceKat,
+                    factor_s3tc_source_checksum_);
+  AssertXemuPerfEqual(kS3tcSyncFactorS3tcSourceKat,
+                      factor_s3tc_source_checksum_,
+                      kS3tcSyncFactorS3tcSourceAssertion,
+                      "S3TC factor source corpus matches its fixed KAT", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kS3tcSyncFactorRgba8SourceKat,
+                      factor_rgba8_source_checksum_,
+                      kS3tcSyncFactorRgba8SourceAssertion,
+                      "RGBA8 factor source corpus matches its fixed KAT", __FILE__,
+                      __LINE__);
+
+  TestHost::ProfileResults final_results{};
+  for (uint32_t stage_index = 0;
+       stage_index < sizeof(kS3tcSyncFactorStages) /
+                         sizeof(kS3tcSyncFactorStages[0]);
+       ++stage_index) {
+    const auto &definition = kS3tcSyncFactorStages[stage_index];
+    SetXemuPerfEventContext(0xA001U + stage_index, kS3tcSyncFactorSeed);
+    EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, kS3tcSyncFactorSeed,
+                      stage_index);
+
+    auto results = Profile(definition.record_name, kProfileSamples,
+                           [this, &definition]() {
+                             const uint32_t actual = RunS3tcSyncFactorWork(
+                                 definition.compressed,
+                                 definition.per_draw_wait,
+                                 kS3tcSyncFactorSeed);
+                             AssertXemuPerfEqual(
+                                 kS3tcSyncFactorResultKat, actual,
+                                 kS3tcSyncFactorResultAssertion,
+                                 "S3TC factor cell matches the common result KAT",
+                                 __FILE__, __LINE__);
+                             g_composite_result = actual;
+                           });
+    final_results = results;
+
+    const auto work = MakeS3tcSyncFactorWork(definition.compressed,
+                                              definition.per_draw_wait);
+    const uint64_t multiplier = results.iterations;
+    const uint32_t work_checksum =
+        S3tcSyncFactorWorkChecksum(definition, work, results.iterations);
+
+    char work_checksum_string[9] = {};
+    char result_checksum_string[9] = {};
+    snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx",
+             work_checksum);
+    snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
+             kS3tcSyncFactorResultKat);
+
+    PrintMsg(
+        "S3TC_FACTOR_WORK GameLoadComposite::%s representation=%s "
+        "synchronization=%s iterations=%lu draws=%llu texture_writes=%llu "
+        "texture_bytes=%llu texture_binds=%llu distinct_addresses=%lu "
+        "per_draw_waits=%llu gpu_waits=%llu vertex_bytes=%llu "
+        "work_checksum=%08lx result_checksum=%08lx\n",
+        definition.record_name, definition.texture_representation,
+        definition.synchronization, results.iterations,
+        static_cast<uint64_t>(work.draws) * multiplier,
+        static_cast<uint64_t>(work.texture_writes) * multiplier,
+        static_cast<uint64_t>(work.texture_bytes) * multiplier,
+        static_cast<uint64_t>(work.texture_binds) * multiplier,
+        work.distinct_addresses,
+        static_cast<uint64_t>(work.per_draw_waits) * multiplier,
+        static_cast<uint64_t>(work.gpu_waits) * multiplier,
+        static_cast<uint64_t>(work.vertex_bytes) * multiplier, work_checksum,
+        kS3tcSyncFactorResultKat);
+
+    std::ostringstream metadata;
+    metadata << "{";
+    metadata << "\"schema_version\":1,";
+    metadata << "\"kind\":\"s3tc_sync_factor\",";
+    metadata << "\"stage_key\":\"" << definition.stage_key << "\",";
+    metadata << "\"texture_representation\":\""
+             << definition.texture_representation << "\",";
+    metadata << "\"synchronization\":\"" << definition.synchronization
+             << "\",";
+    metadata << "\"seed\":\"46544352\",";
+    metadata << "\"iterations\":" << results.iterations << ",";
+    metadata << "\"work\":{";
+    metadata << "\"draws\":" << work.draws * multiplier << ",";
+    metadata << "\"texture_writes\":" << work.texture_writes * multiplier
+             << ",";
+    metadata << "\"texture_bytes\":" << work.texture_bytes * multiplier
+             << ",";
+    metadata << "\"texture_binds\":" << work.texture_binds * multiplier
+             << ",";
+    metadata << "\"distinct_addresses\":" << work.distinct_addresses << ",";
+    metadata << "\"per_draw_waits\":" << work.per_draw_waits * multiplier
+             << ",";
+    metadata << "\"gpu_waits\":" << work.gpu_waits * multiplier << ",";
+    metadata << "\"vertex_bytes\":" << work.vertex_bytes * multiplier;
+    metadata << "},";
+    metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
+    metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
+    metadata << "}";
+    host_.RecordProfileResult(suite_name_, definition.record_name, results,
+                              metadata.str());
+  }
+
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, kS3tcSyncFactorSeed,
+                    kS3tcSyncFactorResultKat);
+  host_.FinishDraw(
+      suite_name_, kS3tcSyncFactorName, final_results,
+      "{\"schema_version\":1,\"kind\":\"s3tc_sync_factor_summary\","
+      "\"exclude_from_stage_window_mapping\":true,\"stage_record_count\":4}");
   ClearXemuPerfEventContext();
 }
 
@@ -2046,6 +2365,65 @@ uint32_t GameLoadCompositeTests::RunScaledSurfacePressureWork(const Preset &pres
   texture_stage.SetFormat(GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
   texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
   host_.SetupTextureStages();
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
+                                                       bool per_draw_wait,
+                                                       uint32_t seed) {
+  static constexpr uint32_t attributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+  const uint32_t format =
+      compressed ? NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5
+                 : NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8;
+
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(GetTextureFormatInfo(format));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetBlend(false);
+  host_.PrepareDraw(0xFF141820);
+
+  // Geometry is written once before the draw burst. This keeps the texture
+  // address/wait factor independent from dynamic-vertex synchronization.
+  auto vertex = alpha_vertex_buffer_->Lock();
+  for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+    const float x = 160.f + ((i == 1 || i == 2) ? 320.f : 0.f);
+    const float y = 120.f + (i >= 2 ? 240.f : 0.f);
+    vertex->SetPosition(x, y, 1.f);
+    vertex->SetDiffuse(1.f, 1.f, 1.f, 1.f);
+    vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                         i >= 2 ? 1.f : 0.f);
+  }
+  alpha_vertex_buffer_->Unlock();
+
+  uint32_t state = seed;
+  for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
+    const uint32_t slot = per_draw_wait ? 0U : draw;
+    uint8_t *const destination =
+        factor_texture_ring_ + slot * kFactorRingStride;
+    const auto &source = compressed ? factor_s3tc_sources_[draw]
+                                    : factor_rgba8_sources_[draw];
+    memcpy(destination, source.data(), source.size());
+    BindTextureStage0Address(destination);
+
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    if (per_draw_wait) {
+      host_.WaitForGpu();
+    }
+
+    state = (state ^ kFactorColors[draw] ^ (draw * 0x9E3779B9U)) *
+            16777619U;
+  }
+
+  // Both synchronization cells end at the same guest-visible boundary. The
+  // ring cell has no per-draw wait and retains every referenced texture until
+  // this one final completion.
+  host_.WaitForGpu();
   return state;
 }
 

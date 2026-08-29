@@ -248,9 +248,19 @@ Cross-title bit 1024 is `gpu_wait_control`. It performs 384 iterations of one
 known PGRAPH pattern write, one `WaitForGpu`, and one exact register readback;
 smoke mode performs 48. Its `pfifo_methods`, `fence_reads`, and `gpu_waits`
 metadata are equal by construction. Comparing this stage with the S3TC stage
-separates common guest/PFIFO wait cost from texture decode, upload, and draw
-cost. `gpu_waits` counts API calls; it does not claim a fixed number of MMIO
-polls inside each call.
+measures an idle-control floor only. It cannot exclude wait, fence, or lock
+cost that appears only while draws keep the GPU busy. `gpu_waits` counts API
+calls; it does not claim a fixed number of MMIO polls inside each call.
+
+`GameLoadComposite::10-S3tcSyncFactor` provides the required 2x2 control. It
+runs the same 16 solid-color textured draws as DXT1 or pre-expanded RGBA8,
+then combines each representation with either same-address/per-draw waits or
+a 16-address ring with one final wait. Every cell uses the same colors,
+geometry, draw count, and final completion boundary. Metadata reports exact
+texture writes and bytes, address count, binds, per-draw waits, total waits,
+draws, and vertex bytes. Fixed source and result KATs detect corruption. The
+four cells are deliberately seconds-scale as one named unattended test; they
+are not nanosecond microbenchmarks.
 
 Framebuffer provenance remains mandatory. Emulator-produced hashes are
 regression oracles, not proof of retail Xbox correctness. Promote an oracle to

@@ -56,6 +56,7 @@ class GameLoadCompositeTests : public TestSuite {
 
  private:
   static constexpr const char *kCrossTitleHotpathName = "09-CrossTitleHotpath";
+  static constexpr const char *kS3tcSyncFactorName = "10-S3tcSyncFactor";
 
   enum class LongSceneStage : uint32_t {
     CPU = 0,
@@ -110,6 +111,7 @@ class GameLoadCompositeTests : public TestSuite {
   void RunTest(const Preset &preset, Phase phase);
   void RunLongUnlockedScene();
   void RunCrossTitleHotpath();
+  void RunS3tcSyncFactor();
   void RunRepeatedDisplay(const char *test_name, uint32_t hold_ms, uint32_t seed);
   uint32_t ExpectedLongSceneFinalState(const Preset &preset) const;
   void RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
@@ -128,6 +130,8 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t RunScaledSurfacePressureWork(const Preset &preset, uint32_t seed);
   uint32_t RunS3tcStreamingFencedDrawsWork(const Preset &preset, uint32_t seed);
   uint32_t RunGpuWaitControlWork(const Preset &preset, uint32_t seed);
+  uint32_t RunS3tcSyncFactorWork(bool compressed, bool per_draw_wait,
+                                 uint32_t seed);
   void StartAudio(uint32_t voices);
   void WaitForAudio();
   void StopAudio();
@@ -149,6 +153,11 @@ class GameLoadCompositeTests : public TestSuite {
   std::shared_ptr<PBKitPlusPlus::VertexBuffer> alpha_vertex_buffer_;
   std::array<std::vector<uint8_t>, 2> streaming_buffers_;
   std::array<uint32_t, 2> streaming_buffer_checksums_{};
+  std::array<std::vector<uint8_t>, 16> factor_s3tc_sources_;
+  std::array<std::vector<uint8_t>, 16> factor_rgba8_sources_;
+  uint8_t *factor_texture_ring_{nullptr};
+  uint32_t factor_s3tc_source_checksum_{0};
+  uint32_t factor_rgba8_source_checksum_{0};
   std::vector<uint8_t> cpu_memory_;
 
   void *loader_start_event_{nullptr};
