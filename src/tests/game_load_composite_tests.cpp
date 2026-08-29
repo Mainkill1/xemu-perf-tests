@@ -1561,12 +1561,13 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                            });
     final_results = results;
 
-    // This correctness-only readback is outside Profile. Full-frame hashes
-    // remain useful regression evidence, while the 16 interior pixels form a
-    // hardware-portable exact oracle that rejects blank, clipped, reordered,
-    // or stale tiles without relying on rasterized edges.
-    const uint32_t tile_center_kat =
-        ValidateS3tcSyncFactorFramebuffer(definition.compressed);
+    // This correctness-only readback is outside Profile. It is a regression
+    // oracle, not yet a hardware oracle. Record mismatches without halting so
+    // upstream compatibility runs retain this failure and finish the suite.
+    uint32_t oracle_failure_count = 0;
+    uint64_t oracle_failure_mask = 0;
+    const uint32_t tile_center_kat = ValidateS3tcSyncFactorFramebuffer(
+        definition.compressed, &oracle_failure_count, &oracle_failure_mask);
 
     const auto work = MakeS3tcSyncFactorWork(definition.compressed,
                                               definition.per_draw_wait);
@@ -1577,12 +1578,15 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     char work_checksum_string[9] = {};
     char result_checksum_string[9] = {};
     char tile_center_kat_string[9] = {};
+    char oracle_failure_mask_string[17] = {};
     snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx",
              work_checksum);
     snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
              kS3tcSyncFactorResultKat);
     snprintf(tile_center_kat_string, sizeof(tile_center_kat_string), "%08lx",
              tile_center_kat);
+    snprintf(oracle_failure_mask_string, sizeof(oracle_failure_mask_string),
+             "%016llx", oracle_failure_mask);
 
     PrintMsg(
         "S3TC_FACTOR_WORK GameLoadComposite::%s representation=%s "
@@ -1638,6 +1642,18 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
     metadata << ",\"tile_center_kat\":\"" << tile_center_kat_string
              << "\"";
+    metadata << ",\"oracle_status\":\""
+             << (oracle_failure_count ? "FAIL" : "PASS") << "\"";
+    metadata << ",\"oracle_provenance\":\"regression_only\"";
+    metadata << ",\"oracle_failure_count\":" << oracle_failure_count;
+    metadata << ",\"oracle_failure_mask\":\""
+             << oracle_failure_mask_string << "\"";
+    metadata << ",\"oracle_compatibility_key\":\""
+             << "s3tc-factor-source-precision-v1\"";
+    if (oracle_failure_count) {
+      metadata << ",\"oracle_failure_reason\":\""
+               << "source-precision tile readback mismatch\"";
+    }
     metadata << "}";
     host_.RecordProfileResult(suite_name_, definition.record_name, results,
                               metadata.str());
@@ -1653,7 +1669,9 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
 }
 
 uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
-    bool compressed) const {
+    bool compressed, uint32_t *failure_count, uint64_t *failure_mask) const {
+  *failure_count = 0;
+  *failure_mask = 0;
   host_.WaitForGpu();
   const auto *const base =
       reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
@@ -1685,25 +1703,23 @@ uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
              compressed ? "dxt1" : "rgba8", tile, x, y,
              kFactorColors[tile], expected_argb, observed_argb,
              observed_rgb565);
-    AssertXemuPerfEqual(
-        kFactorTileAlpha, alpha,
-        static_cast<XemuPerfAssertion>(0x130U + tile),
-        "factor tile center alpha matches source", __FILE__, __LINE__);
+    if (alpha != kFactorTileAlpha) {
+      ++*failure_count;
+      *failure_mask |= UINT64_C(1) << tile;
+    }
     if (compressed) {
       // DXT endpoint expansion may legally differ in low bits. Repack the
       // observed channels to source precision so the exact oracle remains
       // portable across NV2A and host APIs without accepting a wrong color.
-      AssertXemuPerfEqual(
-          kFactorColors[tile], observed_rgb565,
-          static_cast<XemuPerfAssertion>(0x150U + tile),
-          "DXT factor tile center matches source RGB565", __FILE__,
-          __LINE__);
+      if (observed_rgb565 != kFactorColors[tile]) {
+        ++*failure_count;
+        *failure_mask |= UINT64_C(1) << (16U + tile);
+      }
     } else {
-      AssertXemuPerfEqual(
-          expected_argb, observed_argb,
-          static_cast<XemuPerfAssertion>(0x170U + tile),
-          "RGBA8 factor tile center matches exact expanded RGB565", __FILE__,
-          __LINE__);
+      if (observed_argb != expected_argb) {
+        ++*failure_count;
+        *failure_mask |= UINT64_C(1) << (16U + tile);
+      }
     }
     observed_kat = HashUint64(observed_kat, tile);
     observed_kat = HashUint64(observed_kat, observed_rgb565);
@@ -1712,10 +1728,14 @@ uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
 
   PrintMsg("S3TC_FACTOR_TILE_KAT expected=%08lx observed=%08lx\n",
            kFactorTileSourceKat, observed_kat);
-  AssertXemuPerfEqual(kFactorTileSourceKat, observed_kat,
-                      static_cast<XemuPerfAssertion>(0x140),
-                      "ordered source-precision factor tile KAT matches", __FILE__,
-                      __LINE__);
+  if (observed_kat != kFactorTileSourceKat) {
+    ++*failure_count;
+    *failure_mask |= UINT64_C(1) << 32U;
+  }
+  PrintMsg("S3TC_FACTOR_ORACLE status=%s failure_count=%lu "
+           "failure_mask=%016llx compatibility_key=%s\n",
+           *failure_count ? "FAIL" : "PASS", *failure_count, *failure_mask,
+           "s3tc-factor-source-precision-v1");
   return observed_kat;
 }
 

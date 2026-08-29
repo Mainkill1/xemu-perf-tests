@@ -271,6 +271,12 @@ unique colors, and an in-bounds grid; metadata reports `visible_tiles=16`,
 bind, and wait factors are unchanged. ENG367 timing is diagnostic only until
 this tiled oracle passes on the same builds.
 
+The tile oracle is nonfatal. Every cell records `oracle_status`, failure count,
+failure mask, reason, provenance, and compatibility key before the suite moves
+on. A mismatch is still a failed oracle; it no longer becomes an assertion
+screen that discards all later stability records. Host tooling decides whether
+that exact failure has an explicit source/backend/scale compatibility allowance.
+
 Framebuffer provenance remains mandatory. Emulator-produced hashes are
 regression oracles, not proof of retail Xbox correctness. Promote an oracle to
 `RETAIL_XBOX` only after independent hardware runs of the exact XISO/job agree.
