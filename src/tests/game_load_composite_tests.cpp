@@ -521,12 +521,40 @@ static const CrossTitleStageDefinition kCrossTitleStages[] = {
 static_assert(sizeof(kCrossTitleStages) / sizeof(kCrossTitleStages[0]) ==
               TestSuite::Config::kGameLoadCompositeCrossTitleStageCount);
 
-static uint32_t ScaleCrossTitleCount(uint32_t value, uint32_t minimum) {
+static constexpr uint32_t ScaleCrossTitleCount(uint32_t value, uint32_t minimum) {
   if (!value) {
     return 0;
   }
   return std::max(minimum, value / 8U);
 }
+
+struct GpuWaitControlCounts {
+  uint32_t pfifo_methods;
+  uint32_t fence_reads;
+  uint32_t gpu_waits;
+};
+
+static constexpr GpuWaitControlCounts MakeGpuWaitControlCounts(uint32_t base_count,
+                                                                bool fast_smoke) {
+  const uint32_t loop_count =
+      fast_smoke ? ScaleCrossTitleCount(base_count, 1) : base_count;
+  return {
+      .pfifo_methods = loop_count,
+      .fence_reads = loop_count,
+      .gpu_waits = loop_count,
+  };
+}
+
+static constexpr auto kGpuWaitControlSmokeCounts =
+    MakeGpuWaitControlCounts(384, true);
+static_assert(kGpuWaitControlSmokeCounts.pfifo_methods == 48 &&
+              kGpuWaitControlSmokeCounts.fence_reads == 48 &&
+              kGpuWaitControlSmokeCounts.gpu_waits == 48);
+static constexpr auto kGpuWaitControlSustainedCounts =
+    MakeGpuWaitControlCounts(384, false);
+static_assert(kGpuWaitControlSustainedCounts.pfifo_methods == 384 &&
+              kGpuWaitControlSustainedCounts.fence_reads == 384 &&
+              kGpuWaitControlSustainedCounts.gpu_waits == 384);
 
 static GameLoadCompositeTests::Preset MakeCrossTitlePreset(
     const CrossTitleStageDefinition &definition, bool fast_smoke) {
@@ -546,6 +574,11 @@ static GameLoadCompositeTests::Preset MakeCrossTitlePreset(
     // One wait follows every draw and one final wait remains in the measured
     // stage body after the result KAT.
     preset.gpu_waits = preset.stream_draws + 1;
+  } else if (definition.mode == CrossTitleStageMode::GPU_WAIT_CONTROL) {
+    const auto counts =
+        MakeGpuWaitControlCounts(definition.preset.gpu_waits, fast_smoke);
+    preset.fence_reads = counts.fence_reads;
+    preset.gpu_waits = counts.gpu_waits;
   }
   return preset;
 }
@@ -2344,9 +2377,13 @@ GameLoadCompositeTests::WorkTotals GameLoadCompositeTests::ExpectedCrossTitleWor
           static_cast<uint64_t>(preset.stream_draws) * kVertexBytesPerUpdate;
       break;
     case 10:
-      totals.pfifo_methods = preset.gpu_waits;
-      totals.fence_reads = preset.fence_reads;
-      totals.gpu_waits = preset.gpu_waits;
+      {
+        const auto counts = MakeGpuWaitControlCounts(preset.gpu_waits, false);
+        ASSERT(preset.fence_reads == counts.fence_reads);
+        totals.pfifo_methods = counts.pfifo_methods;
+        totals.fence_reads = counts.fence_reads;
+        totals.gpu_waits = counts.gpu_waits;
+      }
       break;
     default:
       PrintAssertAndWaitForever("cross-title stage index is valid", __FILE__, __LINE__);
