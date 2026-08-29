@@ -22,6 +22,9 @@ class TestSuite {
     static constexpr uint32_t kGameLoadCompositeStageCount = 6;
     static constexpr uint32_t kAllGameLoadCompositeStages =
         (1U << kGameLoadCompositeStageCount) - 1;
+    static constexpr uint32_t kGameLoadCompositeCrossTitleStageCount = 11;
+    static constexpr uint32_t kAllGameLoadCompositeCrossTitleStages =
+        (1U << kGameLoadCompositeCrossTitleStageCount) - 1;
 
     // Zero multiplier inherits the global setting. UINT32_MAX warmup inherits
     // the global setting, allowing an explicit per-stage zero warmup.
@@ -34,6 +37,9 @@ class TestSuite {
             std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max(),
             std::numeric_limits<uint32_t>::max(), std::numeric_limits<uint32_t>::max()};
     uint32_t game_load_composite_gpu_precondition_alpha_draws{8192};
+    uint32_t game_load_composite_cross_title_stage_mask{
+        kAllGameLoadCompositeCrossTitleStages};
+    bool game_load_composite_cross_title_fast_smoke{false};
   };
 
  public:

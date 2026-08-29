@@ -126,6 +126,22 @@ static int GameLoadCompositeStageIndex(const std::string &name) {
   return -1;
 }
 
+static int GameLoadCompositeCrossTitleStageIndex(const std::string &name) {
+  if (name == "queued_vertex_cpu_writes") return 0;
+  if (name == "pgr2_small_draws") return 1;
+  if (name == "texture_update_reuse") return 2;
+  if (name == "surface_reuse") return 3;
+  if (name == "pipeline_state_churn") return 4;
+  if (name == "blend_constant_reuse") return 5;
+  if (name == "texture_binding_reuse") return 6;
+  if (name == "pgr2_lagspot_inline_elements") return 7;
+  if (name == "scaled_surface_pressure") return 8;
+  if (name == "s3tc_streaming_fenced_draws" ||
+      name == "s3tc_streaming_burst") return 9;
+  if (name == "gpu_wait_control") return 10;
+  return -1;
+}
+
 static bool ParseGameLoadCompositeStageValues(
     json_t const *object, const char *name,
     std::array<uint32_t, TestSuite::Config::kGameLoadCompositeStageCount> &values,
@@ -168,62 +184,116 @@ static bool ParseGameLoadCompositeConfig(json_t const *root, TestSuite::Config &
     return false;
   }
   auto long_scene = json_getProperty(game_load_composite, "long_unlocked_scene");
-  if (!long_scene) {
-    return true;
-  }
-  if (json_getType(long_scene) != JSON_OBJ) {
-    errors.emplace_back("game_load_composite[long_unlocked_scene] must be an object");
-    return false;
-  }
-
-  if (!LoadUint32(long_scene, "stage_mask", config.game_load_composite_stage_mask) ||
-      !config.game_load_composite_stage_mask ||
-      (config.game_load_composite_stage_mask & ~TestSuite::Config::kAllGameLoadCompositeStages)) {
-    errors.emplace_back("game_load_composite.long_unlocked_scene[stage_mask] must select bits 0 through 5");
-    return false;
-  }
-
-  auto stages = json_getProperty(long_scene, "stages");
-  if (stages) {
-    if (json_getType(stages) != JSON_OBJ) {
-      errors.emplace_back("game_load_composite.long_unlocked_scene[stages] must be an object");
+  if (long_scene) {
+    if (json_getType(long_scene) != JSON_OBJ) {
+      errors.emplace_back("game_load_composite[long_unlocked_scene] must be an object");
       return false;
     }
-    uint32_t stage_list_mask = 0;
-    for (auto stage = json_getChild(stages); stage; stage = json_getSibling(stage)) {
-      const int index = GameLoadCompositeStageIndex(json_getName(stage));
-      if (index < 0 || json_getType(stage) != JSON_BOOLEAN) {
-        errors.emplace_back("game_load_composite.long_unlocked_scene[stages] contains an invalid stage/value");
+
+    if (!LoadUint32(long_scene, "stage_mask", config.game_load_composite_stage_mask) ||
+        !config.game_load_composite_stage_mask ||
+        (config.game_load_composite_stage_mask &
+         ~TestSuite::Config::kAllGameLoadCompositeStages)) {
+      errors.emplace_back(
+          "game_load_composite.long_unlocked_scene[stage_mask] must select bits 0 through 5");
+      return false;
+    }
+
+    auto stages = json_getProperty(long_scene, "stages");
+    if (stages) {
+      if (json_getType(stages) != JSON_OBJ) {
+        errors.emplace_back(
+            "game_load_composite.long_unlocked_scene[stages] must be an object");
         return false;
       }
-      if (json_getBoolean(stage)) {
-        stage_list_mask |= 1U << index;
+      uint32_t stage_list_mask = 0;
+      for (auto stage = json_getChild(stages); stage; stage = json_getSibling(stage)) {
+        const int index = GameLoadCompositeStageIndex(json_getName(stage));
+        if (index < 0 || json_getType(stage) != JSON_BOOLEAN) {
+          errors.emplace_back(
+              "game_load_composite.long_unlocked_scene[stages] contains an invalid stage/value");
+          return false;
+        }
+        if (json_getBoolean(stage)) {
+          stage_list_mask |= 1U << index;
+        }
+      }
+      config.game_load_composite_stage_mask &= stage_list_mask;
+      if (!config.game_load_composite_stage_mask) {
+        errors.emplace_back("game_load_composite.long_unlocked_scene selects no stages");
+        return false;
       }
     }
-    config.game_load_composite_stage_mask &= stage_list_mask;
-    if (!config.game_load_composite_stage_mask) {
-      errors.emplace_back("game_load_composite.long_unlocked_scene selects no stages");
+
+    if (!ParseGameLoadCompositeStageValues(long_scene, "measurement_iterations_multiplier",
+                                           config.game_load_composite_stage_multipliers,
+                                           false, errors) ||
+        !ParseGameLoadCompositeStageValues(long_scene, "warmup_iterations",
+                                           config.game_load_composite_stage_warmups,
+                                           true, errors)) {
       return false;
+    }
+
+    auto gpu_precondition = json_getProperty(long_scene, "gpu_precondition");
+    if (gpu_precondition) {
+      if (json_getType(gpu_precondition) != JSON_OBJ ||
+          !LoadUint32(gpu_precondition, "alpha_draws",
+                      config.game_load_composite_gpu_precondition_alpha_draws) ||
+          config.game_load_composite_gpu_precondition_alpha_draws > 1000000) {
+        errors.emplace_back(
+            "game_load_composite.long_unlocked_scene[gpu_precondition.alpha_draws] must be 0 through 1000000");
+        return false;
+      }
     }
   }
 
-  if (!ParseGameLoadCompositeStageValues(long_scene, "measurement_iterations_multiplier",
-                                         config.game_load_composite_stage_multipliers,
-                                         false, errors) ||
-      !ParseGameLoadCompositeStageValues(long_scene, "warmup_iterations",
-                                         config.game_load_composite_stage_warmups,
-                                         true, errors)) {
-    return false;
-  }
-
-  auto gpu_precondition = json_getProperty(long_scene, "gpu_precondition");
-  if (gpu_precondition) {
-    if (json_getType(gpu_precondition) != JSON_OBJ ||
-        !LoadUint32(gpu_precondition, "alpha_draws",
-                    config.game_load_composite_gpu_precondition_alpha_draws) ||
-        config.game_load_composite_gpu_precondition_alpha_draws > 1000000) {
-      errors.emplace_back("game_load_composite.long_unlocked_scene[gpu_precondition.alpha_draws] must be 0 through 1000000");
+  auto cross_title = json_getProperty(game_load_composite, "cross_title_hotpath");
+  if (cross_title) {
+    if (json_getType(cross_title) != JSON_OBJ) {
+      errors.emplace_back("game_load_composite[cross_title_hotpath] must be an object");
       return false;
+    }
+
+    if (!LoadBool(cross_title, "fast_smoke",
+                  config.game_load_composite_cross_title_fast_smoke)) {
+      errors.emplace_back("game_load_composite.cross_title_hotpath[fast_smoke] must be boolean");
+      return false;
+    }
+
+    if (!LoadUint32(cross_title, "stage_mask",
+                    config.game_load_composite_cross_title_stage_mask) ||
+        !config.game_load_composite_cross_title_stage_mask ||
+        (config.game_load_composite_cross_title_stage_mask &
+         ~TestSuite::Config::kAllGameLoadCompositeCrossTitleStages)) {
+      errors.emplace_back(
+          "game_load_composite.cross_title_hotpath[stage_mask] must select bits 0 through 10");
+      return false;
+    }
+
+    auto stages = json_getProperty(cross_title, "stages");
+    if (stages) {
+      if (json_getType(stages) != JSON_OBJ) {
+        errors.emplace_back(
+            "game_load_composite.cross_title_hotpath[stages] must be an object");
+        return false;
+      }
+      uint32_t stage_list_mask = 0;
+      for (auto stage = json_getChild(stages); stage; stage = json_getSibling(stage)) {
+        const int index = GameLoadCompositeCrossTitleStageIndex(json_getName(stage));
+        if (index < 0 || json_getType(stage) != JSON_BOOLEAN) {
+          errors.emplace_back(
+              "game_load_composite.cross_title_hotpath[stages] contains an invalid stage/value");
+          return false;
+        }
+        if (json_getBoolean(stage)) {
+          stage_list_mask |= 1U << index;
+        }
+      }
+      config.game_load_composite_cross_title_stage_mask &= stage_list_mask;
+      if (!config.game_load_composite_cross_title_stage_mask) {
+        errors.emplace_back("game_load_composite.cross_title_hotpath selects no stages");
+        return false;
+      }
     }
   }
   return true;

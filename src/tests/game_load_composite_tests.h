@@ -46,6 +46,7 @@ class GameLoadCompositeTests : public TestSuite {
     uint32_t pfifo_bursts;
     uint32_t pfifo_methods_per_burst;
     uint32_t fence_reads;
+    uint32_t gpu_waits;
     uint32_t alpha_draws;
     uint32_t stream_bytes;
     uint32_t stream_draws;
@@ -54,6 +55,7 @@ class GameLoadCompositeTests : public TestSuite {
   };
 
  private:
+  static constexpr const char *kCrossTitleHotpathName = "09-CrossTitleHotpath";
 
   enum class LongSceneStage : uint32_t {
     CPU = 0,
@@ -71,6 +73,7 @@ class GameLoadCompositeTests : public TestSuite {
     uint64_t decode_bytes{0};
     uint64_t pfifo_methods{0};
     uint64_t fence_reads{0};
+    uint64_t gpu_waits{0};
     uint64_t draws{0};
     uint64_t primitives{0};
     uint64_t alpha_pixels{0};
@@ -106,6 +109,8 @@ class GameLoadCompositeTests : public TestSuite {
 
   void RunTest(const Preset &preset, Phase phase);
   void RunLongUnlockedScene();
+  void RunCrossTitleHotpath();
+  void RunRepeatedDisplay(const char *test_name, uint32_t hold_ms, uint32_t seed);
   uint32_t ExpectedLongSceneFinalState(const Preset &preset) const;
   void RunIteration(const Preset &preset, Phase phase, uint32_t iteration,
                     uint32_t event_phase = std::numeric_limits<uint32_t>::max(),
@@ -115,12 +120,23 @@ class GameLoadCompositeTests : public TestSuite {
   void ValidatePfifoTerminal();
   void RunGpuWork(const Preset &preset, uint32_t seed);
   void RunStreamingWork(const Preset &preset, uint32_t seed, uint32_t buffer_index);
+  uint32_t RunQueuedVertexCpuWritesWork(const Preset &preset, uint32_t seed);
+  uint32_t RunPipelineStateChurnWork(const Preset &preset, uint32_t seed);
+  uint32_t RunBlendConstantReuseWork(const Preset &preset, uint32_t seed);
+  uint32_t RunTextureBindingReuseWork(const Preset &preset, uint32_t seed);
+  uint32_t RunPgr2LagspotInlineElementsWork(const Preset &preset, uint32_t seed);
+  uint32_t RunScaledSurfacePressureWork(const Preset &preset, uint32_t seed);
+  uint32_t RunS3tcStreamingFencedDrawsWork(const Preset &preset, uint32_t seed);
+  uint32_t RunGpuWaitControlWork(const Preset &preset, uint32_t seed);
   void StartAudio(uint32_t voices);
   void WaitForAudio();
   void StopAudio();
   uint32_t ValidateStreamingSurface(uint32_t checksum, const Preset &preset);
   void DrawCorrectnessResult(uint32_t checksum, const Preset &preset, Phase phase);
   WorkTotals ExpectedWork(const Preset &preset, Phase phase) const;
+  WorkTotals ExpectedCrossTitleWork(uint32_t stage_index, const Preset &preset) const;
+  uint32_t WorkChecksum(uint32_t seed, uint32_t phase_index,
+                        const WorkTotals &totals, uint32_t iterations) const;
   uint32_t WorkChecksum(const Preset &preset, Phase phase,
                         const WorkTotals &totals, uint32_t iterations) const;
 
@@ -132,6 +148,7 @@ class GameLoadCompositeTests : public TestSuite {
 
   std::shared_ptr<PBKitPlusPlus::VertexBuffer> alpha_vertex_buffer_;
   std::array<std::vector<uint8_t>, 2> streaming_buffers_;
+  std::array<uint32_t, 2> streaming_buffer_checksums_{};
   std::vector<uint8_t> cpu_memory_;
 
   void *loader_start_event_{nullptr};
@@ -151,6 +168,8 @@ class GameLoadCompositeTests : public TestSuite {
   std::array<uint32_t, Config::kGameLoadCompositeStageCount> long_scene_stage_multipliers_{};
   std::array<uint32_t, Config::kGameLoadCompositeStageCount> long_scene_stage_warmups_{};
   uint32_t long_scene_gpu_precondition_alpha_draws_{0};
+  uint32_t cross_title_stage_mask_{Config::kAllGameLoadCompositeCrossTitleStages};
+  bool cross_title_fast_smoke_{false};
 };
 
 #endif  // XEMU_PERF_TESTS_GAME_LOAD_COMPOSITE_TESTS_H

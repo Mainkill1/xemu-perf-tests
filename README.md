@@ -190,6 +190,72 @@ summary record (`kind: game_load_composite_long_scene_summary` and
 `exclude_from_stage_window_mapping: true`); consumers must map F0/F1 windows
 only to `kind: game_load_composite_long_scene_stage` records.
 
+`GameLoadComposite` also provides `09-CrossTitleHotpath`. It keeps one
+asset-free XBE busy with eleven fixed stress slices that match current title
+discovery fronts: queued vertex CPU writes, PGR2-like small draws, texture
+update reuse, surface reuse, pipeline-state churn, constant-blend-color
+reuse, repeated unchanged texture-binding reuse, PGR2 inline-element pressure,
+scaled surface pressure, S3TC texture rewrites with a wait after every draw,
+and a matching GPU-wait control without texture or draw work.
+The same XISO accepts a closed runtime job object and can run either a short
+smoke or sustained fixed work without changing the known input/output contract.
+
+Checked-in host configs can narrow that one test to a title-like shape. Current
+PGR2 lag representation is `suite/configs/cross-title-pgr2-lag-representative.json`,
+which selects small draws + texture reuse + surface reuse + pipeline churn +
+blend-constant reuse + repeated unchanged texture-binding reuse.
+
+```json
+{
+  "settings": { "skip_tests_by_default": true },
+  "test_suites": {
+    "GameLoadComposite": {
+      "09-CrossTitleHotpath": { "skipped": false }
+    }
+  },
+  "game_load_composite": {
+    "cross_title_hotpath": {
+      "fast_smoke": false,
+      "stage_mask": 127,
+      "stages": {
+        "queued_vertex_cpu_writes": true,
+        "pgr2_small_draws": true,
+        "texture_update_reuse": true,
+        "surface_reuse": true,
+        "pipeline_state_churn": true,
+        "blend_constant_reuse": true,
+        "texture_binding_reuse": true
+      }
+    }
+  }
+}
+```
+
+The final `GameLoadComposite::09-CrossTitleHotpath` record is the summary.
+Longer sustained runs are the evidence path. Short runs stay for smoke only,
+because small windows can hide stalls and give defunct numbers.
+
+Cross-title bit 512 is reported as `s3tc_streaming_fenced_draws`. The legacy
+job key `s3tc_streaming_burst` remains accepted, but output never uses that
+ambiguous name. Each sustained invocation performs 384 DXT1/DXT3/DXT5 guest
+texture rewrites and draws, plus 385 declared `gpu_waits`: one after every draw
+to protect the reused guest address and one final measured completion wait.
+This is a synchronization-interaction workload, not a decode-only benchmark.
+Fixed source and recipe KATs detect input corruption. Smoke mode uses 48 draws
+and 49 waits with the same 1:1:1 format ratio.
+
+Cross-title bit 1024 is `gpu_wait_control`. It performs 384 iterations of one
+known PGRAPH pattern write, one `WaitForGpu`, and one exact register readback;
+smoke mode performs 48. Its `pfifo_methods`, `fence_reads`, and `gpu_waits`
+metadata are equal by construction. Comparing this stage with the S3TC stage
+separates common guest/PFIFO wait cost from texture decode, upload, and draw
+cost. `gpu_waits` counts API calls; it does not claim a fixed number of MMIO
+polls inside each call.
+
+Framebuffer provenance remains mandatory. Emulator-produced hashes are
+regression oracles, not proof of retail Xbox correctness. Promote an oracle to
+`RETAIL_XBOX` only after independent hardware runs of the exact XISO/job agree.
+
 # Building
 
 ## Prerequisites

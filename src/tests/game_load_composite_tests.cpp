@@ -9,6 +9,7 @@
 
 #include <hal/audio.h>
 #include <pbkit/nv_objects.h>
+#include <pbkit/nv_regs.h>
 #include <pbkit/pbkit.h>
 #include <pbkit/pbkit_dma.h>
 #include <pbkit/pbkit_pushbuffer.h>
@@ -43,7 +44,12 @@ static constexpr uint32_t kAudioBuffersPerMeasurement = 16;
 static constexpr uint32_t kAudioBufferCount = kAudioBuffersPerMeasurement;
 static constexpr uint32_t kAudioFramesPerBuffer = kAudioBufferBytes / (2 * sizeof(int16_t));
 static constexpr char kLongUnlockedSceneName[] = "08-LongUnlockedScene";
+static constexpr char kRepeatedDisplayName[] = "12-RepeatedDisplay";
+static constexpr char kRepeatedDisplayBoostedName[] = "12-RepeatedDisplay-Boosted";
+static constexpr uint32_t kRepeatedDisplayBoostedHoldMs = 33;
+static constexpr uint32_t kRepeatedDisplayIdleHoldMs = 0;
 static constexpr uint32_t kLongSceneSamples = 8;
+static constexpr uint32_t kCrossTitleSeed = 0x43525458;
 // Scalar-SSE regression oracle.  The FP sequence below is fixed as explicit
 // single-precision instructions, so each operation rounds to binary32 and is
 // independent of compiler code layout or x87 register lifetime.  Both cycle
@@ -196,9 +202,371 @@ static const GameLoadCompositeTests::Phase kPhases[] = {
     GameLoadCompositeTests::Phase::FULL_SYSTEM,
 };
 
+enum class CrossTitleStageMode : uint32_t {
+  QUEUED_VERTEX_CPU_WRITES = 0,
+  PGR2_SMALL_DRAWS = 1,
+  TEXTURE_UPDATE_REUSE = 2,
+  SURFACE_REUSE = 3,
+  PIPELINE_STATE_CHURN = 4,
+  BLEND_CONSTANT_REUSE = 5,
+  TEXTURE_BINDING_REUSE = 6,
+  PGR2_LAGSPOT_INLINE_ELEMENTS = 7,
+  SCALED_SURFACE_PRESSURE = 8,
+  S3TC_STREAMING_FENCED_DRAWS = 9,
+  GPU_WAIT_CONTROL = 10,
+};
+
+struct CrossTitleStageDefinition {
+  uint32_t mask_bit;
+  const char *stage_key;
+  const char *record_name;
+  const char *phase_name;
+  uint32_t seed;
+  CrossTitleStageMode mode;
+  GameLoadCompositeTests::Preset preset;
+  GameLoadCompositeTests::Phase result_phase;
+};
+
+static const CrossTitleStageDefinition kCrossTitleStages[] = {
+    {
+        .mask_bit = 1U << 0,
+        .stage_key = "queued_vertex_cpu_writes",
+        .record_name = "09-CrossTitleHotpath-01-QueuedVertexCpuWrites",
+        .phase_name = "01-QueuedVertexCpuWrites",
+        .seed = 0x43525401,
+        .mode = CrossTitleStageMode::QUEUED_VERTEX_CPU_WRITES,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525401,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 2048,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 1,
+        .stage_key = "pgr2_small_draws",
+        .record_name = "09-CrossTitleHotpath-02-Pgr2SmallDraws",
+        .phase_name = "02-Pgr2SmallDraws",
+        .seed = 0x43525402,
+        .mode = CrossTitleStageMode::PGR2_SMALL_DRAWS,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525402,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 16,
+                .pfifo_methods_per_burst = 768,
+                .fence_reads = 100000,
+                .alpha_draws = 4096,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 2,
+        .stage_key = "texture_update_reuse",
+        .record_name = "09-CrossTitleHotpath-03-TextureUpdateReuse",
+        .phase_name = "03-TextureUpdateReuse",
+        .seed = 0x43525403,
+        .mode = CrossTitleStageMode::TEXTURE_UPDATE_REUSE,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525403,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 128 * 1024,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 0,
+                .stream_bytes = 128 * 1024,
+                .stream_draws = 8,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 3,
+        .stage_key = "surface_reuse",
+        .record_name = "09-CrossTitleHotpath-04-SurfaceReuse",
+        .phase_name = "04-SurfaceReuse",
+        .seed = 0x43525404,
+        .mode = CrossTitleStageMode::SURFACE_REUSE,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525404,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 128 * 1024,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 0,
+                .stream_bytes = 128 * 1024,
+                .stream_draws = 1,
+                .surface_reuses = 8,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::LONG_UNLOCKED_SCENE,
+    },
+    {
+        .mask_bit = 1U << 4,
+        .stage_key = "pipeline_state_churn",
+        .record_name = "09-CrossTitleHotpath-05-PipelineStateChurn",
+        .phase_name = "05-PipelineStateChurn",
+        .seed = 0x43525405,
+        .mode = CrossTitleStageMode::PIPELINE_STATE_CHURN,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525405,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 1536,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 5,
+        .stage_key = "blend_constant_reuse",
+        .record_name = "09-CrossTitleHotpath-06-BlendConstantReuse",
+        .phase_name = "06-BlendConstantReuse",
+        .seed = 0x43525406,
+        .mode = CrossTitleStageMode::BLEND_CONSTANT_REUSE,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525406,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 4096,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 6,
+        .stage_key = "texture_binding_reuse",
+        .record_name = "09-CrossTitleHotpath-07-TextureBindingReuse",
+        .phase_name = "07-TextureBindingReuse",
+        .seed = 0x43525407,
+        .mode = CrossTitleStageMode::TEXTURE_BINDING_REUSE,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525407,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 4096,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 7,
+        .stage_key = "pgr2_lagspot_inline_elements",
+        .record_name = "09-CrossTitleHotpath-08-Pgr2LagspotInlineElements",
+        .phase_name = "08-Pgr2LagspotInlineElements",
+        .seed = 0x43525408,
+        .mode = CrossTitleStageMode::PGR2_LAGSPOT_INLINE_ELEMENTS,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525408,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 16,
+                .pfifo_methods_per_burst = 768,
+                .fence_reads = 100000,
+                .alpha_draws = 2048,
+                .stream_bytes = 128 * 1024,
+                .stream_draws = 0,
+                .surface_reuses = 4,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 8,
+        .stage_key = "scaled_surface_pressure",
+        .record_name = "09-CrossTitleHotpath-09-ScaledSurfacePressure",
+        .phase_name = "09-ScaledSurfacePressure",
+        .seed = 0x43525409,
+        .mode = CrossTitleStageMode::SCALED_SURFACE_PRESSURE,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x43525409,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .alpha_draws = 512,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 512,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 9,
+        .stage_key = "s3tc_streaming_fenced_draws",
+        .record_name = "09-CrossTitleHotpath-10-S3tcStreamingFencedDraws",
+        .phase_name = "10-S3tcStreamingFencedDraws",
+        .seed = 0x4352540A,
+        .mode = CrossTitleStageMode::S3TC_STREAMING_FENCED_DRAWS,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x4352540A,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 0,
+                .gpu_waits = 385,
+                .alpha_draws = 0,
+                .stream_bytes = 20 * 1024 * 1024,
+                .stream_draws = 384,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::GPU_ONLY,
+    },
+    {
+        .mask_bit = 1U << 10,
+        .stage_key = "gpu_wait_control",
+        .record_name = "09-CrossTitleHotpath-11-GpuWaitControl",
+        .phase_name = "11-GpuWaitControl",
+        .seed = 0x4352540B,
+        .mode = CrossTitleStageMode::GPU_WAIT_CONTROL,
+        .preset =
+            {
+                .name = "09-CrossTitleHotpath",
+                .seed = 0x4352540B,
+                .cpu_indirect_operations = 0,
+                .cpu_fp_cycles = 0,
+                .cpu_memory_bytes = 0,
+                .decode_bytes = 0,
+                .pfifo_bursts = 0,
+                .pfifo_methods_per_burst = 0,
+                .fence_reads = 384,
+                .gpu_waits = 384,
+                .alpha_draws = 0,
+                .stream_bytes = 0,
+                .stream_draws = 0,
+                .surface_reuses = 0,
+                .audio_voices = 0,
+            },
+        .result_phase = GameLoadCompositeTests::Phase::PFIFO_ONLY,
+    },
+};
+
+static_assert(sizeof(kCrossTitleStages) / sizeof(kCrossTitleStages[0]) ==
+              TestSuite::Config::kGameLoadCompositeCrossTitleStageCount);
+
+static uint32_t ScaleCrossTitleCount(uint32_t value, uint32_t minimum) {
+  if (!value) {
+    return 0;
+  }
+  return std::max(minimum, value / 8U);
+}
+
+static GameLoadCompositeTests::Preset MakeCrossTitlePreset(
+    const CrossTitleStageDefinition &definition, bool fast_smoke) {
+  auto preset = definition.preset;
+  if (!fast_smoke) {
+    return preset;
+  }
+  preset.decode_bytes = ScaleCrossTitleCount(preset.decode_bytes, 4096);
+  preset.pfifo_bursts = ScaleCrossTitleCount(preset.pfifo_bursts, 1);
+  preset.fence_reads = ScaleCrossTitleCount(preset.fence_reads, 64);
+  preset.gpu_waits = ScaleCrossTitleCount(preset.gpu_waits, 1);
+  preset.alpha_draws = ScaleCrossTitleCount(preset.alpha_draws, 32);
+  preset.stream_bytes = ScaleCrossTitleCount(preset.stream_bytes, 4096);
+  preset.stream_draws = ScaleCrossTitleCount(preset.stream_draws, 1);
+  preset.surface_reuses = ScaleCrossTitleCount(preset.surface_reuses, 1);
+  if (definition.mode == CrossTitleStageMode::S3TC_STREAMING_FENCED_DRAWS) {
+    // One wait follows every draw and one final wait remains in the measured
+    // stage body after the result KAT.
+    preset.gpu_waits = preset.stream_draws + 1;
+  }
+  return preset;
+}
+
 static void SetPatternColor0(uint32_t value) {
   uint32_t *push = pb_begin();
   push = pb_push1_to(kPatternSubchannel, push, NV04_IMAGE_PATTERN_MONOCHROME_COLOR0, value);
+  pb_end(push);
+}
+
+static void SetConstantAlphaBlendFactors() {
+  uint32_t *push = pb_begin();
+  push = pb_push2(push, NV097_SET_BLEND_FUNC_SFACTOR,
+                  NV097_SET_BLEND_FUNC_SFACTOR_V_CONSTANT_ALPHA,
+                  NV097_SET_BLEND_FUNC_DFACTOR_V_ONE_MINUS_CONSTANT_ALPHA);
+  pb_end(push);
+}
+
+static void SetBlendColor(uint32_t value) {
+  uint32_t *push = pb_begin();
+  push = pb_push1(push, NV20_TCL_PRIMITIVE_3D_BLEND_COLOR, value);
   pb_end(push);
 }
 
@@ -235,6 +603,8 @@ GameLoadCompositeTests::GameLoadCompositeTests(TestHost &host, std::string outpu
   long_scene_stage_warmups_ = config.game_load_composite_stage_warmups;
   long_scene_gpu_precondition_alpha_draws_ =
       config.game_load_composite_gpu_precondition_alpha_draws;
+  cross_title_stage_mask_ = config.game_load_composite_cross_title_stage_mask;
+  cross_title_fast_smoke_ = config.game_load_composite_cross_title_fast_smoke;
   for (const auto &preset : kPresets) {
     const Preset *preset_ptr = &preset;
     for (const auto phase : kPhases) {
@@ -248,6 +618,15 @@ GameLoadCompositeTests::GameLoadCompositeTests(TestHost &host, std::string outpu
   // runtime config can select it alone (or skip it) without adding a second
   // configuration mechanism.
   tests_[kLongUnlockedSceneName] = [this]() { RunLongUnlockedScene(); };
+  tests_[kCrossTitleHotpathName] = [this]() { RunCrossTitleHotpath(); };
+  tests_[kRepeatedDisplayBoostedName] = [this]() {
+    RunRepeatedDisplay(kRepeatedDisplayBoostedName, kRepeatedDisplayBoostedHoldMs,
+                       0x12B0057D);
+  };
+  tests_[kRepeatedDisplayName] = [this]() {
+    RunRepeatedDisplay(kRepeatedDisplayName, kRepeatedDisplayIdleHoldMs,
+                       0x12D1E001);
+  };
 }
 
 void GameLoadCompositeTests::Initialize() {
@@ -279,11 +658,16 @@ void GameLoadCompositeTests::Initialize() {
   alpha_vertex_buffer_->Unlock();
 
   uint32_t streaming_seed = 0xC07EC7ED;
-  for (auto &buffer : streaming_buffers_) {
+  for (uint32_t buffer_index = 0; buffer_index < streaming_buffers_.size();
+       ++buffer_index) {
+    auto &buffer = streaming_buffers_[buffer_index];
     buffer.resize(kStreamingBufferBytes);
+    uint32_t checksum = 2166136261U;
     for (auto &value : buffer) {
       value = static_cast<uint8_t>(XorShift32(streaming_seed));
+      checksum = (checksum ^ value) * 16777619U;
     }
+    streaming_buffer_checksums_[buffer_index] = checksum;
   }
   cpu_memory_.resize(1024 * 1024);
   uint32_t seed = 0x58E6C21D;
@@ -440,7 +824,7 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   PrintMsg(
       "COMPOSITE_WORK GameLoadComposite::%s preset=%s phase=%s seed=%08lx "
       "iterations=%lu cpu_indirect=%llu cpu_fp=%llu cpu_memory_bytes=%llu "
-      "decode_bytes=%llu pfifo_methods=%llu fence_reads=%llu draws=%llu "
+      "decode_bytes=%llu pfifo_methods=%llu fence_reads=%llu gpu_waits=%llu draws=%llu "
       "primitives=%llu alpha_pixels=%llu texture_bytes=%llu vertex_bytes=%llu "
       "surface_reuses=%llu audio_voices=%llu audio_buffers=%llu audio_bytes=%llu "
       "audio_mix_operations=%llu work_checksum=%08lx result_checksum=%08lx\n",
@@ -448,6 +832,7 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
       totals.cpu_indirect_operations * multiplier, totals.cpu_fp_operations * multiplier,
       totals.cpu_memory_bytes * multiplier, totals.decode_bytes * multiplier,
       totals.pfifo_methods * multiplier, totals.fence_reads * multiplier,
+      totals.gpu_waits * multiplier,
       totals.draws * multiplier, totals.primitives * multiplier,
       totals.alpha_pixels * multiplier, totals.texture_bytes * multiplier,
       totals.vertex_bytes * multiplier, totals.surface_reuses * multiplier,
@@ -476,6 +861,7 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
   metadata << "\"decode_bytes\":" << totals.decode_bytes * multiplier << ",";
   metadata << "\"pfifo_methods\":" << totals.pfifo_methods * multiplier << ",";
   metadata << "\"fence_reads\":" << totals.fence_reads * multiplier << ",";
+  metadata << "\"gpu_waits\":" << totals.gpu_waits * multiplier << ",";
   metadata << "\"draws\":" << totals.draws * multiplier << ",";
   metadata << "\"primitives\":" << totals.primitives * multiplier << ",";
   metadata << "\"alpha_pixels\":" << totals.alpha_pixels * multiplier << ",";
@@ -493,6 +879,310 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
 
   DrawCorrectnessResult(aggregate_checksum_, preset, phase);
   EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, work_checksum, aggregate_checksum_);
+  host_.FinishDraw(suite_name_, test_name, results, metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void GameLoadCompositeTests::RunCrossTitleHotpath() {
+  aggregate_checksum_ = kCrossTitleSeed;
+  current_streaming_buffer_ = 0;
+  memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
+         kStreamingBufferBytes);
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetEnabled(true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetBlend(true);
+  host_.PrepareDraw(0xFF182028);
+
+  TestHost::ProfileResults final_results{};
+  const CrossTitleStageDefinition *last_stage = nullptr;
+  Preset last_preset{};
+  uint32_t stage_record_count = 0;
+
+  for (uint32_t stage_index = 0;
+       stage_index < (sizeof(kCrossTitleStages) / sizeof(kCrossTitleStages[0]));
+       ++stage_index) {
+    const auto &definition = kCrossTitleStages[stage_index];
+    if (!(cross_title_stage_mask_ & definition.mask_bit)) {
+      continue;
+    }
+
+    ++stage_record_count;
+    const Preset preset = MakeCrossTitlePreset(definition, cross_title_fast_smoke_);
+    last_stage = &definition;
+    last_preset = preset;
+    SetXemuPerfEventContext(0x9000U + stage_record_count, aggregate_checksum_);
+    EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, preset.seed, aggregate_checksum_);
+
+    if (definition.mode == CrossTitleStageMode::S3TC_STREAMING_FENCED_DRAWS) {
+      AssertXemuPerfEqual(0xD55EFDA0U, streaming_buffer_checksums_[0],
+                          XemuPerfAssertion::CROSS_TITLE_S3TC_SOURCE0,
+                          "streaming_buffer_checksums_[0] == 0xD55EFDA0", __FILE__,
+                          __LINE__);
+      AssertXemuPerfEqual(0x65202BB3U, streaming_buffer_checksums_[1],
+                          XemuPerfAssertion::CROSS_TITLE_S3TC_SOURCE1,
+                          "streaming_buffer_checksums_[1] == 0x65202BB3", __FILE__,
+                          __LINE__);
+    }
+
+    auto results = Profile(definition.record_name, kProfileSamples, [this, &definition, &preset]() {
+      switch (definition.mode) {
+        case CrossTitleStageMode::QUEUED_VERTEX_CPU_WRITES:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunQueuedVertexCpuWritesWork(preset, definition.seed)) *
+                                16777619U;
+          break;
+        case CrossTitleStageMode::PGR2_SMALL_DRAWS:
+          RunGpuWork(preset, definition.seed);
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunPfifoWork(preset, definition.seed) ^
+                                 definition.seed) *
+                                16777619U;
+          // Force a real frame-end style boundary. The old workload only
+          // measured because Vulkan hit incidental makespace submits. Once
+          // those stalls are reduced, queued draw work can slip past the
+          // measured interval and hide the cost we are trying to track.
+          while (pb_finished()) {
+          }
+          host_.WaitForGpu();
+          break;
+        case CrossTitleStageMode::TEXTURE_UPDATE_REUSE: {
+          const uint32_t destination = current_streaming_buffer_ ^ 1;
+          StartLoader(definition.seed ^ 0xDEC0DE01U, preset.decode_bytes, destination);
+          const uint32_t loader_checksum = WaitForLoader();
+          RunStreamingWork(preset, definition.seed, destination);
+          current_streaming_buffer_ = destination;
+          aggregate_checksum_ =
+              (aggregate_checksum_ ^ definition.seed ^ loader_checksum) * 16777619U;
+          break;
+        }
+        case CrossTitleStageMode::SURFACE_REUSE: {
+          const uint32_t destination = current_streaming_buffer_ ^ 1;
+          StartLoader(definition.seed ^ 0xDEC0DE01U, preset.decode_bytes, destination);
+          const uint32_t loader_checksum = WaitForLoader();
+          RunStreamingWork(preset, definition.seed, destination);
+          current_streaming_buffer_ = destination;
+          aggregate_checksum_ =
+              (aggregate_checksum_ ^ definition.seed ^ loader_checksum) * 16777619U;
+          break;
+        }
+        case CrossTitleStageMode::PIPELINE_STATE_CHURN:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunPipelineStateChurnWork(preset, definition.seed)) *
+                                16777619U;
+          break;
+        case CrossTitleStageMode::BLEND_CONSTANT_REUSE:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunBlendConstantReuseWork(preset, definition.seed)) *
+                                16777619U;
+          break;
+        case CrossTitleStageMode::TEXTURE_BINDING_REUSE:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunTextureBindingReuseWork(preset, definition.seed)) *
+                                16777619U;
+          break;
+        case CrossTitleStageMode::PGR2_LAGSPOT_INLINE_ELEMENTS:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunPgr2LagspotInlineElementsWork(preset, definition.seed)) *
+                                16777619U;
+          while (pb_finished()) {
+          }
+          host_.WaitForGpu();
+          break;
+        case CrossTitleStageMode::SCALED_SURFACE_PRESSURE:
+          aggregate_checksum_ = (aggregate_checksum_ ^
+                                 RunScaledSurfacePressureWork(preset, definition.seed)) *
+                                16777619U;
+          host_.WaitForGpu();
+          break;
+        case CrossTitleStageMode::S3TC_STREAMING_FENCED_DRAWS: {
+          const uint32_t actual =
+              RunS3tcStreamingFencedDrawsWork(preset, definition.seed);
+          const uint32_t expected =
+              cross_title_fast_smoke_ ? 0xA963060AU : 0x6B37E40AU;
+          AssertXemuPerfEqual(expected, actual,
+                              XemuPerfAssertion::CROSS_TITLE_S3TC_RESULT,
+                              "fenced S3TC streaming result matches fixed recipe KAT",
+                              __FILE__, __LINE__);
+          aggregate_checksum_ = (aggregate_checksum_ ^ actual) * 16777619U;
+          host_.WaitForGpu();
+          break;
+        }
+        case CrossTitleStageMode::GPU_WAIT_CONTROL: {
+          const uint32_t actual = RunGpuWaitControlWork(preset, definition.seed);
+          const uint32_t expected =
+              cross_title_fast_smoke_ ? 0xFC3870DBU : 0xB5FD5A8BU;
+          AssertXemuPerfEqual(expected, actual,
+                              XemuPerfAssertion::CROSS_TITLE_GPU_WAIT_CONTROL,
+                              "GPU wait control matches fixed recipe KAT", __FILE__,
+                              __LINE__);
+          aggregate_checksum_ = (aggregate_checksum_ ^ actual) * 16777619U;
+          break;
+        }
+      }
+      g_composite_result = aggregate_checksum_;
+    });
+
+    final_results = results;
+    if (definition.mode == CrossTitleStageMode::PGR2_SMALL_DRAWS ||
+        definition.mode == CrossTitleStageMode::PGR2_LAGSPOT_INLINE_ELEMENTS) {
+      ValidatePfifoTerminal();
+    }
+
+    const WorkTotals totals = ExpectedCrossTitleWork(stage_index, preset);
+    const uint64_t multiplier = results.iterations;
+    const uint32_t work_checksum =
+        WorkChecksum(preset.seed, stage_index, totals, results.iterations);
+    PrintMsg(
+        "COMPOSITE_WORK GameLoadComposite::%s preset=%s phase=%s seed=%08lx "
+        "iterations=%lu cpu_indirect=%llu cpu_fp=%llu cpu_memory_bytes=%llu "
+        "decode_bytes=%llu pfifo_methods=%llu fence_reads=%llu gpu_waits=%llu draws=%llu "
+        "primitives=%llu alpha_pixels=%llu texture_bytes=%llu vertex_bytes=%llu "
+        "surface_reuses=%llu audio_voices=%llu audio_buffers=%llu audio_bytes=%llu "
+        "audio_mix_operations=%llu work_checksum=%08lx result_checksum=%08lx\n",
+        definition.record_name, kCrossTitleHotpathName, definition.phase_name, preset.seed,
+        results.iterations, totals.cpu_indirect_operations * multiplier,
+        totals.cpu_fp_operations * multiplier, totals.cpu_memory_bytes * multiplier,
+        totals.decode_bytes * multiplier, totals.pfifo_methods * multiplier,
+        totals.fence_reads * multiplier, totals.gpu_waits * multiplier,
+        totals.draws * multiplier,
+        totals.primitives * multiplier, totals.alpha_pixels * multiplier,
+        totals.texture_bytes * multiplier, totals.vertex_bytes * multiplier,
+        totals.surface_reuses * multiplier, totals.audio_voices, totals.audio_buffers,
+        totals.audio_bytes, totals.audio_mix_operations, work_checksum,
+        aggregate_checksum_);
+
+    char seed_string[9] = {};
+    char work_checksum_string[9] = {};
+    char result_checksum_string[9] = {};
+    snprintf(seed_string, sizeof(seed_string), "%08lx", preset.seed);
+    snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx", work_checksum);
+    snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
+             aggregate_checksum_);
+    std::ostringstream metadata;
+    metadata << "{";
+    metadata << "\"schema_version\":2,";
+    metadata << "\"kind\":\"game_load_composite\",";
+    metadata << "\"preset\":\"" << kCrossTitleHotpathName << "\",";
+    metadata << "\"phase\":\"" << definition.phase_name << "\",";
+    metadata << "\"stage_key\":\"" << definition.stage_key << "\",";
+    metadata << "\"fast_smoke\":"
+             << (cross_title_fast_smoke_ ? "true" : "false") << ",";
+    metadata << "\"seed\":\"" << seed_string << "\",";
+    metadata << "\"iterations\":" << results.iterations << ",";
+    metadata << "\"work\":{";
+    metadata << "\"cpu_indirect\":" << totals.cpu_indirect_operations * multiplier << ",";
+    metadata << "\"cpu_fp\":" << totals.cpu_fp_operations * multiplier << ",";
+    metadata << "\"cpu_memory_bytes\":" << totals.cpu_memory_bytes * multiplier << ",";
+    metadata << "\"decode_bytes\":" << totals.decode_bytes * multiplier << ",";
+    metadata << "\"pfifo_methods\":" << totals.pfifo_methods * multiplier << ",";
+    metadata << "\"fence_reads\":" << totals.fence_reads * multiplier << ",";
+    metadata << "\"gpu_waits\":" << totals.gpu_waits * multiplier << ",";
+    metadata << "\"draws\":" << totals.draws * multiplier << ",";
+    metadata << "\"primitives\":" << totals.primitives * multiplier << ",";
+    metadata << "\"alpha_pixels\":" << totals.alpha_pixels * multiplier << ",";
+    metadata << "\"texture_bytes\":" << totals.texture_bytes * multiplier << ",";
+    metadata << "\"vertex_bytes\":" << totals.vertex_bytes * multiplier << ",";
+    metadata << "\"surface_reuses\":" << totals.surface_reuses * multiplier << ",";
+    metadata << "\"audio_voices\":" << totals.audio_voices << ",";
+    metadata << "\"audio_buffers\":" << totals.audio_buffers << ",";
+    metadata << "\"audio_bytes\":" << totals.audio_bytes << ",";
+    metadata << "\"audio_mix_operations\":" << totals.audio_mix_operations;
+    metadata << "},";
+    metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
+    metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
+    metadata << "}";
+    host_.RecordProfileResult(suite_name_, definition.record_name, results, metadata.str());
+  }
+
+  if (!last_stage) {
+    PrintAssertAndWaitForever("cross_title_stage_mask_ selects at least one stage", __FILE__,
+                              __LINE__);
+  }
+
+  DrawCorrectnessResult(aggregate_checksum_, last_preset, last_stage->result_phase);
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, kCrossTitleSeed, aggregate_checksum_);
+  std::ostringstream summary_metadata;
+  summary_metadata << "{\"schema_version\":1,\"kind\":\"game_load_composite_cross_title_summary\",";
+  summary_metadata << "\"exclude_from_stage_window_mapping\":true,";
+  summary_metadata << "\"stage_mask\":" << cross_title_stage_mask_ << ",";
+  summary_metadata << "\"fast_smoke\":"
+                   << (cross_title_fast_smoke_ ? "true" : "false") << ",";
+  summary_metadata << "\"stage_record_count\":" << stage_record_count << "}";
+  host_.FinishDraw(suite_name_, kCrossTitleHotpathName, final_results,
+                   summary_metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void GameLoadCompositeTests::RunRepeatedDisplay(const char *test_name, uint32_t hold_ms,
+                                                uint32_t seed) {
+  aggregate_checksum_ = seed;
+  SetXemuPerfEventContext(0x1200U | (hold_ms ? 1U : 0U), aggregate_checksum_);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, seed, hold_ms);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.SetBlend(false);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.PrepareDraw(0xFF181818);
+
+  uint32_t invocation = 0;
+  auto results = Profile(test_name, kProfileSamples, [this, hold_ms, seed, &invocation]() {
+    const uint32_t iteration = invocation++;
+    const uint32_t color_seed = seed + iteration * 0x9E3779B9U;
+    const float jitter_x = static_cast<float>((color_seed >> 3) & 31U);
+    const float jitter_y = static_cast<float>((color_seed >> 9) & 15U);
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const std::array<std::array<float, 2>, 4> positions{{
+        {144.f + jitter_x, 112.f + jitter_y},
+        {496.f - jitter_x, 112.f + jitter_y},
+        {496.f - jitter_x, 368.f - jitter_y},
+        {144.f + jitter_x, 368.f - jitter_y},
+    }};
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      vertex->SetPosition(positions[i][0], positions[i][1], 1.f);
+      vertex->SetDiffuse(((color_seed >> 0) & 0xFF) / 255.0f,
+                         ((color_seed >> 8) & 0xFF) / 255.0f,
+                         ((color_seed >> 16) & 0xFF) / 255.0f, 1.0f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f, i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+
+    host_.PrepareDraw(0xFF000000 | (color_seed & 0x00FFFFFF));
+    static constexpr uint32_t attributes =
+        TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    host_.WaitForGpu();
+    if (hold_ms) {
+      Sleep(hold_ms);
+    }
+    aggregate_checksum_ =
+        (aggregate_checksum_ ^ color_seed ^ (hold_ms << 16) ^ iteration) * 16777619U;
+    g_composite_result = aggregate_checksum_;
+  });
+
+  char seed_string[9] = {};
+  char result_checksum_string[9] = {};
+  snprintf(seed_string, sizeof(seed_string), "%08lx", seed);
+  snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
+           aggregate_checksum_);
+  std::ostringstream metadata;
+  metadata << "{";
+  metadata << "\"schema_version\":1,";
+  metadata << "\"kind\":\"game_load_composite_repeated_display\",";
+  metadata << "\"shape\":\"" << (hold_ms ? "Boosted" : "Idle") << "\",";
+  metadata << "\"seed\":\"" << seed_string << "\",";
+  metadata << "\"iterations\":" << results.iterations << ",";
+  metadata << "\"hold_ms\":" << hold_ms << ",";
+  metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
+  metadata << "}";
+
+  DrawCorrectnessResult(aggregate_checksum_, kPresets[0], Phase::GPU_ONLY);
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, seed, aggregate_checksum_);
   host_.FinishDraw(suite_name_, test_name, results, metadata.str());
   ClearXemuPerfEventContext();
 }
@@ -1042,6 +1732,380 @@ void GameLoadCompositeTests::RunStreamingWork(const Preset &preset, uint32_t see
   }
 }
 
+uint32_t GameLoadCompositeTests::RunQueuedVertexCpuWritesWork(const Preset &preset,
+                                                              uint32_t seed) {
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetBlend(true);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.PrepareDraw(0xFF202028);
+  static constexpr uint32_t attributes = TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+  uint32_t state = seed;
+  for (uint32_t draw = 0; draw < preset.alpha_draws; ++draw) {
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x = static_cast<float>((draw + (seed & 7)) & 15) * 0.25f;
+    const float jitter_y = static_cast<float>(((draw >> 2) + ((seed >> 4) & 7)) & 15) * 0.25f;
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x = 196.f + ((i == 1 || i == 2) ? kAlphaQuadWidth : 0.f) + jitter_x;
+      const float y = 156.f + (i >= 2 ? kAlphaQuadHeight : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(0.25f + ((draw + i) & 3) * 0.1f, 0.7f, 0.45f, 0.18f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f, i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    state = (state ^ (draw * 0x9E3779B9U + 0x51ED270BU)) * 16777619U;
+  }
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunPipelineStateChurnWork(const Preset &preset,
+                                                           uint32_t seed) {
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.PrepareDraw(0xFF202020);
+  static constexpr uint32_t attributes = TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+  uint32_t state = seed;
+  for (uint32_t draw = 0; draw < preset.alpha_draws; ++draw) {
+    const bool textured = (draw & 1) != 0;
+    const bool blend = (draw & 2) == 0;
+    host_.SetTextureStageEnabled(0, textured);
+    host_.SetupTextureStages();
+    host_.SetShaderStageProgram(textured ? TestHost::STAGE_2D_PROJECTIVE : TestHost::STAGE_NONE);
+    host_.SetFinalCombiner0Just(textured ? TestHost::SRC_TEX0 : TestHost::SRC_DIFFUSE);
+    host_.SetBlend(blend);
+    host_.SetDiffuse(0.2f + ((draw + seed) & 7) * 0.05f, 0.5f, 0.85f,
+                     blend ? 0.18f : 1.f);
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    state = (state ^ (draw * 0x45D9F3BU + (textured ? 0x10001U : 0x20002U) +
+                      (blend ? 0x40004U : 0x80008U))) *
+            16777619U;
+  }
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetBlend(true);
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunBlendConstantReuseWork(const Preset &preset,
+                                                           uint32_t seed) {
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetBlend(true);
+  SetConstantAlphaBlendFactors();
+  host_.PrepareDraw(0xFF202024);
+  static constexpr uint32_t attributes = TestHost::POSITION | TestHost::DIFFUSE;
+
+  uint32_t state = seed;
+  uint32_t blend_color = 0x80406020U | (seed & 0x000F0F0FU);
+  SetBlendColor(blend_color);
+
+  for (uint32_t draw = 0; draw < preset.alpha_draws; ++draw) {
+    if ((draw & 15U) == 0U) {
+      blend_color = 0x40000000U |
+                    (((seed + draw * 13U) & 0xFFU) << 16) |
+                    (((seed + draw * 7U) & 0xFFU) << 8) |
+                    ((seed + draw * 3U) & 0xFFU);
+      SetBlendColor(blend_color);
+      state = (state ^ blend_color ^ (draw * 0x9E3779B9U)) * 16777619U;
+    } else {
+      state = (state ^ blend_color ^ (draw * 0x45D9F3BU)) * 16777619U;
+    }
+
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x = static_cast<float>((draw + (seed & 15U)) & 15U) * 0.5f;
+    const float jitter_y =
+        static_cast<float>(((draw >> 3) + ((seed >> 4) & 15U)) & 15U) * 0.5f;
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x = 200.f + ((i == 1 || i == 2) ? kAlphaQuadWidth : 0.f) + jitter_x;
+      const float y = 148.f + (i >= 2 ? kAlphaQuadHeight : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(0.85f, 0.7f, 0.45f, 1.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+  }
+
+  host_.SetBlend(true);
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunTextureBindingReuseWork(const Preset &preset,
+                                                            uint32_t seed) {
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetBlend(true);
+  host_.PrepareDraw(0xFF20202C);
+  static constexpr uint32_t attributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+
+  uint32_t state = seed;
+  for (uint32_t draw = 0; draw < preset.alpha_draws; ++draw) {
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x =
+        static_cast<float>((draw + (seed & 15U)) & 15U) * 0.375f;
+    const float jitter_y =
+        static_cast<float>(((draw >> 2) + ((seed >> 4) & 15U)) & 15U) * 0.375f;
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x =
+          188.f + ((i == 1 || i == 2) ? kAlphaQuadWidth : 0.f) + jitter_x;
+      const float y =
+          152.f + (i >= 2 ? kAlphaQuadHeight : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(0.9f, 0.9f, 0.9f, 0.4f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                           i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+
+    // Re-emit the same texture stage state every draw without changing the
+    // bound payload. Old Vulkan builds treated this as a descriptor-changing
+    // path; the kept fix must collapse it back to no effective texture change.
+    host_.SetTextureStageEnabled(0, true);
+    host_.SetupTextureStages();
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+
+    state = (state ^ (draw * 0x7F4A7C15U + 0x54B1C3D7U)) * 16777619U;
+  }
+
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunPgr2LagspotInlineElementsWork(const Preset &preset,
+                                                                  uint32_t seed) {
+  static const std::vector<uint32_t> index_buffer{0, 1, 2, 3};
+
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetBlend(true);
+  host_.PrepareDraw(0xFF1A202A);
+
+  const uint32_t bytes = std::min<uint32_t>(preset.stream_bytes, kStreamingBufferBytes);
+  memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[current_streaming_buffer_].data(),
+         bytes);
+
+  uint8_t *surface = host_.GetTextureMemoryForStage(1);
+  for (uint32_t reuse = 0; reuse < preset.surface_reuses; ++reuse) {
+    const uint32_t width = (reuse & 1U) ? 160U : 128U;
+    const uint32_t height = (reuse & 1U) ? 120U : 128U;
+    host_.RenderToSurfaceStart(surface, TestHost::SCF_A8R8G8B8, width, height, false);
+    host_.ClearColorRegion(0xFF000000 | ((seed + reuse * 0x10203U) & 0x00FFFFFF), 0, 0, width,
+                           height);
+    host_.RenderToSurfaceEnd();
+  }
+
+  uint32_t state = RunPfifoWork(preset, seed ^ 0x51C0F1U);
+  static constexpr uint32_t attributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+
+  for (uint32_t draw = 0; draw < preset.alpha_draws; ++draw) {
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x = static_cast<float>((draw + (seed & 15U)) & 31U) * 0.25f;
+    const float jitter_y =
+        static_cast<float>(((draw >> 2) + ((seed >> 4) & 15U)) & 31U) * 0.25f;
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x =
+          184.f + ((i == 1 || i == 2) ? kAlphaQuadWidth : 0.f) + jitter_x;
+      const float y =
+          140.f + (i >= 2 ? kAlphaQuadHeight : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(0.88f, 0.88f, 0.9f, 0.35f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                           i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+
+    host_.SetTextureStageEnabled(0, true);
+    host_.SetupTextureStages();
+    host_.DrawInlineElements16(index_buffer, attributes, TestHost::PRIMITIVE_QUADS);
+    state = (state ^ (draw * 0x7F4A7C15U + 0x13579BDFU)) * 16777619U;
+  }
+
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunScaledSurfacePressureWork(const Preset &preset,
+                                                              uint32_t seed) {
+  struct PressureTarget {
+    uint32_t width;
+    uint32_t height;
+    TestHost::SurfaceColorFormat surface_format;
+    uint32_t texture_format;
+  };
+
+  static const PressureTarget kTargets[] = {
+      {256, 256, TestHost::SCF_A8R8G8B8, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8},
+      {224, 224, TestHost::SCF_R5G6B5, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5},
+      {192, 192, TestHost::SCF_A8R8G8B8, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8},
+      {160, 160, TestHost::SCF_R5G6B5, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5},
+      {128, 128, TestHost::SCF_A8R8G8B8, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8},
+      {96, 96, TestHost::SCF_R5G6B5, NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5},
+  };
+
+  auto &texture_stage = host_.GetTextureStage(0);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetBlend(true);
+  host_.PrepareDraw(0xFF14202C);
+  static constexpr uint32_t attributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  uint32_t state = seed;
+  const uint32_t target_count = sizeof(kTargets) / sizeof(kTargets[0]);
+
+  for (uint32_t reuse = 0; reuse < preset.surface_reuses; ++reuse) {
+    const auto &target = kTargets[(reuse + (seed & 7U)) % target_count];
+    const uint32_t clear_color =
+        0xFF000000U | ((seed + reuse * 0x010203U) & 0x00FFFFFFU);
+
+    host_.RenderToSurfaceStart(surface_memory, target.surface_format,
+                               target.width, target.height, false);
+    host_.ClearColorRegion(clear_color, 0, 0, target.width, target.height);
+    host_.RenderToSurfaceEnd();
+
+    texture_stage.SetFormat(GetTextureFormatInfo(target.texture_format));
+    texture_stage.SetTextureDimensions(target.width, target.height);
+    host_.SetupTextureStages();
+
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x = static_cast<float>((reuse * 11U) & 63U);
+    const float jitter_y = static_cast<float>((reuse * 7U) & 47U);
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x =
+          84.f + ((i == 1 || i == 2) ? kAlphaQuadWidth : 0.f) + jitter_x;
+      const float y =
+          68.f + (i >= 2 ? kAlphaQuadHeight : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(0.92f, 0.92f, 0.92f, 0.52f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                           i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    state = (state ^ clear_color ^ (target.width << 16) ^
+             (target.height << 1) ^ (target.texture_format * 0x9E3779B9U)) *
+            16777619U;
+  }
+
+  texture_stage.SetFormat(GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  host_.SetupTextureStages();
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunS3tcStreamingFencedDrawsWork(
+    const Preset &preset, uint32_t seed) {
+  static constexpr uint32_t kFormats[] = {
+      NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5,
+      NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT23_A8R8G8B8,
+      NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT45_A8R8G8B8,
+  };
+  static constexpr uint32_t kCompressedBytes[] = {
+      kTextureWidth * kTextureHeight / 2,
+      kTextureWidth * kTextureHeight,
+      kTextureWidth * kTextureHeight,
+  };
+  static constexpr uint32_t attributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
+
+  ASSERT(preset.gpu_waits == preset.stream_draws + 1);
+  auto &texture_stage = host_.GetTextureStage(0);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetTextureStageEnabled(0, true);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetBlend(false);
+  host_.PrepareDraw(0xFF141820);
+
+  uint32_t state = seed;
+  for (uint32_t draw = 0; draw < preset.stream_draws; ++draw) {
+    const uint32_t format_index = draw % 3U;
+    const uint32_t source_index = draw & 1U;
+    const uint32_t bytes = kCompressedBytes[format_index];
+    memcpy(host_.GetTextureMemoryForStage(0),
+           streaming_buffers_[source_index].data(), bytes);
+
+    texture_stage.SetFormat(GetTextureFormatInfo(kFormats[format_index]));
+    texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+    host_.SetupTextureStages();
+
+    auto vertex = alpha_vertex_buffer_->Lock();
+    const float jitter_x = static_cast<float>((draw * 5U) & 31U) * 0.25f;
+    const float jitter_y = static_cast<float>((draw * 3U) & 31U) * 0.25f;
+    for (uint32_t i = 0; i < kVerticesPerDraw; ++i, ++vertex) {
+      const float x =
+          160.f + ((i == 1 || i == 2) ? 320.f : 0.f) + jitter_x;
+      const float y = 120.f + (i >= 2 ? 240.f : 0.f) + jitter_y;
+      vertex->SetPosition(x, y, 1.f);
+      vertex->SetDiffuse(1.f, 1.f, 1.f, 1.f);
+      vertex->SetTexCoord0((i == 1 || i == 2) ? 1.f : 0.f,
+                           i >= 2 ? 1.f : 0.f);
+    }
+    alpha_vertex_buffer_->Unlock();
+    host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
+    // This wait is part of the workload: the next draw overwrites the same
+    // guest texture address. WorkTotals.gpu_waits accounts for every call.
+    host_.WaitForGpu();
+
+    state = (state ^ kFormats[format_index] ^
+             streaming_buffer_checksums_[source_index] ^
+             (draw * 0x9E3779B9U)) *
+            16777619U;
+  }
+
+  texture_stage.SetFormat(
+      GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  host_.SetupTextureStages();
+  return state;
+}
+
+uint32_t GameLoadCompositeTests::RunGpuWaitControlWork(const Preset &preset,
+                                                        uint32_t seed) {
+  ASSERT(preset.gpu_waits == preset.fence_reads);
+  volatile const uint32_t *pattern_color0 =
+      reinterpret_cast<volatile const uint32_t *>(kPgraphPatternColor0Address);
+  uint32_t state = seed;
+
+  for (uint32_t wait = 0; wait < preset.gpu_waits; ++wait) {
+    const uint32_t expected =
+        kPatternPrefix | ((seed + wait * 0x9E3779B9U) & 0x00FFFFFFU);
+    SetPatternColor0(expected);
+    host_.WaitForGpu();
+    const uint32_t observed = *pattern_color0;
+    AssertXemuPerfEqual(expected, observed,
+                        XemuPerfAssertion::CROSS_TITLE_GPU_WAIT_CONTROL,
+                        "GPU wait publishes its queued fence value", __FILE__,
+                        __LINE__);
+    state = (state ^ observed ^ (wait * 0x7F4A7C15U)) * 16777619U;
+  }
+
+  return state;
+}
+
 void GameLoadCompositeTests::StartAudio(uint32_t voices) {
   if (!voices) {
     return;
@@ -1187,8 +2251,110 @@ GameLoadCompositeTests::WorkTotals GameLoadCompositeTests::ExpectedWork(const Pr
   return totals;
 }
 
-uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
-                                              Phase phase,
+GameLoadCompositeTests::WorkTotals GameLoadCompositeTests::ExpectedCrossTitleWork(
+    uint32_t stage_index, const Preset &preset) const {
+  WorkTotals totals{};
+  switch (stage_index) {
+    case 0:
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.alpha_draws) * kVertexBytesPerUpdate;
+      break;
+    case 1:
+      totals.pfifo_methods =
+          static_cast<uint64_t>(preset.pfifo_bursts) * preset.pfifo_methods_per_burst + 1;
+      totals.fence_reads = preset.fence_reads;
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      break;
+    case 2:
+      totals.decode_bytes = preset.decode_bytes;
+      totals.draws = preset.stream_draws;
+      totals.primitives = preset.stream_draws;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.stream_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.texture_bytes = preset.stream_bytes;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.stream_draws) * kVertexBytesPerUpdate;
+      break;
+    case 3:
+      totals.decode_bytes = preset.decode_bytes;
+      totals.draws = preset.stream_draws;
+      totals.primitives = preset.stream_draws;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.stream_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.texture_bytes = preset.stream_bytes;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.stream_draws) * kVertexBytesPerUpdate;
+      totals.surface_reuses = preset.surface_reuses;
+      break;
+    case 4:
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      break;
+    case 5:
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      break;
+    case 6:
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.alpha_draws) * kVertexBytesPerUpdate;
+      break;
+    case 7:
+      totals.pfifo_methods =
+          static_cast<uint64_t>(preset.pfifo_bursts) * preset.pfifo_methods_per_burst + 1;
+      totals.fence_reads = preset.fence_reads;
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.texture_bytes = preset.stream_bytes;
+      totals.surface_reuses = preset.surface_reuses;
+      break;
+    case 8:
+      totals.draws = preset.alpha_draws;
+      totals.primitives = static_cast<uint64_t>(preset.alpha_draws) * kPrimitivesPerDraw;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.alpha_draws) * kAlphaQuadWidth * kAlphaQuadHeight;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.alpha_draws) * kVertexBytesPerUpdate;
+      totals.surface_reuses = preset.surface_reuses;
+      break;
+    case 9:
+      totals.gpu_waits = preset.gpu_waits;
+      totals.draws = preset.stream_draws;
+      totals.primitives = preset.stream_draws;
+      totals.alpha_pixels =
+          static_cast<uint64_t>(preset.stream_draws) * 320U * 240U;
+      totals.texture_bytes = preset.stream_bytes;
+      totals.vertex_bytes =
+          static_cast<uint64_t>(preset.stream_draws) * kVertexBytesPerUpdate;
+      break;
+    case 10:
+      totals.pfifo_methods = preset.gpu_waits;
+      totals.fence_reads = preset.fence_reads;
+      totals.gpu_waits = preset.gpu_waits;
+      break;
+    default:
+      PrintAssertAndWaitForever("cross-title stage index is valid", __FILE__, __LINE__);
+  }
+  return totals;
+}
+
+uint32_t GameLoadCompositeTests::WorkChecksum(uint32_t seed, uint32_t phase_index,
                                               const WorkTotals &totals,
                                               uint32_t iterations) const {
   uint32_t checksum = 2166136261U;
@@ -1198,8 +2364,8 @@ uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
                  16777619U;
     }
   };
-  add(preset.seed);
-  add(static_cast<uint32_t>(phase));
+  add(seed);
+  add(phase_index);
   add(iterations);
   add(totals.cpu_indirect_operations * iterations);
   add(totals.cpu_fp_operations * iterations);
@@ -1207,6 +2373,12 @@ uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
   add(totals.decode_bytes * iterations);
   add(totals.pfifo_methods * iterations);
   add(totals.fence_reads * iterations);
+  if (totals.gpu_waits) {
+    // Tagged extension: preserve legacy work checksums for records with no
+    // declared GPU waits while binding the new synchronization workloads.
+    add(0x4750555F57414954ULL);
+    add(totals.gpu_waits * iterations);
+  }
   add(totals.draws * iterations);
   add(totals.primitives * iterations);
   add(totals.alpha_pixels * iterations);
@@ -1218,6 +2390,13 @@ uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
   add(totals.audio_bytes);
   add(totals.audio_mix_operations);
   return checksum;
+}
+
+uint32_t GameLoadCompositeTests::WorkChecksum(const Preset &preset,
+                                              Phase phase,
+                                              const WorkTotals &totals,
+                                              uint32_t iterations) const {
+  return WorkChecksum(preset.seed, static_cast<uint32_t>(phase), totals, iterations);
 }
 
 const char *GameLoadCompositeTests::PhaseName(Phase phase) {
