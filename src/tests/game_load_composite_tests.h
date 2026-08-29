@@ -132,10 +132,13 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t RunGpuWaitControlWork(const Preset &preset, uint32_t seed);
   uint32_t RunS3tcSyncFactorWork(bool compressed, bool per_draw_wait,
                                  uint32_t seed);
+  uint32_t ValidateS3tcSyncFactorFramebuffer(bool compressed) const;
   void StartAudio(uint32_t voices);
   void WaitForAudio();
   void StopAudio();
   uint32_t ValidateStreamingSurface(uint32_t checksum, const Preset &preset);
+  void PrepareCorrectnessRenderState();
+  void PrepareCrossTitleWorkState();
   void DrawCorrectnessResult(uint32_t checksum, const Preset &preset, Phase phase);
   WorkTotals ExpectedWork(const Preset &preset, Phase phase) const;
   WorkTotals ExpectedCrossTitleWork(uint32_t stage_index, const Preset &preset) const;

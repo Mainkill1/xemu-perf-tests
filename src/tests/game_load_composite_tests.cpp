@@ -50,6 +50,7 @@ static constexpr uint32_t kRepeatedDisplayBoostedHoldMs = 33;
 static constexpr uint32_t kRepeatedDisplayIdleHoldMs = 0;
 static constexpr uint32_t kLongSceneSamples = 8;
 static constexpr uint32_t kCrossTitleSeed = 0x43525458;
+static constexpr uint32_t kOracleTextureSourceKat = 0xD55EFDA0;
 static constexpr uint32_t kS3tcSyncFactorSeed = 0x46544352;
 static constexpr uint32_t kFactorDraws = 16;
 static constexpr uint32_t kFactorRingSlots = kFactorDraws;
@@ -326,6 +327,28 @@ static constexpr uint32_t HashUint64(uint32_t hash, uint64_t value) {
   }
   return hash;
 }
+
+static constexpr uint32_t ExpandFactorRgb565(uint16_t color) {
+  const uint32_t red5 = (color >> 11) & 0x1F;
+  const uint32_t green6 = (color >> 5) & 0x3F;
+  const uint32_t blue5 = color & 0x1F;
+  const uint32_t red = (red5 << 3) | (red5 >> 2);
+  const uint32_t green = (green6 << 2) | (green6 >> 4);
+  const uint32_t blue = (blue5 << 3) | (blue5 >> 2);
+  return 0xFF000000U | (red << 16) | (green << 8) | blue;
+}
+
+static constexpr uint32_t FactorTileSourceKat() {
+  uint32_t checksum = 2166136261U;
+  for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
+    checksum = HashUint64(checksum, tile);
+    checksum = HashUint64(checksum, kFactorColors[tile]);
+    checksum = HashUint64(checksum, kFactorTileAlpha);
+  }
+  return checksum;
+}
+
+static constexpr uint32_t kFactorTileSourceKat = FactorTileSourceKat();
 
 static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &definition,
                                            const S3tcSyncFactorWork &work,
@@ -1262,14 +1285,7 @@ void GameLoadCompositeTests::RunTest(const Preset &preset, Phase phase) {
 void GameLoadCompositeTests::RunCrossTitleHotpath() {
   aggregate_checksum_ = kCrossTitleSeed;
   current_streaming_buffer_ = 0;
-  memcpy(host_.GetTextureMemoryForStage(0), streaming_buffers_[0].data(),
-         kStreamingBufferBytes);
-  auto &texture_stage = host_.GetTextureStage(0);
-  texture_stage.SetEnabled(true);
-  host_.SetupTextureStages();
-  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
-  host_.SetVertexBuffer(alpha_vertex_buffer_);
-  host_.SetBlend(true);
+  PrepareCrossTitleWorkState();
   host_.PrepareDraw(0xFF182028);
 
   TestHost::ProfileResults final_results{};
@@ -1293,7 +1309,8 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
     EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, preset.seed, aggregate_checksum_);
 
     if (definition.mode == CrossTitleStageMode::S3TC_STREAMING_FENCED_DRAWS) {
-      AssertXemuPerfEqual(0xD55EFDA0U, streaming_buffer_checksums_[0],
+      AssertXemuPerfEqual(kOracleTextureSourceKat,
+                          streaming_buffer_checksums_[0],
                           XemuPerfAssertion::CROSS_TITLE_S3TC_SOURCE0,
                           "streaming_buffer_checksums_[0] == 0xD55EFDA0", __FILE__,
                           __LINE__);
@@ -1470,7 +1487,13 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
     metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
     metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
     metadata << "}";
-    host_.RecordProfileResult(suite_name_, definition.record_name, results, metadata.str());
+    // A stage's measured framebuffer is intentionally hostile and can end on
+    // queued or repeatedly rewritten geometry. Render the fixed stage oracle
+    // after F1 so RecordProfileResult never hashes scheduler-dependent work.
+    DrawCorrectnessResult(aggregate_checksum_, preset, definition.result_phase);
+    host_.RecordProfileResult(suite_name_, definition.record_name, results,
+                              metadata.str());
+    PrepareCrossTitleWorkState();
   }
 
   if (!last_stage) {
@@ -1493,6 +1516,11 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
 }
 
 void GameLoadCompositeTests::RunS3tcSyncFactor() {
+  // RunAll intentionally executes this case directly after CrossTitleHotpath.
+  // Reapply the suite's base NV2A state so the factor oracle has the same
+  // starting contract whether selected alone or reached through RunAll.
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
   SetXemuPerfEventContext(0xA000U, kS3tcSyncFactorSeed);
   EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0,
                     kS3tcSyncFactorS3tcSourceKat,
@@ -1533,6 +1561,13 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                            });
     final_results = results;
 
+    // This correctness-only readback is outside Profile. Full-frame hashes
+    // remain useful regression evidence, while the 16 interior pixels form a
+    // hardware-portable exact oracle that rejects blank, clipped, reordered,
+    // or stale tiles without relying on rasterized edges.
+    const uint32_t tile_center_kat =
+        ValidateS3tcSyncFactorFramebuffer(definition.compressed);
+
     const auto work = MakeS3tcSyncFactorWork(definition.compressed,
                                               definition.per_draw_wait);
     const uint64_t multiplier = results.iterations;
@@ -1541,10 +1576,13 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
 
     char work_checksum_string[9] = {};
     char result_checksum_string[9] = {};
+    char tile_center_kat_string[9] = {};
     snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx",
              work_checksum);
     snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
              kS3tcSyncFactorResultKat);
+    snprintf(tile_center_kat_string, sizeof(tile_center_kat_string), "%08lx",
+             tile_center_kat);
 
     PrintMsg(
         "S3TC_FACTOR_WORK GameLoadComposite::%s representation=%s "
@@ -1598,6 +1636,8 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << "},";
     metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
     metadata << "\"result_checksum\":\"" << result_checksum_string << "\"";
+    metadata << ",\"tile_center_kat\":\"" << tile_center_kat_string
+             << "\"";
     metadata << "}";
     host_.RecordProfileResult(suite_name_, definition.record_name, results,
                               metadata.str());
@@ -1610,6 +1650,73 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
       "{\"schema_version\":1,\"kind\":\"s3tc_sync_factor_summary\","
       "\"exclude_from_stage_window_mapping\":true,\"stage_record_count\":4}");
   ClearXemuPerfEventContext();
+}
+
+uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
+    bool compressed) const {
+  host_.WaitForGpu();
+  const auto *const base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  uint32_t observed_kat = 2166136261U;
+
+  for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
+    const uint32_t column = tile % kFactorTileColumns;
+    const uint32_t row = tile / kFactorTileColumns;
+    const uint32_t x = kFactorTileMarginX +
+                       column * (kFactorTileWidth + kFactorTileGapX) +
+                       kFactorTileWidth / 2;
+    const uint32_t y = kFactorTileMarginY +
+                       row * (kFactorTileHeight + kFactorTileGapY) +
+                       kFactorTileHeight / 2;
+    const auto *const pixel = base + y * pitch + x * sizeof(uint32_t);
+    const uint32_t blue = pixel[0];
+    const uint32_t green = pixel[1];
+    const uint32_t red = pixel[2];
+    const uint32_t alpha = pixel[3];
+    const uint32_t observed_argb =
+        (alpha << 24) | (red << 16) | (green << 8) | blue;
+    const uint32_t observed_rgb565 =
+        ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
+    const uint32_t expected_argb = ExpandFactorRgb565(kFactorColors[tile]);
+    PrintMsg("S3TC_FACTOR_TILE representation=%s tile=%lu x=%lu y=%lu "
+             "source565=%04lx expected_argb=%08lx observed_argb=%08lx "
+             "observed565=%04lx\n",
+             compressed ? "dxt1" : "rgba8", tile, x, y,
+             kFactorColors[tile], expected_argb, observed_argb,
+             observed_rgb565);
+    AssertXemuPerfEqual(
+        kFactorTileAlpha, alpha,
+        static_cast<XemuPerfAssertion>(0x130U + tile),
+        "factor tile center alpha matches source", __FILE__, __LINE__);
+    if (compressed) {
+      // DXT endpoint expansion may legally differ in low bits. Repack the
+      // observed channels to source precision so the exact oracle remains
+      // portable across NV2A and host APIs without accepting a wrong color.
+      AssertXemuPerfEqual(
+          kFactorColors[tile], observed_rgb565,
+          static_cast<XemuPerfAssertion>(0x150U + tile),
+          "DXT factor tile center matches source RGB565", __FILE__,
+          __LINE__);
+    } else {
+      AssertXemuPerfEqual(
+          expected_argb, observed_argb,
+          static_cast<XemuPerfAssertion>(0x170U + tile),
+          "RGBA8 factor tile center matches exact expanded RGB565", __FILE__,
+          __LINE__);
+    }
+    observed_kat = HashUint64(observed_kat, tile);
+    observed_kat = HashUint64(observed_kat, observed_rgb565);
+    observed_kat = HashUint64(observed_kat, alpha);
+  }
+
+  PrintMsg("S3TC_FACTOR_TILE_KAT expected=%08lx observed=%08lx\n",
+           kFactorTileSourceKat, observed_kat);
+  AssertXemuPerfEqual(kFactorTileSourceKat, observed_kat,
+                      static_cast<XemuPerfAssertion>(0x140),
+                      "ordered source-precision factor tile KAT matches", __FILE__,
+                      __LINE__);
+  return observed_kat;
 }
 
 void GameLoadCompositeTests::RunRepeatedDisplay(const char *test_name, uint32_t hold_ms,
@@ -2521,14 +2628,40 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
       compressed ? NV097_SET_TEXTURE_FORMAT_COLOR_L_DXT1_A1R5G5B5
                  : NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8;
 
+  // This case may follow CrossTitleHotpath in the same process. FinishDraw
+  // leaves the XDK result viewport active, so own every render input needed
+  // by the 16-tile oracle instead of depending on suite entry state.
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_ALPHA_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_MASK, true);
+  Pushbuffer::Push(NV097_SET_STENCIL_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_FRONT_FACE, NV097_SET_FRONT_FACE_V_CW);
+  Pushbuffer::Push(NV097_SET_CULL_FACE, NV097_SET_CULL_FACE_V_BACK);
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, true);
+  Pushbuffer::Push(
+      NV097_SET_COLOR_MASK,
+      NV097_SET_COLOR_MASK_BLUE_WRITE_ENABLE |
+          NV097_SET_COLOR_MASK_GREEN_WRITE_ENABLE |
+          NV097_SET_COLOR_MASK_RED_WRITE_ENABLE |
+          NV097_SET_COLOR_MASK_ALPHA_WRITE_ENABLE);
+  Pushbuffer::End();
+  host_.SetVertexShaderProgram(nullptr);
+  host_.ClearVertexBuffer();
   auto &texture_stage = host_.GetTextureStage(0);
   texture_stage.SetFormat(GetTextureFormatInfo(format));
   texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
   host_.SetTextureStageEnabled(0, true);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetTextureStageEnabled(2, false);
+  host_.SetTextureStageEnabled(3, false);
   host_.SetupTextureStages();
   host_.SetVertexBuffer(factor_vertex_buffer_);
-  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE,
+                              TestHost::STAGE_NONE, TestHost::STAGE_NONE,
+                              TestHost::STAGE_NONE);
   host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
   host_.SetBlend(false);
   host_.PrepareDraw(0xFF141820);
 
@@ -2730,11 +2863,31 @@ uint32_t GameLoadCompositeTests::ValidateStreamingSurface(uint32_t checksum,
 void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
                                                    const Preset &preset,
                                                    Phase phase) {
+  // The timed workload may still reference the shared vertex or texture
+  // memory. Complete it before replacing either with the known oracle input.
+  host_.WaitForGpu();
   if (HasStreaming(phase)) {
     checksum = ValidateStreamingSurface(checksum, preset);
   }
 
+  uint8_t *oracle_texture = nullptr;
+  if (HasGpu(phase) || HasStreaming(phase)) {
+    AssertXemuPerfEqual(kOracleTextureSourceKat,
+                        streaming_buffer_checksums_[0],
+                        XemuPerfAssertion::CROSS_TITLE_S3TC_SOURCE0,
+                        "oracle texture source matches fixed KAT", __FILE__,
+                        __LINE__);
+    oracle_texture = host_.GetTextureMemoryForStage(0);
+    memcpy(oracle_texture, streaming_buffers_[0].data(),
+           kStreamingBufferBytes);
+    auto &texture_stage = host_.GetTextureStage(0);
+    texture_stage.SetFormat(
+        GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
+    texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  }
+
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
+  PrepareCorrectnessRenderState();
   if (HasGpu(phase) || HasStreaming(phase)) {
     auto vertex = alpha_vertex_buffer_->Lock();
     const std::array<std::array<float, 2>, 4> positions{{
@@ -2751,6 +2904,7 @@ void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
     alpha_vertex_buffer_->Unlock();
     host_.SetTextureStageEnabled(0, true);
     host_.SetupTextureStages();
+    BindTextureStage0Address(oracle_texture);
     host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
     host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
     host_.SetVertexBuffer(alpha_vertex_buffer_);
@@ -2760,10 +2914,7 @@ void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
     host_.DrawArrays(attributes, TestHost::PRIMITIVE_QUADS);
   }
 
-  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
-  host_.SetTextureStageEnabled(0, false);
-  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
-  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  PrepareCorrectnessRenderState();
   host_.Begin(TestHost::PRIMITIVE_QUADS);
   host_.SetDiffuse(0.1f * (static_cast<uint32_t>(phase) + 1), 0.75f, 0.35f, 1.f);
   host_.SetScreenVertex(16.f, 16.f);
@@ -2771,6 +2922,54 @@ void GameLoadCompositeTests::DrawCorrectnessResult(uint32_t checksum,
   host_.SetScreenVertex(80.f, 80.f);
   host_.SetScreenVertex(16.f, 80.f);
   host_.End();
+  host_.WaitForGpu();
+  EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
+  host_.WaitForGpu();
+}
+
+void GameLoadCompositeTests::PrepareCorrectnessRenderState() {
+  // FinishDraw leaves its result-overlay viewport and blend state active, and
+  // the measured GPU phases intentionally mutate texture and vertex state.
+  // The correctness image is outside F0/F1, so own every state it consumes
+  // instead of inheriting state from the prior result or phase.
+  host_.SetDefaultViewportAndFixedFunctionMatrices();
+  host_.SetVertexShaderProgram(nullptr);
+  host_.ClearVertexBuffer();
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetTextureStageEnabled(2, false);
+  host_.SetTextureStageEnabled(3, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,
+                              TestHost::STAGE_NONE, TestHost::STAGE_NONE);
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+}
+
+void GameLoadCompositeTests::PrepareCrossTitleWorkState() {
+  host_.SetDefaultViewportAndFixedFunctionMatrices();
+  uint8_t *texture_memory = host_.GetTextureMemoryForStage(0);
+  memcpy(texture_memory, streaming_buffers_[current_streaming_buffer_].data(),
+         kStreamingBufferBytes);
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(
+      GetTextureFormatInfo(NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetEnabled(true);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetTextureStageEnabled(2, false);
+  host_.SetTextureStageEnabled(3, false);
+  host_.SetupTextureStages();
+  BindTextureStage0Address(texture_memory);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE,
+                              TestHost::STAGE_NONE, TestHost::STAGE_NONE,
+                              TestHost::STAGE_NONE);
+  host_.SetVertexShaderProgram(nullptr);
+  host_.SetVertexBuffer(alpha_vertex_buffer_);
+  host_.SetBlend(true);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
 }
 
 GameLoadCompositeTests::WorkTotals GameLoadCompositeTests::ExpectedWork(const Preset &preset, Phase phase) const {
