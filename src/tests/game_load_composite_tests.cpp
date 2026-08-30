@@ -79,6 +79,7 @@ static constexpr uint32_t kFactorFloatsWrittenPerVertex = 4 + 4 + 2;
 static constexpr uint32_t kFactorVertexBytes =
     kFactorVertices * kFactorFloatsWrittenPerVertex * sizeof(float);
 static constexpr uint32_t kFactorTileAlpha = 0xFF;
+static constexpr uint32_t kFactorLatchedColorIndex = 5;
 static constexpr std::array<uint16_t, kFactorDraws> kFactorColors = {
     0x0000, 0xFFFF, 0xF800, 0x07E0, 0x001F, 0xFFE0, 0xF81F, 0x07FF,
     0x7800, 0x03E0, 0x000F, 0x7BEF, 0xFC10, 0x83E0, 0x8010, 0x0410,
@@ -149,48 +150,79 @@ static constexpr auto kS3tcSyncFactorRgba8SourceAssertion =
 static constexpr uint32_t kS3tcSyncFactorS3tcSourceKat = 0x0EA3DDC5;
 static constexpr uint32_t kS3tcSyncFactorRgba8SourceKat = 0x9B909DC5;
 static constexpr uint32_t kS3tcSyncFactorResultKat = 0x1A4FF923;
+static constexpr uint32_t kS3tcSyncFactorLatchedResultKat = 0xFEDE69D6;
 
 struct S3tcSyncFactorDefinition {
   const char *record_name;
   const char *stage_key;
   const char *texture_representation;
+  const char *revalidation_route;
   const char *synchronization;
   bool compressed;
   bool per_draw_wait;
+  bool dirty_once;
 };
 
 static constexpr S3tcSyncFactorDefinition kS3tcSyncFactorStages[] = {
     {
-        .record_name = "10-S3tcSyncFactor-01-S3tcSameAddressWait",
+        .record_name = "10-S3tcSyncFactor-01-S3tcSameAddressOverwrite",
         .stage_key = "s3tc_same_address_wait",
         .texture_representation = "s3tc_dxt1",
+        .revalidation_route = "same_address_changing_overwrite",
         .synchronization = "same_address_per_draw_wait",
         .compressed = true,
         .per_draw_wait = true,
+        .dirty_once = false,
     },
     {
-        .record_name = "10-S3tcSyncFactor-02-S3tcRingNoPerDrawWait",
+        .record_name = "10-S3tcSyncFactor-02-S3tcRingPayloadGenerations",
         .stage_key = "s3tc_ring_no_per_draw_wait",
         .texture_representation = "s3tc_dxt1",
+        .revalidation_route = "ring_changing_payload_generations",
         .synchronization = "distinct_address_ring_final_wait",
         .compressed = true,
         .per_draw_wait = false,
+        .dirty_once = false,
     },
     {
-        .record_name = "10-S3tcSyncFactor-03-Rgba8SameAddressWait",
+        .record_name = "10-S3tcSyncFactor-03-S3tcDirtyOnceRedraw",
+        .stage_key = "s3tc_dirty_once_redraw",
+        .texture_representation = "s3tc_dxt1",
+        .revalidation_route = "dirty_once_no_write_redraws",
+        .synchronization = "same_address_final_wait",
+        .compressed = true,
+        .per_draw_wait = false,
+        .dirty_once = true,
+    },
+    {
+        .record_name = "10-S3tcSyncFactor-04-Rgba8SameAddressOverwrite",
         .stage_key = "rgba8_same_address_wait",
         .texture_representation = "rgba8",
+        .revalidation_route = "same_address_changing_overwrite",
         .synchronization = "same_address_per_draw_wait",
         .compressed = false,
         .per_draw_wait = true,
+        .dirty_once = false,
     },
     {
-        .record_name = "10-S3tcSyncFactor-04-Rgba8RingNoPerDrawWait",
+        .record_name = "10-S3tcSyncFactor-05-Rgba8RingPayloadGenerations",
         .stage_key = "rgba8_ring_no_per_draw_wait",
         .texture_representation = "rgba8",
+        .revalidation_route = "ring_changing_payload_generations",
         .synchronization = "distinct_address_ring_final_wait",
         .compressed = false,
         .per_draw_wait = false,
+        .dirty_once = false,
+    },
+    {
+        .record_name = "10-S3tcSyncFactor-06-Rgba8DirtyOnceRedraw",
+        .stage_key = "rgba8_dirty_once_redraw",
+        .texture_representation = "rgba8",
+        .revalidation_route = "dirty_once_no_write_redraws",
+        .synchronization = "same_address_final_wait",
+        .compressed = false,
+        .per_draw_wait = false,
+        .dirty_once = true,
     },
 };
 
@@ -199,6 +231,8 @@ struct S3tcSyncFactorWork {
   uint32_t texture_writes;
   uint32_t texture_bytes;
   uint32_t texture_binds;
+  uint32_t payload_generations;
+  uint32_t no_write_redraws;
   uint32_t distinct_addresses;
   uint32_t per_draw_waits;
   uint32_t gpu_waits;
@@ -208,25 +242,30 @@ struct S3tcSyncFactorWork {
   uint32_t pattern_checksum;
 };
 
-static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(bool compressed,
-                                                            bool per_draw_wait) {
+static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(
+    bool compressed, bool per_draw_wait, bool dirty_once) {
+  const uint32_t texture_writes = dirty_once ? 1U : kFactorDraws;
   return {
       .draws = kFactorDraws,
-      .texture_writes = kFactorDraws,
+      .texture_writes = texture_writes,
       .texture_bytes =
-          kFactorDraws * (compressed ? kFactorDxt1Bytes : kFactorRgba8Bytes),
-      .texture_binds = kFactorDraws,
-      .distinct_addresses = per_draw_wait ? 1U : kFactorRingSlots,
+          texture_writes * (compressed ? kFactorDxt1Bytes : kFactorRgba8Bytes),
+      .texture_binds = dirty_once ? 1U : kFactorDraws,
+      .payload_generations = texture_writes,
+      .no_write_redraws = dirty_once ? kFactorDraws - 1U : 0U,
+      .distinct_addresses = (!per_draw_wait && !dirty_once) ? kFactorRingSlots : 1U,
       .per_draw_waits = per_draw_wait ? kFactorDraws : 0U,
       .gpu_waits = (per_draw_wait ? kFactorDraws : 0U) + 1U,
       .vertex_bytes = kFactorVertexBytes,
       .visible_tiles = kFactorDraws,
-      .unique_colors = kFactorDraws,
-      .pattern_checksum = kS3tcSyncFactorResultKat,
+      .unique_colors = dirty_once ? 1U : kFactorDraws,
+      .pattern_checksum = dirty_once ? kS3tcSyncFactorLatchedResultKat
+                                     : kS3tcSyncFactorResultKat,
   };
 }
 
-static constexpr auto kS3tcSameWaitWork = MakeS3tcSyncFactorWork(true, true);
+static constexpr auto kS3tcSameWaitWork =
+    MakeS3tcSyncFactorWork(true, true, false);
 static_assert(kS3tcSameWaitWork.draws == 16 &&
               kS3tcSameWaitWork.texture_bytes == 512 * 1024 &&
               kS3tcSameWaitWork.distinct_addresses == 1 &&
@@ -237,17 +276,35 @@ static_assert(kS3tcSameWaitWork.draws == 16 &&
               kS3tcSameWaitWork.unique_colors == 16 &&
               kS3tcSameWaitWork.pattern_checksum ==
                   kS3tcSyncFactorResultKat);
-static constexpr auto kS3tcRingWork = MakeS3tcSyncFactorWork(true, false);
+static constexpr auto kS3tcRingWork =
+    MakeS3tcSyncFactorWork(true, false, false);
 static_assert(kS3tcRingWork.draws == 16 &&
               kS3tcRingWork.texture_bytes == 512 * 1024 &&
               kS3tcRingWork.distinct_addresses == 16 &&
               kS3tcRingWork.per_draw_waits == 0 && kS3tcRingWork.gpu_waits == 1);
-static constexpr auto kRgba8SameWaitWork = MakeS3tcSyncFactorWork(false, true);
+static constexpr auto kS3tcDirtyOnceWork =
+    MakeS3tcSyncFactorWork(true, false, true);
+static_assert(kS3tcDirtyOnceWork.texture_writes == 1 &&
+              kS3tcDirtyOnceWork.texture_bytes == 32 * 1024 &&
+              kS3tcDirtyOnceWork.texture_binds == 1 &&
+              kS3tcDirtyOnceWork.payload_generations == 1 &&
+              kS3tcDirtyOnceWork.no_write_redraws == 15 &&
+              kS3tcDirtyOnceWork.distinct_addresses == 1 &&
+              kS3tcDirtyOnceWork.gpu_waits == 1 &&
+              kS3tcDirtyOnceWork.unique_colors == 1);
+static constexpr auto kRgba8SameWaitWork =
+    MakeS3tcSyncFactorWork(false, true, false);
 static_assert(kRgba8SameWaitWork.texture_bytes == 4 * 1024 * 1024 &&
               kRgba8SameWaitWork.gpu_waits == 17);
-static constexpr auto kRgba8RingWork = MakeS3tcSyncFactorWork(false, false);
+static constexpr auto kRgba8RingWork =
+    MakeS3tcSyncFactorWork(false, false, false);
 static_assert(kRgba8RingWork.texture_bytes == 4 * 1024 * 1024 &&
               kRgba8RingWork.gpu_waits == 1);
+static constexpr auto kRgba8DirtyOnceWork =
+    MakeS3tcSyncFactorWork(false, false, true);
+static_assert(kRgba8DirtyOnceWork.texture_bytes == 256 * 1024 &&
+              kRgba8DirtyOnceWork.no_write_redraws == 15 &&
+              kRgba8DirtyOnceWork.gpu_waits == 1);
 // Scalar-SSE regression oracle.  The FP sequence below is fixed as explicit
 // single-precision instructions, so each operation rounds to binary32 and is
 // independent of compiler code layout or x87 register lifetime.  Both cycle
@@ -338,17 +395,22 @@ static constexpr uint32_t ExpandFactorRgb565(uint16_t color) {
   return 0xFF000000U | (red << 16) | (green << 8) | blue;
 }
 
-static constexpr uint32_t FactorTileSourceKat() {
+static constexpr uint32_t FactorTileSourceKat(bool dirty_once = false) {
   uint32_t checksum = 2166136261U;
   for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
     checksum = HashUint64(checksum, tile);
-    checksum = HashUint64(checksum, kFactorColors[tile]);
+    checksum = HashUint64(
+        checksum,
+        kFactorColors[dirty_once ? kFactorLatchedColorIndex : tile]);
     checksum = HashUint64(checksum, kFactorTileAlpha);
   }
   return checksum;
 }
 
 static constexpr uint32_t kFactorTileSourceKat = FactorTileSourceKat();
+static constexpr uint32_t kFactorLatchedTileSourceKat = FactorTileSourceKat(true);
+static_assert(kFactorTileSourceKat == 0xACC7C6B0);
+static_assert(kFactorLatchedTileSourceKat == 0x7981B305);
 
 static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &definition,
                                            const S3tcSyncFactorWork &work,
@@ -357,6 +419,7 @@ static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &defin
   checksum = HashUint64(checksum, kS3tcSyncFactorSeed);
   checksum = HashUint64(checksum, definition.compressed);
   checksum = HashUint64(checksum, definition.per_draw_wait);
+  checksum = HashUint64(checksum, definition.dirty_once);
   checksum = HashUint64(checksum, iterations);
   checksum = HashUint64(checksum, static_cast<uint64_t>(work.draws) * iterations);
   checksum =
@@ -365,6 +428,10 @@ static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &defin
       HashUint64(checksum, static_cast<uint64_t>(work.texture_bytes) * iterations);
   checksum =
       HashUint64(checksum, static_cast<uint64_t>(work.texture_binds) * iterations);
+  checksum = HashUint64(
+      checksum, static_cast<uint64_t>(work.payload_generations) * iterations);
+  checksum = HashUint64(
+      checksum, static_cast<uint64_t>(work.no_write_redraws) * iterations);
   checksum = HashUint64(checksum, work.distinct_addresses);
   checksum =
       HashUint64(checksum, static_cast<uint64_t>(work.per_draw_waits) * iterations);
@@ -378,7 +445,8 @@ static uint32_t S3tcSyncFactorWorkChecksum(const S3tcSyncFactorDefinition &defin
   return checksum;
 }
 
-static constexpr uint32_t FactorTileResultChecksum(uint32_t seed) {
+static constexpr uint32_t FactorTileResultChecksum(uint32_t seed,
+                                                   bool dirty_once = false) {
   uint32_t checksum = seed;
   for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
     const uint32_t column = tile % kFactorTileColumns;
@@ -388,7 +456,9 @@ static constexpr uint32_t FactorTileResultChecksum(uint32_t seed) {
     const uint32_t top =
         kFactorTileMarginY + row * (kFactorTileHeight + kFactorTileGapY);
     checksum = HashUint64(checksum, tile);
-    checksum = HashUint64(checksum, kFactorColors[tile]);
+    checksum = HashUint64(
+        checksum,
+        kFactorColors[dirty_once ? kFactorLatchedColorIndex : tile]);
     checksum = HashUint64(checksum, left);
     checksum = HashUint64(checksum, top);
     checksum = HashUint64(checksum, left + kFactorTileWidth);
@@ -401,6 +471,9 @@ static constexpr uint32_t FactorTileResultChecksum(uint32_t seed) {
 static_assert(FactorTileResultChecksum(kS3tcSyncFactorSeed) ==
                   kS3tcSyncFactorResultKat,
               "The tiled result KAT must cover every tile definition");
+static_assert(FactorTileResultChecksum(kS3tcSyncFactorSeed, true) ==
+                  kS3tcSyncFactorLatchedResultKat,
+              "The latched-dirty result KAT must cover every tile definition");
 
 static uint32_t PackField(uint32_t mask, uint32_t value) {
   return (value << (__builtin_ffs(mask) - 1)) & mask;
@@ -1551,9 +1624,14 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                              const uint32_t actual = RunS3tcSyncFactorWork(
                                  definition.compressed,
                                  definition.per_draw_wait,
+                                 definition.dirty_once,
                                  kS3tcSyncFactorSeed);
+                             const uint32_t expected =
+                                 definition.dirty_once
+                                     ? kS3tcSyncFactorLatchedResultKat
+                                     : kS3tcSyncFactorResultKat;
                              AssertXemuPerfEqual(
-                                 kS3tcSyncFactorResultKat, actual,
+                                 expected, actual,
                                  kS3tcSyncFactorResultAssertion,
                                  "S3TC factor cell matches the common result KAT",
                                  __FILE__, __LINE__);
@@ -1567,10 +1645,12 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     uint32_t oracle_failure_count = 0;
     uint64_t oracle_failure_mask = 0;
     const uint32_t tile_center_kat = ValidateS3tcSyncFactorFramebuffer(
-        definition.compressed, &oracle_failure_count, &oracle_failure_mask);
+        definition.compressed, definition.dirty_once, &oracle_failure_count,
+        &oracle_failure_mask);
 
-    const auto work = MakeS3tcSyncFactorWork(definition.compressed,
-                                              definition.per_draw_wait);
+    const auto work = MakeS3tcSyncFactorWork(
+        definition.compressed, definition.per_draw_wait,
+        definition.dirty_once);
     const uint64_t multiplier = results.iterations;
     const uint32_t work_checksum =
         S3tcSyncFactorWorkChecksum(definition, work, results.iterations);
@@ -1582,7 +1662,7 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     snprintf(work_checksum_string, sizeof(work_checksum_string), "%08lx",
              work_checksum);
     snprintf(result_checksum_string, sizeof(result_checksum_string), "%08lx",
-             kS3tcSyncFactorResultKat);
+             work.pattern_checksum);
     snprintf(tile_center_kat_string, sizeof(tile_center_kat_string), "%08lx",
              tile_center_kat);
     snprintf(oracle_failure_mask_string, sizeof(oracle_failure_mask_string),
@@ -1590,24 +1670,28 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
 
     PrintMsg(
         "S3TC_FACTOR_WORK GameLoadComposite::%s representation=%s "
-        "synchronization=%s iterations=%lu draws=%llu texture_writes=%llu "
-        "texture_bytes=%llu texture_binds=%llu distinct_addresses=%lu "
+        "route=%s synchronization=%s iterations=%lu draws=%llu "
+        "texture_writes=%llu texture_bytes=%llu texture_binds=%llu "
+        "payload_generations=%llu no_write_redraws=%llu distinct_addresses=%lu "
         "per_draw_waits=%llu gpu_waits=%llu vertex_bytes=%llu "
         "visible_tiles=%lu unique_colors=%lu pattern_checksum=%08lx "
         "work_checksum=%08lx result_checksum=%08lx\n",
         definition.record_name, definition.texture_representation,
-        definition.synchronization, results.iterations,
+        definition.revalidation_route, definition.synchronization,
+        results.iterations,
         static_cast<uint64_t>(work.draws) * multiplier,
         static_cast<uint64_t>(work.texture_writes) * multiplier,
         static_cast<uint64_t>(work.texture_bytes) * multiplier,
         static_cast<uint64_t>(work.texture_binds) * multiplier,
+        static_cast<uint64_t>(work.payload_generations) * multiplier,
+        static_cast<uint64_t>(work.no_write_redraws) * multiplier,
         work.distinct_addresses,
         static_cast<uint64_t>(work.per_draw_waits) * multiplier,
         static_cast<uint64_t>(work.gpu_waits) * multiplier,
         static_cast<uint64_t>(work.vertex_bytes) * multiplier,
         work.visible_tiles, work.unique_colors, work.pattern_checksum,
         work_checksum,
-        kS3tcSyncFactorResultKat);
+        work.pattern_checksum);
 
     std::ostringstream metadata;
     metadata << "{";
@@ -1616,6 +1700,8 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << "\"stage_key\":\"" << definition.stage_key << "\",";
     metadata << "\"texture_representation\":\""
              << definition.texture_representation << "\",";
+    metadata << "\"revalidation_route\":\""
+             << definition.revalidation_route << "\",";
     metadata << "\"synchronization\":\"" << definition.synchronization
              << "\",";
     metadata << "\"seed\":\"46544352\",";
@@ -1628,6 +1714,10 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
              << ",";
     metadata << "\"texture_binds\":" << work.texture_binds * multiplier
              << ",";
+    metadata << "\"payload_generations\":"
+             << work.payload_generations * multiplier << ",";
+    metadata << "\"no_write_redraws\":"
+             << work.no_write_redraws * multiplier << ",";
     metadata << "\"distinct_addresses\":" << work.distinct_addresses << ",";
     metadata << "\"per_draw_waits\":" << work.per_draw_waits * multiplier
              << ",";
@@ -1635,7 +1725,8 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << "\"vertex_bytes\":" << work.vertex_bytes * multiplier << ",";
     metadata << "\"visible_tiles\":" << work.visible_tiles << ",";
     metadata << "\"unique_colors\":" << work.unique_colors << ",";
-    metadata << "\"pattern_checksum\":\"1a4ff923\",";
+    metadata << "\"pattern_checksum\":\"" << result_checksum_string
+             << "\",";
     metadata << "\"overwrite_only_oracle\":false";
     metadata << "},";
     metadata << "\"work_checksum\":\"" << work_checksum_string << "\",";
@@ -1664,12 +1755,13 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
   host_.FinishDraw(
       suite_name_, kS3tcSyncFactorName, final_results,
       "{\"schema_version\":1,\"kind\":\"s3tc_sync_factor_summary\","
-      "\"exclude_from_stage_window_mapping\":true,\"stage_record_count\":4}");
+      "\"exclude_from_stage_window_mapping\":true,\"stage_record_count\":6}");
   ClearXemuPerfEventContext();
 }
 
 uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
-    bool compressed, uint32_t *failure_count, uint64_t *failure_mask) const {
+    bool compressed, bool dirty_once, uint32_t *failure_count,
+    uint64_t *failure_mask) const {
   *failure_count = 0;
   *failure_mask = 0;
   host_.WaitForGpu();
@@ -1696,12 +1788,14 @@ uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
         (alpha << 24) | (red << 16) | (green << 8) | blue;
     const uint32_t observed_rgb565 =
         ((red >> 3) << 11) | ((green >> 2) << 5) | (blue >> 3);
-    const uint32_t expected_argb = ExpandFactorRgb565(kFactorColors[tile]);
+    const uint16_t expected_rgb565 =
+        kFactorColors[dirty_once ? kFactorLatchedColorIndex : tile];
+    const uint32_t expected_argb = ExpandFactorRgb565(expected_rgb565);
     PrintMsg("S3TC_FACTOR_TILE representation=%s tile=%lu x=%lu y=%lu "
              "source565=%04lx expected_argb=%08lx observed_argb=%08lx "
              "observed565=%04lx\n",
              compressed ? "dxt1" : "rgba8", tile, x, y,
-             kFactorColors[tile], expected_argb, observed_argb,
+             expected_rgb565, expected_argb, observed_argb,
              observed_rgb565);
     if (alpha != kFactorTileAlpha) {
       ++*failure_count;
@@ -1711,7 +1805,7 @@ uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
       // DXT endpoint expansion may legally differ in low bits. Repack the
       // observed channels to source precision so the exact oracle remains
       // portable across NV2A and host APIs without accepting a wrong color.
-      if (observed_rgb565 != kFactorColors[tile]) {
+      if (observed_rgb565 != expected_rgb565) {
         ++*failure_count;
         *failure_mask |= UINT64_C(1) << (16U + tile);
       }
@@ -1726,9 +1820,11 @@ uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
     observed_kat = HashUint64(observed_kat, alpha);
   }
 
+  const uint32_t expected_kat =
+      dirty_once ? kFactorLatchedTileSourceKat : kFactorTileSourceKat;
   PrintMsg("S3TC_FACTOR_TILE_KAT expected=%08lx observed=%08lx\n",
-           kFactorTileSourceKat, observed_kat);
-  if (observed_kat != kFactorTileSourceKat) {
+           expected_kat, observed_kat);
+  if (observed_kat != expected_kat) {
     ++*failure_count;
     *failure_mask |= UINT64_C(1) << 32U;
   }
@@ -2641,6 +2737,7 @@ uint32_t GameLoadCompositeTests::RunScaledSurfacePressureWork(const Preset &pres
 
 uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
                                                        bool per_draw_wait,
+                                                       bool dirty_once,
                                                        uint32_t seed) {
   static constexpr uint32_t attributes =
       TestHost::POSITION | TestHost::DIFFUSE | TestHost::TEXCOORD0;
@@ -2686,8 +2783,8 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   host_.PrepareDraw(0xFF141820);
 
   // Geometry is written once before the draw burst. Each draw has a disjoint
-  // visible tile, so the final framebuffer proves that no intermediate
-  // texture update was skipped or replaced by a later same-address update.
+  // visible tile, so changing-payload routes prove that no intermediate
+  // update was skipped. The dirty-once route proves all unchanged redraws.
   auto vertex = factor_vertex_buffer_->Lock();
   for (uint32_t tile = 0; tile < kFactorDraws; ++tile) {
     const uint32_t column = tile % kFactorTileColumns;
@@ -2707,15 +2804,28 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   }
   factor_vertex_buffer_->Unlock();
 
-  uint32_t state = seed;
+  // The dirty-once cell intentionally performs exactly one guest write and
+  // one bind. Its remaining 15 draws revisit the same texture without a CPU
+  // write or state rebind, exposing a revalidation implementation that leaves
+  // a dirty interval latched after the first upload.
+  if (dirty_once) {
+    const auto &source = compressed
+                             ? factor_s3tc_sources_[kFactorLatchedColorIndex]
+                             : factor_rgba8_sources_[kFactorLatchedColorIndex];
+    memcpy(factor_texture_ring_, source.data(), source.size());
+    BindTextureStage0Address(factor_texture_ring_);
+  }
+
   for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
-    const uint32_t slot = per_draw_wait ? 0U : draw;
-    uint8_t *const destination =
-        factor_texture_ring_ + slot * kFactorRingStride;
-    const auto &source = compressed ? factor_s3tc_sources_[draw]
-                                    : factor_rgba8_sources_[draw];
-    memcpy(destination, source.data(), source.size());
-    BindTextureStage0Address(destination);
+    if (!dirty_once) {
+      const uint32_t slot = per_draw_wait ? 0U : draw;
+      uint8_t *const destination =
+          factor_texture_ring_ + slot * kFactorRingStride;
+      const auto &source = compressed ? factor_s3tc_sources_[draw]
+                                      : factor_rgba8_sources_[draw];
+      memcpy(destination, source.data(), source.size());
+      BindTextureStage0Address(destination);
+    }
 
     DrawFactorTile(host_, attributes, draw);
     if (per_draw_wait) {
@@ -2724,10 +2834,10 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   }
 
   // Both synchronization cells end at the same guest-visible boundary. The
-  // ring cell has no per-draw wait and retains every referenced texture until
-  // this one final completion.
+  // ring cell retains every referenced generation, while the dirty-once cell
+  // repeats an unchanged binding. Both use this one final completion.
   host_.WaitForGpu();
-  return FactorTileResultChecksum(state);
+  return FactorTileResultChecksum(seed, dirty_once);
 }
 
 uint32_t GameLoadCompositeTests::RunS3tcStreamingFencedDrawsWork(

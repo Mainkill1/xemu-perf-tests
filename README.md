@@ -252,24 +252,30 @@ measures an idle-control floor only. It cannot exclude wait, fence, or lock
 cost that appears only while draws keep the GPU busy. `gpu_waits` counts API
 calls; it does not claim a fixed number of MMIO polls inside each call.
 
-`GameLoadComposite::10-S3tcSyncFactor` provides the required 2x2 control. It
-runs the same 16 solid-color textured draws as DXT1 or pre-expanded RGBA8,
-then combines each representation with either same-address/per-draw waits or
-a 16-address ring with one final wait. Every cell uses the same colors,
-geometry, draw count, and final completion boundary. Metadata reports exact
-texture writes and bytes, address count, binds, per-draw waits, total waits,
-draws, and vertex bytes. Fixed source and result KATs detect corruption. The
-four cells are deliberately seconds-scale as one named unattended test; they
-are not nanosecond microbenchmarks.
+`GameLoadComposite::10-S3tcSyncFactor` provides a 2x3 revalidation control. It
+runs 16 solid-color textured draws as DXT1 or pre-expanded RGBA8, then combines
+each representation with three routes: changing payloads at one synchronized
+address, changing payload generations in a 16-address ring, and one dirty
+write followed by 15 redraws with no texture write or rebind. The last route
+exposes a dirty interval that remains latched after its first upload. Every
+cell keeps the same geometry, draw count, and final completion boundary.
+Metadata reports exact texture writes and bytes, payload generations,
+no-write redraws, address count, binds, per-draw waits, total waits, draws, and
+vertex bytes. Fixed source and route-specific result KATs detect corruption.
+The six cells are deliberately seconds-scale as one named unattended test;
+they are not nanosecond microbenchmarks.
 
 ENG379 supersedes ENG367's overwrite-only framebuffer oracle. Each of the 16
 draws now targets one disjoint tile in a 4x4 grid and uses one unique RGB565
 color with opaque alpha. The final framebuffer therefore preserves every
 sampled texture update. Compile-time assertions require 16 tiles, 64 vertices,
 unique colors, and an in-bounds grid; metadata reports `visible_tiles=16`,
-`unique_colors=16`, and `overwrite_only_oracle=false`. Draw, texture, address,
-bind, and wait factors are unchanged. ENG367 timing is diagnostic only until
-this tiled oracle passes on the same builds.
+`unique_colors=16`, and `overwrite_only_oracle=false` for the two changing-
+payload routes. The dirty-once route uses one fixed source color across all 16
+tiles (`texture_writes=1`, `texture_binds=1`, `payload_generations=1`,
+`no_write_redraws=15`, `unique_colors=1`) and has its own fixed tile/result
+KATs. ENG367 timing is diagnostic only until this tiled oracle passes on the
+same builds.
 
 The tile oracle is nonfatal. Every cell records `oracle_status`, failure count,
 failure mask, reason, provenance, and compatibility key before the suite moves

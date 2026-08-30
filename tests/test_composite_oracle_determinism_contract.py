@@ -141,6 +141,7 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
         body = function_body(
             "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,\n"
             "                                                       bool per_draw_wait,\n"
+            "                                                       bool dirty_once,\n"
             "                                                       uint32_t seed)"
         )
         required = (
@@ -163,6 +164,8 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
             "SetFinalCombiner0Just(TestHost::SRC_TEX0)",
             "SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true)",
             "SetBlend(false)",
+            "if (dirty_once)",
+            "kFactorLatchedColorIndex",
             "BindTextureStage0Address(destination)",
         )
         for statement in required:
@@ -213,7 +216,8 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
     def test_s3tc_uses_exact_interior_tile_center_oracle(self) -> None:
         body = function_body(
             "uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(\n"
-            "    bool compressed) const"
+            "    bool compressed, bool dirty_once, uint32_t *failure_count,\n"
+            "    uint64_t *failure_mask) const"
         )
         required = (
             "host_.WaitForGpu()",
@@ -226,23 +230,45 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
             "const uint32_t green = pixel[1]",
             "const uint32_t red = pixel[2]",
             "const uint32_t alpha = pixel[3]",
-            "ExpandFactorRgb565(kFactorColors[tile])",
-            "0x130U + tile",
-            "0x150U + tile",
-            "0x170U + tile",
-            "kFactorTileSourceKat",
+            "ExpandFactorRgb565(expected_rgb565)",
+            "kFactorLatchedTileSourceKat",
         )
         for statement in required:
             with self.subTest(statement=statement):
                 self.assertIn(statement, body)
         run = function_body("void GameLoadCompositeTests::RunS3tcSyncFactor()")
         self.assertIn(
-            "ValidateS3tcSyncFactorFramebuffer(definition.compressed);", run
+            "definition.compressed, definition.dirty_once", run
         )
         self.assertLess(
-            run.index("ValidateS3tcSyncFactorFramebuffer(definition.compressed);"),
+            run.index("ValidateS3tcSyncFactorFramebuffer("),
             run.index("host_.RecordProfileResult"),
         )
+
+    def test_s3tc_factor_covers_three_revalidation_routes_per_format(self) -> None:
+        routes = (
+            "same_address_changing_overwrite",
+            "ring_changing_payload_generations",
+            "dirty_once_no_write_redraws",
+        )
+        for route in routes:
+            with self.subTest(route=route):
+                self.assertEqual(SOURCE.count(f'.revalidation_route = "{route}"'), 2)
+        self.assertIn('\\"stage_record_count\\":6}', SOURCE)
+
+        work = function_body(
+            "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,\n"
+            "                                                       bool per_draw_wait,\n"
+            "                                                       bool dirty_once,\n"
+            "                                                       uint32_t seed)"
+        )
+        dirty_write = work.index("if (dirty_once)")
+        draw_loop = work.index("for (uint32_t draw = 0; draw < kFactorDraws; ++draw)")
+        guarded_rewrite = work.index("if (!dirty_once)")
+        self.assertLess(dirty_write, draw_loop)
+        self.assertLess(draw_loop, guarded_rewrite)
+        self.assertIn('metadata << "\\\"payload_generations\\\":"', SOURCE)
+        self.assertIn('metadata << "\\\"no_write_redraws\\\":"', SOURCE)
 
 
 if __name__ == "__main__":
