@@ -42,6 +42,11 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         )
         self.assertIn("kVulkanMemoryPressureCyclesPerSample = 4", SOURCE)
         self.assertIn("kVulkanMemoryPressureProfileSamples = 4", SOURCE)
+        self.assertIn("kVulkanMemoryPressureMaxTargetCount = 64", SOURCE)
+        self.assertIn(
+            "TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressureStressTestName, 4)",
+            SOURCE,
+        )
         self.assertIn("TestXemuVulkanMemoryPressure", HEADER)
 
     def test_checkpoint_sequence_separates_growth_cache_and_leak_signals(self) -> None:
@@ -87,9 +92,43 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
             "SetTextureDimensions(shape.width, shape.height)",
             "RenderToSurfaceStart(address, shape.surface_format",
             "BindSurfaceTextureAddress(address)",
+            "MmAllocateContiguousMemoryEx(",
+            "MmFreeContiguousMemory(surface_memory);",
+            "(target_count - 1U) * kVulkanMemoryPressureSurfaceStride",
+            "kVulkanMemoryPressureAliasOffset + kVulkanMemoryPressureMaxSurfaceBytes",
         ):
             with self.subTest(required=required):
                 self.assertIn(required, body)
+
+    def test_stress_texture_batches_reset_before_later_surface_switches(self) -> None:
+        body = function_body(
+            "void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,\n"
+            "                                                          uint32_t guest_pressure_multiplier)"
+        )
+        reset_start = body.index("auto reset_textured_draw_state = [this]")
+        reset_end = body.index("    };", reset_start)
+        reset = body[reset_start:reset_end]
+        self.assertLess(
+            reset.index("host_.SetTextureStageEnabled(0, false);"),
+            reset.index("host_.SetupTextureStages();"),
+        )
+        self.assertLess(
+            reset.index("host_.SetupTextureStages();"),
+            reset.index("host_.SetShaderStageProgram(TestHost::STAGE_NONE);"),
+        )
+        self.assertLess(
+            reset.index("host_.SetShaderStageProgram(TestHost::STAGE_NONE);"),
+            reset.index("host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);"),
+        )
+        # One call follows the display-only idle batch and the other follows
+        # each per-identity texture draw before the next RenderToSurfaceStart.
+        self.assertEqual(body.count("reset_textured_draw_state();"), 2)
+        self.assertIn(
+            "host_.DrawTexturedScreenQuad(left, top, left + 64.f, top + 56.f,\n"
+            "                                           1.f, shape.width, shape.height);\n"
+            "              reset_textured_draw_state();",
+            body,
+        )
 
     def test_final_oracle_is_fixed_and_nonfatal(self) -> None:
         body = function_body(
@@ -102,11 +141,11 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         self.assertIn("XemuPerfEventType::FAIL", body)
         self.assertIn(r'\"oracle_nonfatal\":true', body)
         self.assertNotIn("AssertXemuPerfEqual", body)
-        self.assertNotIn("ASSERT(", body)
 
         oracle_start = body.index("// The post-work oracle owns the framebuffer state.")
         oracle_end = body.index("const auto *const framebuffer =", oracle_start)
         oracle = body[oracle_start:oracle_end]
+        self.assertNotIn("ASSERT(", oracle)
         # The workload deliberately stresses render-target-to-texture reuse,
         # but the final correctness scene must not depend on that churned
         # representation. Match the established vertex-buffer/pass-through

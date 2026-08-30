@@ -8,6 +8,10 @@
 
 #include <pbkit/pbkit.h>
 #include <texture_generator.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#include <windows.h>
+#pragma clang diagnostic pop
 
 #include "debug_output.h"
 #include "shaders/passthrough_vertex_shader.h"
@@ -65,6 +69,8 @@ static constexpr uint32_t kVulkanMemoryPressureCyclesPerSample = 4;
 static constexpr uint32_t kVulkanMemoryPressureProfileSamples = 4;
 static constexpr uint32_t kVulkanMemoryPressureSurfaceStride = 0x50000;
 static constexpr uint32_t kVulkanMemoryPressureAliasOffset = 0x1800;
+static constexpr uint32_t kVulkanMemoryPressureMaxTargetCount = 64;
+static constexpr uint32_t kVulkanMemoryPressureMaxSurfaceBytes = 256 * 256 * sizeof(uint32_t);
 static constexpr uint32_t kVulkanMemoryPressureOracleKat = 0x0D626FA0;
 static constexpr uint32_t kVulkanMemoryPressureOracleColors[] = {
     0xFF3C78B4, 0xFFB46E3C, 0xFF56A866, 0xFF9A4FB4,
@@ -784,9 +790,20 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   assert(guest_pressure_multiplier == 1 || guest_pressure_multiplier == 4);
   const uint32_t target_count =
       kVulkanMemoryPressureTargetsPerPressureMultiplier * guest_pressure_multiplier;
+  assert(target_count <= kVulkanMemoryPressureMaxTargetCount);
   const uint32_t transitions_per_work_iteration =
       target_count * kVulkanMemoryPressureCyclesPerSample;
-  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+  // PBKit++ allocates only four 256x256x4 stage backing regions (4 MiB in
+  // total). Stress addresses 64 distinct render targets, so it must not use
+  // stage-zero memory plus a large offset: that escaped the allocation and
+  // eventually overwrote the PFIFO command area. This explicitly sized DMA
+  // allocation contains the highest aliased 256x256 ARGB target.
+  const uint32_t surface_memory_bytes =
+      (target_count - 1U) * kVulkanMemoryPressureSurfaceStride +
+      kVulkanMemoryPressureAliasOffset + kVulkanMemoryPressureMaxSurfaceBytes;
+  auto *surface_memory = static_cast<uint8_t *>(MmAllocateContiguousMemoryEx(
+      surface_memory_bytes, 0, MAXRAM, 0, PAGE_WRITECOMBINE | PAGE_READWRITE));
+  ASSERT(surface_memory != nullptr);
 
   // Every phase receives a distinct event context and Profile marker window.
   // The checkpoints deliberately leave GPU completion outside the measurement:
@@ -801,6 +818,17 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
     const bool use_alias = phase == VulkanMemoryPressurePhase::ALIAS_RESIZE;
     const bool idle = phase == VulkanMemoryPressurePhase::IDLE_RETENTION;
     uint32_t invocation = 0;
+
+    // DrawTexturedScreenQuad uses inline arrays. Before a later surface switch
+    // can begin, restore the same no-texture, diffuse-combiner state used by
+    // the other surface tests. In particular, do not carry an enabled stage
+    // or pending inline-array state from one target identity into the next.
+    auto reset_textured_draw_state = [this] {
+      host_.SetTextureStageEnabled(0, false);
+      host_.SetupTextureStages();
+      host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+      host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+    };
 
     SetXemuPerfEventContext(phase_code, kVulkanMemoryPressureOracleKat);
     EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, kVulkanMemoryPressureSeed,
@@ -818,7 +846,7 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
         std::string(test_name) + "-" + kPhaseNames[phase_index],
         kVulkanMemoryPressureProfileSamples,
         [this, surface_memory, target_count, phase_index, use_alias, idle,
-         &invocation] {
+         &invocation, &reset_textured_draw_state] {
           auto &texture_stage = host_.GetTextureStage(0);
           const uint32_t seed = kVulkanMemoryPressureSeed +
                                 invocation++ * 0x9E3779B9U + phase_index * 0x10001U;
@@ -843,6 +871,7 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
               host_.DrawTexturedScreenQuad(left, top, left + 96.f, top + 64.f,
                                            1.f, shape.width, shape.height);
             }
+            reset_textured_draw_state();
             return;
           }
 
@@ -883,6 +912,7 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
               const float top = 48.f + static_cast<float>(((target >> 3U) & 3U) * 92U);
               host_.DrawTexturedScreenQuad(left, top, left + 64.f, top + 56.f,
                                            1.f, shape.width, shape.height);
+              reset_textured_draw_state();
             }
           }
         });
@@ -927,6 +957,7 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   // correctness representation. Validation remains outside every checkpoint
   // window, so it cannot distort memory progression.
   host_.WaitForGpu();
+  MmFreeContiguousMemory(surface_memory);
   TestSuite::Initialize();
   host_.SetupFixedFunctionPassthrough();
   host_.ClearVertexBuffer();
