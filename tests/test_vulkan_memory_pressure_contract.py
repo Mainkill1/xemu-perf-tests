@@ -104,6 +104,28 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         self.assertNotIn("AssertXemuPerfEqual", body)
         self.assertNotIn("ASSERT(", body)
 
+        oracle_start = body.index("// The post-work oracle owns the framebuffer state.")
+        oracle_end = body.index("const auto *const framebuffer =", oracle_start)
+        oracle = body[oracle_start:oracle_end]
+        # The workload deliberately stresses render-target-to-texture reuse,
+        # but the final correctness scene must not depend on that churned
+        # representation. Match the established exact direct-diffuse oracle
+        # pattern so an image-layout disagreement cannot mask a valid run.
+        for required in (
+            "host_.ClearVertexBuffer();",
+            "host_.SetTextureStageEnabled(0, false);",
+            "host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,",
+            "host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);",
+            "host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);",
+            "host_.Begin(TestHost::PRIMITIVE_QUADS);",
+            "host_.SetDiffuse(kVulkanMemoryPressureOracleColors[tile]);",
+            "host_.SetScreenVertex(left, top);",
+        ):
+            with self.subTest(required=required):
+                self.assertIn(required, oracle)
+        self.assertNotIn("oracle_texture_stage", oracle)
+        self.assertNotIn("DrawTexturedScreenQuad", oracle)
+
         colors = [0xFF3C78B4, 0xFFB46E3C, 0xFF56A866, 0xFF9A4FB4]
         observed = 2166136261
         for tile, color in enumerate(colors):

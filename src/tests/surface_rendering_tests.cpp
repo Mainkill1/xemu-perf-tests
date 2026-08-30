@@ -916,38 +916,40 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   profile_phase(VulkanMemoryPressurePhase::REUSE);
   auto idle_results = profile_phase(VulkanMemoryPressurePhase::IDLE_RETENTION);
 
-  // The post-work oracle owns the framebuffer state. It is intentionally not
-  // part of any checkpoint window, so validation cannot distort the memory
-  // progression being measured above.
+  // The post-work oracle owns the framebuffer state. It deliberately uses
+  // the known-good direct diffuse tile path rather than reinterpreting the
+  // churned linear surfaces as COLOR_SZ textures. The latter is workload
+  // input, not a portable correctness representation. Validation remains
+  // outside every checkpoint window, so it cannot distort memory progression.
   host_.WaitForGpu();
   TestSuite::Initialize();
   host_.SetupFixedFunctionPassthrough();
-  host_.SetBlend(false);
-  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
-  host_.PrepareDraw(0xFF101820);
-  auto &oracle_texture_stage = host_.GetTextureStage(0);
-  oracle_texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
-      NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8));
-  oracle_texture_stage.SetTextureDimensions(128, 96);
-  oracle_texture_stage.SetEnabled(true);
+  host_.SetVertexShaderProgram(nullptr);
+  host_.ClearVertexBuffer();
+  host_.SetTextureStageEnabled(0, false);
   host_.SetTextureStageEnabled(1, false);
   host_.SetTextureStageEnabled(2, false);
   host_.SetTextureStageEnabled(3, false);
   host_.SetupTextureStages();
-  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,
+                              TestHost::STAGE_NONE, TestHost::STAGE_NONE);
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.PrepareDraw(0xFF101820);
 
   for (uint32_t tile = 0;
        tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);
        ++tile) {
-    uint8_t *const address =
-        surface_memory + tile * kVulkanMemoryPressureSurfaceStride;
-    host_.RenderToSurfaceStart(address, TestHost::SCF_A8R8G8B8, 128, 96, false);
-    host_.ClearColorRegion(kVulkanMemoryPressureOracleColors[tile], 0, 0, 128, 96);
-    host_.RenderToSurfaceEnd();
-    BindSurfaceTextureAddress(address);
     const float left = 112.f + static_cast<float>((tile & 1U) * 216U);
     const float top = 112.f + static_cast<float>((tile >> 1U) * 136U);
-    host_.DrawTexturedScreenQuad(left, top, left + 200.f, top + 120.f, 1.f, 128, 96);
+    host_.Begin(TestHost::PRIMITIVE_QUADS);
+    host_.SetDiffuse(kVulkanMemoryPressureOracleColors[tile]);
+    host_.SetScreenVertex(left, top);
+    host_.SetScreenVertex(left + 200.f, top);
+    host_.SetScreenVertex(left + 200.f, top + 120.f);
+    host_.SetScreenVertex(left, top + 120.f);
+    host_.End();
   }
 
   host_.WaitForGpu();
