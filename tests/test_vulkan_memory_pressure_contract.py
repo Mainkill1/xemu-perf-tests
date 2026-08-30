@@ -31,11 +31,15 @@ def fnv_u32(hash_value: int, value: int) -> int:
 
 
 class VulkanMemoryPressureContractTests(unittest.TestCase):
-    def test_exposes_comparable_fixed_1x_and_4x_variants(self) -> None:
-        self.assertIn('"XemuVulkanMemoryPressure1x"', SOURCE)
-        self.assertIn('"XemuVulkanMemoryPressure4x"', SOURCE)
+    def test_exposes_guest_pressure_variants_without_claiming_render_scale(self) -> None:
+        self.assertIn('"XemuVulkanMemoryPressureRepresentative"', SOURCE)
+        self.assertIn('"XemuVulkanMemoryPressureStress"', SOURCE)
+        self.assertNotIn('"XemuVulkanMemoryPressure1x"', SOURCE)
+        self.assertNotIn('"XemuVulkanMemoryPressure4x"', SOURCE)
         self.assertIn("kVulkanMemoryPressureSeed = 0x564D5052", SOURCE)
-        self.assertIn("kVulkanMemoryPressureTargetsPerScale = 16", SOURCE)
+        self.assertIn(
+            "kVulkanMemoryPressureTargetsPerPressureMultiplier = 16", SOURCE
+        )
         self.assertIn("kVulkanMemoryPressureCyclesPerSample = 4", SOURCE)
         self.assertIn("kVulkanMemoryPressureProfileSamples = 4", SOURCE)
         self.assertIn("TestXemuVulkanMemoryPressure", HEADER)
@@ -43,7 +47,7 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
     def test_checkpoint_sequence_separates_growth_cache_and_leak_signals(self) -> None:
         body = function_body(
             "void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,\n"
-            "                                                          uint32_t scale)"
+            "                                                          uint32_t guest_pressure_multiplier)"
         )
         for phase in (
             "GROWTH",
@@ -57,6 +61,9 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         for metadata_field in (
             r'\"kind\":\"vulkan_memory_pressure_checkpoint\"',
             r'\"expected_memory_behavior\"',
+            r'\"guest_pressure_multiplier\"',
+            r'\"guest_identity_count\"',
+            r'\"xemu_render_scale\":\"external\"',
             r'\"new_surface_texture_keys\"',
             r'\"alias_offset\"',
             r'\"transitions_per_work_iteration\"',
@@ -67,10 +74,10 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         self.assertIn("SetXemuPerfEventContext(phase_code", body)
         self.assertIn("EmitXemuPerfHeartbeat();", body)
 
-    def test_churn_has_scaled_targets_formats_aliases_resizes_and_reuse(self) -> None:
+    def test_churn_has_guest_pressure_targets_formats_aliases_resizes_and_reuse(self) -> None:
         body = function_body(
             "void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,\n"
-            "                                                          uint32_t scale)"
+            "                                                          uint32_t guest_pressure_multiplier)"
         )
         for required in (
             "target * kVulkanMemoryPressureSurfaceStride",
@@ -87,7 +94,7 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
     def test_final_oracle_is_fixed_and_nonfatal(self) -> None:
         body = function_body(
             "void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,\n"
-            "                                                          uint32_t scale)"
+            "                                                          uint32_t guest_pressure_multiplier)"
         )
         self.assertIn("pb_back_buffer()", body)
         self.assertIn("pb_back_buffer_pitch()", body)
@@ -105,9 +112,9 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         self.assertEqual(observed, 0x0D626FA0)
         self.assertIn("kVulkanMemoryPressureOracleKat = 0x0D626FA0", SOURCE)
 
-    def test_checked_in_recipe_selects_sustained_4x_path(self) -> None:
+    def test_checked_in_recipe_selects_sustained_stress_path(self) -> None:
         self.assertIn('"skip_tests_by_default": true', RECIPE)
-        self.assertIn('"XemuVulkanMemoryPressure4x"', RECIPE)
+        self.assertIn('"XemuVulkanMemoryPressureStress"', RECIPE)
         self.assertIn('"warmup_iterations": 0', RECIPE)
         self.assertIn('"gpu_completion_mode": "per_iteration"', RECIPE)
 

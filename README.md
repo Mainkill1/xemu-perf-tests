@@ -283,18 +283,27 @@ regression oracles, not proof of retail Xbox correctness. Promote an oracle to
 
 ### Vulkan memory-pressure workload
 
-`SurfaceRendering::XemuVulkanMemoryPressure1x` and `4x` are deterministic,
-asset-free Vulkan memory-pressure variants. Both use seed `0x564D5052`, four
-fixed checkpoint samples, four fixed churn cycles per sample, and the same
-address/format/resize recipe. `1x` creates 16 surface/texture identities;
-`4x` creates 64, making the two runs directly comparable. The 4x path performs
-4,096 fixed churn bodies plus 64 no-new-key idle reuses before its oracle and
-is intended to produce a sustained seconds-long host-memory window under Vulkan.
+`SurfaceRendering::XemuVulkanMemoryPressureRepresentative` and `Stress` are
+deterministic, asset-free guest memory-pressure variants. Both use seed
+`0x564D5052`, four fixed checkpoint samples, four fixed churn cycles per
+sample, and the same address/format/resize recipe. Representative has guest
+pressure multiplier 1 and 16 surface/texture identities; Stress has multiplier
+4 and 64 identities. Stress performs 4,096 fixed churn bodies plus 64
+no-new-key idle reuses before its oracle and is intended to produce a sustained
+seconds-long host-memory window under Vulkan.
+
+The guest pressure names do not encode Xemu's internal render scale. For a
+render-scale comparison, run the same selected guest test externally once at
+Xemu scale 1 and once at Xemu scale 4; do not compare Representative at one
+scale with Stress at another. Results report `guest_pressure_multiplier`,
+`guest_identity_count`, and `xemu_render_scale: "external"` so runner-captured
+scale configuration remains the authority.
 
 Each selected case emits five separately marked and recorded checkpoints:
 `growth`, `plateau`, `alias_resize`, `reuse`, and `idle_retention`. Their result
-metadata includes the fixed seed, identity count, number of newly introduced
-keys, alias offset, transition count, and `expected_memory_behavior`. Host
+metadata includes the fixed seed, guest pressure multiplier, guest identity
+count, number of newly introduced keys, alias offset, transition count, and
+`expected_memory_behavior`. Host
 VRAM/RSS captures should grow in `growth`; stay flat during `plateau` and
 `reuse`; may retain allocations after `alias_resize`; and remain observable
 without new keys in `idle_retention`. Continued growth after completed
@@ -302,7 +311,7 @@ plateau/reuse/idle windows is the leak signal; stable elevated memory after
 alias/idle is cache retention.
 
 Copy [`resources/vulkan-memory-pressure-config.json`](resources/vulkan-memory-pressure-config.json)
-to `xemu_perf_tests_config.json` to run only the sustained 4x recipe. It uses
+to `xemu_perf_tests_config.json` to run only the sustained Stress recipe. It uses
 per-iteration completion and zero warmups so every checkpoint has a clean host
 telemetry boundary. The final four-tile framebuffer KAT is nonfatal: failures
 emit `FAIL` events and are recorded as `oracle_status: FAIL`, but the test

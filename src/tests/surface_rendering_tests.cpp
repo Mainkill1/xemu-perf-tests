@@ -40,10 +40,10 @@ static constexpr char kXemuCpuReadCleanSurfaceTestName[] =
     "XemuCpuReadCleanSurface";
 static constexpr char kXemuCpuReadAfterGpuWriteTestName[] =
     "XemuCpuReadAfterGpuWrite";
-static constexpr char kXemuVulkanMemoryPressure1xTestName[] =
-    "XemuVulkanMemoryPressure1x";
-static constexpr char kXemuVulkanMemoryPressure4xTestName[] =
-    "XemuVulkanMemoryPressure4x";
+static constexpr char kXemuVulkanMemoryPressureRepresentativeTestName[] =
+    "XemuVulkanMemoryPressureRepresentative";
+static constexpr char kXemuVulkanMemoryPressureStressTestName[] =
+    "XemuVulkanMemoryPressureStress";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
@@ -52,10 +52,11 @@ static constexpr uint32_t kTextureWidth = 128;
 static constexpr uint32_t kTextureHeight = 128;
 
 // The workload deliberately uses a fixed, address-indexed recipe.  It is not
-// a capacity probe: the 1x and 4x variants differ only by the number of
-// identities in the same sequence, so host traces can be compared directly.
+// a capacity probe: Representative and Stress differ only by their guest
+// pressure multiplier and therefore their identity count. Xemu render scale
+// is intentionally external to this guest workload.
 static constexpr uint32_t kVulkanMemoryPressureSeed = 0x564D5052;
-static constexpr uint32_t kVulkanMemoryPressureTargetsPerScale = 16;
+static constexpr uint32_t kVulkanMemoryPressureTargetsPerPressureMultiplier = 16;
 static constexpr uint32_t kVulkanMemoryPressureCyclesPerSample = 4;
 static constexpr uint32_t kVulkanMemoryPressureProfileSamples = 4;
 static constexpr uint32_t kVulkanMemoryPressureSurfaceStride = 0x50000;
@@ -134,11 +135,11 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   tests_[kXemuCpuReadAfterGpuWriteTestName] = [this]() {
     TestXemuCpuReadAfterGpuWrite();
   };
-  tests_[kXemuVulkanMemoryPressure1xTestName] = [this]() {
-    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressure1xTestName, 1);
+  tests_[kXemuVulkanMemoryPressureRepresentativeTestName] = [this]() {
+    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressureRepresentativeTestName, 1);
   };
-  tests_[kXemuVulkanMemoryPressure4xTestName] = [this]() {
-    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressure4xTestName, 4);
+  tests_[kXemuVulkanMemoryPressureStressTestName] = [this]() {
+    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressureStressTestName, 4);
   };
 }
 
@@ -746,7 +747,7 @@ void SurfaceRenderingTests::TestXemuCpuReadAfterGpuWrite() {
 }
 
 void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
-                                                          uint32_t scale) {
+                                                          uint32_t guest_pressure_multiplier) {
   struct TargetShape {
     uint32_t width;
     uint32_t height;
@@ -776,8 +777,9 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   static_assert(sizeof(kTargetShapes) / sizeof(kTargetShapes[0]) == 4);
   static_assert(sizeof(kPhaseNames) / sizeof(kPhaseNames[0]) == 5);
 
-  assert(scale == 1 || scale == 4);
-  const uint32_t target_count = kVulkanMemoryPressureTargetsPerScale * scale;
+  assert(guest_pressure_multiplier == 1 || guest_pressure_multiplier == 4);
+  const uint32_t target_count =
+      kVulkanMemoryPressureTargetsPerPressureMultiplier * guest_pressure_multiplier;
   const uint32_t transitions_per_work_iteration =
       target_count * kVulkanMemoryPressureCyclesPerSample;
   uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
@@ -786,11 +788,12 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   // The checkpoints deliberately leave GPU completion outside the measurement:
   // a host RSS/VRAM sampler can classify growth, steady cache retention, and a
   // leak by looking at memory between completed windows instead of timing it.
-  auto profile_phase = [this, test_name, scale, target_count,
+  auto profile_phase = [this, test_name, guest_pressure_multiplier, target_count,
                         transitions_per_work_iteration,
                         surface_memory](VulkanMemoryPressurePhase phase) {
     const uint32_t phase_index = static_cast<uint32_t>(phase);
-    const uint32_t phase_code = 0x4400U + scale * 0x10U + phase_index;
+    const uint32_t phase_code =
+        0x4400U + guest_pressure_multiplier * 0x10U + phase_index;
     const bool use_alias = phase == VulkanMemoryPressurePhase::ALIAS_RESIZE;
     const bool idle = phase == VulkanMemoryPressurePhase::IDLE_RETENTION;
     uint32_t invocation = 0;
@@ -798,10 +801,11 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
     SetXemuPerfEventContext(phase_code, kVulkanMemoryPressureOracleKat);
     EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, kVulkanMemoryPressureSeed,
                       target_count);
-    PrintMsg("VULKAN_MEMORY_CHECKPOINT name=%s scale=%lu phase=%s "
-             "expected_memory=%s target_identities=%lu new_surface_keys=%lu "
+    PrintMsg("VULKAN_MEMORY_CHECKPOINT name=%s guest_pressure_multiplier=%lu "
+             "xemu_render_scale=external phase=%s "
+             "expected_memory=%s guest_identity_count=%lu new_surface_keys=%lu "
              "transitions_per_work_iteration=%lu\n",
-             test_name, scale, kPhaseNames[phase_index],
+             test_name, guest_pressure_multiplier, kPhaseNames[phase_index],
              kMemoryExpectations[phase_index], target_count,
              (phase == VulkanMemoryPressurePhase::GROWTH || use_alias) ? target_count : 0,
              transitions_per_work_iteration);
@@ -886,8 +890,9 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
     metadata << "\"expected_memory_behavior\":\""
              << kMemoryExpectations[phase_index] << "\",";
     metadata << "\"seed\":\"564d5052\",";
-    metadata << "\"scale\":" << scale << ",";
-    metadata << "\"target_identities\":" << target_count << ",";
+    metadata << "\"guest_pressure_multiplier\":" << guest_pressure_multiplier << ",";
+    metadata << "\"guest_identity_count\":" << target_count << ",";
+    metadata << "\"xemu_render_scale\":\"external\",";
     metadata << "\"new_surface_texture_keys\":"
              << ((phase == VulkanMemoryPressurePhase::GROWTH || use_alias) ? target_count : 0)
              << ",";
@@ -952,7 +957,8 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   uint32_t observed_kat = 2166136261U;
   uint32_t oracle_failure_count = 0;
   uint64_t oracle_failure_mask = 0;
-  SetXemuPerfEventContext(0x4480U + scale, kVulkanMemoryPressureOracleKat);
+  SetXemuPerfEventContext(0x4480U + guest_pressure_multiplier,
+                          kVulkanMemoryPressureOracleKat);
   for (uint32_t tile = 0;
        tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);
        ++tile) {
@@ -1000,8 +1006,9 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   metadata << "{\"schema_version\":1,";
   metadata << "\"kind\":\"vulkan_memory_pressure_summary\",";
   metadata << "\"seed\":\"564d5052\",";
-  metadata << "\"scale\":" << scale << ",";
-  metadata << "\"target_identities\":" << target_count << ",";
+  metadata << "\"guest_pressure_multiplier\":" << guest_pressure_multiplier << ",";
+  metadata << "\"guest_identity_count\":" << target_count << ",";
+  metadata << "\"xemu_render_scale\":\"external\",";
   metadata << "\"transitions_per_work_iteration\":" << transitions_per_work_iteration << ",";
   metadata << "\"fixed_profile_samples\":" << kVulkanMemoryPressureProfileSamples << ",";
   metadata << "\"checkpoint_count\":5,";
