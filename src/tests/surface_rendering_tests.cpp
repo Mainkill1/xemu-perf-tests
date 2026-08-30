@@ -924,6 +924,10 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   host_.WaitForGpu();
   TestSuite::Initialize();
   host_.SetupFixedFunctionPassthrough();
+  // PrepareDraw writes default PGRAPH state. Like the composite correctness
+  // scene, apply it before the explicit state below so it cannot overwrite the
+  // direct-diffuse oracle's texture or combiner configuration.
+  host_.PrepareDraw(0xFF101820);
   host_.SetVertexShaderProgram(nullptr);
   host_.ClearVertexBuffer();
   host_.SetTextureStageEnabled(0, false);
@@ -936,7 +940,6 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   host_.SetBlend(false);
   host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
   host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
-  host_.PrepareDraw(0xFF101820);
 
   for (uint32_t tile = 0;
        tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);

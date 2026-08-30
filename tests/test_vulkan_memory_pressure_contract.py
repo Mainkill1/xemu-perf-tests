@@ -112,6 +112,7 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         # representation. Match the established exact direct-diffuse oracle
         # pattern so an image-layout disagreement cannot mask a valid run.
         for required in (
+            "host_.PrepareDraw(0xFF101820);",
             "host_.ClearVertexBuffer();",
             "host_.SetTextureStageEnabled(0, false);",
             "host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,",
@@ -125,6 +126,10 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
                 self.assertIn(required, oracle)
         self.assertNotIn("oracle_texture_stage", oracle)
         self.assertNotIn("DrawTexturedScreenQuad", oracle)
+        self.assertLess(
+            oracle.index("host_.PrepareDraw(0xFF101820);"),
+            oracle.index("host_.SetVertexShaderProgram(nullptr);"),
+        )
 
         colors = [0xFF3C78B4, 0xFFB46E3C, 0xFF56A866, 0xFF9A4FB4]
         observed = 2166136261
