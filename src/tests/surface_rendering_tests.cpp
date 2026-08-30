@@ -2,9 +2,12 @@
 
 #include <cassert>
 #include <cstring>
+#include <sstream>
 
+#include <pbkit/pbkit.h>
 #include <texture_generator.h>
 
+#include "debug_output.h"
 #include "test_host.h"
 
 static constexpr char kBasicTestName[] = "SurfaceRendering";
@@ -37,12 +40,53 @@ static constexpr char kXemuCpuReadCleanSurfaceTestName[] =
     "XemuCpuReadCleanSurface";
 static constexpr char kXemuCpuReadAfterGpuWriteTestName[] =
     "XemuCpuReadAfterGpuWrite";
+static constexpr char kXemuVulkanMemoryPressure1xTestName[] =
+    "XemuVulkanMemoryPressure1x";
+static constexpr char kXemuVulkanMemoryPressure4xTestName[] =
+    "XemuVulkanMemoryPressure4x";
 
 static constexpr uint32_t kIterations = 10;
 static constexpr uint32_t kNumDrawsSingleFrame = 80;
 
 static constexpr uint32_t kTextureWidth = 128;
 static constexpr uint32_t kTextureHeight = 128;
+
+// The workload deliberately uses a fixed, address-indexed recipe.  It is not
+// a capacity probe: the 1x and 4x variants differ only by the number of
+// identities in the same sequence, so host traces can be compared directly.
+static constexpr uint32_t kVulkanMemoryPressureSeed = 0x564D5052;
+static constexpr uint32_t kVulkanMemoryPressureTargetsPerScale = 16;
+static constexpr uint32_t kVulkanMemoryPressureCyclesPerSample = 4;
+static constexpr uint32_t kVulkanMemoryPressureProfileSamples = 4;
+static constexpr uint32_t kVulkanMemoryPressureSurfaceStride = 0x50000;
+static constexpr uint32_t kVulkanMemoryPressureAliasOffset = 0x1800;
+static constexpr uint32_t kVulkanMemoryPressureOracleKat = 0x0D626FA0;
+static constexpr uint32_t kVulkanMemoryPressureOracleColors[] = {
+    0xFF3C78B4, 0xFFB46E3C, 0xFF56A866, 0xFF9A4FB4,
+};
+
+enum class VulkanMemoryPressurePhase : uint32_t {
+  GROWTH = 0,
+  PLATEAU = 1,
+  ALIAS_RESIZE = 2,
+  REUSE = 3,
+  IDLE_RETENTION = 4,
+};
+
+static uint32_t HashVulkanMemoryPressureU32(uint32_t hash, uint32_t value) {
+  for (uint32_t byte = 0; byte < 4; ++byte) {
+    hash ^= (value >> (byte * 8)) & 0xFF;
+    hash *= 16777619U;
+  }
+  return hash;
+}
+
+static void BindSurfaceTextureAddress(const uint8_t *address) {
+  uint32_t *push = pb_begin();
+  push = pb_push1(push, NV097_SET_TEXTURE_OFFSET,
+                  reinterpret_cast<uint32_t>(address) & 0x03FFFFFFU);
+  pb_end(push);
+}
 
 SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_dir, const Config &config)
     : TestSuite(host, std::move(output_dir), "SurfaceRendering", config) {
@@ -89,6 +133,12 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuCpuReadAfterGpuWriteTestName] = [this]() {
     TestXemuCpuReadAfterGpuWrite();
+  };
+  tests_[kXemuVulkanMemoryPressure1xTestName] = [this]() {
+    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressure1xTestName, 1);
+  };
+  tests_[kXemuVulkanMemoryPressure4xTestName] = [this]() {
+    TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressure4xTestName, 4);
   };
 }
 
@@ -693,4 +743,278 @@ void SurfaceRenderingTests::TestXemuCpuReadAfterGpuWrite() {
                          static_cast<uint32_t>(host_.GetFramebufferWidthF()),
                          static_cast<uint32_t>(host_.GetFramebufferHeightF()));
   host_.FinishDraw(suite_name_, kXemuCpuReadAfterGpuWriteTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
+                                                          uint32_t scale) {
+  struct TargetShape {
+    uint32_t width;
+    uint32_t height;
+    TestHost::SurfaceColorFormat surface_format;
+    uint32_t texture_format;
+  };
+  static constexpr TargetShape kTargetShapes[] = {
+      {256, 256, TestHost::SCF_A8R8G8B8,
+       NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8},
+      {224, 192, TestHost::SCF_R5G6B5,
+       NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5},
+      {192, 224, TestHost::SCF_A8R8G8B8,
+       NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8},
+      {160, 128, TestHost::SCF_R5G6B5,
+       NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R5G6B5},
+  };
+  static constexpr const char *kPhaseNames[] = {
+      "growth", "plateau", "alias_resize", "reuse", "idle_retention",
+  };
+  static constexpr const char *kMemoryExpectations[] = {
+      "growth_from_unique_surface_texture_keys",
+      "plateau_no_new_surface_texture_keys",
+      "cache_retention_allowed_for_overlapping_alias_resize_keys",
+      "plateau_reuse_of_original_surface_texture_keys",
+      "cache_retention_observable_without_new_work_keys",
+  };
+  static_assert(sizeof(kTargetShapes) / sizeof(kTargetShapes[0]) == 4);
+  static_assert(sizeof(kPhaseNames) / sizeof(kPhaseNames[0]) == 5);
+
+  assert(scale == 1 || scale == 4);
+  const uint32_t target_count = kVulkanMemoryPressureTargetsPerScale * scale;
+  const uint32_t transitions_per_work_iteration =
+      target_count * kVulkanMemoryPressureCyclesPerSample;
+  uint8_t *const surface_memory = host_.GetTextureMemoryForStage(0);
+
+  // Every phase receives a distinct event context and Profile marker window.
+  // The checkpoints deliberately leave GPU completion outside the measurement:
+  // a host RSS/VRAM sampler can classify growth, steady cache retention, and a
+  // leak by looking at memory between completed windows instead of timing it.
+  auto profile_phase = [this, test_name, scale, target_count,
+                        transitions_per_work_iteration,
+                        surface_memory](VulkanMemoryPressurePhase phase) {
+    const uint32_t phase_index = static_cast<uint32_t>(phase);
+    const uint32_t phase_code = 0x4400U + scale * 0x10U + phase_index;
+    const bool use_alias = phase == VulkanMemoryPressurePhase::ALIAS_RESIZE;
+    const bool idle = phase == VulkanMemoryPressurePhase::IDLE_RETENTION;
+    uint32_t invocation = 0;
+
+    SetXemuPerfEventContext(phase_code, kVulkanMemoryPressureOracleKat);
+    EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0, kVulkanMemoryPressureSeed,
+                      target_count);
+    PrintMsg("VULKAN_MEMORY_CHECKPOINT name=%s scale=%lu phase=%s "
+             "expected_memory=%s target_identities=%lu new_surface_keys=%lu "
+             "transitions_per_work_iteration=%lu\n",
+             test_name, scale, kPhaseNames[phase_index],
+             kMemoryExpectations[phase_index], target_count,
+             (phase == VulkanMemoryPressurePhase::GROWTH || use_alias) ? target_count : 0,
+             transitions_per_work_iteration);
+
+    const auto results = Profile(
+        std::string(test_name) + "-" + kPhaseNames[phase_index],
+        kVulkanMemoryPressureProfileSamples,
+        [this, surface_memory, target_count, phase_index, use_alias, idle,
+         &invocation] {
+          auto &texture_stage = host_.GetTextureStage(0);
+          const uint32_t seed = kVulkanMemoryPressureSeed +
+                                invocation++ * 0x9E3779B9U + phase_index * 0x10001U;
+          const uint32_t shape_count = sizeof(kTargetShapes) / sizeof(kTargetShapes[0]);
+
+          if (idle) {
+            // This is intentionally a completed display-only window. It
+            // performs no RenderToSurfaceStart and binds only a key created by
+            // growth, making retained cache memory visible to host telemetry.
+            const auto &shape = kTargetShapes[0];
+            texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(shape.texture_format));
+            texture_stage.SetTextureDimensions(shape.width, shape.height);
+            texture_stage.SetEnabled(true);
+            host_.SetupTextureStages();
+            host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+            host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+            host_.SetBlend(false);
+            BindSurfaceTextureAddress(surface_memory);
+            for (uint32_t draw = 0; draw < 16; ++draw) {
+              const float left = 96.f + static_cast<float>((draw & 3U) * 112U);
+              const float top = 120.f + static_cast<float>((draw >> 2U) * 72U);
+              host_.DrawTexturedScreenQuad(left, top, left + 96.f, top + 64.f,
+                                           1.f, shape.width, shape.height);
+            }
+            return;
+          }
+
+          for (uint32_t cycle = 0; cycle < kVulkanMemoryPressureCyclesPerSample;
+               ++cycle) {
+            for (uint32_t ordinal = 0; ordinal < target_count; ++ordinal) {
+              // The odd multiplier makes address visitation deterministic but
+              // non-linear. It prevents simple adjacent-address special cases
+              // from hiding allocation-key or eviction behavior.
+              const uint32_t target =
+                  (ordinal * 13U + cycle * 7U + (seed >> 3U)) % target_count;
+              // Keep one shape per base address across every repeated
+              // sample. Alias/resize rotates that shape exactly once, so the
+              // metadata's new-key count remains a fixed target_count.
+              const uint32_t shape_index =
+                  (target + (use_alias ? 1U : 0U)) % shape_count;
+              const auto &shape = kTargetShapes[shape_index];
+              const uint32_t alias_offset = use_alias ? kVulkanMemoryPressureAliasOffset : 0;
+              uint8_t *const address =
+                  surface_memory + target * kVulkanMemoryPressureSurfaceStride + alias_offset;
+              const uint32_t clear_color =
+                  0xFF000000U | ((seed + target * 0x010203U + cycle * 0x10101U) & 0x00FFFFFFU);
+
+              host_.RenderToSurfaceStart(address, shape.surface_format,
+                                         shape.width, shape.height, false);
+              host_.ClearColorRegion(clear_color, 0, 0, shape.width, shape.height);
+              host_.RenderToSurfaceEnd();
+
+              texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(shape.texture_format));
+              texture_stage.SetTextureDimensions(shape.width, shape.height);
+              texture_stage.SetEnabled(true);
+              host_.SetupTextureStages();
+              host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+              host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+              host_.SetBlend(false);
+              BindSurfaceTextureAddress(address);
+              const float left = 32.f + static_cast<float>((target & 7U) * 72U);
+              const float top = 48.f + static_cast<float>(((target >> 3U) & 3U) * 92U);
+              host_.DrawTexturedScreenQuad(left, top, left + 64.f, top + 56.f,
+                                           1.f, shape.width, shape.height);
+            }
+          }
+        });
+
+    std::ostringstream metadata;
+    metadata << "{\"schema_version\":1,";
+    metadata << "\"kind\":\"vulkan_memory_pressure_checkpoint\",";
+    metadata << "\"checkpoint\":\"" << kPhaseNames[phase_index] << "\",";
+    metadata << "\"expected_memory_behavior\":\""
+             << kMemoryExpectations[phase_index] << "\",";
+    metadata << "\"seed\":\"564d5052\",";
+    metadata << "\"scale\":" << scale << ",";
+    metadata << "\"target_identities\":" << target_count << ",";
+    metadata << "\"new_surface_texture_keys\":"
+             << ((phase == VulkanMemoryPressurePhase::GROWTH || use_alias) ? target_count : 0)
+             << ",";
+    metadata << "\"alias_offset\":" << (use_alias ? kVulkanMemoryPressureAliasOffset : 0) << ",";
+    metadata << "\"transitions_per_work_iteration\":"
+             << (idle ? 16U : transitions_per_work_iteration) << ",";
+    metadata << "\"fixed_profile_samples\":" << kVulkanMemoryPressureProfileSamples;
+    metadata << "}";
+    host_.RecordProfileResult(suite_name_, std::string(test_name) + "-" + kPhaseNames[phase_index],
+                              results, metadata.str());
+    EmitXemuPerfHeartbeat();
+    return results;
+  };
+
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF141820);
+  auto growth_results = profile_phase(VulkanMemoryPressurePhase::GROWTH);
+  profile_phase(VulkanMemoryPressurePhase::PLATEAU);
+  profile_phase(VulkanMemoryPressurePhase::ALIAS_RESIZE);
+  profile_phase(VulkanMemoryPressurePhase::REUSE);
+  auto idle_results = profile_phase(VulkanMemoryPressurePhase::IDLE_RETENTION);
+
+  // The post-work oracle owns the framebuffer state. It is intentionally not
+  // part of any checkpoint window, so validation cannot distort the memory
+  // progression being measured above.
+  host_.WaitForGpu();
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.PrepareDraw(0xFF101820);
+  auto &oracle_texture_stage = host_.GetTextureStage(0);
+  oracle_texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8));
+  oracle_texture_stage.SetTextureDimensions(128, 96);
+  oracle_texture_stage.SetEnabled(true);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetTextureStageEnabled(2, false);
+  host_.SetTextureStageEnabled(3, false);
+  host_.SetupTextureStages();
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+
+  for (uint32_t tile = 0;
+       tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);
+       ++tile) {
+    uint8_t *const address =
+        surface_memory + tile * kVulkanMemoryPressureSurfaceStride;
+    host_.RenderToSurfaceStart(address, TestHost::SCF_A8R8G8B8, 128, 96, false);
+    host_.ClearColorRegion(kVulkanMemoryPressureOracleColors[tile], 0, 0, 128, 96);
+    host_.RenderToSurfaceEnd();
+    BindSurfaceTextureAddress(address);
+    const float left = 112.f + static_cast<float>((tile & 1U) * 216U);
+    const float top = 112.f + static_cast<float>((tile >> 1U) * 136U);
+    host_.DrawTexturedScreenQuad(left, top, left + 200.f, top + 120.f, 1.f, 128, 96);
+  }
+
+  host_.WaitForGpu();
+  const auto *const framebuffer =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t framebuffer_pitch = pb_back_buffer_pitch();
+  uint32_t observed_kat = 2166136261U;
+  uint32_t oracle_failure_count = 0;
+  uint64_t oracle_failure_mask = 0;
+  SetXemuPerfEventContext(0x4480U + scale, kVulkanMemoryPressureOracleKat);
+  for (uint32_t tile = 0;
+       tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);
+       ++tile) {
+    const uint32_t x = 112U + (tile & 1U) * 216U + 100U;
+    const uint32_t y = 112U + (tile >> 1U) * 136U + 60U;
+    const auto *const pixel = framebuffer + y * framebuffer_pitch + x * sizeof(uint32_t);
+    const uint32_t observed_argb = (static_cast<uint32_t>(pixel[3]) << 24) |
+                                   (static_cast<uint32_t>(pixel[2]) << 16) |
+                                   (static_cast<uint32_t>(pixel[1]) << 8) |
+                                   static_cast<uint32_t>(pixel[0]);
+    const uint32_t expected_argb = kVulkanMemoryPressureOracleColors[tile];
+    observed_kat = HashVulkanMemoryPressureU32(observed_kat, tile);
+    observed_kat = HashVulkanMemoryPressureU32(observed_kat, observed_argb);
+    PrintMsg("VULKAN_MEMORY_ORACLE tile=%lu x=%lu y=%lu expected=%08lx observed=%08lx\n",
+             tile, x, y, expected_argb, observed_argb);
+    if (observed_argb != expected_argb) {
+      ++oracle_failure_count;
+      oracle_failure_mask |= UINT64_C(1) << tile;
+      EmitXemuPerfEvent(XemuPerfEventType::FAIL, static_cast<uint16_t>(0x140U + tile),
+                        expected_argb, observed_argb);
+    }
+  }
+  if (observed_kat != kVulkanMemoryPressureOracleKat) {
+    ++oracle_failure_count;
+    oracle_failure_mask |= UINT64_C(1) << 32U;
+    EmitXemuPerfEvent(XemuPerfEventType::FAIL, 0x144U,
+                      kVulkanMemoryPressureOracleKat, observed_kat);
+  }
+  if (!oracle_failure_count) {
+    EmitXemuPerfEvent(XemuPerfEventType::PASS, 0,
+                      kVulkanMemoryPressureOracleKat, observed_kat);
+  }
+  PrintMsg("VULKAN_MEMORY_ORACLE_KAT expected=%08lx observed=%08lx status=%s "
+           "failure_count=%lu failure_mask=%016llx nonfatal=true\n",
+           kVulkanMemoryPressureOracleKat, observed_kat,
+           oracle_failure_count ? "FAIL" : "PASS", oracle_failure_count,
+           static_cast<unsigned long long>(oracle_failure_mask));
+
+  char observed_kat_string[9] = {};
+  char oracle_failure_mask_string[17] = {};
+  snprintf(observed_kat_string, sizeof(observed_kat_string), "%08lx", observed_kat);
+  snprintf(oracle_failure_mask_string, sizeof(oracle_failure_mask_string), "%016llx",
+           static_cast<unsigned long long>(oracle_failure_mask));
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,";
+  metadata << "\"kind\":\"vulkan_memory_pressure_summary\",";
+  metadata << "\"seed\":\"564d5052\",";
+  metadata << "\"scale\":" << scale << ",";
+  metadata << "\"target_identities\":" << target_count << ",";
+  metadata << "\"transitions_per_work_iteration\":" << transitions_per_work_iteration << ",";
+  metadata << "\"fixed_profile_samples\":" << kVulkanMemoryPressureProfileSamples << ",";
+  metadata << "\"checkpoint_count\":5,";
+  metadata << "\"oracle_status\":\"" << (oracle_failure_count ? "FAIL" : "PASS") << "\",";
+  metadata << "\"oracle_nonfatal\":true,";
+  metadata << "\"oracle_failure_count\":" << oracle_failure_count << ",";
+  metadata << "\"oracle_failure_mask\":\"" << oracle_failure_mask_string << "\",";
+  metadata << "\"oracle_expected_kat\":\"0d626fa0\",";
+  metadata << "\"oracle_observed_kat\":\"" << observed_kat_string << "\",";
+  metadata << "\"oracle_compatibility_key\":\"vulkan-memory-pressure-bgra-v1\",";
+  metadata << "\"growth_profile_iterations\":" << growth_results.iterations << ",";
+  metadata << "\"idle_profile_iterations\":" << idle_results.iterations;
+  metadata << "}";
+  host_.FinishDraw(suite_name_, test_name, idle_results, metadata.str());
+  ClearXemuPerfEventContext();
 }

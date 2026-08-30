@@ -34,6 +34,9 @@ class SurfaceRenderingTests : public TestSuite {
   void TestXemuCpuReadCleanSurface();
 
   void TestXemuCpuReadAfterGpuWrite();
+
+  void TestXemuVulkanMemoryPressure(const char *test_name,
+                                    uint32_t scale);
 };
 
 #endif  // XEMU_PERF_TESTS_SURFACE_RENDERING_TESTS_H

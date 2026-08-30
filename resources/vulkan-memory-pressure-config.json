@@ -1,0 +1,17 @@
+{
+  "settings": {
+    "enable_autorun_immediately": true,
+    "skip_tests_by_default": true,
+    "warmup_iterations": 0,
+    "gpu_completion_mode": "per_iteration",
+    "measurement_iterations_multiplier": 1,
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "test_suites": {
+    "SurfaceRendering": {
+      "XemuVulkanMemoryPressure4x": {
+        "skipped": false
+      }
+    }
+  }
+}
