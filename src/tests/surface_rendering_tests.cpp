@@ -1,14 +1,18 @@
 #include "surface_rendering_tests.h"
 
+#include <array>
 #include <cassert>
 #include <cstring>
+#include <memory>
 #include <sstream>
 
 #include <pbkit/pbkit.h>
 #include <texture_generator.h>
 
 #include "debug_output.h"
+#include "shaders/passthrough_vertex_shader.h"
 #include "test_host.h"
+#include "vertex_buffer.h"
 
 static constexpr char kBasicTestName[] = "SurfaceRendering";
 static constexpr char kXemuSurfaceDownloadTestName[] = "XemuSurfaceDownloadPath";
@@ -916,44 +920,56 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   profile_phase(VulkanMemoryPressurePhase::REUSE);
   auto idle_results = profile_phase(VulkanMemoryPressurePhase::IDLE_RETENTION);
 
-  // The post-work oracle owns the framebuffer state. It deliberately uses
-  // the known-good direct diffuse tile path rather than reinterpreting the
-  // churned linear surfaces as COLOR_SZ textures. The latter is workload
-  // input, not a portable correctness representation. Validation remains
-  // outside every checkpoint window, so it cannot distort memory progression.
+  // The post-work oracle owns the framebuffer state. It deliberately uses the
+  // established vertex-buffer/pass-through/readback sequence, rather than
+  // reinterpreting churned linear surfaces as COLOR_SZ textures or relying on
+  // immediate-mode attributes. Those are workload inputs, not a portable
+  // correctness representation. Validation remains outside every checkpoint
+  // window, so it cannot distort memory progression.
   host_.WaitForGpu();
   TestSuite::Initialize();
   host_.SetupFixedFunctionPassthrough();
-  // PrepareDraw writes default PGRAPH state. Like the composite correctness
-  // scene, apply it before the explicit state below so it cannot overwrite the
-  // direct-diffuse oracle's texture or combiner configuration.
-  host_.PrepareDraw(0xFF101820);
-  host_.SetVertexShaderProgram(nullptr);
   host_.ClearVertexBuffer();
-  host_.SetTextureStageEnabled(0, false);
-  host_.SetTextureStageEnabled(1, false);
-  host_.SetTextureStageEnabled(2, false);
-  host_.SetTextureStageEnabled(3, false);
-  host_.SetupTextureStages();
-  host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,
-                              TestHost::STAGE_NONE, TestHost::STAGE_NONE);
+  auto oracle_shader = std::make_shared<PBKitPlusPlus::PassthroughVertexShader>();
+  host_.SetVertexShaderProgram(oracle_shader);
   host_.SetBlend(false);
   host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
-  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+  host_.PrepareDraw(0xFF101820);
+
+  static constexpr uint32_t kOracleVertexAttributes =
+      TestHost::POSITION | TestHost::DIFFUSE | TestHost::SPECULAR |
+      TestHost::WEIGHT | TestHost::TEXCOORD0;
+  auto oracle_vertex_buffer = host_.AllocateVertexBuffer(
+      sizeof(kVulkanMemoryPressureOracleColors) /
+      sizeof(kVulkanMemoryPressureOracleColors[0]) * 4);
+  oracle_vertex_buffer->SetPositionIncludesW(true);
+  auto vertex = oracle_vertex_buffer->Lock();
 
   for (uint32_t tile = 0;
        tile < sizeof(kVulkanMemoryPressureOracleColors) / sizeof(kVulkanMemoryPressureOracleColors[0]);
        ++tile) {
     const float left = 112.f + static_cast<float>((tile & 1U) * 216U);
     const float top = 112.f + static_cast<float>((tile >> 1U) * 136U);
-    host_.Begin(TestHost::PRIMITIVE_QUADS);
-    host_.SetDiffuse(kVulkanMemoryPressureOracleColors[tile]);
-    host_.SetScreenVertex(left, top);
-    host_.SetScreenVertex(left + 200.f, top);
-    host_.SetScreenVertex(left + 200.f, top + 120.f);
-    host_.SetScreenVertex(left, top + 120.f);
-    host_.End();
+    const uint32_t color = kVulkanMemoryPressureOracleColors[tile];
+    const float red = static_cast<float>((color >> 16) & 0xFF) / 255.0f;
+    const float green = static_cast<float>((color >> 8) & 0xFF) / 255.0f;
+    const float blue = static_cast<float>(color & 0xFF) / 255.0f;
+    const float positions[4][2] = {
+        {left, top}, {left + 200.f, top},
+        {left + 200.f, top + 120.f}, {left, top + 120.f},
+    };
+    for (uint32_t corner = 0; corner < 4; ++corner, ++vertex) {
+      vertex->SetPosition(positions[corner][0], positions[corner][1], 0.0f);
+      vertex->SetDiffuse(red, green, blue, 1.0f);
+      vertex->SetSpecular(0.0f, 0.0f, 0.0f, 0.0f);
+      vertex->SetWeight(0.0f);
+      vertex->SetTexCoord0(0.0f, 0.0f);
+    }
   }
+  oracle_vertex_buffer->Unlock();
+  host_.SetVertexBuffer(oracle_vertex_buffer);
+  host_.DrawArrays(kOracleVertexAttributes, TestHost::PRIMITIVE_QUADS);
 
   host_.WaitForGpu();
   const auto *const framebuffer =
@@ -962,6 +978,9 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   uint32_t observed_kat = 2166136261U;
   uint32_t oracle_failure_count = 0;
   uint64_t oracle_failure_mask = 0;
+  std::array<uint32_t, sizeof(kVulkanMemoryPressureOracleColors) /
+                           sizeof(kVulkanMemoryPressureOracleColors[0])>
+      observed_tile_argb{};
   SetXemuPerfEventContext(0x4480U + guest_pressure_multiplier,
                           kVulkanMemoryPressureOracleKat);
   for (uint32_t tile = 0;
@@ -975,6 +994,7 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
                                    (static_cast<uint32_t>(pixel[1]) << 8) |
                                    static_cast<uint32_t>(pixel[0]);
     const uint32_t expected_argb = kVulkanMemoryPressureOracleColors[tile];
+    observed_tile_argb[tile] = observed_argb;
     observed_kat = HashVulkanMemoryPressureU32(observed_kat, tile);
     observed_kat = HashVulkanMemoryPressureU32(observed_kat, observed_argb);
     PrintMsg("VULKAN_MEMORY_ORACLE tile=%lu x=%lu y=%lu expected=%08lx observed=%08lx\n",
@@ -1023,6 +1043,14 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   metadata << "\"oracle_failure_mask\":\"" << oracle_failure_mask_string << "\",";
   metadata << "\"oracle_expected_kat\":\"0d626fa0\",";
   metadata << "\"oracle_observed_kat\":\"" << observed_kat_string << "\",";
+  metadata << "\"oracle_observed_tiles\":[";
+  for (uint32_t tile = 0; tile < observed_tile_argb.size(); ++tile) {
+    char observed_tile_string[9] = {};
+    snprintf(observed_tile_string, sizeof(observed_tile_string), "%08lx",
+             observed_tile_argb[tile]);
+    metadata << (tile ? "," : "") << "\"" << observed_tile_string << "\"";
+  }
+  metadata << "],";
   metadata << "\"oracle_compatibility_key\":\"vulkan-memory-pressure-bgra-v1\",";
   metadata << "\"growth_profile_iterations\":" << growth_results.iterations << ",";
   metadata << "\"idle_profile_iterations\":" << idle_results.iterations;

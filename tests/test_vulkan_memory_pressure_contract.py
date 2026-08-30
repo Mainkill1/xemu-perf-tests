@@ -109,27 +109,29 @@ class VulkanMemoryPressureContractTests(unittest.TestCase):
         oracle = body[oracle_start:oracle_end]
         # The workload deliberately stresses render-target-to-texture reuse,
         # but the final correctness scene must not depend on that churned
-        # representation. Match the established exact direct-diffuse oracle
-        # pattern so an image-layout disagreement cannot mask a valid run.
+        # representation. Match the established vertex-buffer/pass-through
+        # oracle path so immediate-mode state cannot mask a valid run.
         for required in (
             "host_.PrepareDraw(0xFF101820);",
             "host_.ClearVertexBuffer();",
-            "host_.SetTextureStageEnabled(0, false);",
-            "host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,",
+            "std::make_shared<PBKitPlusPlus::PassthroughVertexShader>()",
+            "host_.SetVertexShaderProgram(oracle_shader);",
             "host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);",
-            "host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);",
-            "host_.Begin(TestHost::PRIMITIVE_QUADS);",
-            "host_.SetDiffuse(kVulkanMemoryPressureOracleColors[tile]);",
-            "host_.SetScreenVertex(left, top);",
+            "host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);",
+            "host_.AllocateVertexBuffer(",
+            "oracle_vertex_buffer->SetPositionIncludesW(true);",
+            "vertex->SetDiffuse(red, green, blue, 1.0f);",
+            "host_.DrawArrays(kOracleVertexAttributes, TestHost::PRIMITIVE_QUADS);",
         ):
             with self.subTest(required=required):
                 self.assertIn(required, oracle)
         self.assertNotIn("oracle_texture_stage", oracle)
         self.assertNotIn("DrawTexturedScreenQuad", oracle)
         self.assertLess(
+            oracle.index("host_.SetVertexShaderProgram(oracle_shader);"),
             oracle.index("host_.PrepareDraw(0xFF101820);"),
-            oracle.index("host_.SetVertexShaderProgram(nullptr);"),
         )
+        self.assertIn(r'\"oracle_observed_tiles\"', body)
 
         colors = [0xFF3C78B4, 0xFFB46E3C, 0xFF56A866, 0xFF9A4FB4]
         observed = 2166136261
