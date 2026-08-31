@@ -247,6 +247,212 @@ def markdown(doc):
     return "\n".join(lines) + "\n"
 
 
+def failure_diagnosis(test):
+    """Return a catalog-specific failure meaning and first code areas to inspect."""
+    test_id = test["id"]
+    if test["kind"] == "group":
+        return (
+            "At least one child checkpoint failed, a child result is missing, or group completion was recorded incorrectly. "
+            "Inspect the child records in order; the group has no independent timing oracle."
+        )
+
+    exact = {
+        "busy_pfifo.pfifo_saturation":
+            "PFIFO did not consume the fixed push-buffer stream or produced the wrong final image. Check DMA get/put handling, packet decode, FIFO stalls, and PFIFO/PGRAPH lock handoff.",
+        "busy_pfifo.pgraph_pattern_polling":
+            "The guest-observed PGRAPH completion pattern or rendered result changed. Check report/status polling, notification ordering, GPU completion waits, and busy-bit transitions.",
+        "cpu_floating_point.sse_scalar":
+            "SSE scalar values or flags differ from the known-answer sequence. Check TCG SSE helpers, MXCSR rounding/FTZ/DAZ state, NaN handling, and native hard-FPU shortcuts.",
+        "cpu_floating_point.x87_scalar":
+            "x87 values, classifications, or status differ. Check extended precision, control-word rounding, exceptions, NaN/denormal handling, and hard-FPU conversion boundaries.",
+        "cpu_translation_blocks.direct_loop":
+            "A direct-branch loop produced the wrong checksum or stopped making progress. Check TCG block chaining, instruction counting, interrupt exits, and translated-code invalidation.",
+        "cpu_translation_blocks.indirect_dispatch":
+            "The fixed indirect jump-table sequence diverged. Check indirect TB lookup, target caching, register state at exits, and branch dispatch.",
+        "cpu_translation_blocks.indirect_dispatch_stress":
+            "The larger indirect-target set diverged or timed out. Check TB hash/lookup behavior, eviction, chaining misses, and state restoration across repeated indirect exits.",
+        "fill_rate.solid":
+            "Solid fragments have wrong coverage/color or the draw does not complete. Check clear/raster state, color masks, viewport/scissor, render-pass setup, and host fill path.",
+        "fill_rate.textured":
+            "Textured fragments differ or texture sampling stalls. Check texture upload/layout, sampler state, coordinates, cache invalidation, and fragment-shader translation.",
+        "pipeline_texture_switch.texture_switch":
+            "Switching texture bindings preserved stale image/sampler state or rebuilt the wrong pipeline. Check descriptor keys, texture generations, binding dirty flags, and pipeline reuse.",
+        "pipeline_texture_switch.shader_negative_control":
+            "A real shader-state change was incorrectly suppressed. Check shader/pipeline key normalization and dirty-bit elision; this control must change output when shader state changes.",
+        "pipeline_texture_switch.clear_texture_normal":
+            "State leaked across clear, texture-only, and normal-draw boundaries. Check clear-pipeline lifetime, descriptor dirtiness, render-pass transitions, and post-clear state restoration.",
+        "pipeline_texture_switch.sampler_only_identity":
+            "An identical sampler write changed output or caused an invalid reuse decision. Check sampler identity keys, compare-before-dirty logic, descriptor cache lifetime, and texture-stage normalization.",
+        "game_load.repeated_display":
+            "Repeated presentation changed the deterministic scene or stopped advancing. Check flip/vblank ordering, scanout ownership, present waits, and retained renderer state.",
+        "game_load.repeated_display_boosted":
+            "The sustained presentation variant diverged under heavier work. Check the same flip path plus queue growth, throttling, resource lifetime, and delayed completion.",
+        "surface.basic":
+            "Basic render-to-surface output differs. Check surface format/pitch, attachment creation, layout transitions, viewport/scissor, and download conversion.",
+        "surface.cpu_read_after_gpu_write":
+            "The CPU did not observe the GPU's newest surface bytes. Check GPU-to-RAM synchronization, dirty ownership, fence waits, download range, and cache invalidation.",
+        "surface.cpu_read_clean_surface":
+            "Reading an already synchronized surface changed data or performed the wrong path. Check clean/dirty state, redundant download elision, RAM validity, and surface ownership epochs.",
+        "surface.full_clear_elision_guard":
+            "A full clear was incorrectly skipped or applied to the wrong channels. Check clear coverage proof, color/depth masks, attachment extent, and dirty-state propagation.",
+        "surface.partial_channel_clear_guard":
+            "A masked clear was treated as a full clear or lost untouched channels. Check channel masks, clear fast-path eligibility, blending/write masks, and surface preservation.",
+        "surface.surface_download_path":
+            "Downloaded RAM bytes or the post-download frame differ. Check image-to-buffer usage/layout, scaled blit, depth/stencil conversion, mapping/invalidation, pitch, and swizzle.",
+        "surface.overlapping_surface_churn_representative":
+            "Ordinary overlapping views retained stale data or invalidated the wrong resource. Check overlap lookup, alias ownership, format/pitch reinterpretation, and upload/download ordering.",
+        "surface.overlapping_surface_churn_stress":
+            "Heavy alias churn exposed stale data, unbounded resources, or a lifetime fault. Check overlap indexing, eviction, deferred destruction, fences, and conservative reconciliation.",
+        "uniform_thrash.uniform_thrash":
+            "Rapid constant writes produced stale shader inputs or lost a real update. Check compare-before-dirty logic, dirty-row masks, uniform packing, descriptor staging, and shader constant indexing.",
+        "vertex_buffer_allocation.disjoint_same_page":
+            "Two disjoint vertex ranges sharing one guest page interfered. Check byte-range versus page dirty tracking, upload offsets, cache keys, and allocation aliasing.",
+    }
+    if test_id in exact:
+        return exact[test_id]
+
+    if test_id.startswith("pfifo_array_elements."):
+        width = "16-bit" if "16" in test_id else "32-bit"
+        shape = "the PGR2-shaped mixed packet stream" if test_id.endswith("pgr2") else f"the {width} element stream"
+        return f"{shape.capitalize()} produced wrong indices, vertices, or pixels. Check non-incrementing method packet length, endian unpacking, index expansion, bounds growth, and bulk PFIFO dispatch."
+
+    if test_id.startswith("high_vertex_count."):
+        mode = test_id.rsplit(".", 1)[-1].replace("_", " ")
+        return f"The large {mode} submission lost or reordered vertices. Check packet capacity growth, vertex/index conversion, draw splitting, buffer offsets, and allocation rollover."
+
+    if test_id.startswith("primitive_type."):
+        parts = test_id.split(".")
+        topology = parts[1].replace("_", " ")
+        path = "fixed-function" if parts[2] == "fixed_function" else "vertex-shader"
+        return f"{topology.title()} assembly or raster coverage differs on the {path} path. Check topology conversion, closure/restart vertices, provoking vertex, clipping, attribute fetch, and viewport rules."
+
+    if test_id.startswith("tiny_draw."):
+        parts = test_id.split(".")
+        mode = parts[1].replace("_", " ")
+        path = "fixed-function" if parts[2] == "fixed_function" else "vertex-shader"
+        return f"Tiny {mode} draws differ or lose state on the {path} path. Check per-packet dispatch, small-buffer allocation, state carry-over, draw batching, attribute fetch, and pipeline binding."
+
+    if test_id.startswith("vertex_buffer_allocation."):
+        _, size_class, mode = test_id.split(".")
+        return f"The {size_class} {mode.replace('_', ' ')} allocation sequence reused or addressed the wrong vertex data. Check alignment, ring wrap, allocation lifetime, upload offsets, cache invalidation, and fence protection."
+
+    if test_id.startswith("surface.framebuffer_working_set_"):
+        count = test_id.rsplit("_", 1)[-1].lstrip("0") or "0"
+        return f"The {count}-surface framebuffer working set changed output or resource lifetime. Check surface-cache capacity, eviction safety, attachment reuse, dirty ownership, and deferred destruction."
+
+    if test_id.startswith("surface.surface_list_lookup_"):
+        count = test_id.rsplit("_", 1)[-1].lstrip("0") or "0"
+        return f"Lookup among {count} active surfaces selected or skipped the wrong overlap. Check address-range boundaries, interval/list ordering, pitch/extent calculation, and stale-list removal."
+
+    if test_id.startswith("surface.vulkan_memory_pressure."):
+        checkpoint = test_id.rsplit(".", 1)[-1]
+        meanings = {
+            "growth": "live Vulkan memory did not grow only as the fixed working set was created",
+            "plateau": "memory failed to stabilize after the working set became steady",
+            "alias_resize": "resized or aliased views retained stale allocations/data",
+            "reuse": "compatible resources were not safely reused",
+            "idle_retention": "idle resources were retained or reclaimed outside the declared policy",
+        }
+        return f"The {checkpoint.replace('_', ' ')} checkpoint failed: {meanings[checkpoint]}. Check allocation counters, cache keys, fence-complete retirement, eviction policy, and host-memory accounting."
+
+    if test_id.startswith("game_load.s3tc_sync_factor."):
+        cell = test_id.split(".")[-1]
+        fmt = "DXT1" if cell.startswith("dxt1") else "RGBA8" if cell.startswith("rgba8") else "BC2" if cell.startswith("bc2") else "BC3"
+        if "same_address_wait" in cell:
+            behavior = "same-address rewrite followed by an explicit GPU wait"
+            checks = "dirty-generation detection, synchronized replacement, upload bytes, and fence completion"
+        elif "same_address_queued" in cell:
+            behavior = "same-address rewrite while work remains queued"
+            checks = "queued resource generations, staging lifetime, write-after-read hazards, and submission ordering"
+        elif "ring_payload_generations" in cell:
+            behavior = "rotating payload generations in a fixed address ring"
+            checks = "generation keys, ring wrap, stale descriptor reuse, and in-flight allocation protection"
+        elif "dirty_once_redraw" in cell:
+            behavior = "one dirty upload followed by unchanged redraws"
+            checks = "dirty-bit clearing, unchanged-upload elision, hash/cache reuse, and retained texture validity"
+        elif "native_eligible" in cell:
+            behavior = "a block-compressed texture eligible for native host upload"
+            checks = "compressed-format capability, mip/block dimensions, native upload selection, and sampled texel decoding"
+        else:
+            behavior = "a bordered block-compressed texture that must take the fallback path"
+            checks = "native-path rejection, CPU decompression, border fixup, expanded format, and fallback upload lifetime"
+        return f"The {fmt} {behavior} cell produced the wrong KAT/frame. Check {checks}."
+
+    if test_id.startswith("game_load.cross_title_hotpath."):
+        stage = test_id.rsplit(".", 1)[-1]
+        causes = {
+            "queued_vertex_cpu_writes": "CPU-written vertex generations, dirty ranges, queued uploads, and host-buffer lifetime",
+            "pgr2_small_draws": "tiny-draw dispatch, redundant state suppression, vertex allocation, and pipeline binding",
+            "texture_update_reuse": "texture dirty tracking, same-address replacement, cache keys, and upload reuse",
+            "surface_reuse": "surface compatibility keys, attachment ownership, dirty transitions, and fence-safe reuse",
+            "pipeline_state_churn": "shader/pipeline key normalization, cache invalidation, and redundant bind suppression",
+            "blend_constant_reuse": "blend-constant comparison, dynamic-state dirtiness, and command emission",
+            "texture_binding_reuse": "descriptor identity, texture-stage dirtiness, and stale binding reuse",
+            "pgr2_lagspot_inline_elements": "inline element packet decode, bulk method handling, index expansion, and small-draw submission",
+            "scaled_surface_pressure": "scaled extent math, surface copies, aliasing, attachment cache pressure, and readback",
+            "s3tc_streaming_fenced_draws": "compressed upload/fallback selection, staging lifetime, fences, and repeated streaming generations",
+            "gpu_wait_control": "finish reason, report/fence completion, queue submission, and CPU wait accounting",
+        }
+        return f"The {stage.replace('_', ' ')} stage diverged. Check {causes[stage]}."
+
+    if test_id.startswith("game_load.long_unlocked_scene."):
+        stage = test_id.rsplit(".", 1)[-1]
+        causes = {
+            "cpu": "TCG execution, branches, MMIO callbacks, and guest timing",
+            "pfifo": "push-buffer decode, method dispatch, FIFO stalls, and PFIFO/PGRAPH locks",
+            "alpha_overdraw": "blend state, depth ordering, fragment coverage, and fill/host-GPU execution",
+            "streaming_surface_reuse": "surface/texture generations, uploads, alias ownership, and cache reuse",
+            "combined": "CPU-to-PFIFO overlap, renderer synchronization, and critical-path lock waits",
+            "full_system": "combined CPU, PFIFO, renderer, streaming, completion, and lifecycle interactions",
+        }
+        return f"The sustained {stage.replace('_', ' ')} phase failed or stopped advancing. Check {causes[stage]}."
+
+    if test_id.startswith("game_load."):
+        phase = test_id.rsplit(".", 1)[-1]
+        workload = test_id.split(".")[1].replace("_", " ")
+        causes = {
+            "cpu_only": "TCG/TB execution, branches, MMIO, and guest timer behavior",
+            "pfifo_only": "push-buffer parsing, method dispatch, FIFO progress, and PFIFO/PGRAPH locking",
+            "gpu_only": "draw state, shader/pipeline translation, attachments, and host GPU completion",
+            "streaming_only": "dirty ranges, texture/surface uploads, cache reuse, and memory ownership",
+            "cpu_pfifo_gpu": "CPU/PFIFO/renderer scheduling, synchronization, and critical-path lock handoffs",
+            "cpu_pfifo_gpu_streaming": "combined scheduling plus resource generations, transfers, and alias hazards",
+            "full_system": "all prior domains plus lifecycle, pacing, and accumulated state between phases",
+        }
+        if phase in causes:
+            return f"The {workload} {phase.replace('_', ' ')} phase changed its deterministic result. Check {causes[phase]}."
+
+    return "The deterministic output or completion contract changed. Compare the first failed check and framebuffer hash, then inspect the test's tagged subsystem and the first divergence before changing an oracle."
+
+
+def failure_guide_markdown(doc):
+    lines = [
+        "# Test failure guide",
+        "",
+        f"Generated from catalog `{doc['catalog_id']}`. It covers all {len(doc['tests'])} entries; do not edit this file directly.",
+        "",
+        "## Reading a failure",
+        "",
+        "- `outcome: FAIL` means a guest known-answer, invariant, or semantic check failed. A soft failure continues the suite but still fails the run.",
+        "- A framebuffer mismatch with passing internal checks usually points to rendering, readback, undefined pixels, or an unapproved oracle—not automatically to the measured hot path.",
+        "- A passing result that is slower is a performance regression, not a functional failure. Compare identical work, completion mode, backend, scale, and warm state.",
+        "- If upstream and candidate fail identically, investigate the test/oracle or a shared upstream defect before blaming the patch.",
+        "- Group entries summarize children. Diagnose the first failing child; groups intentionally have no timing measurement.",
+        "- Never replace a golden because one build disagrees. Retail-hardware evidence or a proven specification establishes correctness.",
+        "",
+    ]
+    suites = {}
+    for test in doc["tests"]:
+        suites.setdefault(test["suite_id"], []).append(test)
+    for suite_id, tests in suites.items():
+        lines += [f"## `{suite_id}`", "", "| Stable ID | Kind | Likely failure cause and first checks |", "| --- | --- | --- |"]
+        for test in tests:
+            diagnosis = failure_diagnosis(test).replace("|", "\\|")
+            lines.append(f"| `{test['id']}` | {test['kind']} | {diagnosis} |")
+        lines.append("")
+    return "\n".join(lines)
+
+
 def catalog_json(doc):
     lines = ["{", f'  "schema_version": {doc["schema_version"]},',
              f'  "catalog_id": {json.dumps(doc["catalog_id"])},',
@@ -302,6 +508,7 @@ def render():
             ROOT / "resources/pfifo-array-elements-quick.json": pfifo_quick,
             ROOT / "resources/pfifo-array-elements-sustained.json": pfifo_sustained,
             ROOT / "docs/generated/test-catalog.md": markdown(doc),
+            ROOT / "docs/generated/test-failure-guide.md": failure_guide_markdown(doc),
             ROOT / "src/generated/test_catalog.inc": cpp(items, doc["catalog_id"])}
     base_settings = {
         "skip_tests_by_default": True,

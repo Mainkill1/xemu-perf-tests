@@ -35,6 +35,12 @@ class CatalogPlanContractTests(unittest.TestCase):
     self.assertTrue(all(re.fullmatch(r"[a-z0-9_.]+", test["id"]) for test in tests))
     self.assertTrue(all(test["description"] and test["tags"] for test in tests))
 
+    failure_guide = (ROOT / "docs/generated/test-failure-guide.md").read_text(encoding="utf-8")
+    self.assertIn("# Test failure guide", failure_guide)
+    self.assertIn("Reading a failure", failure_guide)
+    for test in tests:
+        self.assertEqual(failure_guide.count(f"`{test['id']}`"), 1, test["id"])
+
 
  def test_groups_are_outcomes_with_explicit_children_and_no_implicit_timing(self):
     catalog = json.loads((ROOT / "resources/catalog.json").read_text(encoding="utf-8"))

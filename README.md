@@ -5,6 +5,11 @@ Deterministic Xbox workloads for finding xemu correctness and performance change
 Tests use fixed work plus checksums, known-answer values, and framebuffer hashes so
 a faster result cannot silently hide changed output.
 
+Failure lookup: [`docs/generated/test-failure-guide.md`](docs/generated/test-failure-guide.md)
+lists every stable test ID, what subsystem most likely failed, and the first code
+paths or state transitions to inspect. It is generated with the catalog so missing
+or renamed tests fail repository validation.
+
 ## Current release
 
 Use `xemu-perf-tests-eng467-menu-7d56155.iso`.
