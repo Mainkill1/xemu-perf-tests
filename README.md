@@ -60,9 +60,15 @@ performance proof for the narrower PR #2-#9 publication build.
 6. Extract `E:\xemu_perf_tests\results.txt` from the test HDD. Never edit or
    reformat it.
 
-The screen initially names the running test. Later tests leave the last completed
-result visible and update an outlined `RUNNING:` footer. Long composite stages may
-take minutes; the footer and host heartbeat distinguish work from a hang.
+During a full-suite run, the screen initially names the running stage. Later
+stages leave the last completed result visible and update an outlined `RUNNING:`
+footer. Long composite stages may take minutes; the footer and host heartbeat
+distinguish work from a hang.
+
+Direct single-test and continuous selections do not clear the framebuffer or
+draw a separate “next test” screen before execution. The menu or last result
+remains visible until the selected workload produces its own frame, preventing
+blank-frame strobing. Full-suite execution retains its progress reporting.
 
 Guest-side soft failures can continue. A host assertion, Vulkan device loss, or
 terminated xemu process cannot. The PR #2-#9 public binary does not include the

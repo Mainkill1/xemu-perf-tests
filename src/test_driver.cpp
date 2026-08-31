@@ -120,20 +120,15 @@ void TestDriver::RunAllTestsNonInteractive() {
   running_ = false;
 }
 
-void TestDriver::DrawProgress(const char *scope, uint32_t current, uint32_t total) {
-  pb_show_front_screen();
-  debugClearScreen();
-  debugPrint("xemu perf tests\nCatalog %s\n\nRunning %lu/%lu\n%s\n\nResults: E:\\xemu_perf_tests\\results.txt\n",
-             TestCatalogId(), current, total, scope);
-}
-
 void TestDriver::RunCatalogRoute(const TestDescriptor &descriptor) {
   for (const auto &suite : test_suites_) {
     if (suite->Name() != descriptor.legacy_suite ||
         !suite->HasTest(descriptor.execution_test)) {
       continue;
     }
-    DrawProgress(descriptor.id, 1, 1);
+    // A directly selected route owns the next frame. Keep the current menu or
+    // result visible until that route renders instead of flashing a progress
+    // screen that provides no useful ordering information for a single test.
     suite->Initialize();
     suite->Run(descriptor.execution_test, true);
     suite->Deinitialize();

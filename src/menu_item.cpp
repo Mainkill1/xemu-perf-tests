@@ -397,11 +397,8 @@ void MenuItemTest::Draw() {
 }
 
 void MenuItemTest::OnEnter() {
-  // Blank the screen.
-  PrepareDraw(0xFF000000);
-  pb_print("Running %s", name.c_str());
-  Swap();
-
+  // Preserve the menu or prior result until the workload draws. This avoids a
+  // blank-frame flash for both single and continuous execution.
   if (frame_count) {
     suite->Deinitialize();
   }

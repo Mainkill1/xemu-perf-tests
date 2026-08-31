@@ -56,7 +56,6 @@ class TestDriver {
   void OnX(bool is_repeat);
   void OnY(bool is_repeat);
   void RunCatalogRoute(const TestDescriptor &descriptor);
-  void DrawProgress(const char *scope, uint32_t current, uint32_t total);
 
  private:
   volatile bool running_{true};

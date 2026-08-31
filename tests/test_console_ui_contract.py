@@ -49,8 +49,21 @@ class ConsoleUiContractTests(unittest.TestCase):
                       "A/Start select", "Grouped route", "results.txt", "Previous results",
                       "System information", "A: refresh"):
             self.assertIn(token, self.menu_source)
-        for token in ("RunCatalogRoute", "DrawProgress", "HasTest"):
+        for token in ("RunCatalogRoute", "HasTest"):
             self.assertIn(token, self.driver_source)
+
+    def test_direct_test_execution_retains_the_current_frame(self):
+        on_enter = self.menu_source.split("void MenuItemTest::OnEnter()", 1)[1].split(
+            "bool MenuItemTest::Deactivate()", 1
+        )[0]
+        route = self.driver_source.split("void TestDriver::RunCatalogRoute", 1)[1].split(
+            "void TestDriver::OnControllerAdded", 1
+        )[0]
+        valid_route = route.split("return;", 1)[0]
+        self.assertNotIn("PrepareDraw", on_enter)
+        self.assertNotIn("pb_print", on_enter)
+        self.assertNotIn("debugClearScreen", valid_route)
+        self.assertNotIn("DrawProgress", route)
 
     def test_final_screen_distinguishes_completion_and_oracle_failure(self):
         for token in ("xemu perf tests: %s", "Oracle failures", "First failure",
