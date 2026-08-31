@@ -254,10 +254,13 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   debugPrint("xemu perf tests: %s\n\n", run_pass ? "PASS" : "FAIL");
   debugPrint("Catalog: %s\n", TestCatalogId());
   debugPrint("Results: %s\n", log_file.c_str());
-  debugPrint("Leaves: %lu  Groups: %lu\n", host.RecordedLeafCount(),
-             host.RecordedGroupCount());
-  debugPrint("Oracle failures: %lu\n", host.OracleFailureCount());
-  debugPrint("Soft failures: %lu\n", host.SoftFailureCount());
+  debugPrint("Leaves: %lu  Groups: %lu\n",
+             static_cast<unsigned long>(host.RecordedLeafCount()),
+             static_cast<unsigned long>(host.RecordedGroupCount()));
+  debugPrint("Oracle failures: %lu\n",
+             static_cast<unsigned long>(host.OracleFailureCount()));
+  debugPrint("Soft failures: %lu\n",
+             static_cast<unsigned long>(host.SoftFailureCount()));
   if (!soft_pass) {
     debugPrint("First failure: %s\n", host.FirstSoftFailure().c_str());
   } else if (!oracle_pass) {
@@ -269,7 +272,8 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
     debugPrint("Plan: COMPLETE\n");
   }
   debugPrint("\nFinal screen: %lu seconds\n",
-             config.reboot_or_shutdown_delay_ms() / 1000);
+             static_cast<unsigned long>(
+                 config.reboot_or_shutdown_delay_ms() / 1000));
   pb_show_debug_screen();
   // This configurable hold is zero for unattended runners and should be at
   // least 30 seconds in physical-console plans. No hidden UI delay is added.
