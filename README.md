@@ -15,17 +15,20 @@ changes cannot silently hide corruption.
   suite map, selection, result meaning, extraction, and release status.
 - [Add or extend a test](docs/adding-tests.md): required descriptor, workload,
   oracle, registration, and validation steps.
-- [Generated test catalog](docs/generated/test-catalog.md): all 129 executable
+- [Generated test catalog](docs/generated/test-catalog.md): all 136 executable
   leaf IDs and five structural groups.
 - [`resources/catalog.json`](resources/catalog.json): machine-readable catalog
   used by tooling and the guest.
 - [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
   resolved-plan example.
 
-Current stable image: ENG458 texture validation. ENG459 adds the catalog and
-explicit-plan control plane and is a preview until its guest runtime smoke is
-completed. Source and binary build validation have passed; do not silently
-promote preview observations into hardware goldens.
+Current integration image: ENG462. It adds PFIFO array-element workloads,
+texture/sampler identity checks, Vulkan submission-lifetime plans, explicit
+RUNNING screens, and soft failure screens (10 seconds or A). All seven new
+executable cases pass on Vulkan 1x. See
+[`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json).
+Earlier ENG458 results remain below; new observations do not silently become
+hardware goldens.
 
 ## ENG458 texture validation release
 
