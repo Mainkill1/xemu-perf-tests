@@ -10,6 +10,10 @@ lists every stable test ID, what subsystem most likely failed, and the first cod
 paths or state transitions to inspect. It is generated with the catalog so missing
 or renamed tests fail repository validation.
 
+Operator guide: [`docs/running-tests.md`](docs/running-tests.md) gives the exact
+xemu automation, manual emulator, physical Xbox, result-copy, hash/oracle, and
+failure-recovery workflows.
+
 ## Current release
 
 Use `xemu-perf-tests-eng467-menu-7d56155.iso`.
