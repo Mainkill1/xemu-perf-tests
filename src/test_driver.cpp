@@ -105,9 +105,7 @@ void TestDriver::RunAllTestsNonInteractive() {
   for (auto &suite : test_suites_) {
     suite->Initialize();
     suite->RunAll();
-    debugClearScreen();
-    debugPrint("RUNNING\n\nSuite teardown:\n%s\n", suite->Name().c_str());
-    pb_show_debug_screen();
+    test_host_.ShowResultProgress("Suite teardown: " + suite->Name());
     suite->Deinitialize();
   }
   running_ = false;

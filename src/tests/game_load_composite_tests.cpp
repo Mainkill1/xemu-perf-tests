@@ -1398,10 +1398,14 @@ void GameLoadCompositeTests::Initialize() {
 }
 
 void GameLoadCompositeTests::Deinitialize() {
+  host_.ShowResultProgress("GameLoadComposite: stop audio");
   StopAudio();
+  host_.ShowResultProgress("GameLoadComposite: signal loader stop");
   loader_stop_ = true;
   SetEvent(loader_start_event_);
+  host_.ShowResultProgress("GameLoadComposite: wait for loader thread");
   ASSERT(WaitForSingleObject(loader_thread_, INFINITE) == WAIT_OBJECT_0);
+  host_.ShowResultProgress("GameLoadComposite: close loader handles");
   CloseHandle(loader_thread_);
   CloseHandle(loader_start_event_);
   CloseHandle(loader_done_event_);
@@ -1409,6 +1413,7 @@ void GameLoadCompositeTests::Deinitialize() {
   loader_start_event_ = nullptr;
   loader_done_event_ = nullptr;
 
+  host_.ShowResultProgress("GameLoadComposite: release GPU resources");
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetTextureStageEnabled(0, false);
   host_.ClearVertexBuffer();
@@ -1418,6 +1423,7 @@ void GameLoadCompositeTests::Deinitialize() {
     MmFreeContiguousMemory(factor_texture_ring_);
     factor_texture_ring_ = nullptr;
   }
+  host_.ShowResultProgress("GameLoadComposite: base teardown");
   TestSuite::Deinitialize();
 }
 

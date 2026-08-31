@@ -37,6 +37,34 @@ TestHost::TestHost(uint32_t framebuffer_width, uint32_t framebuffer_height, uint
   QueryPerformanceCounter(&last_frame_time_);
 }
 
+void TestHost::DrawResultsOverlay() {
+  SetVertexShaderProgram(nullptr);
+  SetXDKDefaultViewportAndFixedFunctionMatrices();
+
+  SetBlend();
+  SetFinalCombiner0Just(SRC_DIFFUSE);
+  SetFinalCombiner1Just(SRC_DIFFUSE, true);
+
+  Begin(TestHost::PRIMITIVE_QUADS);
+  SetDiffuse(kResultsOverlayColor);
+  SetScreenVertex(0.f, 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
+  SetScreenVertex(0.f, GetFramebufferHeightF());
+  End();
+}
+
+void TestHost::ShowResultProgress(const std::string &activity) {
+  // pbkit retains the completed result text until the next test replaces the
+  // display. Append progress so a long cleanup remains distinguishable from
+  // a frozen result screen without discarding the useful measurements.
+  DrawResultsOverlay();
+  pb_print("\nRUNNING: %s\n", activity.c_str());
+  pb_draw_text_screen();
+  NV2AState::FinishDraw();
+  PrintMsg("RUNNING_PROGRESS %s\n", activity.c_str());
+}
+
 void TestHost::EnsureFolderExists(const std::string &folder_path) {
   if (folder_path.length() > MAX_FILE_PATH_SIZE) {
     ASSERT(!"Folder Path is too long.");
@@ -75,20 +103,7 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   PrintMsg("CORRECTNESS_HASH %s::%s fnv1a64=%s\n", suite_name.c_str(), test_name.c_str(),
            framebuffer_hash_string);
 
-  SetVertexShaderProgram(nullptr);
-  SetXDKDefaultViewportAndFixedFunctionMatrices();
-
-  SetBlend();
-  SetFinalCombiner0Just(SRC_DIFFUSE);
-  SetFinalCombiner1Just(SRC_DIFFUSE, true);
-
-  Begin(TestHost::PRIMITIVE_QUADS);
-  SetDiffuse(kResultsOverlayColor);
-  SetScreenVertex(0.f, 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
-  SetScreenVertex(0.f, GetFramebufferHeightF());
-  End();
+  DrawResultsOverlay();
 
   auto micro_to_milliseconds = [](uint32_t microseconds) -> double {
     return static_cast<double>(microseconds) / 1000.0;
@@ -247,18 +262,7 @@ void TestHost::FinishGroup(const std::string &suite_name, const std::string &gro
     descriptor = RecordDescriptor(suite_name, group_name, true);
   }
 
-  SetVertexShaderProgram(nullptr);
-  SetXDKDefaultViewportAndFixedFunctionMatrices();
-  SetBlend();
-  SetFinalCombiner0Just(SRC_DIFFUSE);
-  SetFinalCombiner1Just(SRC_DIFFUSE, true);
-  Begin(TestHost::PRIMITIVE_QUADS);
-  SetDiffuse(kResultsOverlayColor);
-  SetScreenVertex(0.f, 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
-  SetScreenVertex(0.f, GetFramebufferHeightF());
-  End();
+  DrawResultsOverlay();
   pb_print("%s::%s\n  PASS (%lu child results; no group timing)\n",
            suite_name.c_str(), group_name.c_str(), child_result_count);
   pb_draw_text_screen();

@@ -24,8 +24,27 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         start = DRIVER.index("void TestDriver::RunAllTestsNonInteractive()")
         end = DRIVER.index("void TestDriver::OnControllerAdded", start)
         body = DRIVER[start:end]
+        self.assertIn("ShowResultProgress", body)
         self.assertIn("Suite teardown", body)
-        self.assertLess(body.index("Suite teardown"), body.index("suite->Deinitialize()"))
+        self.assertLess(body.index("ShowResultProgress"), body.index("suite->Deinitialize()"))
+
+    def test_result_progress_keeps_measurements_visible(self):
+        host = (ROOT / "src/test_host.cpp").read_text()
+        start = host.index("void TestHost::ShowResultProgress")
+        end = host.index("void TestHost::EnsureFolderExists", start)
+        body = host[start:end]
+        self.assertNotIn("debugClearScreen", body)
+        self.assertNotIn("pb_erase_text_screen", body)
+        self.assertIn("pb_print(\"\\nRUNNING:", body)
+        self.assertIn("pb_draw_text_screen", body)
+
+    def test_composite_teardown_reports_blocking_steps(self):
+        start = COMPOSITE.index("void GameLoadCompositeTests::Deinitialize()")
+        end = COMPOSITE.index("unsigned long __stdcall", start)
+        body = COMPOSITE[start:end]
+        self.assertIn("wait for loader thread", body)
+        self.assertLess(body.index("wait for loader thread"),
+                        body.index("WaitForSingleObject(loader_thread_"))
 
 
 if __name__ == "__main__":

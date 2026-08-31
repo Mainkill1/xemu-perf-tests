@@ -51,6 +51,9 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   void FinishGroup(const std::string &suite_name, const std::string &group_name,
                    uint32_t child_result_count, const std::string &metadata_json = "");
 
+  //! Keeps the completed result visible and appends current cleanup activity.
+  void ShowResultProgress(const std::string &activity);
+
   void ConfigureResolvedPlan(const std::string &plan_id,
                              const std::set<std::string> &selected_test_ids);
   [[nodiscard]] bool ValidateResolvedPlan(std::string &error) const;
@@ -92,6 +95,7 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   }
 
  private:
+  void DrawResultsOverlay();
   [[nodiscard]] uint64_t HashBackBuffer() const;
   const TestDescriptor *RecordDescriptor(const std::string &suite_name,
                                          const std::string &test_name,
