@@ -6,6 +6,11 @@
 #include <strings.h>
 
 #pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wignored-attributes"
+#include <hal/debug.h>
+#pragma clang diagnostic pop
+
+#pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmacro-redefined"
 #include <windows.h>
 #pragma clang diagnostic pop
@@ -24,9 +29,6 @@
 using namespace XboxMath;
 
 static constexpr uint32_t kResultsOverlayColor = 0x88000000;
-// Progress redraws reuse retained text on alternating framebuffers. An opaque
-// backdrop prevents repeated alpha blending from producing ghosted lines.
-static constexpr uint32_t kProgressOverlayColor = 0xFF101010;
 
 #define MAX_FILE_PATH_SIZE 248
 #define MAX_FILENAME_SIZE 42
@@ -57,22 +59,56 @@ void TestHost::DrawResultsOverlay() {
   End();
 }
 
+void TestHost::PrintLastResult() {
+  if (result_display_kind_ == ResultDisplayKind::NONE) {
+    return;
+  }
+
+  pb_print("%s::%s\n", result_display_suite_.c_str(),
+           result_display_test_.c_str());
+  if (result_display_kind_ == ResultDisplayKind::GROUP) {
+    pb_print("  PASS (%lu child results; no group timing)\n",
+             result_display_child_count_);
+    return;
+  }
+
+  auto micro_to_milliseconds = [](uint32_t microseconds) -> double {
+    return static_cast<double>(microseconds) / 1000.0;
+  };
+  if (save_results_) {
+    pb_print("  %lu iterations\n", result_display_profile_.iterations);
+    pb_print_with_floats(
+        "  Total: %f ms\n",
+        micro_to_milliseconds(result_display_profile_.total_time_microseconds));
+    pb_print_with_floats(
+        "  Avg: %f ms\n",
+        micro_to_milliseconds(result_display_profile_.average_time_microseconds));
+    pb_print_with_floats(
+        "  Min: %f ms\n",
+        micro_to_milliseconds(result_display_profile_.minimum_time_microseconds));
+    pb_print_with_floats(
+        "  Max: %f ms\n",
+        micro_to_milliseconds(result_display_profile_.maximum_time_microseconds));
+  } else {
+    pb_print("Continuous mode: saving disabled\n");
+    pb_print_with_floats("Average FPS: %f\n", average_frame_rate_);
+    pb_print_with_floats("Average MSPF: %f\n", average_mspf_);
+  }
+}
+
 void TestHost::ShowResultProgress(const std::string &activity) {
-  // pbkit retains the completed result text until the next test replaces the
-  // display. Append progress so a long cleanup remains distinguishable from
-  // a frozen result screen without discarding the useful measurements.
-  SetVertexShaderProgram(nullptr);
-  SetXDKDefaultViewportAndFixedFunctionMatrices();
-  SetBlend();
-  SetFinalCombiner0Just(SRC_DIFFUSE);
-  SetFinalCombiner1Just(SRC_DIFFUSE, true);
-  Begin(TestHost::PRIMITIVE_QUADS);
-  SetDiffuse(kProgressOverlayColor);
-  SetScreenVertex(0.f, 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), 0.f);
-  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
-  SetScreenVertex(0.f, GetFramebufferHeightF());
-  End();
+  if (result_display_kind_ == ResultDisplayKind::NONE) {
+    debugClearScreen();
+    debugPrint("RUNNING\n\n%s\n", activity.c_str());
+    pb_show_debug_screen();
+    PrintMsg("RUNNING_PROGRESS %s\n", activity.c_str());
+    return;
+  }
+
+  // Rebuild the text buffer and draw it directly over the existing render
+  // buffer. Do not clear or darken the whole frame between tests.
+  pb_erase_text_screen();
+  PrintLastResult();
   pb_print("\nRUNNING: %s\n", activity.c_str());
   pb_draw_text_screen();
   NV2AState::FinishDraw();
@@ -119,22 +155,12 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
 
   DrawResultsOverlay();
 
-  auto micro_to_milliseconds = [](uint32_t microseconds) -> double {
-    return static_cast<double>(microseconds) / 1000.0;
-  };
-
-  pb_print("%s::%s\n", suite_name.c_str(), test_name.c_str());
-  if (save_results_) {
-    pb_print("  %lu iterations\n", results.iterations);
-    pb_print_with_floats("  Total: %f ms\n", micro_to_milliseconds(results.total_time_microseconds));
-    pb_print_with_floats("  Avg: %f ms\n", micro_to_milliseconds(results.average_time_microseconds));
-    pb_print_with_floats("  Min: %f ms\n", micro_to_milliseconds(results.minimum_time_microseconds));
-    pb_print_with_floats("  Max: %f ms\n", micro_to_milliseconds(results.maximum_time_microseconds));
-  } else {
-    pb_print("Continuous mode: saving disabled\n");
-    pb_print_with_floats("Average FPS: %f\n", average_frame_rate_);
-    pb_print_with_floats("Average MSPF: %f\n", average_mspf_);
-  }
+  result_display_kind_ = ResultDisplayKind::PROFILE;
+  result_display_suite_ = suite_name;
+  result_display_test_ = test_name;
+  result_display_profile_ = results;
+  pb_erase_text_screen();
+  PrintLastResult();
 
   pb_draw_text_screen();
 
@@ -277,8 +303,12 @@ void TestHost::FinishGroup(const std::string &suite_name, const std::string &gro
   }
 
   DrawResultsOverlay();
-  pb_print("%s::%s\n  PASS (%lu child results; no group timing)\n",
-           suite_name.c_str(), group_name.c_str(), child_result_count);
+  result_display_kind_ = ResultDisplayKind::GROUP;
+  result_display_suite_ = suite_name;
+  result_display_test_ = group_name;
+  result_display_child_count_ = child_result_count;
+  pb_erase_text_screen();
+  PrintLastResult();
   pb_draw_text_screen();
   NV2AState::FinishDraw();
 

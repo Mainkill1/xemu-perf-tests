@@ -102,20 +102,11 @@ void TestDriver::Run() {
 }
 
 void TestDriver::RunAllTestsNonInteractive() {
-  bool completed_result_available = false;
   for (auto &suite : test_suites_) {
     const std::string activity = "Suite initialize: " + suite->Name();
-    if (completed_result_available) {
-      test_host_.ShowResultProgress(activity);
-    } else {
-      // The first suite has no completed result to preserve yet.
-      debugClearScreen();
-      debugPrint("RUNNING\n\n%s\n", activity.c_str());
-      pb_show_debug_screen();
-    }
+    test_host_.ShowResultProgress(activity);
     suite->Initialize();
     suite->RunAll();
-    completed_result_available = true;
     test_host_.ShowResultProgress("Suite teardown: " + suite->Name());
     suite->Deinitialize();
   }
