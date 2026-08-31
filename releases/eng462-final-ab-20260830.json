@@ -84,7 +84,9 @@
     "change": "Padded black backing behind result and RUNNING text; drawn after framebuffer hashing.",
     "static_tests": "96/96 PASS",
     "build": "PASS on LAN build box 10.0.100.1",
-    "runtime_validation": "NOT_RUN; this image was built after the final A/B matrix"
+    "runtime_validation": "PASS; 640x480 runtime capture confirmed readable RUNNING text",
+    "runtime_capture": "C:\\xemu-lab\\runs\\suite\\2026-08-30-213759-perf-GameLoadComposite-09-CrossTitleHotpath-6b4424c55d44\\timed-frame-captures\\checkpoint-001-0010.000s.png",
+    "tooling_limit": "Held-frame capture requires a live PASS marker even when missing markers are allowed"
   },
   "run_directories": {
     "baseline_opengl": "C:\\xemu-lab\\runs\\suite\\2026-08-30-203705-perf-full-suite-d73326b62199",
