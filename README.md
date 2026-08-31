@@ -7,11 +7,11 @@ a faster result cannot silently hide changed output.
 
 ## Current release
 
-Use `xemu-perf-tests-eng462-ui-outline-6914f65.iso`.
+Use `xemu-perf-tests-eng467-menu-f98b804.iso`.
 
 ```text
-XISO SHA-256: 9d21853bda794657d0165717d47840caaef84810ac5390bb86bb41d63840808f
-Guest source: 6914f652ad81caaca1daf181bf925fbbddef4a42
+XISO SHA-256: 3c1b9f2b7e7fe1ed6e49b0db6adfd7b6dc230bb3eb3b679e8961ba191321361d
+Guest source: f98b804ca7d1a9789fb154a0e3bb3a556ab7c1cf
 Catalog: 136 executable leaves + 5 structural groups = 141 full-suite records
 ```
 
@@ -229,7 +229,7 @@ offers:
   final verdict;
 - `Previous results`: open the current or any archived run, inspect completion,
   leaf/group/failure counts, then browse each record and its timing;
-- `System information`: poll guest CPU identity/frequency, processor count,
+- `System information`: poll guest CPU identity, performance-timer frequency, processor count,
   RAM, output-drive capacity/free space, Xbox GPU/MCP revision, video mode, and
   kernel version. Press A to refresh. Host GPU identity, clock, and VRAM are
   reported as unavailable because Xbox software cannot query them reliably;

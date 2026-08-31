@@ -111,7 +111,7 @@ refuses to start if the old result cannot be preserved. Cleanup remains a
 deliberate operator action after evidence is extracted.
 
 `System information` polls only guest-visible facts: CPUID vendor/signature,
-TSC frequency reported by nxdk, logical CPU count, memory-manager totals,
+performance-timer frequency reported by nxdk, logical CPU count, memory-manager totals,
 output-drive size/free space, NV2A/MCP revision, framebuffer mode, and kernel
 version. A refresh is explicit (A button), so data collection cannot add noise
 to timed workloads. Host GPU identity, frequency, and VRAM are not exposed to

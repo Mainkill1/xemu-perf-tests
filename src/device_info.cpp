@@ -69,12 +69,12 @@ std::vector<std::string> PollDeviceInfo(const std::string &output_directory,
   LARGE_INTEGER frequency{};
   if (QueryPerformanceFrequency(&frequency) && frequency.QuadPart > 0) {
     char text[80] = {};
-    snprintf(text, sizeof(text), "CPU/TSC frequency: %lld.%03lld MHz",
+    snprintf(text, sizeof(text), "Performance timer: %lld.%03lld MHz",
              frequency.QuadPart / 1000000,
              (frequency.QuadPart % 1000000) / 1000);
     lines.emplace_back(text);
   } else {
-    lines.emplace_back("CPU/TSC frequency: Unavailable");
+    lines.emplace_back("Performance timer: Unavailable");
   }
 
   SYSTEM_INFO system_info{};

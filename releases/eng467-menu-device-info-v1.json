@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "release": "ENG467 Xbox menu and device information v1",
+  "image": {
+    "name": "xemu-perf-tests-eng467-menu-f98b804.iso",
+    "source_commit": "f98b804ca7d1a9789fb154a0e3bb3a556ab7c1cf",
+    "sha256": "3c1b9f2b7e7fe1ed6e49b0db6adfd7b6dc230bb3eb3b679e8961ba191321361d",
+    "catalog_leaf_tests": 136,
+    "structural_groups": 5,
+    "full_suite_records": 141
+  },
+  "build": {
+    "type": "Release",
+    "autorun_menu": true,
+    "runtime_config": "E:\\xemu_perf_tests\\xemu_perf_tests_config.json"
+  },
+  "validation": {
+    "source_contract_tests": "101/101 PASS",
+    "catalog_check": "PASS",
+    "target": "Windows dedicated rig 10.0.7.1",
+    "xemu_source": "6b4424c55d446a8f3c69843604be9bec21a6609d",
+    "backend": "vulkan",
+    "scale": 1,
+    "root_menu_render": "PASS"
+  },
+  "features": [
+    "Controller menu for full, plan, suite, and catalog-route execution",
+    "Current and archived result browsing without a fixed retention limit",
+    "Explicitly refreshed guest device, memory, drive, video, and kernel information"
+  ],
+  "device_info_limit": "Xbox software cannot reliably query host GPU identity, host clock, or host VRAM; those values are labeled unavailable and belong in the host run manifest."
+}
