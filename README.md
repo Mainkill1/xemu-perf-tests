@@ -252,7 +252,7 @@ stable entries:
 6. `Settings`: select single-run/result-saving or continuous/no-save behavior.
 7. `Time Spirit`: launch the copy bundled into this same XISO. The published
    combined disc verifies the supplied source image by SHA-256 before packing
-   it into the disc root.
+   it under `D:\time_spirit`.
 8. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
@@ -265,11 +265,12 @@ To produce the combined disc, configure with:
 
 Configuration fails unless its SHA-256 is
 `833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31`.
-The build extracts it into the single output XISO, renames only its entry point
-to avoid the disc's boot `default.xbe`, and preserves its data beside it.
-Selecting `Time Spirit` quick-reboots directly into `D:\time_spirit.xbe`.
+The build extracts it into the single output XISO. Selecting `Time Spirit`
+copies that payload to `E:\xemu_perf_tests\time_spirit`, then quick-reboots
+into its `default.xbe`. The E: staging step is required because the Xbox quick
+launcher rejects a secondary XBE on the active DVD with service error 21.
 `-DTIME_SPIRIT_AUTOLAUNCH=ON` is a validation-only build option that performs
-that handoff immediately; published interactive images leave it off.
+that copy and handoff immediately; published interactive images leave it off.
 
 The full unfiltered image exposes 136 leaf tests, five structural groups, and
 141 exact legacy aliases. A catalog stage belonging to a grouped execution

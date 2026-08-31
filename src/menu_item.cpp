@@ -4,12 +4,17 @@
 
 #ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
 #include <hal/xbox.h>
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wmacro-redefined"
+#include <windows.h>
+#pragma clang diagnostic pop
 #endif
 
 #include <chrono>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
+#include <cstring>
 #include <limits>
 #include <map>
 #include <memory>
@@ -29,6 +34,97 @@ using namespace PBKitPlusPlus;
 static constexpr uint32_t kAutoTestAllTimeoutMilliseconds = 3000;
 static constexpr uint32_t kNumItemsPerPage = 12;
 static constexpr uint32_t kNumItemsPerHalfPage = kNumItemsPerPage >> 1;
+static constexpr uint32_t kLaunchFailureHoldMilliseconds = 10000;
+
+#ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
+namespace {
+
+bool EnsureDirectory(const std::string &path) {
+  if (CreateDirectoryA(path.c_str(), nullptr)) {
+    return true;
+  }
+  return GetLastError() == ERROR_ALREADY_EXISTS;
+}
+
+bool CopyDirectoryTree(const std::string &source, const std::string &destination,
+                       std::string *failed_path, DWORD *failure_error) {
+  if (!EnsureDirectory(destination)) {
+    *failed_path = destination;
+    *failure_error = GetLastError();
+    return false;
+  }
+
+  WIN32_FIND_DATAA entry{};
+  const std::string pattern = source + "\\*";
+  HANDLE search = FindFirstFileA(pattern.c_str(), &entry);
+  if (search == INVALID_HANDLE_VALUE) {
+    *failed_path = pattern;
+    *failure_error = GetLastError();
+    return false;
+  }
+
+  bool success = true;
+  do {
+    if (!strcmp(entry.cFileName, ".") || !strcmp(entry.cFileName, "..")) {
+      continue;
+    }
+    const std::string source_path = source + "\\" + entry.cFileName;
+    const std::string destination_path =
+        destination + "\\" + entry.cFileName;
+    if (entry.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY) {
+      success = CopyDirectoryTree(source_path, destination_path, failed_path,
+                                  failure_error);
+    } else {
+      success = CopyFileA(source_path.c_str(), destination_path.c_str(), FALSE);
+      if (!success) {
+        *failed_path = destination_path;
+        *failure_error = GetLastError();
+      }
+    }
+  } while (success && FindNextFileA(search, &entry));
+  if (success && GetLastError() != ERROR_NO_MORE_FILES) {
+    success = false;
+    *failed_path = source;
+    *failure_error = GetLastError();
+  }
+  FindClose(search);
+  return success;
+}
+
+void LaunchTimeSpirit() {
+  constexpr const char *kInstallRoot = "E:\\xemu_perf_tests";
+  constexpr const char *kInstallPath =
+      "E:\\xemu_perf_tests\\time_spirit";
+  constexpr const char *kExecutablePath =
+      "E:\\xemu_perf_tests\\time_spirit\\default.xbe";
+
+  debugClearScreen();
+  debugPrint("TIME SPIRIT\n\nPreparing title from this disc...\n");
+  pb_show_debug_screen();
+
+  std::string failed_path;
+  DWORD failure_error = ERROR_SUCCESS;
+  if (!EnsureDirectory(kInstallRoot)) {
+    failed_path = kInstallRoot;
+    failure_error = GetLastError();
+  } else if (CopyDirectoryTree("D:\\time_spirit", kInstallPath, &failed_path,
+                               &failure_error)) {
+    XLaunchXBE(kExecutablePath);
+    failed_path = kExecutablePath;
+    failure_error = GetLastError();
+  }
+
+  if (!failed_path.empty()) {
+    debugPrint("\nCopy or launch failed.\n%s\nError: %lu\n"
+               "Returning to menu in 10 seconds.\n",
+               failed_path.c_str(), static_cast<unsigned long>(failure_error));
+    pb_show_debug_screen();
+    Sleep(kLaunchFailureHoldMilliseconds);
+  }
+}
+
+}  // namespace
+#endif
 
 uint32_t MenuItem::menu_background_color_ = 0xFF3E003E;
 MenuItemTest::RunMode MenuItemTest::run_mode_ = RunMode::SINGLE_FRAME;
@@ -1277,7 +1373,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
 
 #ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
   auto time_spirit = std::make_shared<MenuItemCallable>(
-      []() { XLaunchXBE("D:\\time_spirit.xbe"); }, "Time Spirit",
+      []() { LaunchTimeSpirit(); }, "Time Spirit",
       width, height);
 #else
   auto time_spirit = std::make_shared<MenuItemInfo>(
@@ -1290,7 +1386,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
   time_spirit->parent = this;
   submenu.push_back(time_spirit);
 #ifdef XEMU_PERF_TESTS_AUTOLAUNCH_TIME_SPIRIT
-  XLaunchXBE("D:\\time_spirit.xbe");
+  LaunchTimeSpirit();
 #endif
 
   auto about = std::make_shared<MenuItemInfo>(

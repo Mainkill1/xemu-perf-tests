@@ -100,10 +100,12 @@ last child's timing.
 
 The XISO root menu contains Run Suite, Individual Tests, Results, System
 Information, Plans, Settings, Time Spirit, and About/Controls. `Time Spirit`
-launches `D:\time_spirit.xbe` when the approved source image was included at
-build time. The image is unpacked into the same output XISO rather than mounted
-as a nested disc. Only `default.xbe` is renamed, preventing a collision with
-the test runner's boot XBE. Its configured SHA-256 is checked before build
+copies `D:\time_spirit` to `E:\xemu_perf_tests\time_spirit` and launches its
+`default.xbe` when the approved source image was included at build time. The
+image is unpacked into the same output XISO rather than mounted as a nested
+disc. E: staging is deliberate: Xbox quick reboot rejects a secondary XBE on
+the active DVD with service error 21, while dashboard-style E: launch works.
+Its configured SHA-256 is checked before build
 so the menu cannot silently target a different payload. `Results` discovers the active result
 and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
 run shows complete/partial state, file size, leaf/group/pass/failure/no-oracle

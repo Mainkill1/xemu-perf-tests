@@ -95,8 +95,13 @@ class ConsoleUiContractTests(unittest.TestCase):
             "TIME_SPIRIT_AUTOLAUNCH requires TIME_SPIRIT_XISO",
         ):
             self.assertIn(token, cmake)
-        self.assertIn('XLaunchXBE("D:\\\\time_spirit.xbe")', self.menu_source)
-        self.assertIn('"${TIME_SPIRIT_RESOURCE_DIR}/time_spirit.xbe"', cmake)
+        for token in (
+            "CopyDirectoryTree",
+            'CopyDirectoryTree("D:\\\\time_spirit"',
+            '"E:\\\\xemu_perf_tests\\\\time_spirit\\\\default.xbe"',
+            "XLaunchXBE(kExecutablePath)",
+        ):
+            self.assertIn(token, self.menu_source)
 
     def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
         for token in (
