@@ -1277,7 +1277,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
 
 #ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
   auto time_spirit = std::make_shared<MenuItemCallable>(
-      []() { XLaunchXBE("D:\\time_spirit\\default.xbe"); }, "Time Spirit",
+      []() { XLaunchXBE("D:\\time_spirit.xbe"); }, "Time Spirit",
       width, height);
 #else
   auto time_spirit = std::make_shared<MenuItemInfo>(
@@ -1290,7 +1290,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
   time_spirit->parent = this;
   submenu.push_back(time_spirit);
 #ifdef XEMU_PERF_TESTS_AUTOLAUNCH_TIME_SPIRIT
-  XLaunchXBE("D:\\time_spirit\\default.xbe");
+  XLaunchXBE("D:\\time_spirit.xbe");
 #endif
 
   auto about = std::make_shared<MenuItemInfo>(
