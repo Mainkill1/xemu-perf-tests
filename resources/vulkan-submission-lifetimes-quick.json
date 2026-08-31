@@ -1,0 +1,50 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "warmup_iterations": 1,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "batch_complete",
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:93f2ce51fc9cdf083c03eefcd1ae8bebf27da08157b5f7d2de8f1f7f52361b87",
+    "catalog_id": "sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45",
+    "selected_leaf_count": 11,
+    "tests": [
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control"
+      },
+      {
+        "id": "surface.cpu_read_after_gpu_write"
+      },
+      {
+        "id": "surface.surface_download_path"
+      },
+      {
+        "id": "vertex_buffer_allocation.disjoint_same_page"
+      },
+      {
+        "id": "tiny_draw.inline_buffers.vertex_shader"
+      }
+    ]
+  }
+}

@@ -439,6 +439,12 @@ Framebuffer provenance remains mandatory. Emulator-produced hashes are
 regression oracles, not proof of retail Xbox correctness. Promote an oracle to
 `RETAIL_XBOX` only after independent hardware runs of the exact XISO/job agree.
 
+The catalog-bound `resources/vulkan-submission-lifetimes-*.json` plans combine
+eleven existing deterministic leaves into an isolated validation matrix for
+Vulkan resource pinning, eviction, vertex-read lifetime, fences, report
+retirement, and teardown. Host counter and p95 gates are documented in
+[`docs/vulkan-submission-lifetime-plan.md`](docs/vulkan-submission-lifetime-plan.md).
+
 ### Vulkan memory-pressure workload
 
 `SurfaceRendering::XemuVulkanMemoryPressureRepresentative` and `Stress` are

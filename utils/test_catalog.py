@@ -338,6 +338,34 @@ def render():
                             gpu_completion_mode=completion)
             output[ROOT / f"resources/{prefix}-{profile}.json"] = \
                 resolved_plan(doc, settings, [stable_id])
+    submission_ids = [
+        "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "game_load.cross_title_hotpath.pgr2_small_draws",
+        "game_load.cross_title_hotpath.surface_reuse",
+        "game_load.cross_title_hotpath.pipeline_state_churn",
+        "game_load.cross_title_hotpath.texture_binding_reuse",
+        "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "game_load.cross_title_hotpath.gpu_wait_control",
+        "surface.cpu_read_after_gpu_write",
+        "surface.surface_download_path",
+        "vertex_buffer_allocation.disjoint_same_page",
+        "tiny_draw.inline_buffers.vertex_shader",
+    ]
+    profiles = {
+        "fast-smoke": (0, 1, "per_iteration"),
+        "quick": (1, 4, "batch_complete"),
+        "sustained": (2, 16, "batch_complete"),
+    }
+    for profile, (warmup, multiplier, completion) in profiles.items():
+        settings = {
+            "skip_tests_by_default": True,
+            "warmup_iterations": warmup,
+            "measurement_iterations_multiplier": multiplier,
+            "gpu_completion_mode": completion,
+            "output_directory_path": "e:/xemu_perf_tests",
+        }
+        output[ROOT / f"resources/vulkan-submission-lifetimes-{profile}.json"] = \
+            resolved_plan(doc, settings, submission_ids)
     return output
 
 
