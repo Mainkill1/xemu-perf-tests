@@ -33,9 +33,7 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         start = DRIVER.index("void TestDriver::RunAllTestsNonInteractive()")
         end = DRIVER.index("void TestDriver::OnControllerAdded", start)
         body = DRIVER[start:end]
-        self.assertIn("completed_result_available", body)
         self.assertIn("Suite initialize", body)
-        self.assertIn("debugPrint(\"RUNNING", body)
         self.assertIn("ShowResultProgress(activity)", body)
 
     def test_result_progress_keeps_measurements_visible(self):
@@ -43,8 +41,10 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         start = host.index("void TestHost::ShowResultProgress")
         end = host.index("void TestHost::EnsureFolderExists", start)
         body = host[start:end]
-        self.assertNotIn("debugClearScreen", body)
-        self.assertNotIn("pb_erase_text_screen", body)
+        self.assertIn("ResultDisplayKind::NONE", body)
+        self.assertIn("debugPrint(\"RUNNING", body)
+        self.assertIn("pb_erase_text_screen", body)
+        self.assertIn("PrintLastResult", body)
         self.assertIn("pb_print(\"\\nRUNNING:", body)
         self.assertIn("pb_draw_text_screen", body)
 

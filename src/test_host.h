@@ -95,7 +95,14 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   }
 
  private:
+  enum class ResultDisplayKind {
+    NONE,
+    PROFILE,
+    GROUP,
+  };
+
   void DrawResultsOverlay();
+  void PrintLastResult();
   [[nodiscard]] uint64_t HashBackBuffer() const;
   const TestDescriptor *RecordDescriptor(const std::string &suite_name,
                                          const std::string &test_name,
@@ -110,6 +117,11 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   std::set<std::string> selected_test_ids_{};
   std::set<std::string> emitted_test_ids_{};
   bool unexpected_or_duplicate_result_{false};
+  ResultDisplayKind result_display_kind_{ResultDisplayKind::NONE};
+  std::string result_display_suite_{};
+  std::string result_display_test_{};
+  ProfileResults result_display_profile_{};
+  uint32_t result_display_child_count_{0};
 
   static constexpr auto kFrameTimeWindow = 10;
   double perf_counter_frequency_;

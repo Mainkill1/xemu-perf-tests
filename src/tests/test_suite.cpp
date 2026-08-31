@@ -5,6 +5,7 @@
 #include <hal/debug.h>
 #pragma clang diagnostic pop
 
+#include <cstdio>
 #include <sstream>
 
 #include "debug_output.h"
@@ -301,11 +302,12 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   auto run_times = std::make_unique<uint32_t[]>(sample_count);
 
   const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
-  debugClearScreen();
-  debugPrint("RUNNING\n\n%s::%s\n", suite_name_.c_str(), test_name.c_str());
-  debugPrint("\nWarmup: %u\nSamples: %u\nWork multiplier: %u\n",
-             warmup_iterations, sample_count, measurement_iterations_multiplier);
-  pb_show_debug_screen();
+  char running_activity[384] = {};
+  snprintf(running_activity, sizeof(running_activity),
+           "Test: %s::%s (warmup %lu, samples %lu, work %lu)",
+           suite_name_.c_str(), test_name.c_str(), warmup_iterations,
+           sample_count, measurement_iterations_multiplier);
+  host_.ShowResultProgress(running_activity);
   PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());
   if (warmup_iterations) {
     PrintMsg("WARMUP_BEGIN %s::%s iterations=%lu\n", suite_name_.c_str(), test_name.c_str(), warmup_iterations);
