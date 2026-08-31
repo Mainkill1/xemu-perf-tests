@@ -22,10 +22,15 @@ changes cannot silently hide corruption.
 - [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
   resolved-plan example.
 
-Current integration image: ENG462. It adds PFIFO array-element workloads,
+Current integration image: `xemu-perf-tests-eng462-ui-lifecycle.iso`, SHA-256
+`f772ff2b655252c1984e9a22c8fd62aff17a441d33bd1d9714bf42824c1a4c43`.
+ENG462 adds PFIFO array-element workloads,
 texture/sampler identity checks, Vulkan submission-lifetime plans, explicit
-RUNNING screens, and soft failure screens (10 seconds or A). All seven new
-executable cases pass on Vulkan 1x. See
+RUNNING status, and soft failure screens (10 seconds or A). After the first
+test, completed totals remain onscreen over the rendered frame while a footer
+names the active test, initialization, or teardown. All seven new executable
+cases pass on Vulkan 1x; the 141-record OpenGL 1x diagnostic suite also
+completes. See
 [`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json).
 Earlier ENG458 results remain below; new observations do not silently become
 hardware goldens.

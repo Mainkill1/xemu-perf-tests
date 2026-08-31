@@ -161,6 +161,31 @@ logs, validation messages, and normalized view. A missing final record,
 unexpected record count, assertion, crash, hang, device loss, new VUID, or
 oracle failure invalidates the run.
 
+### Console progress contract
+
+- Before the first result exists, the screen says `RUNNING` and names suite
+  initialization or the first test.
+- After a test completes, its iterations and total/average/minimum/maximum
+  remain visible over the rendered frame.
+- A `RUNNING:` footer identifies the active test, suite initialization, or
+  suite teardown. The result above it describes completed work.
+- The footer is rebuilt from a clean pbkit text buffer. It must not accumulate,
+  overlap older lines, clear the rendered frame, or flash a blank screen.
+- A soft assertion uses a light-red failure screen for ten seconds; releasing A
+  advances early. Execution continues and output retains the failure.
+
+Do not diagnose a hang from the result title alone. Record the final
+`RUNNING:` footer and host heartbeat. ENG462 exposed a long pause after
+`GameLoadComposite` as `Suite initialize: High vertex count`: saved benchmark
+mode was constructing four large continuous-mode geometry sets its tests never
+selected. Saved mode now constructs only `single_frame_geometry_`; interactive
+continuous mode retains the large sets.
+
+Local run
+`C:\xemu-lab\runs\suite\2026-08-30-203104-perf-full-suite-unknown`
+completed 141/141 records on OpenGL 1x. Zero warmups and work multiplier one
+made this a lifecycle/correctness diagnostic, not performance evidence.
+
 For performance, use the same resolved work for both builds. Short operations
 must be batched into seconds-long samples; use warmups and repeated interleaved
 A/B processes. Never compare separately calibrated candidate work.
