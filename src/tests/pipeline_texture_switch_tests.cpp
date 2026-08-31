@@ -834,7 +834,7 @@ uint32_t PipelineTextureSwitchTests::ValidatePixels(
     const uint32_t actual = row[x];
     uint32_t expected;
     if (recipe.sampler_only_identity) {
-      expected = (tile & 1) ? kSamplerMipColors[2] : kSamplerMipColors[0];
+      expected = (tile & 1) ? kSamplerMipColors[4] : kSamplerMipColors[0];
     } else if (recipe.shader_negative_control) {
       expected = (tile & 1) ? kDiffuseColor : kTextureAColor;
     } else {

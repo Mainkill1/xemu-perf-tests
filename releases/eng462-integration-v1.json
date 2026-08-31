@@ -3,7 +3,7 @@
   "release": "ENG462 integration v1",
   "image": {
     "name": "xemu-perf-tests-eng462-fixed.iso",
-    "sha256": "bf37d3895dcf6c4cc594f2d6afceb8658b75b0ec2a8cfeabe76688c6980bb825"
+    "sha256": "063988db3f925dd977788d5c67d8a6763c6b926da50fa4ec8ae970eac6822e44"
   },
   "catalog": {
     "leaf_tests": 136,
@@ -11,7 +11,7 @@
     "records": 141
   },
   "validation": {
-    "host_contract_tests": "80/80 PASS",
+    "host_contract_tests": "82/82 PASS",
     "catalog_check": "PASS",
     "target": "Windows dedicated rig 10.0.7.1",
     "xemu_source": "6b4424c55d446a8f3c69843604be9bec21a6609d",

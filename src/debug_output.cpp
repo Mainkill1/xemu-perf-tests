@@ -3,6 +3,7 @@
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #include <hal/debug.h>
+#include <hal/video.h>
 #pragma clang diagnostic pop
 
 #include <pbkit/pbkit.h>
@@ -24,12 +25,44 @@ volatile bool g_event_context_active = false;
 volatile bool g_failure_reported = false;
 volatile bool g_failure_screen_shown = false;
 
+void FillFailureBackground() {
+  constexpr uint8_t red = 0xC0;
+  constexpr uint8_t green = 0x70;
+  constexpr uint8_t blue = 0x70;
+  const VIDEO_MODE mode = XVideoGetMode();
+  auto *framebuffer = XVideoGetFB();
+  const uint32_t pixels = mode.width * mode.height;
+  if (mode.bpp == 32) {
+    auto *out = reinterpret_cast<uint32_t *>(framebuffer);
+    const uint32_t color = (red << 16) | (green << 8) | blue;
+    for (uint32_t i = 0; i < pixels; ++i) {
+      out[i] = color;
+    }
+  } else if (mode.bpp == 16 || mode.bpp == 15) {
+    auto *out = reinterpret_cast<uint16_t *>(framebuffer);
+    const uint16_t color = mode.bpp == 16
+                               ? static_cast<uint16_t>(((red >> 3) << 11) |
+                                                       ((green >> 2) << 5) |
+                                                       (blue >> 3))
+                               : static_cast<uint16_t>(((red >> 3) << 10) |
+                                                       ((green >> 3) << 5) |
+                                                       (blue >> 3));
+    for (uint32_t i = 0; i < pixels; ++i) {
+      out[i] = color;
+    }
+  }
+  XVideoFlushFB();
+}
+
 void ShowSoftFailureScreen(const char *assert_code, const char *filename,
                            uint32_t line) {
   g_failure_screen_shown = true;
   debugClearScreen();
-  debugPrint("TEST FAILED\n\n%s\n\n%s:%lu\n", assert_code, filename, line);
-  debugPrint("\nContinuing in 10 seconds.\nPress A to continue now.\n");
+  FillFailureBackground();
+  debugResetCursor();
+  debugPrint("SOFT TEST FAILURE - NOT HALTED\n\n%s\n\n%s:%lu\n", assert_code,
+             filename, line);
+  debugPrint("\nContinuing in 10 seconds.\nRelease A to continue now.\n");
   pb_show_debug_screen();
 
   const DWORD start = GetTickCount();
@@ -151,6 +184,9 @@ void AssertXemuPerfEqual(uint32_t expected, uint32_t actual,
   if (expected == actual) {
     return;
   }
+
+  DbgPrint("SOFT TEST FAILURE: %s expected=%08lx actual=%08lx at %s:%lu\n",
+           assert_code, expected, actual, filename, line);
 
   EmitXemuPerfEvent(XemuPerfEventType::FAIL, static_cast<uint16_t>(assertion),
                     expected, actual);
