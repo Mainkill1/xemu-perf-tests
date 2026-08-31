@@ -222,6 +222,7 @@ StoredResultFile ReadStoredResults(const std::string &path) {
     ExtractJsonString(line, "outcome", record.outcome);
     ExtractJsonString(line, "unit", record.unit);
     ExtractJsonString(line, "direction", record.direction);
+    ExtractJsonString(line, "framebuffer_fnv1a64", record.actual_value);
     ExtractJsonUInt(line, "sample_count", record.sample_count);
     if (ExtractJsonUInt(line, "average_us", record.average_us)) {
       record.has_measurement = true;
@@ -248,6 +249,9 @@ StoredResultFile ReadStoredResults(const std::string &path) {
     ExtractInlineJsonScalar(line, "actual_final_state", record.actual_value);
 
     if (IsRecordEnd(line)) {
+      if (record.kind == "group") {
+        record.has_measurement = false;
+      }
       if (record.outcome.empty()) {
         record.outcome = record.oracle_failed ? "FAIL" : "PASS";
       }
@@ -301,7 +305,7 @@ StoredResultSamples ReadStoredResultSamples(const std::string &path,
       continue;
     }
     if (selected && line.compare(0, 20, "    \"raw_results\": [") == 0) {
-      in_samples = true;
+      in_samples = line.find(']') == std::string::npos;
       continue;
     }
     if (selected && in_samples) {

@@ -474,7 +474,8 @@ void MenuItemStoredResults::OnEnter() {
 
 bool MenuItemStoredResults::HandleY() {
   if (active_submenu) {
-    return active_submenu->HandleY();
+    active_submenu->HandleY();
+    return true;
   }
   if (submenu.empty()) {
     return true;
@@ -658,6 +659,7 @@ void MenuItemStoredRecord::Draw() {
       pb_print("Expected %s  Actual %s\n", record_->expected_value.c_str(),
                record_->actual_value.c_str());
     }
+    pb_print("Next: rerun this stable ID alone; compare KAT/hash\n");
   } else if (!record_->oracle_recorded) {
     pb_print("Oracle: not recorded; timing remains inspectable\n");
   }
