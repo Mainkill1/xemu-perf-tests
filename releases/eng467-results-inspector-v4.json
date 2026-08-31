@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "release": "ENG467 640x480 results inspector v4",
+  "image": {
+    "name": "xemu-perf-tests-eng467-results-327ace6.iso",
+    "source_commit": "327ace66b79b09403532d9ed28d55bf422aa57cd",
+    "sha256": "12486575c92a100836e6a3c73a365fe7f034e9d9e8230b4a265807e1a7b49596",
+    "size_bytes": 3407872,
+    "xbe_sha256": "89eec803f0d54c013e979baa1b8e5cc456e9be9bcd6584010e104eadc05595b5"
+  },
+  "validation": {
+    "source_contract_tests": "107/107 PASS",
+    "release_xiso_build": "PASS",
+    "dedicated_windows_rig": "10.0.7.1",
+    "vulkan_640x480_boot": "PASS",
+    "root_menu_render": "PASS"
+  },
+  "results_features": [
+    "Complete versus partial run reporting with recovered-record count",
+    "Failure-only record filter",
+    "Stored median, nearest-rank p95, MAD, sample count, unit, and direction",
+    "Bounded on-demand raw-sample loading",
+    "Width-derived trace envelope and histogram",
+    "In-memory baseline selection and stable-ID A/B comparison"
+  ],
+  "memory_contract": {
+    "selected_record_sample_scratch_bytes": 524288,
+    "reason": "Explicit Xbox-RAM budget; larger records are deterministically thinned and labeled approximate",
+    "graph_storage": "Derived from 560-pixel plot width"
+  },
+  "known_limits": [
+    "The current result container is a legacy JSON array, not append-only JSON Lines",
+    "Framebuffer images are not stored, so hash failures cannot reconstruct a visual difference",
+    "Baseline selection is session-local",
+    "Physical Xbox controller and 480i acceptance remains required"
+  ]
+}
