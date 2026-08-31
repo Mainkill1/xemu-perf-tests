@@ -249,7 +249,7 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
         routes = (
             "same_address_changing_overwrite",
             "ring_changing_payload_generations",
-            "dirty_once_no_write_redraws",
+            "dirty_once_same_binding_redraws",
         )
         for route in routes:
             with self.subTest(route=route):
@@ -264,9 +264,10 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
         )
         dirty_write = work.index("if (dirty_once)")
         draw_loop = work.index("for (uint32_t draw = 0; draw < kFactorDraws; ++draw)")
-        guarded_rewrite = work.index("if (!dirty_once)")
+        repeated_bind = work.index("if (dirty_once)", draw_loop)
         self.assertLess(dirty_write, draw_loop)
-        self.assertLess(draw_loop, guarded_rewrite)
+        self.assertLess(draw_loop, repeated_bind)
+        self.assertIn("BindTextureStage0Address(factor_texture_ring_);", work)
         self.assertIn('metadata << "\\\"payload_generations\\\":"', SOURCE)
         self.assertIn('metadata << "\\\"no_write_redraws\\\":"', SOURCE)
 

@@ -256,8 +256,9 @@ calls; it does not claim a fixed number of MMIO polls inside each call.
 runs 16 solid-color textured draws as DXT1 or pre-expanded RGBA8, then combines
 each representation with three routes: changing payloads at one synchronized
 address, changing payload generations in a 16-address ring, and one dirty
-write followed by 15 redraws with no texture write or rebind. The last route
-exposes a dirty interval that remains latched after its first upload. Every
+write followed by 16 emissions of the same binding and 15 no-write redraws.
+The last route forces cache revalidation without changing its key or payload,
+exposing a dirty interval that remains latched after its first upload. Every
 cell keeps the same geometry, draw count, and final completion boundary.
 Metadata reports exact texture writes and bytes, payload generations,
 no-write redraws, address count, binds, per-draw waits, total waits, draws, and
@@ -272,7 +273,7 @@ sampled texture update. Compile-time assertions require 16 tiles, 64 vertices,
 unique colors, and an in-bounds grid; metadata reports `visible_tiles=16`,
 `unique_colors=16`, and `overwrite_only_oracle=false` for the two changing-
 payload routes. The dirty-once route uses one fixed source color across all 16
-tiles (`texture_writes=1`, `texture_binds=1`, `payload_generations=1`,
+tiles (`texture_writes=1`, `texture_binds=16`, `payload_generations=1`,
 `no_write_redraws=15`, `unique_colors=1`) and has its own fixed tile/result
 KATs. ENG367 timing is diagnostic only until this tiled oracle passes on the
 same builds.

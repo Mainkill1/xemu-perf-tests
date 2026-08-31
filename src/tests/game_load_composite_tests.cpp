@@ -188,7 +188,7 @@ static constexpr S3tcSyncFactorDefinition kS3tcSyncFactorStages[] = {
         .record_name = "10-S3tcSyncFactor-03-S3tcDirtyOnceRedraw",
         .stage_key = "s3tc_dirty_once_redraw",
         .texture_representation = "s3tc_dxt1",
-        .revalidation_route = "dirty_once_no_write_redraws",
+        .revalidation_route = "dirty_once_same_binding_redraws",
         .synchronization = "same_address_final_wait",
         .compressed = true,
         .per_draw_wait = false,
@@ -218,7 +218,7 @@ static constexpr S3tcSyncFactorDefinition kS3tcSyncFactorStages[] = {
         .record_name = "10-S3tcSyncFactor-06-Rgba8DirtyOnceRedraw",
         .stage_key = "rgba8_dirty_once_redraw",
         .texture_representation = "rgba8",
-        .revalidation_route = "dirty_once_no_write_redraws",
+        .revalidation_route = "dirty_once_same_binding_redraws",
         .synchronization = "same_address_final_wait",
         .compressed = false,
         .per_draw_wait = false,
@@ -250,7 +250,7 @@ static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(
       .texture_writes = texture_writes,
       .texture_bytes =
           texture_writes * (compressed ? kFactorDxt1Bytes : kFactorRgba8Bytes),
-      .texture_binds = dirty_once ? 1U : kFactorDraws,
+      .texture_binds = kFactorDraws,
       .payload_generations = texture_writes,
       .no_write_redraws = dirty_once ? kFactorDraws - 1U : 0U,
       .distinct_addresses = (!per_draw_wait && !dirty_once) ? kFactorRingSlots : 1U,
@@ -286,7 +286,7 @@ static constexpr auto kS3tcDirtyOnceWork =
     MakeS3tcSyncFactorWork(true, false, true);
 static_assert(kS3tcDirtyOnceWork.texture_writes == 1 &&
               kS3tcDirtyOnceWork.texture_bytes == 32 * 1024 &&
-              kS3tcDirtyOnceWork.texture_binds == 1 &&
+              kS3tcDirtyOnceWork.texture_binds == 16 &&
               kS3tcDirtyOnceWork.payload_generations == 1 &&
               kS3tcDirtyOnceWork.no_write_redraws == 15 &&
               kS3tcDirtyOnceWork.distinct_addresses == 1 &&
@@ -2804,10 +2804,10 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   }
   factor_vertex_buffer_->Unlock();
 
-  // The dirty-once cell intentionally performs exactly one guest write and
-  // one bind. Its remaining 15 draws revisit the same texture without a CPU
-  // write or state rebind, exposing a revalidation implementation that leaves
-  // a dirty interval latched after the first upload.
+  // The dirty-once cell performs one guest write, then re-emits the same
+  // binding for every draw. This forces the binding path without changing the
+  // cache key or texture bytes. A validated dirty latch should therefore cost
+  // one hash/upload decision, not one full hash per draw.
   if (dirty_once) {
     const auto &source = compressed
                              ? factor_s3tc_sources_[kFactorLatchedColorIndex]
@@ -2817,7 +2817,9 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   }
 
   for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
-    if (!dirty_once) {
+    if (dirty_once) {
+      BindTextureStage0Address(factor_texture_ring_);
+    } else {
       const uint32_t slot = per_draw_wait ? 0U : draw;
       uint8_t *const destination =
           factor_texture_ring_ + slot * kFactorRingStride;
@@ -2835,7 +2837,7 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
 
   // Both synchronization cells end at the same guest-visible boundary. The
   // ring cell retains every referenced generation, while the dirty-once cell
-  // repeats an unchanged binding. Both use this one final completion.
+  // repeatedly re-emits one unchanged binding. Both use one final completion.
   host_.WaitForGpu();
   return FactorTileResultChecksum(seed, dirty_once);
 }
