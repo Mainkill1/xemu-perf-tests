@@ -11,6 +11,7 @@
 #include "debug_output.h"
 #include "nxdk_ext.h"
 #include "pushbuffer.h"
+#include "result_statistics.h"
 #include "test_host.h"
 #include "texture_format.h"
 #include "xbox_math_matrix.h"
@@ -382,6 +383,10 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
     }
   }
   ret.average_time_microseconds = ret.total_time_microseconds / total_work_iterations;
+  const auto statistics = CalculateResultStatistics(ret.raw_results);
+  ret.median_time_microseconds = statistics.median_us;
+  ret.p95_time_microseconds = statistics.p95_us;
+  ret.mad_time_microseconds = statistics.mad_us;
 
   return ret;
 }

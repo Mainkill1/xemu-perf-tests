@@ -235,6 +235,11 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
     log << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
     log << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
     log << "    \"max_us\": " << results.maximum_time_microseconds << "," << std::endl;
+    log << "    \"median_us\": " << results.median_time_microseconds << "," << std::endl;
+    log << "    \"p95_us\": " << results.p95_time_microseconds << "," << std::endl;
+    log << "    \"mad_us\": " << results.mad_time_microseconds << "," << std::endl;
+    log << "    \"unit\": \"us\"," << std::endl;
+    log << "    \"direction\": \"lower_is_better\"," << std::endl;
     log << "    \"raw_results\": [";
     std::string separator;
     for (auto val : results.raw_results) {
@@ -319,6 +324,11 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   log << "    \"average_us\": " << results.average_time_microseconds << "," << std::endl;
   log << "    \"min_us\": " << results.minimum_time_microseconds << "," << std::endl;
   log << "    \"max_us\": " << results.maximum_time_microseconds << "," << std::endl;
+  log << "    \"median_us\": " << results.median_time_microseconds << "," << std::endl;
+  log << "    \"p95_us\": " << results.p95_time_microseconds << "," << std::endl;
+  log << "    \"mad_us\": " << results.mad_time_microseconds << "," << std::endl;
+  log << "    \"unit\": \"us\"," << std::endl;
+  log << "    \"direction\": \"lower_is_better\"," << std::endl;
   log << "    \"raw_results\": [";
   std::string separator;
   for (auto value : results.raw_results) {
@@ -396,6 +406,11 @@ void TestHost::FinishGroup(const std::string &suite_name, const std::string &gro
   log << "    \"average_us\": 0," << std::endl;
   log << "    \"min_us\": 0," << std::endl;
   log << "    \"max_us\": 0," << std::endl;
+  log << "    \"median_us\": 0," << std::endl;
+  log << "    \"p95_us\": 0," << std::endl;
+  log << "    \"mad_us\": 0," << std::endl;
+  log << "    \"unit\": \"us\"," << std::endl;
+  log << "    \"direction\": \"neutral\"," << std::endl;
   log << "    \"raw_results\": []," << std::endl;
   log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"";
   if (!metadata_json.empty()) {

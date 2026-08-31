@@ -61,6 +61,44 @@ bool ExtractJsonUInt(const std::string &line, const char *key,
   return true;
 }
 
+bool ExtractInlineJsonString(const std::string &line, const char *key,
+                             std::string &value) {
+  const std::string prefix = std::string("\"") + key + "\":\"";
+  const auto start = line.find(prefix);
+  if (start == std::string::npos) {
+    return false;
+  }
+  const auto value_start = start + prefix.size();
+  const auto end = line.find('"', value_start);
+  if (end == std::string::npos) {
+    return false;
+  }
+  value = line.substr(value_start, end - value_start);
+  return true;
+}
+
+bool ExtractInlineJsonScalar(const std::string &line, const char *key,
+                             std::string &value) {
+  const std::string prefix = std::string("\"") + key + "\":";
+  const auto start = line.find(prefix);
+  if (start == std::string::npos) {
+    return false;
+  }
+  size_t value_start = start + prefix.size();
+  if (value_start < line.size() && line[value_start] == '"') {
+    ++value_start;
+    const auto end = line.find('"', value_start);
+    if (end == std::string::npos) {
+      return false;
+    }
+    value = line.substr(value_start, end - value_start);
+    return true;
+  }
+  const auto end = line.find_first_of(",}", value_start);
+  value = line.substr(value_start, end - value_start);
+  return true;
+}
+
 bool IsRecordStart(const std::string &line) {
   return line == "  {";
 }
@@ -182,14 +220,32 @@ StoredResultFile ReadStoredResults(const std::string &path) {
     ExtractJsonString(line, "name", record.name);
     ExtractJsonString(line, "kind", record.kind);
     ExtractJsonString(line, "outcome", record.outcome);
+    ExtractJsonString(line, "unit", record.unit);
+    ExtractJsonString(line, "direction", record.direction);
+    ExtractJsonUInt(line, "sample_count", record.sample_count);
     if (ExtractJsonUInt(line, "average_us", record.average_us)) {
       record.has_measurement = true;
     }
     ExtractJsonUInt(line, "min_us", record.minimum_us);
     ExtractJsonUInt(line, "max_us", record.maximum_us);
-    if (line.find("\"oracle_status\":\"FAIL\"") != std::string::npos) {
-      record.oracle_failed = true;
+    if (ExtractJsonUInt(line, "median_us", record.median_us)) {
+      record.has_distribution = true;
     }
+    ExtractJsonUInt(line, "p95_us", record.p95_us);
+    ExtractJsonUInt(line, "mad_us", record.mad_us);
+    std::string oracle_status;
+    if (ExtractInlineJsonString(line, "oracle_status", oracle_status)) {
+      record.oracle_recorded = true;
+      record.oracle_failed = oracle_status == "FAIL";
+    }
+    ExtractInlineJsonString(line, "oracle_failure_reason",
+                            record.failure_reason);
+    if (!ExtractInlineJsonScalar(line, "expected_final_state",
+                                 record.expected_value)) {
+      ExtractInlineJsonString(line, "expected_framebuffer_fnv1a64",
+                              record.expected_value);
+    }
+    ExtractInlineJsonScalar(line, "actual_final_state", record.actual_value);
 
     if (IsRecordEnd(line)) {
       if (record.outcome.empty()) {
@@ -201,6 +257,82 @@ StoredResultFile ReadStoredResults(const std::string &path) {
   }
   result.complete = last_nonempty == "]";
   if (!input.eof()) {
+    result.error = "Read error";
+  }
+  return result;
+}
+
+StoredResultSamples ReadStoredResultSamples(const std::string &path,
+                                            const std::string &stable_id,
+                                            size_t scratch_budget_bytes) {
+  StoredResultSamples result;
+  std::ifstream input(path);
+  if (!input) {
+    result.error = "File unavailable";
+    return result;
+  }
+
+  const size_t max_samples =
+      std::max<size_t>(1U, scratch_budget_bytes / sizeof(uint32_t));
+  std::string line;
+  bool in_record = false;
+  bool selected = false;
+  bool in_samples = false;
+  uint32_t raw_index = 0;
+  while (std::getline(input, line)) {
+    if (!line.empty() && line.back() == '\r') {
+      line.pop_back();
+    }
+    if (IsRecordStart(line)) {
+      in_record = true;
+      selected = false;
+      in_samples = false;
+      continue;
+    }
+    if (!in_record) {
+      continue;
+    }
+    std::string id;
+    if (ExtractJsonString(line, "id", id)) {
+      selected = id == stable_id;
+      result.found = result.found || selected;
+      continue;
+    }
+    if (selected && line.compare(0, 20, "    \"raw_results\": [") == 0) {
+      in_samples = true;
+      continue;
+    }
+    if (selected && in_samples) {
+      if (line.find(']') != std::string::npos) {
+        in_samples = false;
+        continue;
+      }
+      unsigned long value = 0;
+      if (sscanf(line.c_str(), " %lu", &value) == 1) {
+        while (result.values.size() >= max_samples) {
+          size_t output = 0;
+          for (size_t i = 0; i < result.values.size(); i += 2U) {
+            result.values[output++] = result.values[i];
+          }
+          result.values.resize(output);
+          result.stride *= 2U;
+          result.approximate = true;
+        }
+        if ((raw_index % result.stride) == 0U) {
+          result.values.push_back(static_cast<uint32_t>(value));
+        }
+        ++raw_index;
+        ++result.total_count;
+      }
+    }
+    if (IsRecordEnd(line)) {
+      if (selected) {
+        break;
+      }
+      in_record = false;
+    }
+  }
+  if (!input.eof() && input.fail()) {
     result.error = "Read error";
   }
   return result;

@@ -148,6 +148,8 @@ add_executable(
         runtime_config.h
         result_store.cpp
         result_store.h
+        result_statistics.cpp
+        result_statistics.h
         test_driver.cpp
         test_driver.h
         test_host.cpp

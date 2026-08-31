@@ -10,6 +10,7 @@
 
 class TestSuite;
 struct TestDescriptor;
+struct StoredResultRecord;
 
 struct MenuItem {
  public:
@@ -37,6 +38,10 @@ struct MenuItem {
   virtual void CursorDown(bool is_repeat);
   virtual void CursorLeft(bool is_repeat);
   virtual void CursorRight(bool is_repeat);
+  // Context actions. Return true when consumed so the driver does not apply
+  // the global X/Y behavior.
+  virtual bool HandleX();
+  virtual bool HandleY();
 
   void SetHeader(std::string value) { header = std::move(value); }
   void SetFooter(std::string value) { footer = std::move(value); }
@@ -84,9 +89,15 @@ struct MenuItemStoredResultFile : public MenuItem {
                            uint32_t height);
   [[nodiscard]] bool IsEnterable() const override { return true; }
   void OnEnter() override;
+  bool HandleX() override;
+  [[nodiscard]] const std::string &Path() const { return path_; }
+  void SetBaselineIndicator(bool selected);
 
  private:
+  void RebuildMenu();
   std::string path_;
+  std::string original_label_;
+  bool failures_only_{false};
 };
 
 struct MenuItemStoredResults : public MenuItem {
@@ -94,9 +105,52 @@ struct MenuItemStoredResults : public MenuItem {
                         uint32_t height);
   [[nodiscard]] bool IsEnterable() const override { return true; }
   void OnEnter() override;
+  bool HandleY() override;
 
  private:
   std::string output_directory_;
+};
+
+struct MenuItemStoredRecord : public MenuItem {
+  enum class ViewMode { SUMMARY, TRACE, HISTOGRAM };
+
+  MenuItemStoredRecord(std::string path, const StoredResultRecord &record,
+                       uint32_t width, uint32_t height);
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void OnEnter() override;
+  void Draw() override;
+  bool HandleX() override;
+  void CursorLeft(bool is_repeat) override;
+  void CursorRight(bool is_repeat) override;
+
+ private:
+  void DrawTrace() const;
+  void DrawHistogram() const;
+  std::string path_;
+  std::shared_ptr<StoredResultRecord> record_;
+  std::vector<uint32_t> samples_;
+  uint32_t total_sample_count_{0};
+  uint32_t sample_stride_{1};
+  uint32_t cursor_bucket_{0};
+  ViewMode view_mode_{ViewMode::SUMMARY};
+  bool samples_approximate_{false};
+  bool dirty_{true};
+  std::string load_error_;
+};
+
+struct MenuItemResultComparison : public MenuItem {
+  MenuItemResultComparison(std::string baseline_path,
+                           std::string candidate_path, uint32_t width,
+                           uint32_t height);
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void OnEnter() override;
+  bool HandleX() override;
+
+ private:
+  void RebuildMenu();
+  std::string baseline_path_;
+  std::string candidate_path_;
+  bool regressions_only_{false};
 };
 
 struct MenuItemCallable : public MenuItem {

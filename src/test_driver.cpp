@@ -292,11 +292,17 @@ void TestDriver::OnX(bool is_repeat) {
   if (is_repeat) {
     return;
   }
+  if (active_menu_->HandleX()) {
+    return;
+  }
   active_menu_->ActivateCurrentSuite();
 }
 
 void TestDriver::OnY(bool is_repeat) {
   if (is_repeat) {
+    return;
+  }
+  if (active_menu_->HandleY()) {
     return;
   }
 
