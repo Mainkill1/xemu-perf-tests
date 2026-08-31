@@ -235,28 +235,36 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
       debugPrint("Failed to finalize resolved plan result at %s\n", plan_result_path.c_str());
       return false;
     }
-    if (!plan_complete) {
-      debugPrint("Resolved plan incomplete: %s\n", plan_error.c_str());
-      pb_show_debug_screen();
-      Sleep(kDelayOnFailureMilliseconds);
-      return false;
-    }
   }
+
+  const bool oracle_pass = host.OracleFailureCount() == 0;
+  const bool run_pass = plan_complete && oracle_pass;
+  debugClearScreen();
+  debugPrint("xemu perf tests: %s\n\n", run_pass ? "PASS" : "FAIL");
+  debugPrint("Catalog: %s\n", TestCatalogId());
+  debugPrint("Results: %s\n", log_file.c_str());
+  debugPrint("Leaves: %lu  Groups: %lu\n", host.RecordedLeafCount(),
+             host.RecordedGroupCount());
+  debugPrint("Oracle failures: %lu\n", host.OracleFailureCount());
+  if (!oracle_pass) {
+    debugPrint("First failure: %s\n", host.FirstOracleFailure().c_str());
+  }
+  if (!plan_complete) {
+    debugPrint("Plan: INCOMPLETE\n%s\n", plan_error.c_str());
+  } else {
+    debugPrint("Plan: COMPLETE\n");
+  }
+  debugPrint("\nFinal screen: %lu seconds\n",
+             config.reboot_or_shutdown_delay_ms() / 1000);
+  pb_show_debug_screen();
+  // This configurable hold is zero for unattended runners and should be at
+  // least 30 seconds in physical-console plans. No hidden UI delay is added.
+  Sleep(config.reboot_or_shutdown_delay_ms());
 
   if (config.enable_shutdown_on_completion()) {
-    debugPrint("Results written to %s\n\nShutting down in %d seconds...\n", config.output_directory_path().c_str(),
-               config.reboot_or_shutdown_delay_ms() / 1000);
-    pb_show_debug_screen();
-    Sleep(config.reboot_or_shutdown_delay_ms());
-
     Shutdown();
-  } else {
-    debugPrint("Results written to %s\n\nRebooting in %d seconds...\n", config.output_directory_path().c_str(),
-               config.reboot_or_shutdown_delay_ms() / 1000);
-    pb_show_debug_screen();
-    Sleep(config.reboot_or_shutdown_delay_ms());
   }
-  return true;
+  return run_pass;
 }
 
 static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,

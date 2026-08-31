@@ -34,4 +34,26 @@ std::vector<const TestDescriptor *> TestCatalogLeaves() {
   return ret;
 }
 
+std::vector<const TestDescriptor *> TestCatalogEntries() {
+  std::vector<const TestDescriptor *> ret;
+  ret.reserve(kTestCatalogSize);
+  for (size_t i = 0; i < kTestCatalogSize; ++i) {
+    ret.push_back(&kTestCatalog[i]);
+  }
+  return ret;
+}
+
+size_t TestCatalogLeafCount() {
+  size_t count = 0;
+  for (size_t i = 0; i < kTestCatalogSize; ++i) {
+    count += kTestCatalog[i].kind == TestKind::LEAF;
+  }
+  return count;
+}
+
+size_t TestCatalogGroupCount() { return kTestCatalogSize - TestCatalogLeafCount(); }
+
+// Schema v1 gives every descriptor one exact legacy result alias.
+size_t TestCatalogLegacyAliasCount() { return kTestCatalogSize; }
+
 const char *TestCatalogId() { return kTestCatalogId; }

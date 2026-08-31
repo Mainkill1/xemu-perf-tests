@@ -13,6 +13,7 @@
 
 #include "test_host.h"
 #include "tests/test_suite.h"
+#include "test_catalog.h"
 
 constexpr uint32_t kMaxGamepads = 4;
 
@@ -53,6 +54,8 @@ class TestDriver {
   void OnB(bool is_repeat);
   void OnX(bool is_repeat);
   void OnY(bool is_repeat);
+  void RunCatalogRoute(const TestDescriptor &descriptor);
+  void DrawProgress(const char *scope, uint32_t current, uint32_t total);
 
  private:
   volatile bool running_{true};

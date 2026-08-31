@@ -217,6 +217,69 @@ Tests will be executed automatically if no gamepad input is given within an init
 
 Individual tests may be executed via the menu.
 
+## Xbox on-disc interface
+
+Booting the XISO opens a controller-driven interface before autorun. Any
+controller input cancels the three-second autorun countdown.
+
+The root screen identifies the bundled catalog and active selection, then
+offers:
+
+- `Run all and exit`: execute every enabled route, save results, and show the
+  final verdict;
+- one entry per enabled suite: select one execution test or press X to run the
+  complete suite;
+- `Catalog browser`: inspect all stable test/group identities available in
+  this boot, their legacy alias, description, and mapped execution route;
+- `Plans`: run the active selection, quick smoke routes, the S3TC/BC texture
+  matrix, or either Vulkan memory-pressure route without preparing a host
+  configuration;
+- `About / controls`: catalog ID, inventory counts, controls, result path, and
+  run-mode meaning.
+
+The full unfiltered image exposes 129 leaf tests, five structural groups, and
+134 exact legacy aliases. A catalog stage belonging to a grouped execution
+route is still discoverable by its stable ID. Running that route can emit its
+sibling stages because those stages share initialization and lifetime state;
+use a resolved plan when an independently selectable stage mask is required.
+Resolved-plan boots advertise only routes that plan can execute.
+
+During `Run all`, the screen reports suite progress. On completion it shows
+`PASS` or `FAIL`, emitted leaf/group counts, resolved-plan completeness,
+oracle-failure count, the first failed stable ID, catalog identity, and the
+saved result path. `reboot_or_shutdown_delay` controls the readable hold with
+no hidden delay: use `0` for unattended hosts and at least `30000` for a
+physical-console review. The sample physical-console config uses 30 seconds.
+
+Results are saved to:
+
+```text
+E:\xemu_perf_tests\results.txt
+E:\xemu_perf_tests\resolved-plan-result.json  (resolved plans only)
+```
+
+The UI reports execution/oracle status. A framebuffer hash from xemu is still
+a regression oracle, not proof of retail-hardware correctness.
+
+### Physical Xbox acceptance checklist
+
+This branch has host contract and build gates; those do not substitute for a
+real controller/display test. Before calling the UI hardware-validated:
+
+1. Boot the release XISO on a retail Xbox with no config. Confirm catalog ID,
+   `129 tests / 5 groups / 134 aliases`, countdown, and cancellation.
+2. Visit About, every root suite, and every catalog suite. Hold Up/Down and use
+   Left/Right at first, middle, and last pages; confirm no blank or stuck page.
+3. Open entries from each catalog suite. Confirm stable ID, legacy alias,
+   description, route, A-run help, and B/Back return.
+4. Run one ordinary leaf, one grouped S3TC route, one complete suite, and Run
+   All. Confirm progress remains readable and controller navigation recovers.
+5. Inject one known oracle failure. Confirm FAIL, first stable ID, saved path,
+   and 30-second hold. Repeat a passing plan and confirm PASS.
+6. Copy `results.txt` from E:, verify JSON, record XISO/catalog hashes and
+   console/video mode. Do not promote observations to hardware goldens until
+   repeated Xbox runs agree.
+
 # Controls
 
 DPAD:

@@ -21,6 +21,8 @@ struct TestDescriptor {
   const char *id;
   uint32_t revision;
   const char *suite_id;
+  const char *display_name;
+  const char *description;
   const char *legacy_suite;
   const char *legacy_result;
   const char *execution_test;
@@ -33,6 +35,10 @@ const TestDescriptor *FindTestDescriptorById(const std::string &id);
 const TestDescriptor *FindTestDescriptorByLegacyResult(const std::string &suite,
                                                        const std::string &result);
 std::vector<const TestDescriptor *> TestCatalogLeaves();
+std::vector<const TestDescriptor *> TestCatalogEntries();
+size_t TestCatalogLeafCount();
+size_t TestCatalogGroupCount();
+size_t TestCatalogLegacyAliasCount();
 const char *TestCatalogId();
 
 #endif

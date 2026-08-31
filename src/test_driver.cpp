@@ -22,8 +22,13 @@ TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSui
     : test_host_(host), test_suites_(test_suites) {
   auto on_run_all = [this]() { RunAllTestsNonInteractive(); };
   auto on_exit = [this]() { running_ = false; };
-  root_menu_ = std::make_shared<MenuItemRoot>(test_suites, on_run_all, on_exit, framebuffer_width, framebuffer_height,
-                                              disable_autorun, autorun_immediately);
+  auto on_run_catalog_route = [this](const TestDescriptor &descriptor) {
+    RunCatalogRoute(descriptor);
+  };
+  std::string active_plan = test_host_.HasResolvedPlan() ? "resolved plan" : "full/legacy selection";
+  root_menu_ = std::make_shared<MenuItemRoot>(
+      test_suites, on_run_all, on_exit, on_run_catalog_route, framebuffer_width,
+      framebuffer_height, disable_autorun, autorun_immediately, active_plan);
 
   if (show_options_menu) {
     auto on_options_exit = [this]() { active_menu_ = root_menu_; };
@@ -111,6 +116,32 @@ void TestDriver::RunAllTestsNonInteractive() {
     suite->Deinitialize();
   }
   running_ = false;
+}
+
+void TestDriver::DrawProgress(const char *scope, uint32_t current, uint32_t total) {
+  pb_show_front_screen();
+  debugClearScreen();
+  debugPrint("xemu perf tests\nCatalog %s\n\nRunning %lu/%lu\n%s\n\nResults: E:\\xemu_perf_tests\\results.txt\n",
+             TestCatalogId(), current, total, scope);
+}
+
+void TestDriver::RunCatalogRoute(const TestDescriptor &descriptor) {
+  for (const auto &suite : test_suites_) {
+    if (suite->Name() != descriptor.legacy_suite ||
+        !suite->HasTest(descriptor.execution_test)) {
+      continue;
+    }
+    DrawProgress(descriptor.id, 1, 1);
+    suite->Initialize();
+    suite->Run(descriptor.execution_test, true);
+    suite->Deinitialize();
+    return;
+  }
+  debugClearScreen();
+  debugPrint("Route unavailable\n%s\n%s::%s\n", descriptor.id,
+             descriptor.legacy_suite, descriptor.execution_test);
+  pb_show_debug_screen();
+  Sleep(3000);
 }
 
 void TestDriver::OnControllerAdded(const SDL_ControllerDeviceEvent &event) {

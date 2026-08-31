@@ -31,6 +31,10 @@ using namespace XboxMath;
 static constexpr uint32_t kResultsOverlayColor = 0x88000000;
 static constexpr uint32_t kTextBackingColor = 0xDD000000;
 
+static bool MetadataReportsOracleFailure(const std::string &metadata_json) {
+  return metadata_json.find("\"oracle_status\":\"FAIL\"") != std::string::npos;
+}
+
 #define MAX_FILE_PATH_SIZE 248
 #define MAX_FILENAME_SIZE 42
 
@@ -196,6 +200,12 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
 
   if (save_results_) {
     const auto *descriptor = RecordDescriptor(suite_name, test_name, false);
+    if (MetadataReportsOracleFailure(metadata_json)) {
+      ++oracle_failure_count_;
+      if (first_oracle_failure_.empty()) {
+        first_oracle_failure_ = std::string(descriptor->id);
+      }
+    }
     auto& log = Logger::Log();
     if (!first_result_) {
       log << "," << std::endl;
@@ -273,6 +283,12 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   snprintf(framebuffer_hash_string, sizeof(framebuffer_hash_string), "%016llx",
            static_cast<unsigned long long>(framebuffer_hash));
   const auto *descriptor = RecordDescriptor(suite_name, test_name, false);
+  if (MetadataReportsOracleFailure(metadata_json)) {
+    ++oracle_failure_count_;
+    if (first_oracle_failure_.empty()) {
+      first_oracle_failure_ = std::string(descriptor->id);
+    }
+  }
   auto &log = Logger::Log();
   if (!first_result_) {
     log << "," << std::endl;
@@ -399,6 +415,11 @@ const TestDescriptor *TestHost::RecordDescriptor(const std::string &suite_name,
   const auto *descriptor = FindTestDescriptorByLegacyResult(suite_name, test_name);
   ASSERT(descriptor && "Result is missing from the generated test catalog");
   ASSERT((descriptor->kind == TestKind::GROUP) == expect_group);
+  if (expect_group) {
+    ++recorded_group_count_;
+  } else {
+    ++recorded_leaf_count_;
+  }
   if (!expect_group && !plan_id_.empty()) {
     if (!selected_test_ids_.count(descriptor->id) ||
         !emitted_test_ids_.insert(descriptor->id).second) {

@@ -71,6 +71,9 @@ class TestSuite {
   void DisableTests(const std::set<std::string> &tests_to_skip);
 
   [[nodiscard]] std::vector<std::string> TestNames() const;
+  [[nodiscard]] bool HasTest(const std::string &test_name) const {
+    return tests_.find(test_name) != tests_.end();
+  }
   [[nodiscard]] bool HasEnabledTests() const { return !tests_.empty(); };
 
   void Run(const std::string &test_name, uint32_t frame_count);

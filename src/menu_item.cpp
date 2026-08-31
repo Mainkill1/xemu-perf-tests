@@ -3,6 +3,7 @@
 #include <pbkit/pbkit.h>
 
 #include <chrono>
+#include <map>
 #include <memory>
 #include <utility>
 
@@ -10,6 +11,7 @@
 #include "debug_output.h"
 #include "pushbuffer.h"
 #include "tests/test_suite.h"
+#include "test_catalog.h"
 
 using namespace PBKitPlusPlus;
 
@@ -48,6 +50,10 @@ void MenuItem::Draw() {
 
   PrepareDraw(menu_background_color_);
 
+  if (!header.empty()) {
+    pb_print("%s\n", header.c_str());
+  }
+
   const char *cursor_prefix = "> ";
   const char *normal_prefix = "  ";
   const char *cursor_suffix = " <";
@@ -81,6 +87,10 @@ void MenuItem::Draw() {
     pb_print("...\n");
   }
 
+  if (!footer.empty()) {
+    pb_print("\n%s\n", footer.c_str());
+  }
+
   Swap();
 }
 
@@ -92,6 +102,9 @@ void MenuItem::Activate() {
     return;
   }
 
+  if (submenu.empty()) {
+    return;
+  }
   auto activated_item = submenu[cursor_position];
   if (activated_item->IsEnterable()) {
     active_submenu = activated_item;
@@ -104,6 +117,9 @@ void MenuItem::Activate() {
 void MenuItem::ActivateCurrentSuite() {
   if (active_submenu) {
     active_submenu->ActivateCurrentSuite();
+    return;
+  }
+  if (submenu.empty()) {
     return;
   }
   auto activated_item = submenu[cursor_position];
@@ -128,6 +144,9 @@ void MenuItem::CursorUp(bool is_repeat) {
     return;
   }
 
+  if (submenu.empty()) {
+    return;
+  }
   if (cursor_position > 0) {
     --cursor_position;
   } else {
@@ -141,6 +160,9 @@ void MenuItem::CursorDown(bool is_repeat) {
     return;
   }
 
+  if (submenu.empty()) {
+    return;
+  }
   if (cursor_position < submenu.size() - 1) {
     ++cursor_position;
   } else {
@@ -167,6 +189,9 @@ void MenuItem::CursorRight(bool is_repeat) {
     return;
   }
 
+  if (submenu.empty()) {
+    return;
+  }
   cursor_position += kNumItemsPerHalfPage;
   if (cursor_position >= submenu.size()) {
     cursor_position = submenu.size() - 1;
@@ -188,6 +213,28 @@ void MenuItem::CursorDownAndActivate() {
 }
 
 void MenuItem::SetBackgroundColor(uint32_t background_color) { menu_background_color_ = background_color; }
+
+MenuItemInfo::MenuItemInfo(std::string name, std::vector<std::string> lines,
+                           uint32_t width, uint32_t height,
+                           std::function<void()> on_activate)
+    : MenuItem(std::move(name), width, height), lines_(std::move(lines)),
+      on_activate_(std::move(on_activate)) {}
+
+void MenuItemInfo::Draw() {
+  PrepareDraw(menu_background_color_);
+  pb_print("%s\n\n", name.c_str());
+  for (const auto &line : lines_) {
+    pb_print("%s\n", line.c_str());
+  }
+  pb_print("\n%s\n", on_activate_ ? "A: run route   B/Back: return" : "B/Back: return");
+  Swap();
+}
+
+void MenuItemInfo::Activate() {
+  if (on_activate_) {
+    on_activate_();
+  }
+}
 
 MenuItemCallable::MenuItemCallable(std::function<void()> callback, std::string name, uint32_t width, uint32_t height)
     : MenuItem(std::move(name), width, height), on_activate(std::move(callback)) {}
@@ -262,22 +309,113 @@ void MenuItemSuite::ActivateCurrentSuite() {
 }
 
 MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites, std::function<void()> on_run_all,
-                           std::function<void()> on_exit, uint32_t width, uint32_t height, bool disable_autorun,
-                           bool autorun_immediately)
+                           std::function<void()> on_exit,
+                           std::function<void(const TestDescriptor &)> on_run_catalog_route,
+                           uint32_t width, uint32_t height, bool disable_autorun,
+                           bool autorun_immediately, const std::string &active_plan)
     : MenuItem("<<root>>", width, height),
       on_run_all(std::move(on_run_all)),
       on_exit(std::move(on_exit)),
       disable_autorun_(disable_autorun),
       autorun_immediately_(autorun_immediately) {
+  char inventory[160] = {};
+  snprintf(inventory, sizeof(inventory),
+           "Catalog: %lu tests, %lu groups, %lu aliases",
+           static_cast<unsigned long>(TestCatalogLeafCount()),
+           static_cast<unsigned long>(TestCatalogGroupCount()),
+           static_cast<unsigned long>(TestCatalogLegacyAliasCount()));
+  header = "xemu perf tests | " + active_plan;
+  footer = "A/Start select  B/Back return  X run suite  Black exit";
   if (!disable_autorun) {
     submenu.push_back(std::make_shared<MenuItemCallable>(on_run_all, "Run all and exit", width, height));
   }
 
+  submenu.push_back(std::make_shared<MenuItemInfo>(
+      "About / controls",
+      std::vector<std::string>{inventory, "Catalog ID:", TestCatalogId(),
+                               "Results: E:\\xemu_perf_tests\\results.txt",
+                               "Green=single run; red=continuous (Y toggles).",
+                               "Catalog entries run their mapped execution route."},
+      width, height));
+
+  auto plans = std::make_shared<MenuItem>("Plans", width, height);
+  plans->SetHeader("On-disc plans (mapped execution routes)");
+  plans->SetFooter("A run plan  B return");
+  auto add_plan = [plans, width, height, on_run_catalog_route](
+                      const char *name, std::vector<std::string> ids) {
+    plans->submenu.push_back(std::make_shared<MenuItemCallable>(
+        [on_run_catalog_route, ids]() {
+          for (const auto &id : ids) {
+            const auto *descriptor = FindTestDescriptorById(id);
+            if (descriptor) {
+              on_run_catalog_route(*descriptor);
+            }
+          }
+        },
+        name, width, height));
+  };
+  plans->submenu.push_back(std::make_shared<MenuItemCallable>(
+      on_run_all, "Active selection: run all and exit", width, height));
+  add_plan("Quick smoke routes", {"busy_pfifo.pgraph_pattern_polling",
+                                   "surface.cpu_read_clean_surface",
+                                   "game_load.s3tc_sync_factor"});
+  add_plan("S3TC / BC texture matrix", {"game_load.s3tc_sync_factor"});
+  add_plan("Vulkan memory: representative",
+           {"surface.vulkan_memory_pressure.representative"});
+  add_plan("Vulkan memory: stress", {"surface.vulkan_memory_pressure.stress"});
+  plans->parent = this;
+  submenu.push_back(plans);
+
   for (auto &suite : suites) {
     auto child = std::make_shared<MenuItemSuite>(suite, width, height);
     child->parent = this;
+    child->SetHeader("Suite: " + suite->Name());
+    child->SetFooter("A run test  X run suite  B return  Left/Right page");
     submenu.push_back(child);
   }
+
+  auto catalog_root = std::make_shared<MenuItem>("Catalog browser", width, height);
+  catalog_root->SetHeader("Catalog browser: stable test and group IDs");
+  catalog_root->SetFooter("A details  B return  Left/Right page");
+  std::map<std::string, std::shared_ptr<MenuItem>> catalog_suites;
+  for (const auto *descriptor : TestCatalogEntries()) {
+    std::shared_ptr<TestSuite> route_suite;
+    for (const auto &suite : suites) {
+      if (suite->Name() == descriptor->legacy_suite && suite->HasTest(descriptor->execution_test)) {
+        route_suite = suite;
+        break;
+      }
+    }
+    // A resolved plan may remove execution routes. Only advertise routes that
+    // this boot can actually execute.
+    if (!route_suite) {
+      continue;
+    }
+    auto &suite_menu = catalog_suites[descriptor->suite_id];
+    if (!suite_menu) {
+      suite_menu = std::make_shared<MenuItem>(descriptor->suite_id, width, height);
+      suite_menu->SetHeader("Catalog suite: " + std::string(descriptor->suite_id));
+      suite_menu->SetFooter("A details  B return  Left/Right page");
+      suite_menu->parent = catalog_root.get();
+      catalog_root->submenu.push_back(suite_menu);
+    }
+    std::vector<std::string> lines{
+        std::string("ID: ") + descriptor->id,
+        std::string("Kind: ") + (descriptor->kind == TestKind::LEAF ? "test" : "group"),
+        std::string("Legacy: ") + descriptor->legacy_suite + "::" + descriptor->legacy_result,
+        std::string("Route: ") + descriptor->legacy_suite + "::" + descriptor->execution_test,
+        descriptor->description};
+    if (descriptor->selection_group != 0) {
+      lines.emplace_back("Grouped route: running it may emit sibling stages.");
+    }
+    auto entry = std::make_shared<MenuItemInfo>(
+        descriptor->display_name, std::move(lines), width, height,
+        [on_run_catalog_route, descriptor]() { on_run_catalog_route(*descriptor); });
+    entry->parent = suite_menu.get();
+    suite_menu->submenu.push_back(entry);
+  }
+  catalog_root->parent = this;
+  submenu.push_back(catalog_root);
 
   if (disable_autorun) {
     submenu.push_back(std::make_shared<MenuItemCallable>(on_run_all, "! Run all and exit", width, height));

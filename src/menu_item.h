@@ -9,6 +9,7 @@
 #include <vector>
 
 class TestSuite;
+struct TestDescriptor;
 
 struct MenuItem {
  public:
@@ -37,6 +38,9 @@ struct MenuItem {
   virtual void CursorLeft(bool is_repeat);
   virtual void CursorRight(bool is_repeat);
 
+  void SetHeader(std::string value) { header = std::move(value); }
+  void SetFooter(std::string value) { footer = std::move(value); }
+
   void CursorUpAndActivate();
   void CursorDownAndActivate();
 
@@ -48,6 +52,8 @@ struct MenuItem {
   uint32_t width;
   uint32_t height;
   std::string name;
+  std::string header;
+  std::string footer;
 
   static uint32_t menu_background_color_;
 
@@ -55,6 +61,18 @@ struct MenuItem {
   std::vector<std::shared_ptr<MenuItem>> submenu{};
   std::shared_ptr<MenuItem> active_submenu{};
   MenuItem* parent{nullptr};
+};
+
+struct MenuItemInfo : public MenuItem {
+  MenuItemInfo(std::string name, std::vector<std::string> lines, uint32_t width, uint32_t height,
+               std::function<void()> on_activate = {});
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void Draw() override;
+  void Activate() override;
+
+ private:
+  std::vector<std::string> lines_;
+  std::function<void()> on_activate_;
 };
 
 struct MenuItemCallable : public MenuItem {
@@ -105,8 +123,10 @@ struct MenuItemSuite : public MenuItem {
 
 struct MenuItemRoot : public MenuItem {
   explicit MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>>& suites, std::function<void()> on_run_all,
-                        std::function<void()> on_exit, uint32_t width, uint32_t height, bool disable_autorun,
-                        bool autorun_immediately);
+                        std::function<void()> on_exit,
+                        std::function<void(const TestDescriptor &)> on_run_catalog_route,
+                        uint32_t width, uint32_t height, bool disable_autorun,
+                        bool autorun_immediately, const std::string &active_plan);
 
   void Draw() override;
   void Activate() override;
