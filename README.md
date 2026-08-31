@@ -22,6 +22,18 @@ changes cannot silently hide corruption.
 - [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
   resolved-plan example.
 
+Compare one baseline run against one or more candidate runs with:
+
+```text
+python utils/hash_compare.py BASELINE RUN [RUN ...] --json-out comparison.json
+```
+
+Inputs may be run directories, `summary.json`, `results.json`, or
+`normalized-results.json`. Output reports framebuffer, work, and result hash
+matches as `1` or `0`; `-` means the baseline has no such oracle. Any mismatch,
+missing/extra record, or comparison with zero eligible hashes returns nonzero.
+An empty oracle check list can never be reported as a pass.
+
 Current integration image: `xemu-perf-tests-eng462-ui-lifecycle.iso`, SHA-256
 `f772ff2b655252c1984e9a22c8fd62aff17a441d33bd1d9714bf42824c1a4c43`.
 ENG462 adds PFIFO array-element workloads,
