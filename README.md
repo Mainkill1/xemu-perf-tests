@@ -4,6 +4,29 @@ xemu-perf-tests
 Provides tests intended to be used to detect performance improvements/degradation in
 the [xemu](xemu.app) project.
 
+## Start here
+
+This repository builds one Xbox XISO containing deterministic CPU, PFIFO,
+PGRAPH, texture, surface, vertex, scaling, and combined game-like workloads.
+The guest performs fixed work, records timing, and emits hashes/KATs so speed
+changes cannot silently hide corruption.
+
+- [Test system and current layout](docs/test-system.md): architecture, complete
+  suite map, selection, result meaning, extraction, and release status.
+- [Add or extend a test](docs/adding-tests.md): required descriptor, workload,
+  oracle, registration, and validation steps.
+- [Generated test catalog](docs/generated/test-catalog.md): all 129 executable
+  leaf IDs and five structural groups.
+- [`resources/catalog.json`](resources/catalog.json): machine-readable catalog
+  used by tooling and the guest.
+- [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
+  resolved-plan example.
+
+Current stable image: ENG458 texture validation. ENG459 adds the catalog and
+explicit-plan control plane and is a preview until its guest runtime smoke is
+completed. Source and binary build validation have passed; do not silently
+promote preview observations into hardware goldens.
+
 ## ENG458 texture validation release
 
 The current texture-correctness image is
