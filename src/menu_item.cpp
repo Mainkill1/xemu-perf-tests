@@ -291,10 +291,13 @@ constexpr uint32_t kViewerInfo = 0xFF62B8C4;
 constexpr uint32_t kViewerWarning = 0xFFDFB45D;
 constexpr uint32_t kViewerFailure = 0xFFDD6A64;
 
-constexpr int kPlotLeft = 40;
-constexpr int kPlotTop = 190;
-constexpr int kPlotWidth = 560;
-constexpr int kPlotHeight = 210;
+// PBKit's debug font uses fixed 25-pixel rows. Keep rows 0-5 for the header,
+// row 7-13 beside the plot, row 14 for the X axis, and row 15 for the selected
+// point. These dimensions are presentation geometry, not benchmark limits.
+constexpr int kPlotLeft = 90;
+constexpr int kPlotTop = 205;
+constexpr int kPlotWidth = 510;
+constexpr int kPlotHeight = 160;
 // Histogram density follows the visible width. Eight pixels keeps every bar
 // legible on 480i output; it is not a workload or data retention limit.
 constexpr int kMinimumHistogramBarWidth = 8;
@@ -325,6 +328,45 @@ void DrawPlotFrame() {
   pb_fill(kPlotLeft - 2, kPlotTop - 2, kPlotWidth + 4, kPlotHeight + 4,
           kViewerPanelBorder);
   pb_fill(kPlotLeft, kPlotTop, kPlotWidth, kPlotHeight, kViewerPanel);
+  pb_fill(kPlotLeft, kPlotTop + kPlotHeight / 2, kPlotWidth, 1,
+          kViewerPanelBorder);
+  pb_fill(kPlotLeft - 7, kPlotTop, 7, 2, kViewerInfo);
+  pb_fill(kPlotLeft - 7, kPlotTop + kPlotHeight / 2, 7, 2, kViewerInfo);
+  pb_fill(kPlotLeft - 7, kPlotTop + kPlotHeight - 2, 7, 2, kViewerInfo);
+}
+
+std::string FormatGraphDuration(uint32_t microseconds) {
+  char text[16] = {};
+  if (microseconds >= 1000000U) {
+    snprintf(text, sizeof(text), "%lu.%02lus",
+             static_cast<unsigned long>(microseconds / 1000000U),
+             static_cast<unsigned long>((microseconds % 1000000U) / 10000U));
+  } else if (microseconds >= 1000U) {
+    snprintf(text, sizeof(text), "%lu.%01lums",
+             static_cast<unsigned long>(microseconds / 1000U),
+             static_cast<unsigned long>((microseconds % 1000U) / 100U));
+  } else {
+    snprintf(text, sizeof(text), "%luus",
+             static_cast<unsigned long>(microseconds));
+  }
+  return text;
+}
+
+void DrawDurationAxes(uint32_t minimum, uint32_t maximum,
+                      uint32_t sample_count) {
+  const uint32_t midpoint = minimum + (maximum - minimum) / 2U;
+  const auto maximum_text = FormatGraphDuration(maximum);
+  const auto midpoint_text = FormatGraphDuration(midpoint);
+  const auto minimum_text = FormatGraphDuration(minimum);
+  pb_printat(7, 0, "%8s", maximum_text.c_str());
+  pb_printat(10, 0, "%8s", midpoint_text.c_str());
+  pb_printat(13, 0, "%8s", minimum_text.c_str());
+  pb_printat(14, 7, "sample 0");
+  pb_printat(14, 28, "%lu",
+             static_cast<unsigned long>(sample_count / 2U));
+  pb_printat(14, 49, "%lu",
+             static_cast<unsigned long>(sample_count ? sample_count - 1U
+                                                     : 0U));
 }
 
 }  // namespace
@@ -559,6 +601,9 @@ void MenuItemStoredRecord::DrawTrace() const {
   const auto range = std::minmax_element(samples_.begin(), samples_.end());
   const uint32_t minimum = *range.first;
   const uint32_t maximum = *range.second;
+  DrawDurationAxes(minimum, maximum,
+                   total_sample_count_ ? total_sample_count_
+                                       : samples_.size());
 
   for (size_t bucket = 0; bucket < bucket_count; ++bucket) {
     const size_t start = bucket * samples_.size() / bucket_count;
@@ -589,6 +634,37 @@ void MenuItemStoredRecord::DrawTrace() const {
                       cursor_bucket_, static_cast<uint32_t>(bucket_count - 1)) *
                   kPlotWidth / bucket_count);
   pb_fill(cursor_x, kPlotTop, 2, kPlotHeight, kViewerFailure);
+
+  const size_t selected = std::min<size_t>(cursor_bucket_, bucket_count - 1U);
+  const size_t selected_start = selected * samples_.size() / bucket_count;
+  const size_t selected_end = std::max(
+      selected_start + 1U,
+      (selected + 1U) * samples_.size() / bucket_count);
+  uint32_t selected_low = std::numeric_limits<uint32_t>::max();
+  uint32_t selected_high = 0;
+  uint64_t selected_sum = 0;
+  for (size_t i = selected_start; i < selected_end; ++i) {
+    selected_low = std::min(selected_low, samples_[i]);
+    selected_high = std::max(selected_high, samples_[i]);
+    selected_sum += samples_[i];
+  }
+  const uint32_t selected_mean =
+      static_cast<uint32_t>(selected_sum / (selected_end - selected_start));
+  const uint32_t logical_start =
+      static_cast<uint32_t>(selected_start) * sample_stride_;
+  const uint32_t logical_end = std::min<uint32_t>(
+      total_sample_count_ ? total_sample_count_ - 1U : logical_start,
+      static_cast<uint32_t>(selected_end) * sample_stride_ - 1U);
+  const auto low_text = FormatGraphDuration(selected_low);
+  const auto mean_text = FormatGraphDuration(selected_mean);
+  const auto high_text = FormatGraphDuration(selected_high);
+  char selected_text[128] = {};
+  snprintf(selected_text, sizeof(selected_text),
+           "L/R S%lu-%lu min/avg/max %s/%s/%s",
+           static_cast<unsigned long>(logical_start),
+           static_cast<unsigned long>(logical_end), low_text.c_str(),
+           mean_text.c_str(), high_text.c_str());
+  pb_printat(15, 0, "%.59s", selected_text);
 }
 
 void MenuItemStoredRecord::DrawHistogram() const {
@@ -612,6 +688,15 @@ void MenuItemStoredRecord::DrawHistogram() const {
     ++bins[bin];
   }
   const uint32_t peak = *std::max_element(bins.begin(), bins.end());
+  pb_printat(7, 0, "%8lu", static_cast<unsigned long>(peak));
+  pb_printat(10, 0, "%8lu", static_cast<unsigned long>(peak / 2U));
+  pb_printat(13, 0, "%8u", 0U);
+  const auto minimum_text = FormatGraphDuration(minimum);
+  const auto median_text = FormatGraphDuration(record_->median_us);
+  const auto maximum_text = FormatGraphDuration(maximum);
+  pb_printat(14, 7, "%s", minimum_text.c_str());
+  pb_printat(14, 28, "MED %s", median_text.c_str());
+  pb_printat(14, 50, "%s", maximum_text.c_str());
   const int bar_width = kPlotWidth / static_cast<int>(bin_count);
   for (size_t bin = 0; bin < bin_count; ++bin) {
     const uint32_t bar_height =
@@ -637,6 +722,29 @@ void MenuItemStoredRecord::DrawHistogram() const {
                             (kPlotWidth - 1) / (maximum - minimum));
   pb_fill(median_x, kPlotTop, 2, kPlotHeight, kViewerInfo);
   pb_fill(p95_x, kPlotTop, 2, kPlotHeight, kViewerWarning);
+  const size_t selected = std::min<size_t>(cursor_bucket_, bin_count - 1U);
+  const uint64_t value_span = maximum - minimum + 1ULL;
+  const uint64_t selected_offset = value_span * selected / bin_count;
+  const uint64_t selected_end_offset = std::max<uint64_t>(
+      selected_offset + 1U, value_span * (selected + 1U) / bin_count);
+  const uint32_t selected_minimum =
+      minimum + static_cast<uint32_t>(selected_offset);
+  const uint32_t selected_maximum = std::min<uint32_t>(
+      maximum,
+      minimum + static_cast<uint32_t>(selected_end_offset - 1U));
+  const int selected_x =
+      kPlotLeft + static_cast<int>(selected) * bar_width;
+  pb_fill(selected_x, kPlotTop, 2, kPlotHeight, kViewerFailure);
+  const auto selected_minimum_text = FormatGraphDuration(selected_minimum);
+  const auto selected_maximum_text = FormatGraphDuration(selected_maximum);
+  char selected_text[128] = {};
+  snprintf(selected_text, sizeof(selected_text),
+           "L/R bin %lu/%lu  %s-%s  count %lu",
+           static_cast<unsigned long>(selected + 1U),
+           static_cast<unsigned long>(bin_count),
+           selected_minimum_text.c_str(), selected_maximum_text.c_str(),
+           static_cast<unsigned long>(bins[selected]));
+  pb_printat(15, 0, "%.59s", selected_text);
 }
 
 void MenuItemStoredRecord::Draw() {
@@ -658,41 +766,45 @@ void MenuItemStoredRecord::Draw() {
                          ? "SUMMARY"
                          : (view_mode_ == ViewMode::TRACE ? "TRACE"
                                                          : "HISTOGRAM");
-  pb_print("RESULT | %s | %s\n", mode, record_->outcome.c_str());
-  pb_print("%s\n", record_->id.c_str());
+  pb_printat(0, 0, "RESULT | %s | %s", mode, record_->outcome.c_str());
+  pb_printat(1, 0, "%.58s", record_->id.c_str());
   if (record_->has_measurement) {
-    pb_print("AVG %lu.%03lu  MIN %lu.%03lu  MAX %lu.%03lu ms\n",
-             record_->average_us / 1000, record_->average_us % 1000,
-             record_->minimum_us / 1000, record_->minimum_us % 1000,
-             record_->maximum_us / 1000, record_->maximum_us % 1000);
-    pb_print("MED%s %lu.%03lu  P95 %lu.%03lu  MAD %lu.%03lu ms\n",
-             samples_approximate_ ? "~" : "", record_->median_us / 1000,
-             record_->median_us % 1000, record_->p95_us / 1000,
-             record_->p95_us % 1000, record_->mad_us / 1000,
-             record_->mad_us % 1000);
-    pb_print("Samples %lu%s  unit %s  lower is better\n",
-             static_cast<unsigned long>(total_sample_count_),
-             samples_approximate_ ? " (downsampled)" : "",
-             record_->unit.c_str());
+    pb_printat(2, 0, "AVG %lu.%03lu  MIN %lu.%03lu  MAX %lu.%03lu ms",
+               record_->average_us / 1000, record_->average_us % 1000,
+               record_->minimum_us / 1000, record_->minimum_us % 1000,
+               record_->maximum_us / 1000, record_->maximum_us % 1000);
+    pb_printat(3, 0, "MED%s %lu.%03lu  P95 %lu.%03lu  MAD %lu.%03lu ms",
+               samples_approximate_ ? "~" : "", record_->median_us / 1000,
+               record_->median_us % 1000, record_->p95_us / 1000,
+               record_->p95_us % 1000, record_->mad_us / 1000,
+               record_->mad_us % 1000);
+    pb_printat(4, 0, "Samples %lu%s | %s | lower is better",
+               static_cast<unsigned long>(total_sample_count_),
+               samples_approximate_ ? " downsampled" : "",
+               record_->unit.c_str());
   } else {
-    pb_print("Structural group; no timing measurement\n");
+    pb_printat(2, 0, "Structural group; no timing measurement");
   }
   if (IsFailure(*record_)) {
-    pb_print("FAIL: %s\n", record_->failure_reason.empty()
-                                ? "result or oracle mismatch"
-                                : record_->failure_reason.c_str());
+    pb_printat(5, 0, "FAIL: %.52s", record_->failure_reason.empty()
+                                         ? "result or oracle mismatch"
+                                         : record_->failure_reason.c_str());
     if (!record_->expected_value.empty() || !record_->actual_value.empty()) {
-      pb_print("Expected %s  Actual %s\n", record_->expected_value.c_str(),
-               record_->actual_value.c_str());
+      pb_printat(6, 0, "Expected %.20s Actual %.20s",
+                 record_->expected_value.c_str(),
+                 record_->actual_value.c_str());
     }
-    pb_print("Next: rerun this stable ID alone; compare KAT/hash\n");
   } else if (!record_->oracle_recorded) {
-    pb_print("Oracle: not recorded; timing remains inspectable\n");
+    pb_printat(5, 0, "Oracle not recorded; timing remains inspectable");
   }
   if (!load_error_.empty()) {
-    pb_print("Sample load: %s\n", load_error_.c_str());
+    pb_printat(6, 0, "Sample load: %.45s", load_error_.c_str());
   }
-  pb_print("X mode  Left/Right cursor  B return\n");
+  if (view_mode_ == ViewMode::SUMMARY) {
+    pb_printat(15, 0, "X graph mode | B return");
+  } else {
+    pb_printat(6, 0, "X view | L/R selected point | B return");
+  }
   Swap();
 }
 
@@ -701,6 +813,11 @@ bool MenuItemStoredRecord::HandleX() {
                    ? ViewMode::TRACE
                    : (view_mode_ == ViewMode::TRACE ? ViewMode::HISTOGRAM
                                                     : ViewMode::SUMMARY);
+  if (!samples_.empty() && view_mode_ == ViewMode::HISTOGRAM) {
+    const uint32_t bins = static_cast<uint32_t>(std::min<size_t>(
+        kPlotWidth / kMinimumHistogramBarWidth, samples_.size()));
+    cursor_bucket_ = std::min(cursor_bucket_, bins - 1U);
+  }
   dirty_ = true;
   return true;
 }
@@ -714,8 +831,12 @@ void MenuItemStoredRecord::CursorLeft(bool is_repeat) {
 
 void MenuItemStoredRecord::CursorRight(bool is_repeat) {
   if (!is_repeat && !samples_.empty()) {
+    const size_t maximum_buckets =
+        view_mode_ == ViewMode::HISTOGRAM
+            ? kPlotWidth / kMinimumHistogramBarWidth
+            : kPlotWidth;
     const uint32_t buckets = static_cast<uint32_t>(
-        std::min<size_t>(kPlotWidth, samples_.size()));
+        std::min<size_t>(maximum_buckets, samples_.size()));
     if (cursor_bucket_ + 1U < buckets) {
       ++cursor_bucket_;
       dirty_ = true;
@@ -770,18 +891,18 @@ void MenuItemResultComparisonRecord::Draw() {
   PrepareDraw(kViewerBackground);
   pb_fill(20, 16, width - 40, 145, kViewerPanel);
   pb_fill(20, 16, width - 40, 3, kViewerAccent);
-  pb_print("A/B TRACE | baseline cyan | candidate green\n");
-  pb_print("%s\n", candidate_.id.c_str());
-  pb_print("             BASE       CANDIDATE\n");
-  pb_print("AVG          %lu.%03lu     %lu.%03lu ms\n",
-           baseline_.average_us / 1000, baseline_.average_us % 1000,
-           candidate_.average_us / 1000, candidate_.average_us % 1000);
-  pb_print("MED          %lu.%03lu     %lu.%03lu ms\n",
-           baseline_.median_us / 1000, baseline_.median_us % 1000,
-           candidate_.median_us / 1000, candidate_.median_us % 1000);
-  pb_print("P95          %lu.%03lu     %lu.%03lu ms\n",
-           baseline_.p95_us / 1000, baseline_.p95_us % 1000,
-           candidate_.p95_us / 1000, candidate_.p95_us % 1000);
+  pb_printat(0, 0, "A/B TRACE | baseline cyan | candidate green");
+  pb_printat(1, 0, "%.58s", candidate_.id.c_str());
+  pb_printat(2, 0, "             BASE       CANDIDATE");
+  pb_printat(3, 0, "AVG          %lu.%03lu     %lu.%03lu ms",
+             baseline_.average_us / 1000, baseline_.average_us % 1000,
+             candidate_.average_us / 1000, candidate_.average_us % 1000);
+  pb_printat(4, 0, "MED          %lu.%03lu     %lu.%03lu ms",
+             baseline_.median_us / 1000, baseline_.median_us % 1000,
+             candidate_.median_us / 1000, candidate_.median_us % 1000);
+  pb_printat(5, 0, "P95          %lu.%03lu     %lu.%03lu ms",
+             baseline_.p95_us / 1000, baseline_.p95_us % 1000,
+             candidate_.p95_us / 1000, candidate_.p95_us % 1000);
 
   DrawPlotFrame();
   if (load_error_.empty() && !baseline_samples_.empty()) {
@@ -794,6 +915,8 @@ void MenuItemResultComparisonRecord::Draw() {
     const uint32_t maximum = std::max(*baseline_range.second,
                                       *candidate_range.second);
     const size_t sample_count = baseline_samples_.size();
+    DrawDurationAxes(minimum, maximum,
+                     static_cast<uint32_t>(sample_count));
     const size_t columns = std::min<size_t>(kPlotWidth, sample_count);
     auto draw_series = [minimum, maximum, columns, sample_count](
                            const std::vector<uint32_t> &samples,
@@ -817,9 +940,10 @@ void MenuItemResultComparisonRecord::Draw() {
     draw_series(candidate_samples_, kViewerAccent, 1);
   }
   if (!load_error_.empty()) {
-    pb_print("%s\n", load_error_.c_str());
+    pb_printat(15, 0, "%.58s", load_error_.c_str());
+  } else {
+    pb_printat(15, 0, "Y duration | X sample index | B return");
   }
-  pb_print("B return\n");
   Swap();
 }
 

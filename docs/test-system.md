@@ -118,9 +118,11 @@ otherwise they show aggregates and explain why trace overlay is disabled.
 Run summaries are streamed. Raw samples are loaded by rescanning only the
 selected stable ID and are bounded by the explicit 512 KiB viewer scratch
 budget. Oversized sample sets are deterministically thinned and labeled as
-approximate. Graph columns derive from the 560-pixel plot width; histogram bars
-derive from that width and an eight-pixel legibility target. No graph memory or
-drawing is active during a benchmark.
+approximate. Graph columns derive from the 510-pixel plot width; histogram bars
+derive from that width and an eight-pixel legibility target. Fixed PBKit rows
+show Y-axis duration/count values, X-axis sample/value labels, and the selected
+bucket's sample range or selected bin's value range and count. No graph memory
+or drawing is active during a benchmark.
 
 Before a new result log opens, the existing `results.txt` is moved into
 `history`. The guest applies no unexplained file-count or byte cap. It also

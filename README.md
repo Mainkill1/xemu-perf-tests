@@ -302,10 +302,13 @@ The result browser spends that fixed screen on progressive detail:
 
 New timing records store average, minimum, maximum, median, nearest-rank p95,
 MAD, sample count, unit, and direction. Trace rendering buckets samples by the
-560-pixel plot width and retains each bucket's minimum/maximum envelope, so a
-spike is not averaged out. Histogram bin count derives from the same visible
-width with an eight-pixel minimum bar width. These values describe display
-geometry, not benchmark behavior.
+510-pixel plot width and retains each bucket's minimum/maximum envelope, so a
+spike is not averaged out. The plot starts at X=90 and Y=205, leaving fixed
+PBKit text rows for duration/count labels on the left and sample/value labels
+below it. Left/Right selects a trace bucket or histogram bin; the bottom row
+reports its sample range and values. Histogram bin count derives from the same
+visible width with an eight-pixel minimum bar width. These values describe
+display geometry, not benchmark behavior.
 
 The run list streams summaries. Raw samples are rescanned only for the selected
 record. A 512 KiB scratch budget bounds Xbox RAM use; larger records are

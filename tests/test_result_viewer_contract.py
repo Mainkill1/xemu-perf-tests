@@ -35,6 +35,23 @@ class ResultViewerContractTests(unittest.TestCase):
         self.assertIn("DrawHistogram", self.menu)
         self.assertIn("kViewerWarning", self.menu)
 
+    def test_graph_layout_has_axes_and_selected_point_details(self):
+        for token in (
+            "constexpr int kPlotLeft = 90",
+            "constexpr int kPlotTop = 205",
+            "constexpr int kPlotWidth = 510",
+            "DrawDurationAxes",
+            "L/R S%lu-%lu min/avg/max",
+            "L/R bin",
+            "count %lu",
+            "pb_printat(15, 0",
+        ):
+            self.assertIn(token, self.menu)
+        graph_draw = self.menu.split("void MenuItemStoredRecord::Draw()", 1)[1].split(
+            "bool MenuItemStoredRecord::HandleX", 1
+        )[0]
+        self.assertNotIn('pb_print("', graph_draw)
+
     def test_results_have_failure_filter_partial_state_and_stable_id_compare(self):
         for token in (
             "PARTIAL - final totals unavailable",
