@@ -1,0 +1,86 @@
+{
+  "schema_version": 1,
+  "test_date": "2026-08-30",
+  "host": "dedicated Windows rig 10.0.7.1",
+  "contract": {
+    "xiso_sha256": "f772ff2b655252c1984e9a22c8fd62aff17a441d33bd1d9714bf42824c1a4c43",
+    "records_expected": 141,
+    "scale": 1,
+    "warmups": 3,
+    "measurement_multiplier": 4,
+    "gpu_completion": "per_iteration"
+  },
+  "baseline": {
+    "source": "d73326b62199c6dd952ef512947710e1333a49d3",
+    "binary_sha256": "8ad4c1e7417a065ff56d8dce244acd0352a8ae79cf006a91a4fb11b494bf019c"
+  },
+  "candidate": {
+    "source": "6b4424c55d446a8f3c69843604be9bec21a6609d",
+    "binary_sha256": "649941a2d9c6fff937390ef5ae9f4c5b183274ac96298b414899ac8ff9799728",
+    "label": "prtrain-final-pr01-pr09"
+  },
+  "verdict": "NOT_RELEASE_VALIDATED",
+  "opengl": {
+    "baseline_execution": "PASS",
+    "candidate_execution": "PASS",
+    "records": 141,
+    "baseline_wall_seconds": 558.0221582,
+    "candidate_wall_seconds": 541.980019,
+    "wall_improvement_percent": 2.875,
+    "baseline_hash_match": 0,
+    "framebuffer_hash_matches": 90,
+    "framebuffer_hash_mismatches": 51,
+    "mismatch_groups": {
+      "SurfaceRendering": 21,
+      "PrimitiveType": 20,
+      "TinyDraw": 6,
+      "GameLoadComposite": 2,
+      "UniformThrash": 1,
+      "Vertex buffer allocation": 1
+    },
+    "external_oracle_checks": 0,
+    "external_oracle_verdict": "UNVERIFIED",
+    "measured_records": 136,
+    "weighted_guest_time_improvement_percent": 18.003,
+    "geometric_mean_improvement_percent": 0.672,
+    "median_record_improvement_percent": -0.020,
+    "weighted_guest_time_without_pattern_polling_percent": -3.992,
+    "largest_wins": {
+      "BusyPfifo::PgraphPatternPolling": 45.47,
+      "GameLoadComposite::Pgr2AiBackup-02-PFIFOOnly": 42.06,
+      "GameLoadComposite::08-LongUnlockedScene-02-PFIFO": 33.02,
+      "GameLoadComposite::DoaxMenuStress-02-PFIFOOnly": 32.00,
+      "GameLoadComposite::09-CrossTitleHotpath-08-Pgr2LagspotInlineElements": 13.75,
+      "CpuFloatingPoint::SSEScalar": 5.62
+    },
+    "largest_regressions": {
+      "GameLoadComposite::09-CrossTitleHotpath-10-S3tcStreamingFencedDraws": -8.39,
+      "GameLoadComposite::09-CrossTitleHotpath-05-PipelineStateChurn": -24.37,
+      "GameLoadComposite::09-CrossTitleHotpath-07-TextureBindingReuse": -10.58,
+      "Vertex buffer allocation::MixedVtxAlloc-inlinebuffers": -5.64,
+      "TinyDraw::TinyDraw-arrays": -7.26,
+      "TinyDraw::TinyDraw-inlineelements-vsh": -7.44
+    },
+    "s3tc_oracle": "Both builds retained one DXT1 queued failure; candidate failure count changed 16 to 15. Not resolved."
+  },
+  "vulkan": {
+    "baseline_execution": "FAIL",
+    "candidate_execution": "FAIL",
+    "records_completed_each": 37,
+    "last_completed_record": "GameLoadComposite::10-S3tcSyncFactor-09-Bc2NativeEligible",
+    "failure": "VK_ERROR_DEVICE_LOST; assertion in hw/xbox/nv2a/pgraph/vk/command.c:104",
+    "baseline_wall_seconds": 378.516,
+    "candidate_wall_seconds": 368.374,
+    "partial_framebuffer_hash_matches": 33,
+    "partial_framebuffer_hash_mismatches": 4,
+    "candidate_kat_change": "Three baseline S3TC oracle failures became PASS; Dxt1SameAddressQueued still failed.",
+    "performance_claim": "INVALID_INCOMPLETE_RUN"
+  },
+  "tooling_defect": "A zero-check oracle report was labeled PASSED. Treat checks=[] and null provenance as UNVERIFIED; ENG-2026-463 adds an enforcing comparison tool.",
+  "run_directories": {
+    "baseline_opengl": "C:\\xemu-lab\\runs\\suite\\2026-08-30-203705-perf-full-suite-d73326b62199",
+    "candidate_opengl": "C:\\xemu-lab\\runs\\suite\\2026-08-30-204624-perf-full-suite-6b4424c55d44",
+    "baseline_vulkan": "C:\\xemu-lab\\runs\\suite\\2026-08-30-205526-perf-full-suite-d73326b62199",
+    "candidate_vulkan": "C:\\xemu-lab\\runs\\suite\\2026-08-30-210145-perf-full-suite-6b4424c55d44"
+  }
+}
