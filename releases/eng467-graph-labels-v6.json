@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "release": "ENG467 labeled results graphs v6",
+  "image": {
+    "name": "xemu-perf-tests-eng467-graph-labels-e2d2fb6.iso",
+    "source_commit": "e2d2fb6c47a8be574bf0a619b5afaa736b2f736b",
+    "sha256": "950303903589172af01506370e64f71c3c779e0b1f3dd70bde50041903f7c7af",
+    "size_bytes": 3538944
+  },
+  "validation": {
+    "source_contract_tests": "111/111 PASS",
+    "release_xiso_build": "PASS",
+    "dedicated_windows_rig_copy": "PASS",
+    "diff_whitespace": "PASS"
+  },
+  "graph_layout": {
+    "plot_x": 90,
+    "plot_y": 205,
+    "plot_width": 510,
+    "plot_height": 160,
+    "y_axis": "minimum, midpoint, maximum",
+    "x_axis": "start, midpoint, final sample",
+    "selected_point": "bottom row shows selected sample range or histogram bin, minimum, average, maximum, or count"
+  },
+  "reference": {
+    "records": 141,
+    "completion": "141/141",
+    "backend": "OpenGL",
+    "scale": 1,
+    "status": "regression-only performance reference; not hardware oracle"
+  }
+}
