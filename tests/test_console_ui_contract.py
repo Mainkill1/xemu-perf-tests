@@ -73,15 +73,41 @@ class ConsoleUiContractTests(unittest.TestCase):
         sample = json.loads((ROOT / "resources/sample-config.json").read_text(encoding="utf-8"))
         self.assertGreaterEqual(sample["settings"]["reboot_or_shutdown_delay"], 30000)
 
-    def test_root_menu_has_only_the_seven_public_sections_in_order(self):
+    def test_root_menu_has_the_eight_public_sections_in_order(self):
         constructor = self.menu_source.split("MenuItemRoot::MenuItemRoot", 1)[1].split(
             "void MenuItemRoot::ActivateCurrentSuite", 1
         )[0]
         positions = [constructor.index('"' + label + '"') for label in (
             "Run Suite", "Individual Tests", "Results", "System Information",
-            "Plans", "Settings", "About/Controls"
+            "Plans", "Settings", "Time Spirit", "About/Controls"
         )]
         self.assertEqual(positions, sorted(positions))
+
+    def test_time_spirit_is_hash_pinned_bundled_and_directly_launchable(self):
+        cmake = (ROOT / "src/CMakeLists.txt").read_text(encoding="utf-8")
+        for token in (
+            "TIME_SPIRIT_XISO",
+            "TIME_SPIRIT_XISO_SHA256",
+            "833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31",
+            "time_spirit_resources",
+            "TIME_SPIRIT_RESOURCE_DIR",
+        ):
+            self.assertIn(token, cmake)
+        self.assertIn('XLaunchXBE("D:\\\\time_spirit\\\\default.xbe")', self.menu_source)
+
+    def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
+        for token in (
+            "SDL_CONTROLLERAXISMOTION",
+            "SDL_CONTROLLER_AXIS_LEFTX",
+            "SDL_CONTROLLER_AXIS_LEFTY",
+            "kMenuStickEngageThreshold = 16384",
+            "kMenuStickReleaseThreshold = 8192",
+            "ResolveMenuStickDirection",
+            "MenuStickButton",
+            "held_stick_directions",
+            "kButtonRepeatMilliseconds",
+        ):
+            self.assertIn(token, self.driver_source)
 
     def test_results_are_preserved_reference_backed_and_device_values_are_polled(self):
         store = (ROOT / "src/result_store.cpp").read_text(encoding="utf-8")

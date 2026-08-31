@@ -12,9 +12,51 @@
 #include <windows.h>
 #pragma clang diagnostic pop
 
+#include <array>
+
 #include "menu_item.h"
 
 static constexpr auto kButtonRepeatMilliseconds = 150;
+
+namespace {
+
+// Xbox sticks use signed 16-bit values. Engaging at half travel rejects normal
+// center drift; releasing at quarter travel adds hysteresis so one held gesture
+// cannot chatter between active and inactive states.
+constexpr Sint16 kMenuStickEngageThreshold = 16384;
+constexpr Sint16 kMenuStickReleaseThreshold = 8192;
+
+int8_t ResolveMenuStickDirection(Sint16 value, int8_t current_direction) {
+  if (current_direction < 0 && value <= -kMenuStickReleaseThreshold) {
+    return -1;
+  }
+  if (current_direction > 0 && value >= kMenuStickReleaseThreshold) {
+    return 1;
+  }
+  if (value <= -kMenuStickEngageThreshold) {
+    return -1;
+  }
+  if (value >= kMenuStickEngageThreshold) {
+    return 1;
+  }
+  return 0;
+}
+
+SDL_GameControllerButton MenuStickButton(size_t axis_index, int8_t direction) {
+  if (axis_index == 0) {
+    return direction < 0 ? SDL_CONTROLLER_BUTTON_DPAD_LEFT
+                         : SDL_CONTROLLER_BUTTON_DPAD_RIGHT;
+  }
+  return direction < 0 ? SDL_CONTROLLER_BUTTON_DPAD_UP
+                       : SDL_CONTROLLER_BUTTON_DPAD_DOWN;
+}
+
+struct HeldStickDirection {
+  int8_t direction{0};
+  std::chrono::steady_clock::time_point repeat_time{};
+};
+
+}  // namespace
 
 TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSuite>> &test_suites,
                        uint32_t framebuffer_width, uint32_t framebuffer_height, bool show_options_menu,
@@ -61,6 +103,8 @@ TestDriver::~TestDriver() {
 
 void TestDriver::Run() {
   std::map<SDL_GameControllerButton, std::chrono::time_point<std::chrono::steady_clock>> button_repeat_map;
+  // Index 0 is left X; index 1 is left Y.
+  std::array<HeldStickDirection, 2> held_stick_directions{};
 
   while (running_) {
     SDL_Event event;
@@ -76,7 +120,7 @@ void TestDriver::Run() {
           break;
 
         case SDL_CONTROLLERBUTTONDOWN: {
-          auto now = std::chrono::high_resolution_clock::now();
+          auto now = std::chrono::steady_clock::now();
           button_repeat_map[static_cast<SDL_GameControllerButton>(event.cbutton.button)] = now;
         } break;
 
@@ -85,17 +129,56 @@ void TestDriver::Run() {
           OnControllerButtonEvent(event.cbutton);
           break;
 
+        case SDL_CONTROLLERAXISMOTION: {
+          size_t axis_index = 0;
+          if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTX) {
+            axis_index = 0;
+          } else if (event.caxis.axis == SDL_CONTROLLER_AXIS_LEFTY) {
+            axis_index = 1;
+          } else {
+            break;
+          }
+
+          auto &held = held_stick_directions[axis_index];
+          const int8_t next_direction =
+              ResolveMenuStickDirection(event.caxis.value, held.direction);
+          if (next_direction == held.direction) {
+            break;
+          }
+          if (held.direction != 0) {
+            OnButtonActivated(MenuStickButton(axis_index, held.direction), false);
+          }
+          held.direction = next_direction;
+          if (held.direction != 0) {
+            held.repeat_time = std::chrono::steady_clock::now();
+          }
+        } break;
+
         default:
           break;
       }
     }
 
-    auto now = std::chrono::high_resolution_clock::now();
+    auto now = std::chrono::steady_clock::now();
     for (const auto &pair : button_repeat_map) {
       auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - pair.second).count();
       if (elapsed > kButtonRepeatMilliseconds) {
         OnButtonActivated(pair.first, true);
-        button_repeat_map[pair.first] = std::chrono::high_resolution_clock::now();
+        button_repeat_map[pair.first] = std::chrono::steady_clock::now();
+      }
+    }
+    for (size_t axis_index = 0; axis_index < held_stick_directions.size();
+         ++axis_index) {
+      auto &held = held_stick_directions[axis_index];
+      if (held.direction == 0) {
+        continue;
+      }
+      const auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(
+                               now - held.repeat_time)
+                               .count();
+      if (elapsed > kButtonRepeatMilliseconds) {
+        OnButtonActivated(MenuStickButton(axis_index, held.direction), true);
+        held.repeat_time = std::chrono::steady_clock::now();
       }
     }
 

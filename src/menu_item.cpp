@@ -2,6 +2,10 @@
 
 #include <pbkit/pbkit.h>
 
+#ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
+#include <hal/xbox.h>
+#endif
+
 #include <chrono>
 #include <algorithm>
 #include <cmath>
@@ -1270,6 +1274,21 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
       width, height));
   settings->parent = this;
   submenu.push_back(settings);
+
+#ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
+  auto time_spirit = std::make_shared<MenuItemCallable>(
+      []() { XLaunchXBE("D:\\time_spirit\\default.xbe"); }, "Time Spirit",
+      width, height);
+#else
+  auto time_spirit = std::make_shared<MenuItemInfo>(
+      "Time Spirit",
+      std::vector<std::string>{
+          "Time Spirit is not bundled in this build.",
+          "Build with -DTIME_SPIRIT_XISO=<approved image>."},
+      width, height);
+#endif
+  time_spirit->parent = this;
+  submenu.push_back(time_spirit);
 
   auto about = std::make_shared<MenuItemInfo>(
       "About/Controls",

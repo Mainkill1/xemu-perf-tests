@@ -98,8 +98,12 @@ last child's timing.
 
 ### On-console menu and retained results
 
-The XISO root menu contains only Run Suite, Individual Tests, Results, System
-Information, Plans, Settings, and About/Controls. `Results` discovers the active result
+The XISO root menu contains Run Suite, Individual Tests, Results, System
+Information, Plans, Settings, Time Spirit, and About/Controls. `Time Spirit`
+launches `D:\time_spirit\default.xbe` when the approved source image was
+included at build time. The image is unpacked into the same output XISO rather
+than mounted as a nested disc. Its configured SHA-256 is checked before build
+so the menu cannot silently target a different payload. `Results` discovers the active result
 and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
 run shows complete/partial state, file size, leaf/group/pass/failure/no-oracle
 counts, a failure-only filter, and one detail page per emitted record. New
@@ -137,6 +141,12 @@ collection cannot add noise to timed workloads. A zero, invalid, or unavailable
 SMC reading is shown as `no sensor data`. Host automation remains responsible
 for host GPU identity, frequency, and VRAM; the guest page no longer spends a
 row restating that limitation.
+
+The left thumbstick follows the D-pad menu routes. Half travel engages a
+direction; quarter travel releases it. Those values correspond to one-half and
+one-quarter of the signed 16-bit stick range and deliberately provide a broad
+hysteresis band against center drift. Held-stick repeat uses the existing
+150 ms D-pad repeat policy rather than a second navigation rate.
 
 ## Test inventory
 

@@ -237,7 +237,7 @@ Individual tests may be executed via the menu.
 Booting the XISO opens a controller-driven interface before autorun. Any
 controller input cancels the three-second autorun countdown.
 
-The root screen identifies the catalog and active selection. It has seven
+The root screen identifies the catalog and active selection. It has eight
 stable entries:
 
 1. `Run Suite`: run the full selection or open one suite and run its tests.
@@ -250,8 +250,23 @@ stable entries:
 5. `Plans`: run the full selection, quick smoke, S3TC/BC, or Vulkan-memory
    plans.
 6. `Settings`: select single-run/result-saving or continuous/no-save behavior.
-7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
+7. `Time Spirit`: launch the copy bundled into this same XISO. The published
+   combined disc verifies the supplied source image by SHA-256 before packing
+   it under `D:\time_spirit`.
+8. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
+
+The source repository does not silently redistribute an arbitrary nested ISO.
+To produce the combined disc, configure with:
+
+```text
+-DTIME_SPIRIT_XISO=/path/to/TimeSpirit.iso
+```
+
+Configuration fails unless its SHA-256 is
+`833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31`.
+The build extracts it into the single output XISO; selecting `Time Spirit`
+quick-reboots directly into `D:\time_spirit\default.xbe`.
 
 The full unfiltered image exposes 136 leaf tests, five structural groups, and
 141 exact legacy aliases. A catalog stage belonging to a grouped execution
@@ -367,6 +382,14 @@ DPAD:
 * Start - Enter a submenu or test.
 * Back - Go up one menu or leave a test. If pressed on the root menu, exit the application.
 * Black - Exit the application.
+
+LEFT THUMBSTICK:
+
+* Up/down/left/right use the same menu routes and held-direction repeat as the
+  D-pad.
+* A direction engages at half stick travel and releases below quarter travel.
+  The gap is intentional hysteresis: ordinary center drift cannot move the
+  cursor and a held direction cannot chatter near one threshold.
 
 # Test configuration
 

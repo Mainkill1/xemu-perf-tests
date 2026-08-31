@@ -1,5 +1,18 @@
 set(XBE_TITLE "Perf tests")
 
+set(
+        TIME_SPIRIT_XISO
+        ""
+        CACHE FILEPATH
+        "Optional Time Spirit XISO to unpack into the combined test disc"
+)
+set(
+        TIME_SPIRIT_XISO_SHA256
+        "833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31"
+        CACHE STRING
+        "Approved SHA-256 for the Time Spirit XISO supplied for this disc"
+)
+
 include(XBEUtils REQUIRED)
 
 find_package(NXDK REQUIRED)
@@ -159,6 +172,42 @@ add_executable(
         generated/test_catalog.inc
 )
 
+set(PERF_TEST_RESOURCE_ROOTS "${CMAKE_SOURCE_DIR}/resources")
+set(PERF_TEST_RESOURCE_DIRS "${CMAKE_SOURCE_DIR}/resources")
+
+if (TIME_SPIRIT_XISO)
+    get_filename_component(TIME_SPIRIT_XISO "${TIME_SPIRIT_XISO}" ABSOLUTE)
+    if (NOT EXISTS "${TIME_SPIRIT_XISO}")
+        message(FATAL_ERROR "TIME_SPIRIT_XISO does not exist: ${TIME_SPIRIT_XISO}")
+    endif ()
+
+    file(SHA256 "${TIME_SPIRIT_XISO}" TIME_SPIRIT_XISO_ACTUAL_SHA256)
+    if (NOT TIME_SPIRIT_XISO_ACTUAL_SHA256 STREQUAL TIME_SPIRIT_XISO_SHA256)
+        message(
+                FATAL_ERROR
+                "Time Spirit XISO SHA-256 mismatch. Expected ${TIME_SPIRIT_XISO_SHA256}, got ${TIME_SPIRIT_XISO_ACTUAL_SHA256}"
+        )
+    endif ()
+
+    set(TIME_SPIRIT_RESOURCE_ROOT "${CMAKE_CURRENT_BINARY_DIR}/bundled_titles")
+    set(TIME_SPIRIT_RESOURCE_DIR "${TIME_SPIRIT_RESOURCE_ROOT}/time_spirit")
+    set(TIME_SPIRIT_RESOURCE_STAMP "${TIME_SPIRIT_RESOURCE_DIR}/.extracted")
+    add_custom_command(
+            OUTPUT "${TIME_SPIRIT_RESOURCE_STAMP}"
+            COMMAND "${CMAKE_COMMAND}" -E rm -rf "${TIME_SPIRIT_RESOURCE_DIR}"
+            COMMAND "${CMAKE_COMMAND}" -E make_directory "${TIME_SPIRIT_RESOURCE_DIR}"
+            COMMAND "${EXTRACT_XISO_TOOL_PATH}" -Q -x -d "${TIME_SPIRIT_RESOURCE_DIR}" "${TIME_SPIRIT_XISO}"
+            COMMAND "${CMAKE_COMMAND}" -E touch "${TIME_SPIRIT_RESOURCE_STAMP}"
+            DEPENDS "${TIME_SPIRIT_XISO}" "${EXTRACT_XISO_TOOL_PATH}"
+            COMMENT "Extracting approved Time Spirit payload for the combined XISO"
+            VERBATIM
+    )
+    add_custom_target(time_spirit_resources DEPENDS "${TIME_SPIRIT_RESOURCE_STAMP}")
+    list(APPEND PERF_TEST_RESOURCE_ROOTS "${TIME_SPIRIT_RESOURCE_ROOT}")
+    list(APPEND PERF_TEST_RESOURCE_DIRS "${TIME_SPIRIT_RESOURCE_DIR}")
+    target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_HAS_TIME_SPIRIT=1)
+endif ()
+
 # Pull debug info out of the binary into a host-side linked binary.
 split_debug(${PROJECT_NAME})
 
@@ -188,8 +237,11 @@ add_xbe(
         xbe_file "${EXECUTABLE_BINARY}"
         TITLE "${XBE_TITLE}"
         RESOURCE_ROOTS
-        "${CMAKE_SOURCE_DIR}/resources"
+        ${PERF_TEST_RESOURCE_ROOTS}
         RESOURCE_DIRS
-        "${CMAKE_SOURCE_DIR}/resources"
+        ${PERF_TEST_RESOURCE_DIRS}
 )
+if (TARGET time_spirit_resources)
+    add_dependencies(sync_resource_dirs time_spirit_resources)
+endif ()
 add_xiso(${PROJECT_NAME}_xiso xbe_file)
