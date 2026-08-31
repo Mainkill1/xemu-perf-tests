@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9` contains 132 leaves and 5 groups.
+Catalog `sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45` contains 136 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -16,6 +16,10 @@ Catalog `sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
+| `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |
+| `pipeline_texture_switch.shader_negative_control` | leaf | `PipelineTextureSwitch::pipeline.shader-negative-control` |
+| `pipeline_texture_switch.clear_texture_normal` | leaf | `PipelineTextureSwitch::pipeline.clear-texture-normal` |
+| `pipeline_texture_switch.sampler_only_identity` | leaf | `PipelineTextureSwitch::pipeline.sampler-only-identity` |
 | `game_load.long_unlocked_scene` | group | `GameLoadComposite::08-LongUnlockedScene` |
 | `game_load.long_unlocked_scene.cpu` | leaf | `GameLoadComposite::08-LongUnlockedScene-01-CPU` |
 | `game_load.long_unlocked_scene.pfifo` | leaf | `GameLoadComposite::08-LongUnlockedScene-02-PFIFO` |

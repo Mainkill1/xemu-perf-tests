@@ -20,6 +20,8 @@ static constexpr char kShaderNegativeControlName[] =
     "pipeline.shader-negative-control";
 static constexpr char kClearTextureNormalName[] =
     "pipeline.clear-texture-normal";
+static constexpr char kSamplerOnlyIdentityName[] =
+    "pipeline.sampler-only-identity";
 
 static constexpr uint32_t kSeed = 0x50545357;  // "PTSW"
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
@@ -27,6 +29,8 @@ static constexpr uint32_t kFnvPrime = 16777619U;
 static constexpr uint32_t kTextureWidth = 64;
 static constexpr uint32_t kTextureHeight = 64;
 static constexpr uint32_t kTexturePixels = kTextureWidth * kTextureHeight;
+static constexpr uint32_t kSamplerMipLevels = 5;
+static constexpr uint32_t kSamplerTextureWords = 5456;
 static constexpr uint32_t kProfileSamples = 8;
 static constexpr uint32_t kOperationsPerIteration = 512;
 static constexpr uint32_t kTextureStageCount = 1;
@@ -41,6 +45,8 @@ static constexpr uint32_t kClearOperationsPerIteration =
 static constexpr uint32_t kTextureAColor = 0xFFFF0000;
 static constexpr uint32_t kTextureBColor = 0xFF0000FF;
 static constexpr uint32_t kDiffuseColor = 0xFF00FF00;
+static constexpr uint32_t kSamplerMipColors[] = {
+    0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF};
 static constexpr uint32_t kBackgroundColor = 0xFF101820;
 static constexpr uint32_t kBoundaryClearColor = 0xFF202830;
 
@@ -57,6 +63,9 @@ static constexpr uint32_t kTextureSwitchPixelKat = 0xBB0EC8ED;
 static constexpr uint32_t kShaderNegativePixelKat = 0x08C5E8A1;
 static constexpr uint32_t kClearTextureNormalInputKat = 0x1A404C43;
 static constexpr uint32_t kClearTextureNormalPixelKat = 0x50C0069D;
+static constexpr uint32_t kSamplerBackingKat = 0xCDD5D7A5;
+static constexpr uint32_t kSamplerInputKat = 0x2BC5C8EE;
+static constexpr uint32_t kSamplerOnlyPixelKat = 0x08C5E8A1;
 
 static constexpr uint32_t kTextureSwitchFinalColor = 0xFF18405A;
 static constexpr uint32_t kShaderNegativeFinalColor = 0xFF4A2038;
@@ -67,6 +76,9 @@ static constexpr uint64_t kShaderNegativeFinalFrameHash =
 static constexpr uint32_t kClearTextureNormalFinalColor = 0xFF305060;
 static constexpr uint64_t kClearTextureNormalFinalFrameHash =
     0x22BA4F1405CDA325ULL;
+static constexpr uint32_t kSamplerOnlyFinalColor = 0xFF405020;
+static constexpr uint64_t kSamplerOnlyFinalFrameHash =
+    0x0B8438C8404DA325ULL;
 
 struct Quad {
   float left;
@@ -101,11 +113,12 @@ uint32_t FoldKnownOutput(uint32_t state, uint32_t value) {
   return (state ^ value) * kFnvPrime;
 }
 
-uint32_t ExpectedFinalState(uint32_t phase, uint32_t expected_pixel_kat,
+uint32_t ExpectedFinalState(uint32_t phase, uint32_t input_kat,
+                            uint32_t expected_pixel_kat,
                             uint32_t measured_iterations) {
   uint32_t state = kSeed ^ phase;
   for (uint32_t iteration = 0; iteration < measured_iterations; ++iteration) {
-    state = FoldKnownOutput(state, kInputKat);
+    state = FoldKnownOutput(state, input_kat);
     state = FoldKnownOutput(state, phase);
     state = FoldKnownOutput(state, kOperationsPerIteration);
     state = FoldKnownOutput(state, expected_pixel_kat);
@@ -155,16 +168,21 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
                                                        const Config &config)
     : TestSuite(host, std::move(output_dir), "PipelineTextureSwitch", config) {
   static constexpr Recipe kTextureSwitch{
-      kTextureSwitchName, 0x1501, false, kTextureSwitchPixelKat,
+      kTextureSwitchName, 0x1501, false, false, kTextureSwitchPixelKat,
       kTextureSwitchFinalColor, kTextureSwitchFinalFrameHash};
   static constexpr Recipe kShaderNegativeControl{
-      kShaderNegativeControlName, 0x1502, true, kShaderNegativePixelKat,
+      kShaderNegativeControlName, 0x1502, true, false, kShaderNegativePixelKat,
       kShaderNegativeFinalColor, kShaderNegativeFinalFrameHash};
+  static constexpr Recipe kSamplerOnlyIdentity{
+      kSamplerOnlyIdentityName, 0x1504, false, true, kSamplerOnlyPixelKat,
+      kSamplerOnlyFinalColor, kSamplerOnlyFinalFrameHash};
 
   tests_[kTextureSwitchName] = [this]() { Run(kTextureSwitch); };
   tests_[kShaderNegativeControlName] =
       [this]() { Run(kShaderNegativeControl); };
   tests_[kClearTextureNormalName] = [this]() { RunClearTextureNormal(); };
+  tests_[kSamplerOnlyIdentityName] =
+      [this]() { Run(kSamplerOnlyIdentity); };
 }
 
 void PipelineTextureSwitchTests::Initialize() {
@@ -175,6 +193,17 @@ void PipelineTextureSwitchTests::Initialize() {
   for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
     texture_a[pixel] = kTextureAColor;
     texture_b[pixel] = kTextureBColor;
+  }
+
+  uint32_t mip_offset = 0;
+  uint32_t mip_dimension = kTextureWidth;
+  for (uint32_t level = 0; level < kSamplerMipLevels; ++level) {
+    const uint32_t level_words = mip_dimension * mip_dimension;
+    for (uint32_t word = 0; word < level_words; ++word) {
+      texture_a[mip_offset + word] = kSamplerMipColors[level];
+    }
+    mip_offset += level_words;
+    mip_dimension >>= 1;
   }
 
   backing_a_kat_ = HashWords(texture_a, kTexturePixels);
@@ -189,6 +218,16 @@ void PipelineTextureSwitchTests::Initialize() {
   for (uint32_t value : input_words) {
     input_kat_ = Fnv1aAddWord(input_kat_, value);
   }
+  sampler_backing_kat_ = HashWords(texture_a, kSamplerTextureWords);
+  sampler_input_kat_ = kFnvOffsetBasis;
+  const uint32_t sampler_input_words[]{
+      kSeed, kTextureWidth, kTextureHeight, kSamplerMipLevels,
+      kSamplerMipColors[0], kSamplerMipColors[1], kSamplerMipColors[2],
+      kSamplerMipColors[3], kSamplerMipColors[4], sampler_backing_kat_,
+      kOperationsPerIteration};
+  for (uint32_t value : sampler_input_words) {
+    sampler_input_kat_ = Fnv1aAddWord(sampler_input_kat_, value);
+  }
   AssertXemuPerfEqual(kTextureABackingKat, backing_a_kat_,
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "texture_a_backing_kat == expected", __FILE__, __LINE__);
@@ -199,6 +238,14 @@ void PipelineTextureSwitchTests::Initialize() {
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "pipeline_texture_input_kat == expected", __FILE__,
                       __LINE__);
+  AssertXemuPerfEqual(kSamplerBackingKat, sampler_backing_kat_,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "sampler_identity_backing_kat == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kSamplerInputKat, sampler_input_kat_,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "sampler_identity_input_kat == expected", __FILE__,
+                      __LINE__);
 }
 
 void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
@@ -208,8 +255,12 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
           : 1;
   const uint32_t warmup_iterations =
       host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  const uint32_t recipe_input_kat =
+      recipe.sampler_only_identity ? sampler_input_kat_ : input_kat_;
+  const uint32_t expected_input_kat =
+      recipe.sampler_only_identity ? kSamplerInputKat : kInputKat;
   const uint32_t expected_final =
-      ExpectedFinalState(recipe.phase, recipe.expected_pixel_kat,
+      ExpectedFinalState(recipe.phase, recipe_input_kat, recipe.expected_pixel_kat,
                          measured_iterations);
   uint32_t actual_final = kSeed ^ recipe.phase;
   uint32_t invocation = 0;
@@ -219,7 +270,10 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
                     host_.GetMeasurementIterationsMultiplier(),
                     warmup_iterations);
 
-  AssertXemuPerfEqual(kTextureABackingKat, backing_a_kat_,
+  AssertXemuPerfEqual(recipe.sampler_only_identity ? kSamplerBackingKat
+                                                   : kTextureABackingKat,
+                      recipe.sampler_only_identity ? sampler_backing_kat_
+                                                   : backing_a_kat_,
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "pipeline_texture_input_a == expected", __FILE__,
                       __LINE__);
@@ -227,18 +281,22 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "pipeline_texture_input_b == expected", __FILE__,
                       __LINE__);
-  AssertXemuPerfEqual(kInputKat, input_kat_,
+  AssertXemuPerfEqual(expected_input_kat, recipe_input_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "pipeline_texture_input == expected", __FILE__,
                       __LINE__);
 
-  ConfigureTexturePipeline();
+  if (recipe.sampler_only_identity) {
+    ConfigureSamplerIdentityPipeline();
+  } else {
+    ConfigureTexturePipeline();
+  }
   host_.PrepareDraw(kBackgroundColor);
 
   auto results = Profile(recipe.test_name, kProfileSamples, [&]() {
     RunIteration(recipe);
     if (invocation >= warmup_iterations) {
-      actual_final = FoldKnownOutput(actual_final, input_kat_);
+      actual_final = FoldKnownOutput(actual_final, recipe_input_kat);
       actual_final = FoldKnownOutput(actual_final, recipe.phase);
       actual_final = FoldKnownOutput(actual_final, kOperationsPerIteration);
       actual_final = FoldKnownOutput(actual_final, recipe.expected_pixel_kat);
@@ -257,9 +315,13 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
       host_.GetTextureMemoryForStage(0));
   auto *texture_b = reinterpret_cast<volatile const uint32_t *>(
       host_.GetTextureMemoryForStage(1));
-  const uint32_t actual_backing_a = HashWords(texture_a, kTexturePixels);
+  const uint32_t actual_backing_a = HashWords(
+      texture_a, recipe.sampler_only_identity ? kSamplerTextureWords
+                                              : kTexturePixels);
   const uint32_t actual_backing_b = HashWords(texture_b, kTexturePixels);
-  AssertXemuPerfEqual(kTextureABackingKat, actual_backing_a,
+  AssertXemuPerfEqual(recipe.sampler_only_identity ? kSamplerBackingKat
+                                                   : kTextureABackingKat,
+                      actual_backing_a,
                       XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
                       "texture_a_backing_unchanged", __FILE__, __LINE__);
   AssertXemuPerfEqual(kTextureBBackingKat, actual_backing_b,
@@ -299,7 +361,11 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
   const uint64_t total_operations =
       static_cast<uint64_t>(kOperationsPerIteration) * results.iterations;
   const uint64_t texture_switches =
-      recipe.shader_negative_control ? 0 : total_operations;
+      (recipe.shader_negative_control || recipe.sampler_only_identity)
+          ? 0
+          : total_operations;
+  const uint64_t sampler_changes =
+      recipe.sampler_only_identity ? total_operations : texture_switches;
   const uint64_t shader_state_writes =
       recipe.shader_negative_control ? total_operations : 0;
   PrintMsg(
@@ -312,9 +378,9 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
       static_cast<unsigned long long>(total_operations),
       static_cast<unsigned long long>(total_operations),
       static_cast<unsigned long long>(texture_switches),
-      static_cast<unsigned long long>(texture_switches),
-      static_cast<unsigned long long>(texture_switches),
-      static_cast<unsigned long long>(shader_state_writes), input_kat_,
+      static_cast<unsigned long long>(sampler_changes),
+      static_cast<unsigned long long>(sampler_changes),
+      static_cast<unsigned long long>(shader_state_writes), recipe_input_kat,
       actual_backing_a, actual_backing_b, actual_pixel_kat, actual_final,
       static_cast<unsigned long long>(actual_frame_hash));
 
@@ -325,23 +391,27 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
   metadata << "\"oracle_provenance\":\"REGRESSION_ONLY\",";
   metadata << "\"seed\":\"50545357\",";
   metadata << "\"phase\":\""
-           << (recipe.shader_negative_control ? "shader_negative_control"
-                                              : "texture_switch")
+           << (recipe.shader_negative_control
+                   ? "shader_negative_control"
+                   : (recipe.sampler_only_identity ? "sampler_only_identity"
+                                                   : "texture_switch"))
            << "\",";
-  metadata << "\"phase_count\":2,";
+  metadata << "\"phase_count\":4,";
   metadata << "\"texture_stage_count\":" << kTextureStageCount << ",";
   metadata << "\"operations_per_iteration\":"
            << kOperationsPerIteration << ",";
   metadata << "\"total_operations\":" << total_operations << ",";
   metadata << "\"draws\":" << total_operations << ",";
   metadata << "\"texture_switches\":" << texture_switches << ",";
-  metadata << "\"sampler_changes\":" << texture_switches << ",";
-  metadata << "\"address_changes\":" << texture_switches << ",";
+  metadata << "\"sampler_changes\":" << sampler_changes << ",";
+  metadata << "\"address_changes\":" << sampler_changes << ",";
   metadata << "\"shader_state_writes\":" << shader_state_writes << ",";
-  metadata << "\"input_kat\":{\"expected\":" << kInputKat
-           << ",\"actual\":" << input_kat_ << "},";
+  metadata << "\"input_kat\":{\"expected\":" << expected_input_kat
+           << ",\"actual\":" << recipe_input_kat << "},";
   metadata << "\"backing_kat\":{\"a_expected\":"
-           << kTextureABackingKat << ",\"a_actual\":" << actual_backing_a
+           << (recipe.sampler_only_identity ? kSamplerBackingKat
+                                            : kTextureABackingKat)
+           << ",\"a_actual\":" << actual_backing_a
            << ",\"b_expected\":" << kTextureBBackingKat
            << ",\"b_actual\":" << actual_backing_b << "},";
   metadata << "\"rendered_pixel_kat\":{\"expected\":"
@@ -350,6 +420,21 @@ void PipelineTextureSwitchTests::Run(const Recipe &recipe) {
   metadata << "\"expected_final_state\":" << expected_final << ",";
   metadata << "\"actual_final_state\":" << actual_final << ",";
   metadata << "\"terminal_fence\":\"F2 after F1\",";
+  if (recipe.sampler_only_identity) {
+    metadata << "\"image_identity_changes\":0,";
+    metadata << "\"storage_mip_levels\":" << kSamplerMipLevels << ",";
+    metadata << "\"sampler_identity_count\":2,";
+    metadata << "\"cold_setup_counter_contract\":{";
+    metadata << "\"image_cache_misses\":1,";
+    metadata << "\"sampler_cache_misses\":2,";
+    metadata << "\"image_uploads\":1,";
+    metadata << "\"correlation\":\"TEST_BEGIN through F0\"},";
+    metadata << "\"measured_counter_contract\":{";
+    metadata << "\"image_cache_misses\":0,";
+    metadata << "\"sampler_cache_misses\":0,";
+    metadata << "\"sampler_lookups\":" << total_operations << ",";
+    metadata << "\"correlation\":\"F0/F1 interval only\"},";
+  }
   char hash_string[17]{};
   snprintf(hash_string, sizeof(hash_string), "%016llx",
            static_cast<unsigned long long>(recipe.final_frame_hash));
@@ -568,6 +653,8 @@ void PipelineTextureSwitchTests::ConfigureTexturePipeline() const {
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
   texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
   texture_stage.SetImageDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetMipMapLevels(1);
+  texture_stage.SetLODClamp(0, 4095);
   texture_stage.SetUWrap(TextureStage::WRAP_REPEAT, false);
   texture_stage.SetVWrap(TextureStage::WRAP_REPEAT, false);
   texture_stage.SetPWrap(TextureStage::WRAP_REPEAT, false);
@@ -579,6 +666,36 @@ void PipelineTextureSwitchTests::ConfigureTexturePipeline() const {
   host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
   host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
   host_.SetDiffuse(0.f, 1.f, 0.f, 1.f);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::End();
+}
+
+void PipelineTextureSwitchTests::ConfigureSamplerIdentityPipeline() const {
+  host_.SetVertexShaderProgram(nullptr);
+  host_.SetupFixedFunctionPassthrough();
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetImageDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetMipMapLevels(kSamplerMipLevels);
+  texture_stage.SetUWrap(TextureStage::WRAP_REPEAT, false);
+  texture_stage.SetVWrap(TextureStage::WRAP_REPEAT, false);
+  texture_stage.SetPWrap(TextureStage::WRAP_REPEAT, false);
+  texture_stage.SetBorderFromColor(true);
+  texture_stage.SetBorderColor(0xFF112233);
+  texture_stage.SetLODClamp(0, 0);
+  texture_stage.SetFilter(0, TextureStage::K_QUINCUNX,
+                          TextureStage::MIN_BOX_NEARESTLOD,
+                          TextureStage::MAG_BOX_LOD0);
+  texture_stage.SetEnabled(true);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetupTextureStages();
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
   Pushbuffer::Begin();
   Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
   Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
@@ -604,7 +721,28 @@ void PipelineTextureSwitchTests::RunIteration(const Recipe &recipe) const {
   for (uint32_t operation = 0; operation < kOperationsPerIteration;
        ++operation) {
     const uint32_t selector = operation & 1;
-    if (recipe.shader_negative_control) {
+    if (recipe.sampler_only_identity) {
+      auto &texture_stage = host_.GetTextureStage(0);
+      const uint32_t lod = selector ? (2U << 8) : 0;
+      texture_stage.SetLODClamp(lod, lod);
+      texture_stage.SetUWrap(selector ? TextureStage::WRAP_BORDER
+                                     : TextureStage::WRAP_REPEAT,
+                             false);
+      texture_stage.SetVWrap(selector ? TextureStage::WRAP_BORDER
+                                     : TextureStage::WRAP_REPEAT,
+                             false);
+      texture_stage.SetPWrap(selector ? TextureStage::WRAP_BORDER
+                                     : TextureStage::WRAP_REPEAT,
+                             false);
+      texture_stage.SetBorderColor(selector ? 0xFF445566 : 0xFF112233);
+      texture_stage.SetFilter(
+          0, TextureStage::K_QUINCUNX,
+          selector ? TextureStage::MIN_TENT_NEARESTLOD
+                   : TextureStage::MIN_BOX_NEARESTLOD,
+          selector ? TextureStage::MAG_TENT_LOD0
+                   : TextureStage::MAG_BOX_LOD0);
+      host_.SetupTextureStages();
+    } else if (recipe.shader_negative_control) {
       host_.SetFinalCombiner0Just(selector ? TestHost::SRC_DIFFUSE
                                            : TestHost::SRC_TEX0);
     } else {
@@ -619,9 +757,15 @@ void PipelineTextureSwitchTests::RunIteration(const Recipe &recipe) const {
     }
 
     const Quad &quad = kQuads[operation & 3];
-    host_.DrawTexturedScreenQuadEx(
-        quad.left, quad.top, quad.right, quad.bottom, 1.f, -16.f, -16.f,
-        80.f, -16.f, 80.f, 80.f, -16.f, 80.f);
+    if (recipe.sampler_only_identity) {
+      host_.DrawTexturedScreenQuadEx(
+          quad.left, quad.top, quad.right, quad.bottom, 1.f, 8.f, 8.f,
+          56.f, 8.f, 56.f, 56.f, 8.f, 56.f);
+    } else {
+      host_.DrawTexturedScreenQuadEx(
+          quad.left, quad.top, quad.right, quad.bottom, 1.f, -16.f, -16.f,
+          80.f, -16.f, 80.f, 80.f, -16.f, 80.f);
+    }
   }
 }
 
@@ -676,7 +820,9 @@ uint32_t PipelineTextureSwitchTests::ValidatePixels(
         reinterpret_cast<volatile const uint32_t *>(base + y * pitch);
     const uint32_t actual = row[x];
     uint32_t expected;
-    if (recipe.shader_negative_control) {
+    if (recipe.sampler_only_identity) {
+      expected = (tile & 1) ? kSamplerMipColors[2] : kSamplerMipColors[0];
+    } else if (recipe.shader_negative_control) {
       expected = (tile & 1) ? kDiffuseColor : kTextureAColor;
     } else {
       expected = (tile & 1) ? kTextureBColor : kTextureAColor;

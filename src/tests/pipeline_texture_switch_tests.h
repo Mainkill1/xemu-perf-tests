@@ -21,6 +21,7 @@ class PipelineTextureSwitchTests : public TestSuite {
     const char *test_name;
     uint32_t phase;
     bool shader_negative_control;
+    bool sampler_only_identity;
     uint32_t expected_pixel_kat;
     uint32_t final_frame_color;
     uint64_t final_frame_hash;
@@ -29,6 +30,7 @@ class PipelineTextureSwitchTests : public TestSuite {
   void Run(const Recipe &recipe);
   void RunClearTextureNormal();
   void ConfigureTexturePipeline() const;
+  void ConfigureSamplerIdentityPipeline() const;
   void RunIteration(const Recipe &recipe) const;
   void RunClearTextureNormalIteration() const;
   uint32_t ValidatePixels(const Recipe &recipe) const;
@@ -37,6 +39,8 @@ class PipelineTextureSwitchTests : public TestSuite {
   uint32_t backing_a_kat_{0};
   uint32_t backing_b_kat_{0};
   uint32_t input_kat_{0};
+  uint32_t sampler_backing_kat_{0};
+  uint32_t sampler_input_kat_{0};
 };
 
 #endif  // XEMU_PERF_TESTS_PIPELINE_TEXTURE_SWITCH_TESTS_H

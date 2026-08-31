@@ -420,11 +420,18 @@ while alternating shader combiner state. A third exact phase,
 change into a zero-binding normal inline draw, then a safe texture-only normal
 draw. It requires a nonzero clear-binding dirty count, rejects attributing that
 boundary as a texture-only bypass, and requires a later safe bypass. All phases
+include `pipeline.sampler-only-identity`, which holds one five-level swizzled
+image and its storage bytes fixed while alternating LOD clamps, filtering,
+wrap modes, and border colors. Its host-counter gate expects cold setup to
+create one image and two samplers; the warmed F0/F1 interval must reuse both
+with no cache misses. Stable catalog IDs use the
+`pipeline_texture_switch.*` namespace. All phases
 provide exact input, backing, rendered-pixel, terminal-state, operation-count,
 and framebuffer contracts with live failure/progress events. Smoke, initial roughly
 2-second/8-second quick, and 5-second/20-second formal configs are in
 `resources/pipeline-texture-switch-*.json`; dedicated third-phase configs are
-in `resources/pipeline-clear-texture-normal-*.json`. Duration claims still
+in `resources/pipeline-clear-texture-normal-*.json`. Dedicated sampler-only
+plans are in `resources/pipeline-sampler-only-identity-*.json`. Duration claims still
 require control-only calibration and identical fixed work. See
 [`docs/pipeline-texture-switch-workload.md`](docs/pipeline-texture-switch-workload.md).
 

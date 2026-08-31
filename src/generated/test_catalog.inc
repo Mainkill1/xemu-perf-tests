@@ -12,6 +12,10 @@ static const TestDescriptor kTestCatalog[] = {
   {"cpu_translation_blocks.indirect_dispatch_stress", 1, "cpu_translation_blocks", "CpuTranslationBlocks", "IndirectDispatchStress", "IndirectDispatchStress", TestKind::LEAF, 0, 0},
   {"fill_rate.solid", 1, "fill_rate", "FillRate", "FillRate-Solid", "FillRate-Solid", TestKind::LEAF, 0, 0},
   {"fill_rate.textured", 1, "fill_rate", "FillRate", "FillRate-Textured", "FillRate-Textured", TestKind::LEAF, 0, 0},
+  {"pipeline_texture_switch.texture_switch", 1, "pipeline_texture_switch", "PipelineTextureSwitch", "pipeline.texture-switch", "pipeline.texture-switch", TestKind::LEAF, 0, 0},
+  {"pipeline_texture_switch.shader_negative_control", 1, "pipeline_texture_switch", "PipelineTextureSwitch", "pipeline.shader-negative-control", "pipeline.shader-negative-control", TestKind::LEAF, 0, 0},
+  {"pipeline_texture_switch.clear_texture_normal", 1, "pipeline_texture_switch", "PipelineTextureSwitch", "pipeline.clear-texture-normal", "pipeline.clear-texture-normal", TestKind::LEAF, 0, 0},
+  {"pipeline_texture_switch.sampler_only_identity", 1, "pipeline_texture_switch", "PipelineTextureSwitch", "pipeline.sampler-only-identity", "pipeline.sampler-only-identity", TestKind::LEAF, 0, 0},
   {"game_load.long_unlocked_scene", 1, "game_load", "GameLoadComposite", "08-LongUnlockedScene", "08-LongUnlockedScene", TestKind::GROUP, 0, 0},
   {"game_load.long_unlocked_scene.cpu", 1, "game_load", "GameLoadComposite", "08-LongUnlockedScene-01-CPU", "08-LongUnlockedScene", TestKind::LEAF, 1, 0},
   {"game_load.long_unlocked_scene.pfifo", 1, "game_load", "GameLoadComposite", "08-LongUnlockedScene-02-PFIFO", "08-LongUnlockedScene", TestKind::LEAF, 1, 1},
@@ -139,4 +143,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9";
+static constexpr const char *kTestCatalogId = "sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45";

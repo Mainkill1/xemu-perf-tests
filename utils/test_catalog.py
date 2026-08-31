@@ -64,6 +64,12 @@ def entries():
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
+    simple("pipeline_texture_switch", "PipelineTextureSwitch", [
+        ("texture_switch", "pipeline.texture-switch"),
+        ("shader_negative_control", "pipeline.shader-negative-control"),
+        ("clear_texture_normal", "pipeline.clear-texture-normal"),
+        ("sampler_only_identity", "pipeline.sampler-only-identity")],
+        ("texture", "gpu", "performance", "hardware-safe"))
 
     def staged(parent, legacy_parent, selection_group, stages, tags, description):
         out.append(group(parent, parent.split(".")[0], "GameLoadComposite", legacy_parent,
@@ -251,45 +257,88 @@ def catalog_json(doc):
     return "\n".join(lines + ["  ]", "}", ""])
 
 
+def resolved_plan(doc, settings, ids):
+    tests = [{"id": test_id} for test_id in ids]
+    contract = {"catalog_id": doc["catalog_id"], "tests": tests}
+    plan_id = "sha256:" + hashlib.sha256(
+        json.dumps(contract, sort_keys=True, separators=(",", ":")).encode()
+    ).hexdigest()
+    return json.dumps({
+        "settings": settings,
+        "resolved_plan": {
+            "schema_version": 2,
+            "plan_id": plan_id,
+            "catalog_id": doc["catalog_id"],
+            "selected_leaf_count": len(ids),
+            "tests": tests,
+        },
+    }, indent=2) + "\n"
+
+
 def render():
     items = entries(); validate(items); doc = catalog(items)
-
-    def resolved_plan(ids, settings):
-        plan_contract = {"catalog_id": doc["catalog_id"],
-                         "tests": [{"id": x} for x in ids]}
-        plan_id = "sha256:" + hashlib.sha256(json.dumps(
-            plan_contract, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
-        return {"settings": settings,
-                "resolved_plan": {"schema_version": 2, "plan_id": plan_id,
-                                  "catalog_id": doc["catalog_id"],
-                                  "selected_leaf_count": len(ids),
-                                  "tests": [{"id": x} for x in ids]}}
-
     smoke_ids = ["busy_pfifo.pgraph_pattern_polling", "surface.cpu_read_clean_surface",
                  "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw"]
-    smoke_plan = resolved_plan(smoke_ids, {"enable_autorun_immediately": True})
+    smoke_plan = resolved_plan(doc, {"enable_autorun_immediately": True}, smoke_ids)
     pfifo_ids = ["pfifo_array_elements.array_element16",
                  "pfifo_array_elements.array_element32",
                  "pfifo_array_elements.array_element_pgr2"]
-    pfifo_smoke = resolved_plan(pfifo_ids, {
+    pfifo_smoke = resolved_plan(doc, {
         "enable_autorun_immediately": True, "warmup_iterations": 1,
         "measurement_iterations_multiplier": 1, "gpu_completion_mode": "enqueue",
-        "output_directory_path": "e:/xemu_perf_tests"})
-    pfifo_quick = resolved_plan(pfifo_ids, {
+        "output_directory_path": "e:/xemu_perf_tests"}, pfifo_ids)
+    pfifo_quick = resolved_plan(doc, {
         "enable_autorun_immediately": True, "warmup_iterations": 300,
         "measurement_iterations_multiplier": 150, "gpu_completion_mode": "batch_complete",
-        "output_directory_path": "e:/xemu_perf_tests"})
-    pfifo_sustained = resolved_plan(pfifo_ids, {
+        "output_directory_path": "e:/xemu_perf_tests"}, pfifo_ids)
+    pfifo_sustained = resolved_plan(doc, {
         "enable_autorun_immediately": True, "warmup_iterations": 750,
         "measurement_iterations_multiplier": 375, "gpu_completion_mode": "batch_complete",
-        "output_directory_path": "e:/xemu_perf_tests"})
-    return {ROOT / "resources/catalog.json": catalog_json(doc),
-            ROOT / "resources/plans/smoke.json": json.dumps(smoke_plan, indent=2) + "\n",
-            ROOT / "resources/pfifo-array-elements-fast-smoke.json": json.dumps(pfifo_smoke, indent=2) + "\n",
-            ROOT / "resources/pfifo-array-elements-quick.json": json.dumps(pfifo_quick, indent=2) + "\n",
-            ROOT / "resources/pfifo-array-elements-sustained.json": json.dumps(pfifo_sustained, indent=2) + "\n",
+        "output_directory_path": "e:/xemu_perf_tests"}, pfifo_ids)
+    output = {ROOT / "resources/catalog.json": catalog_json(doc),
+            ROOT / "resources/plans/smoke.json": smoke_plan,
+            ROOT / "resources/pfifo-array-elements-fast-smoke.json": pfifo_smoke,
+            ROOT / "resources/pfifo-array-elements-quick.json": pfifo_quick,
+            ROOT / "resources/pfifo-array-elements-sustained.json": pfifo_sustained,
             ROOT / "docs/generated/test-catalog.md": markdown(doc),
             ROOT / "src/generated/test_catalog.inc": cpp(items, doc["catalog_id"])}
+    base_settings = {
+        "skip_tests_by_default": True,
+        "output_directory_path": "e:/xemu_perf_tests",
+    }
+    profiles = {
+        "fast-smoke": (1, 1, "enqueue"),
+        "quick": (128, 64, "batch_complete"),
+        "sustained": (320, 160, "batch_complete"),
+    }
+    texture_ids = [
+        "pipeline_texture_switch.texture_switch",
+        "pipeline_texture_switch.shader_negative_control",
+        "pipeline_texture_switch.sampler_only_identity",
+    ]
+    for profile, (warmup, multiplier, completion) in profiles.items():
+        settings = dict(base_settings, warmup_iterations=warmup,
+                        measurement_iterations_multiplier=multiplier,
+                        gpu_completion_mode=completion)
+        output[ROOT / f"resources/pipeline-texture-switch-{profile}.json"] = \
+            resolved_plan(doc, settings, texture_ids)
+    specialized = {
+        "pipeline-clear-texture-normal": "pipeline_texture_switch.clear_texture_normal",
+        "pipeline-sampler-only-identity": "pipeline_texture_switch.sampler_only_identity",
+    }
+    specialized_profiles = {
+        "fast-smoke": (1, 1, "enqueue"),
+        "quick": (64, 32, "batch_complete"),
+        "sustained": (160, 80, "batch_complete"),
+    }
+    for prefix, stable_id in specialized.items():
+        for profile, (warmup, multiplier, completion) in specialized_profiles.items():
+            settings = dict(base_settings, warmup_iterations=warmup,
+                            measurement_iterations_multiplier=multiplier,
+                            gpu_completion_mode=completion)
+            output[ROOT / f"resources/{prefix}-{profile}.json"] = \
+                resolved_plan(doc, settings, [stable_id])
+    return output
 
 
 def main():

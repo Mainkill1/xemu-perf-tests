@@ -1,14 +1,20 @@
 {
   "settings": {
     "skip_tests_by_default": true,
+    "output_directory_path": "e:/xemu_perf_tests",
     "warmup_iterations": 1,
     "measurement_iterations_multiplier": 1,
-    "gpu_completion_mode": "enqueue",
-    "output_directory_path": "e:/xemu_perf_tests"
+    "gpu_completion_mode": "enqueue"
   },
-  "test_suites": {
-    "PipelineTextureSwitch": {
-      "pipeline.clear-texture-normal": { "skipped": false }
-    }
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:e08dfbd1f366b0b8d502e752ee94f54ad8b7558f38fa34c91aaa62b91b3ffa1d",
+    "catalog_id": "sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45",
+    "selected_leaf_count": 1,
+    "tests": [
+      {
+        "id": "pipeline_texture_switch.clear_texture_normal"
+      }
+    ]
   }
 }
