@@ -1,0 +1,33 @@
+{
+  "schema_version": 1,
+  "release": "ENG467 combined Time Spirit XISO v7",
+  "image": {
+    "name": "xemu-perf-tests-eng467-time-spirit-2a65eba.iso",
+    "source_commit": "2a65ebabcd030d3b14204c923fadfcf50a34a3ee",
+    "sha256": "3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c",
+    "size_bytes": 42663936
+  },
+  "time_spirit": {
+    "source_xiso_sha256": "833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31",
+    "payload_files": 19,
+    "payload_hash_comparison": "PASS",
+    "launch_flow": "copy D:\\time_spirit to E:\\xemu_perf_tests\\time_spirit, then quick-reboot default.xbe",
+    "reason": "Xbox quick reboot rejects a nested or renamed DVD executable with service error 21; staging preserves the game layout and provides a valid launch path"
+  },
+  "input": {
+    "left_stick": "same navigation routes as D-pad",
+    "engage_threshold": 16384,
+    "release_threshold": 8192,
+    "repeat_delay_ms": 150,
+    "threshold_reason": "half-range engagement rejects normal stick drift; quarter-range release adds hysteresis and prevents direction chatter"
+  },
+  "validation": {
+    "source_contract_tests": "113/113 PASS",
+    "release_xiso_build": "PASS",
+    "combined_payload_hashes": "19/19 PASS",
+    "dedicated_windows_rig_copy": "PASS",
+    "production_root_menu_boot": "PASS",
+    "validation_autolaunch_copy_and_boot": "PASS",
+    "diff_whitespace": "PASS"
+  }
+}
