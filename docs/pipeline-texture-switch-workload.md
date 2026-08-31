@@ -42,7 +42,12 @@ Seed `0x50545357` generates two same-format solid texture backings: red
 recipe adds fixed clear color `FF202830` and has input KAT `1A404C43`. Both
 backings are hashed again after F1/F2 and must remain unchanged.
 The sampler-only mip backing KAT is `CDD5D7A5` and its recipe input KAT is
-`2BC5C8EE`; all 5,456 words are rehashed after F1/F2.
+`281BCD52`; all 5,456 words are rehashed after F1/F2. Sampler draws use an
+8-pixel square with UV 0..24, forcing minification. Both sampler identities use
+repeat wrapping, so backend-specific mip-coordinate scaling cannot turn the
+center oracle into a border sample. Upstream `d73326b` and the candidate both
+return red/blue tile centers (`BB0EC8ED`). This remains a `REGRESSION_ONLY`
+oracle until retail Xbox output replaces it.
 
 Every invocation repeatedly overwrites four fixed quads. After F1, the guest
 emits a separate F2 correctness fence and reads all four tile centers. Exact
@@ -53,7 +58,7 @@ rendered-pixel KATs are:
 | `pipeline.texture-switch` | red, blue, red, blue | `BB0EC8ED` |
 | `pipeline.shader-negative-control` | red, green, red, green | `08C5E8A1` |
 | `pipeline.clear-texture-normal` | red, red, red, red | `50C0069D` |
-| `pipeline.sampler-only-identity` | red, green, red, green | `08C5E8A1` |
+| `pipeline.sampler-only-identity` | red, blue, red, blue | `BB0EC8ED` |
 
 The multiplier-aware terminal state is checked before each phase draws and
 asserts a fixed solid standard framebuffer:

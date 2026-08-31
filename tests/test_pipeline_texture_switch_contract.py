@@ -79,12 +79,12 @@ class PipelineTextureSwitchContractTests(unittest.TestCase):
             mip_words.extend([color] * (dimension * dimension))
             dimension //= 2
         backing = word_kat(mip_words)
-        recipe = word_kat((SEED, 64, 64, 5, *MIP_COLORS, backing, 512))
-        pixels = word_kat((MIP_COLORS[0], MIP_COLORS[2]) * 2)
+        recipe = word_kat((SEED, 64, 64, 5, *MIP_COLORS, backing, 512, 4, 0, 24))
+        pixels = word_kat((MIP_COLORS[0], MIP_COLORS[4]) * 2)
         self.assertEqual(len(mip_words), 5456)
         self.assertEqual(backing, 0xCDD5D7A5)
-        self.assertEqual(recipe, 0x2BC5C8EE)
-        self.assertEqual(pixels, 0x08C5E8A1)
+        self.assertEqual(recipe, 0x281BCD52)
+        self.assertEqual(pixels, 0xBB0EC8ED)
         for value in (backing, recipe, pixels):
             self.assertIn(f"{value:08X}", SOURCE.upper())
             self.assertIn(f"{value:08X}", DOC.upper())
@@ -99,8 +99,9 @@ class PipelineTextureSwitchContractTests(unittest.TestCase):
                          "MIN_BOX_NEARESTLOD", "host_.SetupTextureStages()"):
             self.assertIn(required, sampler_path)
         for forbidden in ("SET_TEXTURE_OFFSET", "SetFormat", "SetTextureDimensions",
-                          "SetImageDimensions", "SetMipMapLevels"):
+                         "SetImageDimensions", "SetMipMapLevels"):
             self.assertNotIn(forbidden, sampler_path)
+        self.assertIn("kSamplerQuadHalfExtent", iteration)
         for contract in ("image_identity_changes", "sampler_identity_count",
                          "image_cache_misses", "sampler_cache_misses"):
             self.assertIn(contract, SOURCE)

@@ -1,5 +1,10 @@
 #include "test_suite.h"
 
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wignored-attributes"
+#include <hal/debug.h>
+#pragma clang diagnostic pop
+
 #include <sstream>
 
 #include "debug_output.h"
@@ -298,7 +303,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
   debugClearScreen();
   debugPrint("RUNNING\n\n%s::%s\n", suite_name_.c_str(), test_name.c_str());
-  debugPrint("\nWarmup: %lu\nSamples: %lu\nWork multiplier: %lu\n",
+  debugPrint("\nWarmup: %u\nSamples: %u\nWork multiplier: %u\n",
              warmup_iterations, sample_count, measurement_iterations_multiplier);
   pb_show_debug_screen();
   PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());

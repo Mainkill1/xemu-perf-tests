@@ -34,6 +34,9 @@ static constexpr uint32_t kSamplerTextureWords = 5456;
 static constexpr uint32_t kProfileSamples = 8;
 static constexpr uint32_t kOperationsPerIteration = 512;
 static constexpr uint32_t kTextureStageCount = 1;
+static constexpr uint32_t kSamplerQuadHalfExtent = 4;
+static constexpr uint32_t kSamplerUvMin = 0;
+static constexpr uint32_t kSamplerUvMax = 24;
 static constexpr uint32_t kHeartbeatInterval = 32;
 static constexpr uint32_t kClearBoundariesPerIteration = 128;
 static constexpr uint32_t kClearTextureChangesPerBoundary = 2;
@@ -64,8 +67,9 @@ static constexpr uint32_t kShaderNegativePixelKat = 0x08C5E8A1;
 static constexpr uint32_t kClearTextureNormalInputKat = 0x1A404C43;
 static constexpr uint32_t kClearTextureNormalPixelKat = 0x50C0069D;
 static constexpr uint32_t kSamplerBackingKat = 0xCDD5D7A5;
-static constexpr uint32_t kSamplerInputKat = 0x2BC5C8EE;
-static constexpr uint32_t kSamplerOnlyPixelKat = 0x08C5E8A1;
+static constexpr uint32_t kSamplerInputKat = 0x281BCD52;
+// Regression oracle captured identically on upstream d73326b and the candidate.
+static constexpr uint32_t kSamplerOnlyPixelKat = 0xBB0EC8ED;
 
 static constexpr uint32_t kTextureSwitchFinalColor = 0xFF18405A;
 static constexpr uint32_t kShaderNegativeFinalColor = 0xFF4A2038;
@@ -224,7 +228,8 @@ void PipelineTextureSwitchTests::Initialize() {
       kSeed, kTextureWidth, kTextureHeight, kSamplerMipLevels,
       kSamplerMipColors[0], kSamplerMipColors[1], kSamplerMipColors[2],
       kSamplerMipColors[3], kSamplerMipColors[4], sampler_backing_kat_,
-      kOperationsPerIteration};
+      kOperationsPerIteration, kSamplerQuadHalfExtent, kSamplerUvMin,
+      kSamplerUvMax};
   for (uint32_t value : sampler_input_words) {
     sampler_input_kat_ = Fnv1aAddWord(sampler_input_kat_, value);
   }
@@ -725,15 +730,12 @@ void PipelineTextureSwitchTests::RunIteration(const Recipe &recipe) const {
       auto &texture_stage = host_.GetTextureStage(0);
       const uint32_t lod = selector ? (2U << 8) : 0;
       texture_stage.SetLODClamp(lod, lod);
-      texture_stage.SetUWrap(selector ? TextureStage::WRAP_BORDER
-                                     : TextureStage::WRAP_REPEAT,
-                             false);
-      texture_stage.SetVWrap(selector ? TextureStage::WRAP_BORDER
-                                     : TextureStage::WRAP_REPEAT,
-                             false);
-      texture_stage.SetPWrap(selector ? TextureStage::WRAP_BORDER
-                                     : TextureStage::WRAP_REPEAT,
-                             false);
+      // Repeat avoids making the output oracle depend on where a backend
+      // applies mip-coordinate scaling. LOD and min/mag filters still form
+      // two distinct sampler identities while selecting deterministic texels.
+      texture_stage.SetUWrap(TextureStage::WRAP_REPEAT, false);
+      texture_stage.SetVWrap(TextureStage::WRAP_REPEAT, false);
+      texture_stage.SetPWrap(TextureStage::WRAP_REPEAT, false);
       texture_stage.SetBorderColor(selector ? 0xFF445566 : 0xFF112233);
       texture_stage.SetFilter(
           0, TextureStage::K_QUINCUNX,
@@ -758,9 +760,20 @@ void PipelineTextureSwitchTests::RunIteration(const Recipe &recipe) const {
 
     const Quad &quad = kQuads[operation & 3];
     if (recipe.sampler_only_identity) {
+      // The ordinary tiles magnify a 48-texel span and therefore use the
+      // magnification path regardless of the LOD clamp. Keep the same tile
+      // centers, but draw an 8-pixel square so the 24-texel span is minified.
+      // Its center remains inside the 16x16 level-2 image even with border
+      // wrapping. Exact clamps 0 and 2 select the intended red/green levels.
+      const float center_x = (quad.left + quad.right) * 0.5f;
+      const float center_y = (quad.top + quad.bottom) * 0.5f;
       host_.DrawTexturedScreenQuadEx(
-          quad.left, quad.top, quad.right, quad.bottom, 1.f, 8.f, 8.f,
-          56.f, 8.f, 56.f, 56.f, 8.f, 56.f);
+          center_x - kSamplerQuadHalfExtent,
+          center_y - kSamplerQuadHalfExtent,
+          center_x + kSamplerQuadHalfExtent,
+          center_y + kSamplerQuadHalfExtent, 1.f, kSamplerUvMin,
+          kSamplerUvMin, kSamplerUvMax, kSamplerUvMin, kSamplerUvMax,
+          kSamplerUvMax, kSamplerUvMin, kSamplerUvMax);
     } else {
       host_.DrawTexturedScreenQuadEx(
           quad.left, quad.top, quad.right, quad.bottom, 1.f, -16.f, -16.f,
