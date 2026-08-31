@@ -4,6 +4,76 @@ xemu-perf-tests
 Provides tests intended to be used to detect performance improvements/degradation in
 the [xemu](xemu.app) project.
 
+## ENG458 texture validation release
+
+The current texture-correctness image is
+`xemu-perf-tests-eng458-69a646a.iso`, built from commit `69a646a` with SHA-256
+`32eafdf212641ff7585ee5c6fd7b45d1fe92088ef3d1f8fb7a6bc88a394131b8`.
+The complete release contract is in
+[`releases/eng458-xiso-release-v1.json`](releases/eng458-xiso-release-v1.json).
+Earlier ENG454 images and the stale generic XISO are historical evidence under
+`J:\xemu-lab-working-set\archive\xiso\superseded\eng454`; that directory's
+manifest identifies their hashes and this release as their replacement.
+`GameLoadComposite::10-S3tcSyncFactor` emits these records in order; the mask
+may select any subset independently.
+
+| Bit | Stage key | Representation and route | Implementation exercised |
+| ---: | --- | --- | --- |
+| 1 | `dxt1_same_address_wait` | DXT1, changing payload, one address, per-draw wait | serialized control |
+| 2 | `dxt1_same_address_queued` | DXT1, changing payload, one address, final wait | ordered upload/lifetime |
+| 4 | `dxt1_ring` | DXT1, changing payload, 16-address ring | address-renaming control |
+| 8 | `dxt1_dirty_once` | DXT1, cache prime plus one dirty write | page-generation/latch |
+| 16 | `rgba8_same_address_wait` | RGBA8 equivalent of bit 1 | decoded serialized control |
+| 32 | `rgba8_same_address_queued` | RGBA8 equivalent of bit 2 | ordered upload/lifetime control |
+| 64 | `rgba8_ring` | RGBA8 equivalent of bit 4 | address-renaming control |
+| 128 | `rgba8_dirty_once` | RGBA8 equivalent of bit 8 | page-generation/latch control |
+| 256 | `bc2_native_eligible` | borderless 2D DXT3/BC2 | native BC2 upload |
+| 512 | `bc2_bordered_fallback` | bordered 2D DXT3/BC2 | required decoded fallback |
+| 1024 | `bc3_native_eligible` | borderless 2D DXT5/BC3 | native BC3 upload |
+| 2048 | `bc3_bordered_fallback` | bordered 2D DXT5/BC3 | required decoded fallback |
+
+The optional guest config selector is
+`game_load_composite.s3tc_sync_factor.stage_mask`; its bits are the table's
+`Bit` values. The `stages` object can further intersect that mask by stage key.
+The expected record count is the number of selected bits plus one summary, so
+the default mask `4095` expects 13 ordered records.
+
+Every selected stage records `source_kat`, `work_checksum`, `result_checksum`,
+`tile_center_kat`, `framebuffer_fnv1a64`, and the nonfatal `oracle_status` plus
+failure count/mask. Normal changing-payload cells expect result KAT `1a4ff923`;
+dirty-once cells expect `fede69d6`. Source KATs are DXT1 `0ea3ddc5`, RGBA8
+`9b909dc5`, BC2 native/fallback `0330ddc5`/`896d9dc5`, and BC3
+native/fallback `10e7ddc5`/`c0499dc5`. The normal/dirty tile KATs are
+`acc7c6b0`/`7981b305`.
+
+From the Windows lab checkout, run all 12 routes at Vulkan 1x, then repeat at
+4x by changing `--scale`:
+
+```bat
+python313\python.exe run-suite.py --mode perf ^
+  --test-id GameLoadComposite::10-S3tcSyncFactor ^
+  --guest-iso C:\xemu-lab\suite\assets\xemu-perf-tests-eng458-69a646a.iso ^
+  --backend vulkan --scale 1 --warmup-iterations 0 ^
+  --completion-mode per_iteration --expected-record-count 13 ^
+  --vulkan-validation
+```
+
+The runner writes its config to FATX
+`E:\xemu_perf_tests\xemu_perf_tests_config.json`, reads
+`E:\xemu_perf_tests\results.txt`, and preserves the byte-exact file as
+`<run>\results.txt` beside `normalized-results.json`, `guest-config.json`,
+`xemu.log`, and validation evidence. For a manual launcher, use the same FATX
+paths and copy `results.txt` back without reformatting it.
+
+A missing/extra record means a truncated run or wrong mask. A source KAT
+mismatch means wrong/corrupt guest input; a work or result checksum mismatch
+means the fixed-work contract changed; a tile/oracle failure means stale or
+incorrect texture output. A changed framebuffer hash is a regression signal,
+not retail-hardware proof. Any VUID, assertion, crash, hang, or oracle failure
+fails correctness. `upload_expectation` states the intended native/fallback
+route but must be corroborated by matching host counters when making a path or
+performance claim.
+
 # Usage
 
 Tests will be executed automatically if no gamepad input is given within an initial timeout.
@@ -281,28 +351,19 @@ measures an idle-control floor only. It cannot exclude wait, fence, or lock
 cost that appears only while draws keep the GPU busy. `gpu_waits` counts API
 calls; it does not claim a fixed number of MMIO polls inside each call.
 
-`GameLoadComposite::10-S3tcSyncFactor` provides a 2x3 revalidation control. It
-runs 16 solid-color textured draws as DXT1 or pre-expanded RGBA8, then combines
-each representation with three routes: changing payloads at one synchronized
-address, changing payload generations in a 16-address ring, and a cache-prime
-write plus one post-cache dirty write followed by 16 emissions of the same
-binding and 16 no-write redraws. The last route forces cache revalidation
-without changing its key or payload,
-exposing a dirty interval that remains latched after its first upload. Every
-cell keeps the same geometry, draw count, and final completion boundary.
-Metadata reports exact texture writes and bytes, payload generations,
-no-write redraws, address count, binds, per-draw waits, total waits, draws, and
-vertex bytes. Fixed source and route-specific result KATs detect corruption.
-The six cells are deliberately seconds-scale as one named unattended test;
-they are not nanosecond microbenchmarks.
+`GameLoadComposite::10-S3tcSyncFactor` is the 12-route ENG458 texture control
+described at the top of this README. Each cell retains 16 visible tiles and
+reports exact writes, bytes, generations, addresses, binds, waits, draws, and
+vertex bytes. The cells are seconds-scale guest workloads, not nanosecond
+microbenchmarks.
 
 ENG379 supersedes ENG367's overwrite-only framebuffer oracle. Each of the 16
 draws now targets one disjoint tile in a 4x4 grid and uses one unique RGB565
 color with opaque alpha. The final framebuffer therefore preserves every
 sampled texture update. Compile-time assertions require 16 tiles, 64 vertices,
 unique colors, and an in-bounds grid; metadata reports `visible_tiles=16`,
-`unique_colors=16`, and `overwrite_only_oracle=false` for the two changing-
-payload routes. The dirty-once route uses one fixed source color across all 16
+`unique_colors=16`, and `overwrite_only_oracle=false` for changing-payload
+routes. The dirty-once route uses one fixed source color across all 16
 tiles (`texture_writes=2`, `texture_binds=17`, `payload_generations=1`,
 `no_write_redraws=16`, `unique_colors=1`) and has its own fixed tile/result
 KATs. ENG367 timing is diagnostic only until this tiled oracle passes on the
