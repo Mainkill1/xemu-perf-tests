@@ -318,6 +318,7 @@ uint32_t ScaleGraphY(uint32_t value, uint32_t minimum, uint32_t maximum) {
   if (maximum <= minimum) {
     return kPlotTop + kPlotHeight / 2;
   }
+  value = std::max(minimum, std::min(maximum, value));
   const uint64_t numerator =
       static_cast<uint64_t>(value - minimum) * (kPlotHeight - 1);
   return kPlotTop + kPlotHeight - 1 -
@@ -503,6 +504,9 @@ void MenuItemStoredRecord::OnEnter() {
   const auto loaded = ReadStoredResultSamples(path_, record_->id);
   samples_ = loaded.values;
   total_sample_count_ = loaded.total_count;
+  if (!total_sample_count_) {
+    total_sample_count_ = record_->sample_count;
+  }
   sample_stride_ = loaded.stride;
   samples_approximate_ = loaded.approximate;
   load_error_ = loaded.error;
@@ -594,13 +598,15 @@ void MenuItemStoredRecord::DrawHistogram() const {
       maximum == minimum
           ? kPlotLeft
           : kPlotLeft + static_cast<int>(
-                            static_cast<uint64_t>(record_->median_us - minimum) *
+                            static_cast<uint64_t>(
+                                std::max(minimum, std::min(maximum, record_->median_us)) - minimum) *
                             (kPlotWidth - 1) / (maximum - minimum));
   const int p95_x =
       maximum == minimum
           ? kPlotLeft
           : kPlotLeft + static_cast<int>(
-                            static_cast<uint64_t>(record_->p95_us - minimum) *
+                            static_cast<uint64_t>(
+                                std::max(minimum, std::min(maximum, record_->p95_us)) - minimum) *
                             (kPlotWidth - 1) / (maximum - minimum));
   pb_fill(median_x, kPlotTop, 2, kPlotHeight, kViewerInfo);
   pb_fill(p95_x, kPlotTop, 2, kPlotHeight, kViewerWarning);

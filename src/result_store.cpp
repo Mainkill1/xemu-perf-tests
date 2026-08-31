@@ -272,8 +272,10 @@ StoredResultSamples ReadStoredResultSamples(const std::string &path,
     return result;
   }
 
+  // Two retained values are the minimum useful compaction set. This also
+  // guarantees that halving a full set makes forward progress.
   const size_t max_samples =
-      std::max<size_t>(1U, scratch_budget_bytes / sizeof(uint32_t));
+      std::max<size_t>(2U, scratch_budget_bytes / sizeof(uint32_t));
   std::string line;
   bool in_record = false;
   bool selected = false;

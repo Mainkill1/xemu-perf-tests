@@ -101,9 +101,19 @@ last child's timing.
 The XISO root menu can run the full selection, built-in workload plans, a
 suite, or a catalog-mapped test. `Previous results` discovers the active result
 and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
-run shows complete/incomplete state, file size, leaf/group/failure counts, and
-one detail page per emitted record. Parsing is streamed; the console does not
-load an arbitrarily sized result file into one fixed buffer.
+run shows complete/partial state, file size, leaf/group/pass/failure/no-oracle
+counts, a failure-only filter, and one detail page per emitted record. New
+records retain median, nearest-rank p95, MAD, sample count, unit, and metric
+direction. The detail page renders a min/max-envelope trace or width-derived
+histogram. The console can select one run as a baseline and compare compatible
+measurements by stable ID.
+
+Run summaries are streamed. Raw samples are loaded by rescanning only the
+selected stable ID and are bounded by the explicit 512 KiB viewer scratch
+budget. Oversized sample sets are deterministically thinned and labeled as
+approximate. Graph columns derive from the 560-pixel plot width; histogram bars
+derive from that width and an eight-pixel legibility target. No graph memory or
+drawing is active during a benchmark.
 
 Before a new result log opens, the existing `results.txt` is moved into
 `history`. The guest applies no unexplained file-count or byte cap. It also

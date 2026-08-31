@@ -288,6 +288,42 @@ fails, the new run is refused instead of overwriting the old result.
 The UI reports execution/oracle status. A framebuffer hash from xemu is still
 a regression oracle, not proof of retail-hardware correctness.
 
+### 640x480 results inspector
+
+The guest stays at the Xbox-native 640x480 logical framebuffer. Internal xemu
+scaling enlarges rendered surfaces; it does not create more guest UI space.
+The result browser spends that fixed screen on progressive detail:
+
+1. `Previous results` lists the current result and timestamped archives.
+2. Press Y on a run to mark the in-memory A/B baseline.
+3. Open a run for its completion/count summary and records. Press X to switch
+   between all records and failures only.
+4. Open a record. Press X to cycle `SUMMARY`, `TRACE`, and `HISTOGRAM`; use
+   Left/Right to move the trace cursor.
+5. Open `Compare to selected baseline` from another run. Records match by
+   stable ID, timing unit, and metric direction. Press X for regressions only.
+
+New timing records store average, minimum, maximum, median, nearest-rank p95,
+MAD, sample count, unit, and direction. Trace rendering buckets samples by the
+560-pixel plot width and retains each bucket's minimum/maximum envelope, so a
+spike is not averaged out. Histogram bin count derives from the same visible
+width with an eight-pixel minimum bar width. These values describe display
+geometry, not benchmark behavior.
+
+The run list streams summaries. Raw samples are rescanned only for the selected
+record. A 512 KiB scratch budget bounds Xbox RAM use; larger records are
+deterministically downsampled and marked approximate. This is a byte budget,
+not an unexplained sample limit. Result-viewer allocations and drawing happen
+only after opening saved results, never inside measured work.
+
+Incomplete legacy JSON files recover only fully closed records and display
+`PARTIAL - final totals unavailable`. The current writer still uses the legacy
+JSON-array container, so an interrupted final record may be lost; an
+append-record container and byte-offset sidecar remain future format work.
+Framebuffer images are not stored, so the console can show hashes and failure
+text but cannot reconstruct a visual difference. Baseline selection lasts for
+the current application session and does not rename or mutate either run.
+
 ### Physical Xbox acceptance checklist
 
 This branch has host contract and build gates; those do not substitute for a
