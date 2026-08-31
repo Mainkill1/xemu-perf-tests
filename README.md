@@ -64,6 +64,12 @@ The screen initially names the running test. Later tests leave the last complete
 result visible and update an outlined `RUNNING:` footer. Long composite stages may
 take minutes; the footer and host heartbeat distinguish work from a hang.
 
+Guest-side soft failures can continue. A host assertion, Vulkan device loss, or
+terminated xemu process cannot. The PR #2-#9 public binary does not include the
+later ENG-465 bordered-S3TC Vulkan fix; on affected drivers, run the full suite
+with OpenGL or isolate the S3TC route masks. The wider tested candidate completes
+all four isolated native/fallback routes.
+
 ### Correct A/B run
 
 Use one XISO, configuration, renderer, scale, completion policy, and fixed-work

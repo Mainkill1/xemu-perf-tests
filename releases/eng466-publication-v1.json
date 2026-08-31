@@ -28,5 +28,9 @@
     "catalog_check": "PASS",
     "host_contract_tests": "96/96 PASS"
   },
+  "known_limitations": [
+    "Guest soft failures continue, but a host assertion, process termination, or Vulkan device loss cannot be recovered inside the XISO.",
+    "The PR2-9 binary predates ENG-465. Known affected Vulkan drivers may lose the device on bordered BC2 fallback routes; use OpenGL full-suite execution or isolate S3TC masks."
+  ],
   "scope_note": "These binaries are exact PR2-9 publication builds. The later 141-record A/B candidate also contained Forgejo pull #10 and ENG-465; its performance numbers must not be attributed to this narrower package."
 }
