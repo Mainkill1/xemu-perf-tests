@@ -244,18 +244,19 @@ struct S3tcSyncFactorWork {
 
 static constexpr S3tcSyncFactorWork MakeS3tcSyncFactorWork(
     bool compressed, bool per_draw_wait, bool dirty_once) {
-  const uint32_t texture_writes = dirty_once ? 1U : kFactorDraws;
+  const uint32_t texture_writes = dirty_once ? 2U : kFactorDraws;
   return {
-      .draws = kFactorDraws,
+      .draws = kFactorDraws + (dirty_once ? 1U : 0U),
       .texture_writes = texture_writes,
       .texture_bytes =
           texture_writes * (compressed ? kFactorDxt1Bytes : kFactorRgba8Bytes),
-      .texture_binds = kFactorDraws,
-      .payload_generations = texture_writes,
-      .no_write_redraws = dirty_once ? kFactorDraws - 1U : 0U,
+      .texture_binds = kFactorDraws + (dirty_once ? 1U : 0U),
+      .payload_generations = dirty_once ? 1U : texture_writes,
+      .no_write_redraws = dirty_once ? kFactorDraws : 0U,
       .distinct_addresses = (!per_draw_wait && !dirty_once) ? kFactorRingSlots : 1U,
       .per_draw_waits = per_draw_wait ? kFactorDraws : 0U,
-      .gpu_waits = (per_draw_wait ? kFactorDraws : 0U) + 1U,
+      .gpu_waits = (per_draw_wait ? kFactorDraws : 0U) +
+                   (dirty_once ? 2U : 1U),
       .vertex_bytes = kFactorVertexBytes,
       .visible_tiles = kFactorDraws,
       .unique_colors = dirty_once ? 1U : kFactorDraws,
@@ -284,13 +285,14 @@ static_assert(kS3tcRingWork.draws == 16 &&
               kS3tcRingWork.per_draw_waits == 0 && kS3tcRingWork.gpu_waits == 1);
 static constexpr auto kS3tcDirtyOnceWork =
     MakeS3tcSyncFactorWork(true, false, true);
-static_assert(kS3tcDirtyOnceWork.texture_writes == 1 &&
-              kS3tcDirtyOnceWork.texture_bytes == 32 * 1024 &&
-              kS3tcDirtyOnceWork.texture_binds == 16 &&
+static_assert(kS3tcDirtyOnceWork.draws == 17 &&
+              kS3tcDirtyOnceWork.texture_writes == 2 &&
+              kS3tcDirtyOnceWork.texture_bytes == 64 * 1024 &&
+              kS3tcDirtyOnceWork.texture_binds == 17 &&
               kS3tcDirtyOnceWork.payload_generations == 1 &&
-              kS3tcDirtyOnceWork.no_write_redraws == 15 &&
+              kS3tcDirtyOnceWork.no_write_redraws == 16 &&
               kS3tcDirtyOnceWork.distinct_addresses == 1 &&
-              kS3tcDirtyOnceWork.gpu_waits == 1 &&
+              kS3tcDirtyOnceWork.gpu_waits == 2 &&
               kS3tcDirtyOnceWork.unique_colors == 1);
 static constexpr auto kRgba8SameWaitWork =
     MakeS3tcSyncFactorWork(false, true, false);
@@ -302,9 +304,9 @@ static_assert(kRgba8RingWork.texture_bytes == 4 * 1024 * 1024 &&
               kRgba8RingWork.gpu_waits == 1);
 static constexpr auto kRgba8DirtyOnceWork =
     MakeS3tcSyncFactorWork(false, false, true);
-static_assert(kRgba8DirtyOnceWork.texture_bytes == 256 * 1024 &&
-              kRgba8DirtyOnceWork.no_write_redraws == 15 &&
-              kRgba8DirtyOnceWork.gpu_waits == 1);
+static_assert(kRgba8DirtyOnceWork.texture_bytes == 512 * 1024 &&
+              kRgba8DirtyOnceWork.no_write_redraws == 16 &&
+              kRgba8DirtyOnceWork.gpu_waits == 2);
 // Scalar-SSE regression oracle.  The FP sequence below is fixed as explicit
 // single-precision instructions, so each operation rounds to binary32 and is
 // independent of compiler code layout or x87 register lifetime.  Both cycle
@@ -2804,16 +2806,19 @@ uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,
   }
   factor_vertex_buffer_->Unlock();
 
-  // The dirty-once cell performs one guest write, then re-emits the same
-  // binding for every draw. This forces the binding path without changing the
-  // cache key or texture bytes. A validated dirty latch should therefore cost
-  // one hash/upload decision, not one full hash per draw.
+  // Prime a real cache entry before the measured dirty event. The second write
+  // keeps identical bytes but marks the bound RAM range dirty. Re-emitting the
+  // same binding then forces validation without changing the cache key or
+  // payload. A cleared latch costs one hash decision, not one hash per draw.
   if (dirty_once) {
     const auto &source = compressed
                              ? factor_s3tc_sources_[kFactorLatchedColorIndex]
                              : factor_rgba8_sources_[kFactorLatchedColorIndex];
     memcpy(factor_texture_ring_, source.data(), source.size());
     BindTextureStage0Address(factor_texture_ring_);
+    DrawFactorTile(host_, attributes, 0);
+    host_.WaitForGpu();
+    memcpy(factor_texture_ring_, source.data(), source.size());
   }
 
   for (uint32_t draw = 0; draw < kFactorDraws; ++draw) {
