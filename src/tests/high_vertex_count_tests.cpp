@@ -191,8 +191,15 @@ static void CreateGeometry(TestHost &host, std::shared_ptr<VertexBuffer> &vertex
 void HighVertexCountTests::Initialize() {
   TestSuite::Initialize();
 
-  CreateGeometry(host_, single_frame_geometry_.vertex_buffer, single_frame_geometry_.index_buffer,
-                 kMaxVertexCountSingleFrame);
+  if (host_.GetSaveResults()) {
+    // Saved benchmark tests only consume single_frame_geometry_. Building the
+    // much larger continuous-mode sets here adds several minutes and large
+    // allocations between suites without exercising benchmarked work.
+    CreateGeometry(host_, single_frame_geometry_.vertex_buffer,
+                   single_frame_geometry_.index_buffer,
+                   kMaxVertexCountSingleFrame);
+    return;
+  }
 
   auto create = [this](DrawMode mode, uint32_t max_vertex_count) {
     auto mode_index = static_cast<int>(mode);

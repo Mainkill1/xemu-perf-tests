@@ -8,6 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 COMPOSITE = (ROOT / "src/tests/game_load_composite_tests.cpp").read_text()
 DRIVER = (ROOT / "src/test_driver.cpp").read_text()
+HIGH_VERTEX = (ROOT / "src/tests/high_vertex_count_tests.cpp").read_text()
 
 
 class GameLoadLifecycleContractTests(unittest.TestCase):
@@ -28,6 +29,15 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         self.assertIn("Suite teardown", body)
         self.assertLess(body.index("ShowResultProgress"), body.index("suite->Deinitialize()"))
 
+    def test_first_and_later_suite_initialization_are_visible(self):
+        start = DRIVER.index("void TestDriver::RunAllTestsNonInteractive()")
+        end = DRIVER.index("void TestDriver::OnControllerAdded", start)
+        body = DRIVER[start:end]
+        self.assertIn("completed_result_available", body)
+        self.assertIn("Suite initialize", body)
+        self.assertIn("debugPrint(\"RUNNING", body)
+        self.assertIn("ShowResultProgress(activity)", body)
+
     def test_result_progress_keeps_measurements_visible(self):
         host = (ROOT / "src/test_host.cpp").read_text()
         start = host.index("void TestHost::ShowResultProgress")
@@ -45,6 +55,15 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         self.assertIn("wait for loader thread", body)
         self.assertLess(body.index("wait for loader thread"),
                         body.index("WaitForSingleObject(loader_thread_"))
+
+    def test_saved_high_vertex_run_skips_unused_continuous_geometry(self):
+        start = HIGH_VERTEX.index("void HighVertexCountTests::Initialize()")
+        end = HIGH_VERTEX.index("void HighVertexCountTests::Deinitialize()", start)
+        body = HIGH_VERTEX[start:end]
+        self.assertIn("if (host_.GetSaveResults())", body)
+        self.assertLess(body.index("if (host_.GetSaveResults())"),
+                        body.index("continuous_geometry_"))
+        self.assertIn("return;", body)
 
 
 if __name__ == "__main__":

@@ -24,6 +24,9 @@
 using namespace XboxMath;
 
 static constexpr uint32_t kResultsOverlayColor = 0x88000000;
+// Progress redraws reuse retained text on alternating framebuffers. An opaque
+// backdrop prevents repeated alpha blending from producing ghosted lines.
+static constexpr uint32_t kProgressOverlayColor = 0xFF101010;
 
 #define MAX_FILE_PATH_SIZE 248
 #define MAX_FILENAME_SIZE 42
@@ -58,7 +61,18 @@ void TestHost::ShowResultProgress(const std::string &activity) {
   // pbkit retains the completed result text until the next test replaces the
   // display. Append progress so a long cleanup remains distinguishable from
   // a frozen result screen without discarding the useful measurements.
-  DrawResultsOverlay();
+  SetVertexShaderProgram(nullptr);
+  SetXDKDefaultViewportAndFixedFunctionMatrices();
+  SetBlend();
+  SetFinalCombiner0Just(SRC_DIFFUSE);
+  SetFinalCombiner1Just(SRC_DIFFUSE, true);
+  Begin(TestHost::PRIMITIVE_QUADS);
+  SetDiffuse(kProgressOverlayColor);
+  SetScreenVertex(0.f, 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
+  SetScreenVertex(0.f, GetFramebufferHeightF());
+  End();
   pb_print("\nRUNNING: %s\n", activity.c_str());
   pb_draw_text_screen();
   NV2AState::FinishDraw();
