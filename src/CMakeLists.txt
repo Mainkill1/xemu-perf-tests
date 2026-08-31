@@ -194,24 +194,35 @@ if (TIME_SPIRIT_XISO)
         )
     endif ()
 
-    set(TIME_SPIRIT_RESOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/bundled_time_spirit")
-    set(TIME_SPIRIT_RESOURCE_STAMP "${TIME_SPIRIT_RESOURCE_DIR}/.extracted")
+    set(TIME_SPIRIT_RESOURCE_DIR "${CMAKE_CURRENT_BINARY_DIR}/combined_resources")
+    set(TIME_SPIRIT_RESOURCE_STAMP "${CMAKE_CURRENT_BINARY_DIR}/.time_spirit_resources.stamp")
+    file(
+            GLOB_RECURSE TIME_SPIRIT_STATIC_RESOURCES
+            CONFIGURE_DEPENDS
+            "${CMAKE_SOURCE_DIR}/resources/*"
+    )
     add_custom_command(
             OUTPUT "${TIME_SPIRIT_RESOURCE_STAMP}"
             COMMAND "${CMAKE_COMMAND}" -E rm -rf "${TIME_SPIRIT_RESOURCE_DIR}"
             COMMAND "${CMAKE_COMMAND}" -E make_directory "${TIME_SPIRIT_RESOURCE_DIR}"
+            COMMAND "${CMAKE_COMMAND}" -E copy_directory
+                    "${CMAKE_SOURCE_DIR}/resources"
+                    "${TIME_SPIRIT_RESOURCE_DIR}"
             COMMAND "${EXTRACT_XISO_TOOL_PATH}" -Q -x -d "${TIME_SPIRIT_RESOURCE_DIR}" "${TIME_SPIRIT_XISO}"
             COMMAND "${CMAKE_COMMAND}" -E rename
                     "${TIME_SPIRIT_RESOURCE_DIR}/default.xbe"
                     "${TIME_SPIRIT_RESOURCE_DIR}/time_spirit.xbe"
             COMMAND "${CMAKE_COMMAND}" -E touch "${TIME_SPIRIT_RESOURCE_STAMP}"
-            DEPENDS "${TIME_SPIRIT_XISO}" "${EXTRACT_XISO_TOOL_PATH}"
+            DEPENDS
+                    "${TIME_SPIRIT_XISO}"
+                    "${EXTRACT_XISO_TOOL_PATH}"
+                    ${TIME_SPIRIT_STATIC_RESOURCES}
             COMMENT "Extracting approved Time Spirit payload for the combined XISO"
             VERBATIM
     )
     add_custom_target(time_spirit_resources DEPENDS "${TIME_SPIRIT_RESOURCE_STAMP}")
-    list(APPEND PERF_TEST_RESOURCE_ROOTS "${TIME_SPIRIT_RESOURCE_DIR}")
-    list(APPEND PERF_TEST_RESOURCE_DIRS "${TIME_SPIRIT_RESOURCE_DIR}")
+    set(PERF_TEST_RESOURCE_ROOTS "${TIME_SPIRIT_RESOURCE_DIR}")
+    set(PERF_TEST_RESOURCE_DIRS "${TIME_SPIRIT_RESOURCE_DIR}")
     target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_HAS_TIME_SPIRIT=1)
     if (TIME_SPIRIT_AUTOLAUNCH)
         target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_AUTOLAUNCH_TIME_SPIRIT=1)
