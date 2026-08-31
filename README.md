@@ -1,8 +1,110 @@
 xemu-perf-tests
 ====
 
-Provides tests intended to be used to detect performance improvements/degradation in
-the [xemu](xemu.app) project.
+Deterministic Xbox workloads for finding xemu correctness and performance changes.
+Tests use fixed work plus checksums, known-answer values, and framebuffer hashes so
+a faster result cannot silently hide changed output.
+
+## Current release
+
+Use `xemu-perf-tests-eng462-ui-outline-6914f65.iso`.
+
+```text
+XISO SHA-256: 9d21853bda794657d0165717d47840caaef84810ac5390bb86bb41d63840808f
+Guest source: 6914f652ad81caaca1daf181bf925fbbddef4a42
+Catalog: 136 executable leaves + 5 structural groups = 141 full-suite records
+```
+
+The matching xemu release and diagnostic executables are published in the
+[`xemu-pr-train` releases](http://10.0.4.4:3000/main/xemu-pr-train/releases).
+The public executable contains Forgejo pull requests #2 through #9. The diagnostic
+executable is built from the same source with assertions, symbols, QOM cast checks,
+and log tracing enabled. Do not use the diagnostic binary for performance numbers.
+Exact source, binary, XISO, and validation identities are recorded in
+[`releases/eng466-publication-v1.json`](releases/eng466-publication-v1.json).
+
+### Latest complete suite result
+
+The final compatible campaign used this XISO against upstream `d73326b6` and
+the later tested candidate `2ae71e6c` (published equivalent tree through pull
+#10 plus ENG-465). The dedicated Windows rig used 1x scale, VSync off, three
+guest warmups, work multiplier four, and per-iteration completion.
+
+| Backend | Candidate records | Semantic differences | Fresh-process image checks | Fixed-work throughput |
+| --- | ---: | ---: | ---: | ---: |
+| OpenGL | 141/141 | 0 | 55/55 match | +3.87% |
+| Vulkan | 141/141 | 0 | 55/55 match | +6.61% |
+
+The 55 full-run image differences were rerun one target per fresh process;
+every pair matched. This identifies order-dependent guest state in the combined
+hash contract, not an accepted rendering difference. Upstream Vulkan lost the
+device on two bordered BC2 routes; the candidate completed them. Seven stale
+XISO pixel KAT expectations are accepted only as exact, XISO-hash-bound
+limitations after both builds produced the same values and their independent
+framebuffer oracles passed.
+
+Strict tooling and evidence are in
+[`xemu-perf-lab` PR #5](http://10.0.4.4:3000/main/xemu-perf-lab/pulls/5).
+These numbers describe that wider tested candidate. They are not relabeled as
+performance proof for the narrower PR #2-#9 publication build.
+
+### Fastest manual run
+
+1. Start the release xemu executable.
+2. Configure legally obtained MCPX, flash ROM, EEPROM, and HDD files.
+3. Insert the current XISO as the DVD image and reset the guest.
+4. Wait for autorun, or use the controller menu.
+5. Let `Run all and exit` finish. A failed test pauses on a light-red screen for
+   ten seconds; release A to continue early. Failures remain recorded and do not
+   abort later compatible tests.
+6. Extract `E:\xemu_perf_tests\results.txt` from the test HDD. Never edit or
+   reformat it.
+
+The screen initially names the running test. Later tests leave the last completed
+result visible and update an outlined `RUNNING:` footer. Long composite stages may
+take minutes; the footer and host heartbeat distinguish work from a hang.
+
+### Correct A/B run
+
+Use one XISO, configuration, renderer, scale, completion policy, and fixed-work
+multiplier for both executables. Run only one xemu process. Warm the workload,
+alternate baseline/candidate process order, and retain every raw result.
+
+```text
+python utils/hash_compare.py BASELINE_RUN CANDIDATE_RUN --json-out comparison.json
+```
+
+The command accepts run directories or `summary.json`, `results.json`, and
+`normalized-results.json`. `1` means the candidate matches the baseline hash;
+`0` means it differs; `-` means no baseline oracle exists. Missing records, extra
+records, zero eligible checks, or any mismatch return nonzero.
+
+Timing is usable only after correctness passes. Short operations must be repeated
+inside the guest until each sample lasts seconds, not nanoseconds. Compare medians
+and distributions from identical fixed work; never calibrate candidate work
+separately.
+
+### What is saved
+
+The guest writes `E:\xemu_perf_tests\results.txt`. Host automation additionally
+retains the injected config, XISO and xemu identities, byte-exact guest result,
+normalized JSON, stdout/stderr, xemu log, renderer/scale, completion mode, host
+fingerprint, validation messages, and comparison report.
+
+Each leaf may emit:
+
+| Value | Detects |
+| --- | --- |
+| `source_kat` | Wrong generated input |
+| `work_checksum` | Wrong operation sequence or work amount |
+| `result_checksum` | Changed semantic result |
+| Named KAT | Changed critical pixel, tile, register, or state |
+| `framebuffer_fnv1a64` | Changed canonical guest framebuffer |
+| timing samples | Cost of the declared fixed-work region |
+
+A prior xemu framebuffer hash is a regression oracle, not retail-Xbox truth.
+Hardware goldens must record console provenance. Vulkan path claims also need host
+counters or validation evidence.
 
 ## Start here
 
@@ -22,20 +124,6 @@ changes cannot silently hide corruption.
 - [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
   resolved-plan example.
 
-Compare one baseline run against one or more candidate runs with:
-
-```text
-python utils/hash_compare.py BASELINE RUN [RUN ...] --json-out comparison.json
-```
-
-Inputs may be run directories, `summary.json`, `results.json`, or
-`normalized-results.json`. Output reports framebuffer, work, and result hash
-matches as `1` or `0`; `-` means the baseline has no such oracle. Any mismatch,
-missing/extra record, or comparison with zero eligible hashes returns nonzero.
-An empty oracle check list can never be reported as a pass.
-
-Current integration image: `xemu-perf-tests-eng462-ui-lifecycle.iso`, SHA-256
-`f772ff2b655252c1984e9a22c8fd62aff17a441d33bd1d9714bf42824c1a4c43`.
 ENG462 adds PFIFO array-element workloads,
 texture/sampler identity checks, Vulkan submission-lifetime plans, explicit
 RUNNING status, and soft failure screens (10 seconds or A). After the first
@@ -43,11 +131,11 @@ test, completed totals remain onscreen over the rendered frame while a footer
 names the active test, initialization, or teardown. All seven new executable
 cases pass on Vulkan 1x; the 141-record OpenGL 1x diagnostic suite also
 completes. See
-[`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json).
-Earlier ENG458 results remain below; new observations do not silently become
-hardware goldens.
+[`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json) and
+[`releases/eng462-final-ab-20260830.md`](releases/eng462-final-ab-20260830.md).
+Earlier release data below is retained as history; it is not the current download.
 
-## ENG458 texture validation release
+## Historical ENG458 texture validation release
 
 The current texture-correctness image is
 `xemu-perf-tests-eng458-69a646a.iso`, built from commit `69a646a` with SHA-256
