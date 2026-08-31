@@ -56,6 +56,10 @@ void MenuItem::Draw() {
   }
 
   PrepareDraw(menu_background_color_);
+  // Opaque overscan-safe instrument panel. The low-contrast frame remains
+  // stable on 480i output and keeps debug-font text away from bright edges.
+  pb_fill(16, 12, width - 32, height - 24, 0xFF0E2118);
+  pb_fill(16, 12, width - 32, 3, 0xFF58CF87);
 
   if (!header.empty()) {
     pb_print("%s\n", header.c_str());
@@ -249,6 +253,8 @@ void MenuItemInfo::OnEnter() {
 
 void MenuItemInfo::Draw() {
   PrepareDraw(menu_background_color_);
+  pb_fill(16, 12, width - 32, height - 24, 0xFF0E2118);
+  pb_fill(16, 12, width - 32, 3, 0xFF62B8C4);
   pb_print("%s\n\n", name.c_str());
   for (const auto &line : lines_) {
     pb_print("%s\n", line.c_str());
@@ -300,13 +306,14 @@ std::string FormatResultSize(uint64_t bytes) {
   return text;
 }
 
-std::string FormatResultCompact(const char *label, uint32_t microseconds,
-                                bool approximate = false) {
-  char text[96] = {};
-  snprintf(text, sizeof(text), "%s%s %lu.%03lu ms", label,
-           approximate ? "~" : "",
-           static_cast<unsigned long>(microseconds / 1000),
-           static_cast<unsigned long>(microseconds % 1000));
+std::string FormatResultPair(const char *label, uint32_t baseline_us,
+                             uint32_t candidate_us) {
+  char text[112] = {};
+  snprintf(text, sizeof(text), "%s %lu.%03lu -> %lu.%03lu ms", label,
+           static_cast<unsigned long>(baseline_us / 1000),
+           static_cast<unsigned long>(baseline_us % 1000),
+           static_cast<unsigned long>(candidate_us / 1000),
+           static_cast<unsigned long>(candidate_us % 1000));
   return text;
 }
 
@@ -733,8 +740,19 @@ void MenuItemResultComparison::RebuildMenu() {
       continue;
     }
     ++comparable;
+    const uint32_t baseline_primary =
+        record.has_distribution && found->second.has_distribution
+            ? found->second.median_us
+            : found->second.average_us;
+    const uint32_t candidate_primary =
+        record.has_distribution && found->second.has_distribution
+            ? record.median_us
+            : record.average_us;
+    if (!baseline_primary) {
+      continue;
+    }
     const double change =
-        (static_cast<double>(record.average_us) / found->second.average_us -
+        (static_cast<double>(candidate_primary) / baseline_primary -
          1.0) *
         100.0;
     const bool regression = record.direction == "lower_is_better"
@@ -749,13 +767,20 @@ void MenuItemResultComparison::RebuildMenu() {
     char label[160] = {};
     snprintf(label, sizeof(label), "%c%+.1f%% %s",
              regression ? '!' : ' ', change, record.id.c_str());
+    char interpretation[96] = {};
+    snprintf(interpretation, sizeof(interpretation), "%+.1f%% %s", change,
+             regression ? "REGRESSION" : "IMPROVEMENT");
     std::vector<std::string> lines{
-        "Stable ID: " + record.id,
-        FormatResultCompact("Baseline", found->second.average_us),
-        FormatResultCompact("Candidate", record.average_us),
-        std::string("Change: ") + (regression ? "REGRESSION" : "IMPROVEMENT"),
-        "Matched unit: " + record.unit,
-        "Metric direction: " + record.direction};
+        std::string("Primary: ") +
+            (record.has_distribution && found->second.has_distribution
+                 ? "median"
+                 : "average (legacy)"),
+        FormatResultPair("MED", found->second.median_us, record.median_us),
+        FormatResultPair("P95", found->second.p95_us, record.p95_us),
+        FormatResultPair("MAD", found->second.mad_us, record.mad_us),
+        FormatResultPair("AVG", found->second.average_us, record.average_us),
+        interpretation,
+        "Matched stable ID / unit / direction"};
     auto item = std::make_shared<MenuItemInfo>(label, std::move(lines), width,
                                                height);
     item->parent = this;

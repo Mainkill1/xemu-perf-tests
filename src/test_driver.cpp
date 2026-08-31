@@ -92,11 +92,11 @@ void TestDriver::Run() {
 
     switch (MenuItemTest::GetRunMode()) {
       case MenuItemTest::RunMode::SINGLE_FRAME:
-        active_menu_->SetBackgroundColor(0xFF114411);
+        active_menu_->SetBackgroundColor(0xFF07110D);
         break;
 
       case MenuItemTest::RunMode::CONTINUOUS:
-        active_menu_->SetBackgroundColor(0xFF551111);
+        active_menu_->SetBackgroundColor(0xFF170A0A);
         break;
     }
 
