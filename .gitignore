@@ -13,5 +13,7 @@
 .vscode/
 .idea/
 bin/
+__pycache__/
+*.py[cod]
 
 resources/xemu_perf_tests_config.json
