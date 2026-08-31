@@ -46,7 +46,19 @@ class GameLoadLifecycleContractTests(unittest.TestCase):
         self.assertIn("pb_erase_text_screen", body)
         self.assertIn("PrintLastResult", body)
         self.assertIn("pb_print(\"\\nRUNNING:", body)
+        self.assertIn("DrawTextBacking", body)
         self.assertIn("pb_draw_text_screen", body)
+
+    def test_text_backing_is_local_and_drawn_after_hashing(self):
+        host = (ROOT / "src/test_host.cpp").read_text()
+        backing = host[host.index("void TestHost::DrawTextBacking"):
+                       host.index("void TestHost::PrintLastResult")]
+        finish = host[host.index("void TestHost::FinishDraw"):
+                      host.index("void TestHost::RecordProfileResult")]
+        self.assertIn("kTextBackingColor", backing)
+        self.assertIn("kRowHeight", backing)
+        self.assertLess(finish.index("HashBackBuffer"),
+                        finish.index("DrawTextBacking"))
 
     def test_composite_teardown_reports_blocking_steps(self):
         start = COMPOSITE.index("void GameLoadCompositeTests::Deinitialize()")

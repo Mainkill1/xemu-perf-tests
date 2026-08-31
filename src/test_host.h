@@ -102,6 +102,7 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   };
 
   void DrawResultsOverlay();
+  void DrawTextBacking(uint32_t row_count);
   void PrintLastResult();
   [[nodiscard]] uint64_t HashBackBuffer() const;
   const TestDescriptor *RecordDescriptor(const std::string &suite_name,

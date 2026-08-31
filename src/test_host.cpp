@@ -29,6 +29,7 @@
 using namespace XboxMath;
 
 static constexpr uint32_t kResultsOverlayColor = 0x88000000;
+static constexpr uint32_t kTextBackingColor = 0xDD000000;
 
 #define MAX_FILE_PATH_SIZE 248
 #define MAX_FILENAME_SIZE 42
@@ -56,6 +57,31 @@ void TestHost::DrawResultsOverlay() {
   SetScreenVertex(GetFramebufferWidthF(), 0.f);
   SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
   SetScreenVertex(0.f, GetFramebufferHeightF());
+  End();
+}
+
+void TestHost::DrawTextBacking(uint32_t row_count) {
+  // pbkit text starts at (20, 25), advances 25 pixels per row, and is at
+  // most 60 columns wide. A small padded backing keeps white text readable
+  // over bright test output without clearing or flashing the whole frame.
+  constexpr float kLeft = 16.f;
+  constexpr float kTop = 20.f;
+  constexpr float kWidth = 608.f;
+  constexpr float kRowHeight = 25.f;
+
+  SetVertexShaderProgram(nullptr);
+  SetXDKDefaultViewportAndFixedFunctionMatrices();
+  SetBlend();
+  SetFinalCombiner0Just(SRC_DIFFUSE);
+  SetFinalCombiner1Just(SRC_DIFFUSE, true);
+
+  const float bottom = kTop + kRowHeight * static_cast<float>(row_count);
+  Begin(TestHost::PRIMITIVE_QUADS);
+  SetDiffuse(kTextBackingColor);
+  SetScreenVertex(kLeft, kTop);
+  SetScreenVertex(kLeft + kWidth, kTop);
+  SetScreenVertex(kLeft + kWidth, bottom);
+  SetScreenVertex(kLeft, bottom);
   End();
 }
 
@@ -110,6 +136,7 @@ void TestHost::ShowResultProgress(const std::string &activity) {
   pb_erase_text_screen();
   PrintLastResult();
   pb_print("\nRUNNING: %s\n", activity.c_str());
+  DrawTextBacking(result_display_kind_ == ResultDisplayKind::GROUP ? 4 : 8);
   pb_draw_text_screen();
   NV2AState::FinishDraw();
   PrintMsg("RUNNING_PROGRESS %s\n", activity.c_str());
@@ -162,6 +189,7 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   pb_erase_text_screen();
   PrintLastResult();
 
+  DrawTextBacking(7);
   pb_draw_text_screen();
 
   NV2AState::FinishDraw();
