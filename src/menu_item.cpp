@@ -3,6 +3,7 @@
 #include <pbkit/pbkit.h>
 
 #ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
+#include <hal/debug.h>
 #include <hal/xbox.h>
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmacro-redefined"
