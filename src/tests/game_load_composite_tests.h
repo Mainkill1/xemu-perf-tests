@@ -133,7 +133,7 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t RunS3tcSyncFactorWork(uint32_t format, bool per_draw_wait,
                                  bool dirty_once, bool queued_same_address,
                                  bool bordered, uint32_t seed);
-  uint32_t ValidateS3tcSyncFactorFramebuffer(bool dirty_once,
+  uint32_t ValidateS3tcSyncFactorFramebuffer(bool compressed, bool dirty_once,
                                              uint32_t *failure_count,
                                              uint64_t *failure_mask) const;
   void StartAudio(uint32_t voices);

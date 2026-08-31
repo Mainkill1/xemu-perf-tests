@@ -1904,8 +1904,11 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     // upstream compatibility runs retain this failure and finish the suite.
     uint32_t oracle_failure_count = 0;
     uint64_t oracle_failure_mask = 0;
+    const bool compressed =
+        definition.format != NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8;
     const uint32_t tile_center_kat = ValidateS3tcSyncFactorFramebuffer(
-        definition.dirty_once, &oracle_failure_count, &oracle_failure_mask);
+        compressed, definition.dirty_once, &oracle_failure_count,
+        &oracle_failure_mask);
 
     const auto work = MakeS3tcSyncFactorWork(
         definition.texture_bytes, definition.per_draw_wait,
@@ -2033,7 +2036,7 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
 }
 
 uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(
-    bool dirty_once, uint32_t *failure_count,
+    bool compressed, bool dirty_once, uint32_t *failure_count,
     uint64_t *failure_mask) const {
   *failure_count = 0;
   *failure_mask = 0;
