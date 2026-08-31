@@ -3,13 +3,16 @@
 #include <pbkit/pbkit.h>
 
 #include <chrono>
+#include <cstdio>
 #include <map>
 #include <memory>
 #include <utility>
 
 #include "configure.h"
 #include "debug_output.h"
+#include "device_info.h"
 #include "pushbuffer.h"
+#include "result_store.h"
 #include "tests/test_suite.h"
 #include "test_catalog.h"
 
@@ -220,19 +223,158 @@ MenuItemInfo::MenuItemInfo(std::string name, std::vector<std::string> lines,
     : MenuItem(std::move(name), width, height), lines_(std::move(lines)),
       on_activate_(std::move(on_activate)) {}
 
+MenuItemInfo::MenuItemInfo(
+    std::string name, std::function<std::vector<std::string>()> poll_lines,
+    uint32_t width, uint32_t height)
+    : MenuItem(std::move(name), width, height),
+      poll_lines_(std::move(poll_lines)) {}
+
+void MenuItemInfo::OnEnter() {
+  if (poll_lines_) {
+    lines_ = poll_lines_();
+  }
+}
+
 void MenuItemInfo::Draw() {
   PrepareDraw(menu_background_color_);
   pb_print("%s\n\n", name.c_str());
   for (const auto &line : lines_) {
     pb_print("%s\n", line.c_str());
   }
-  pb_print("\n%s\n", on_activate_ ? "A: run route   B/Back: return" : "B/Back: return");
+  const char *controls = "B/Back: return";
+  if (poll_lines_) {
+    controls = "A: refresh   B/Back: return";
+  } else if (on_activate_) {
+    controls = "A: run route   B/Back: return";
+  }
+  pb_print("\n%s\n", controls);
   Swap();
 }
 
 void MenuItemInfo::Activate() {
+  if (poll_lines_) {
+    lines_ = poll_lines_();
+    return;
+  }
   if (on_activate_) {
     on_activate_();
+  }
+}
+
+namespace {
+
+std::string FormatResultTime(const char *label, uint32_t microseconds) {
+  char text[80] = {};
+  snprintf(text, sizeof(text), "%s: %lu.%03lu ms", label,
+           static_cast<unsigned long>(microseconds / 1000),
+           static_cast<unsigned long>(microseconds % 1000));
+  return text;
+}
+
+std::string FormatResultSize(uint64_t bytes) {
+  char text[80] = {};
+  snprintf(text, sizeof(text), "Size: %llu bytes",
+           static_cast<unsigned long long>(bytes));
+  return text;
+}
+
+}  // namespace
+
+MenuItemStoredResultFile::MenuItemStoredResultFile(
+    std::string path, std::string label, uint32_t width, uint32_t height)
+    : MenuItem(std::move(label), width, height), path_(std::move(path)) {
+  header = "Saved result: " + name;
+  footer = "A details  B return  Left/Right page";
+}
+
+void MenuItemStoredResultFile::OnEnter() {
+  submenu.clear();
+  cursor_position = 0;
+  const StoredResultFile file = ReadStoredResults(path_);
+  uint32_t leaf_count = 0;
+  uint32_t group_count = 0;
+  uint32_t failure_count = 0;
+  for (const auto &record : file.records) {
+    if (record.kind == "group") {
+      ++group_count;
+    } else {
+      ++leaf_count;
+    }
+    if (record.oracle_failed || record.outcome == "FAIL") {
+      ++failure_count;
+    }
+  }
+
+  char counts[96] = {};
+  snprintf(counts, sizeof(counts), "Leaves: %lu  Groups: %lu  Failures: %lu",
+           static_cast<unsigned long>(leaf_count),
+           static_cast<unsigned long>(group_count),
+           static_cast<unsigned long>(failure_count));
+  std::vector<std::string> summary{
+      std::string("Completion: ") + (file.complete ? "COMPLETE" : "INCOMPLETE"),
+      counts, FormatResultSize(file.size_bytes), "Path: " + file.path};
+  if (!file.error.empty()) {
+    summary.emplace_back("Error: " + file.error);
+  }
+  auto summary_item = std::make_shared<MenuItemInfo>(
+      "Run summary", std::move(summary), width, height);
+  summary_item->parent = this;
+  submenu.push_back(summary_item);
+
+  for (const auto &record : file.records) {
+    std::vector<std::string> lines{
+        "ID: " + record.id,
+        "Legacy: " + record.name,
+        "Kind: " + record.kind,
+        "Outcome: " + record.outcome};
+    if (record.has_measurement) {
+      lines.push_back(FormatResultTime("Average", record.average_us));
+      lines.push_back(FormatResultTime("Minimum", record.minimum_us));
+      lines.push_back(FormatResultTime("Maximum", record.maximum_us));
+    } else {
+      lines.emplace_back("Measurement: none");
+    }
+    lines.emplace_back(std::string("Oracle: ") +
+                       (record.oracle_failed ? "FAIL" : "no recorded failure"));
+    const std::string label = record.id.empty() ? record.name : record.id;
+    auto item = std::make_shared<MenuItemInfo>(label, std::move(lines), width,
+                                               height);
+    item->parent = this;
+    submenu.push_back(item);
+  }
+}
+
+MenuItemStoredResults::MenuItemStoredResults(std::string output_directory,
+                                             uint32_t width, uint32_t height)
+    : MenuItem("Previous results", width, height),
+      output_directory_(std::move(output_directory)) {
+  header = "Saved benchmark runs";
+  footer = "A open  B return  Left/Right page";
+}
+
+void MenuItemStoredResults::OnEnter() {
+  submenu.clear();
+  cursor_position = 0;
+  const auto paths = DiscoverStoredResults(output_directory_);
+  if (paths.empty()) {
+    auto empty = std::make_shared<MenuItemInfo>(
+        "No saved results",
+        std::vector<std::string>{"Run a test first.",
+                                 "Results are saved under:",
+                                 output_directory_},
+        width, height);
+    empty->parent = this;
+    submenu.push_back(empty);
+    return;
+  }
+  for (const auto &path : paths) {
+    const auto slash = path.find_last_of("\\/");
+    const std::string label =
+        slash == std::string::npos ? path : path.substr(slash + 1);
+    auto item = std::make_shared<MenuItemStoredResultFile>(
+        path, label, width, height);
+    item->parent = this;
+    submenu.push_back(item);
   }
 }
 
@@ -312,7 +454,8 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
                            std::function<void()> on_exit,
                            std::function<void(const TestDescriptor &)> on_run_catalog_route,
                            uint32_t width, uint32_t height, bool disable_autorun,
-                           bool autorun_immediately, const std::string &active_plan)
+                           bool autorun_immediately, const std::string &active_plan,
+                           const std::string &output_directory)
     : MenuItem("<<root>>", width, height),
       on_run_all(std::move(on_run_all)),
       on_exit(std::move(on_exit)),
@@ -329,6 +472,20 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
   if (!disable_autorun) {
     submenu.push_back(std::make_shared<MenuItemCallable>(on_run_all, "Run all and exit", width, height));
   }
+
+  auto stored_results = std::make_shared<MenuItemStoredResults>(
+      output_directory, width, height);
+  stored_results->parent = this;
+  submenu.push_back(stored_results);
+
+  auto device_info = std::make_shared<MenuItemInfo>(
+      "System information",
+      [output_directory, width, height]() {
+        return PollDeviceInfo(output_directory, width, height);
+      },
+      width, height);
+  device_info->parent = this;
+  submenu.push_back(device_info);
 
   submenu.push_back(std::make_shared<MenuItemInfo>(
       "About / controls",

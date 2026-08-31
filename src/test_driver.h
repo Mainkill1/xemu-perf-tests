@@ -25,7 +25,8 @@ struct MenuItem;
 class TestDriver {
  public:
   TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSuite>> &test_suites, uint32_t framebuffer_width,
-             uint32_t framebuffer_height, bool show_options_menu, bool disable_autorun, bool autorun_immediately);
+             uint32_t framebuffer_height, bool show_options_menu, bool disable_autorun,
+             bool autorun_immediately, const std::string &output_directory);
   ~TestDriver();
 
   //! Enters a loop that reacts to user input until the user requests an exit.

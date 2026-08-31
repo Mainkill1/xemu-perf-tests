@@ -18,7 +18,8 @@ static constexpr auto kButtonRepeatMilliseconds = 150;
 
 TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSuite>> &test_suites,
                        uint32_t framebuffer_width, uint32_t framebuffer_height, bool show_options_menu,
-                       bool disable_autorun, bool autorun_immediately)
+                       bool disable_autorun, bool autorun_immediately,
+                       const std::string &output_directory)
     : test_host_(host), test_suites_(test_suites) {
   auto on_run_all = [this]() { RunAllTestsNonInteractive(); };
   auto on_exit = [this]() { running_ = false; };
@@ -28,7 +29,8 @@ TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSui
   std::string active_plan = test_host_.HasResolvedPlan() ? "resolved plan" : "full/legacy selection";
   root_menu_ = std::make_shared<MenuItemRoot>(
       test_suites, on_run_all, on_exit, on_run_catalog_route, framebuffer_width,
-      framebuffer_height, disable_autorun, autorun_immediately, active_plan);
+      framebuffer_height, disable_autorun, autorun_immediately, active_plan,
+      output_directory);
 
   if (show_options_menu) {
     auto on_options_exit = [this]() { active_menu_ = root_menu_; };

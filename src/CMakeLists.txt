@@ -138,12 +138,16 @@ add_executable(
         main.cpp
         debug_output.cpp
         debug_output.h
+        device_info.cpp
+        device_info.h
         logger.cpp
         logger.h
         menu_item.cpp
         menu_item.h
         runtime_config.cpp
         runtime_config.h
+        result_store.cpp
+        result_store.h
         test_driver.cpp
         test_driver.h
         test_host.cpp

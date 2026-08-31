@@ -25,6 +25,8 @@ host selects stable leaf IDs
             v
  E:\xemu_perf_tests\results.txt
             |
+next boot archives prior file under E:\xemu_perf_tests\history
+            |
 host extracts the byte-exact result and compares A/B runs
 ```
 
@@ -93,6 +95,28 @@ Each emitted leaf is mapped back to its catalog descriptor. Duplicate,
 unexpected, or missing leaves fail resolved-plan validation. Composite parents
 are written as `kind=group` with `measurement=null`; they no longer inherit the
 last child's timing.
+
+### On-console menu and retained results
+
+The XISO root menu can run the full selection, built-in workload plans, a
+suite, or a catalog-mapped test. `Previous results` discovers the active result
+and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
+run shows complete/incomplete state, file size, leaf/group/failure counts, and
+one detail page per emitted record. Parsing is streamed; the console does not
+load an arbitrarily sized result file into one fixed buffer.
+
+Before a new result log opens, the existing `results.txt` is moved into
+`history`. The guest applies no unexplained file-count or byte cap. It also
+refuses to start if the old result cannot be preserved. Cleanup remains a
+deliberate operator action after evidence is extracted.
+
+`System information` polls only guest-visible facts: CPUID vendor/signature,
+TSC frequency reported by nxdk, logical CPU count, memory-manager totals,
+output-drive size/free space, NV2A/MCP revision, framebuffer mode, and kernel
+version. A refresh is explicit (A button), so data collection cannot add noise
+to timed workloads. Host GPU identity, frequency, and VRAM are not exposed to
+Xbox software and are labeled `Unavailable`; host automation must record those
+values separately.
 
 ## Test inventory
 

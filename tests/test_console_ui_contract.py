@@ -17,11 +17,11 @@ class ConsoleUiContractTests(unittest.TestCase):
 
     def test_full_catalog_inventory_has_one_unique_console_entry_per_descriptor(self):
         tests = self.catalog["tests"]
-        self.assertEqual(len(tests), 134)
-        self.assertEqual(sum(x["kind"] == "leaf" for x in tests), 129)
-        self.assertEqual(sum(x["kind"] == "group" for x in tests), 5)
-        self.assertEqual(len({x["id"] for x in tests}), 134)
-        self.assertEqual(len({x["legacy_ids"][0] for x in tests}), 134)
+        self.assertEqual(len(tests), self.catalog["leaf_count"] + self.catalog["group_count"])
+        self.assertEqual(sum(x["kind"] == "leaf" for x in tests), self.catalog["leaf_count"])
+        self.assertEqual(sum(x["kind"] == "group" for x in tests), self.catalog["group_count"])
+        self.assertEqual(len({x["id"] for x in tests}), len(tests))
+        self.assertEqual(len({x["legacy_ids"][0] for x in tests}), len(tests))
         self.assertTrue(all(x.get("execution", {}).get("legacy_test") or x["kind"] == "group"
                             for x in tests))
         self.assertIn("for (const auto *descriptor : TestCatalogEntries())", self.menu_source)
@@ -30,7 +30,7 @@ class ConsoleUiContractTests(unittest.TestCase):
         # The Xbox implementation displays 12 rows and advances half a page.
         page_size = 12
         half_page = page_size // 2
-        for count in (1, 5, 12, 13, 26, 52, 134):
+        for count in (1, 5, 12, 13, 26, 52, len(self.catalog["tests"])):
             visited = set()
             cursor = 0
             for _ in range(count):
@@ -46,7 +46,8 @@ class ConsoleUiContractTests(unittest.TestCase):
 
     def test_ui_exposes_identity_help_routes_progress_and_result_location(self):
         for token in ("About / controls", "Catalog browser", "Plans", "Quick smoke routes", "TestCatalogId()",
-                      "A/Start select", "Grouped route", "results.txt"):
+                      "A/Start select", "Grouped route", "results.txt", "Previous results",
+                      "System information", "A: refresh"):
             self.assertIn(token, self.menu_source)
         for token in ("RunCatalogRoute", "DrawProgress", "HasTest"):
             self.assertIn(token, self.driver_source)
@@ -57,6 +58,17 @@ class ConsoleUiContractTests(unittest.TestCase):
             self.assertIn(token, self.main_source)
         sample = json.loads((ROOT / "resources/sample-config.json").read_text(encoding="utf-8"))
         self.assertGreaterEqual(sample["settings"]["reboot_or_shutdown_delay"], 30000)
+
+    def test_previous_results_are_preserved_and_device_values_are_polled(self):
+        store = (ROOT / "src/result_store.cpp").read_text(encoding="utf-8")
+        device = (ROOT / "src/device_info.cpp").read_text(encoding="utf-8")
+        for token in ("ArchiveCurrentResults", "DiscoverStoredResults", "ReadStoredResults",
+                      "MoveFile", "results-*.txt"):
+            self.assertIn(token, store)
+        for token in ("QueryPerformanceFrequency", "MmQueryStatistics", "GetDiskFreeSpaceEx",
+                      "XboxHardwareInfo", "Host GPU / clock / VRAM: Unavailable to guest"):
+            self.assertIn(token, device)
+        self.assertIn("ArchiveCurrentResults", self.main_source)
 
 
 if __name__ == "__main__":

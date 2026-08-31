@@ -227,6 +227,12 @@ offers:
 
 - `Run all and exit`: execute every enabled route, save results, and show the
   final verdict;
+- `Previous results`: open the current or any archived run, inspect completion,
+  leaf/group/failure counts, then browse each record and its timing;
+- `System information`: poll guest CPU identity/frequency, processor count,
+  RAM, output-drive capacity/free space, Xbox GPU/MCP revision, video mode, and
+  kernel version. Press A to refresh. Host GPU identity, clock, and VRAM are
+  reported as unavailable because Xbox software cannot query them reliably;
 - one entry per enabled suite: select one execution test or press X to run the
   complete suite;
 - `Catalog browser`: inspect all stable test/group identities available in
@@ -237,8 +243,8 @@ offers:
 - `About / controls`: catalog ID, inventory counts, controls, result path, and
   run-mode meaning.
 
-The full unfiltered image exposes 129 leaf tests, five structural groups, and
-134 exact legacy aliases. A catalog stage belonging to a grouped execution
+The full unfiltered image exposes 136 leaf tests, five structural groups, and
+141 exact legacy aliases. A catalog stage belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.
@@ -256,7 +262,13 @@ Results are saved to:
 ```text
 E:\xemu_perf_tests\results.txt
 E:\xemu_perf_tests\resolved-plan-result.json  (resolved plans only)
+E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS.txt
 ```
+
+At startup, an existing `results.txt` is moved into `history` before a new log
+is opened. Files are never pruned by the XISO: retention is an explicit storage
+decision and benchmark evidence is not silently discarded. If preservation
+fails, the new run is refused instead of overwriting the old result.
 
 The UI reports execution/oracle status. A framebuffer hash from xemu is still
 a regression oracle, not proof of retail-hardware correctness.
@@ -267,8 +279,10 @@ This branch has host contract and build gates; those do not substitute for a
 real controller/display test. Before calling the UI hardware-validated:
 
 1. Boot the release XISO on a retail Xbox with no config. Confirm catalog ID,
-   `129 tests / 5 groups / 134 aliases`, countdown, and cancellation.
-2. Visit About, every root suite, and every catalog suite. Hold Up/Down and use
+   `136 tests / 5 groups / 141 aliases`, countdown, and cancellation.
+2. Open Previous results and inspect one run summary and record. Open System
+   information, press A, and confirm RAM/drive values refresh. Visit About,
+   every root suite, and every catalog suite. Hold Up/Down and use
    Left/Right at first, middle, and last pages; confirm no blank or stuck page.
 3. Open entries from each catalog suite. Confirm stable ID, legacy alias,
    description, route, A-run help, and B/Back return.

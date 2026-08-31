@@ -19,6 +19,7 @@
 
 #include "debug_output.h"
 #include "logger.h"
+#include "result_store.h"
 #include "runtime_config.h"
 #include "test_driver.h"
 #include "test_host.h"
@@ -199,7 +200,15 @@ static void Shutdown() {
 
 static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites) {
   std::string log_file = config.output_directory_path() + "\\" + kLogFileName;
-  DeleteFile(log_file.c_str());
+  std::string archive_error;
+  if (!ArchiveCurrentResults(config.output_directory_path(), archive_error)) {
+    debugClearScreen();
+    debugPrint("Cannot preserve previous result.\n%s\n\nCurrent file remains at:\n%s\n",
+               archive_error.c_str(), log_file.c_str());
+    pb_show_debug_screen();
+    Sleep(kDelayOnFailureMilliseconds);
+    return false;
+  }
   Logger::Initialize(log_file, true);
   host.ResetResultLogState();
   if (config.has_resolved_plan()) {
@@ -207,7 +216,8 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   }
 
   TestDriver driver(host, test_suites, kFramebufferWidth, kFramebufferHeight, false, config.disable_autorun(),
-                    config.enable_autorun_immediately());
+                    config.enable_autorun_immediately(),
+                    config.output_directory_path());
 
   Logger::Log() << "[" << std::endl;
   driver.Run();

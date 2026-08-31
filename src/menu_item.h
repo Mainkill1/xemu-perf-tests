@@ -66,13 +66,37 @@ struct MenuItem {
 struct MenuItemInfo : public MenuItem {
   MenuItemInfo(std::string name, std::vector<std::string> lines, uint32_t width, uint32_t height,
                std::function<void()> on_activate = {});
+  MenuItemInfo(std::string name, std::function<std::vector<std::string>()> poll_lines,
+               uint32_t width, uint32_t height);
   [[nodiscard]] bool IsEnterable() const override { return true; }
   void Draw() override;
+  void OnEnter() override;
   void Activate() override;
 
  private:
   std::vector<std::string> lines_;
   std::function<void()> on_activate_;
+  std::function<std::vector<std::string>()> poll_lines_;
+};
+
+struct MenuItemStoredResultFile : public MenuItem {
+  MenuItemStoredResultFile(std::string path, std::string label, uint32_t width,
+                           uint32_t height);
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void OnEnter() override;
+
+ private:
+  std::string path_;
+};
+
+struct MenuItemStoredResults : public MenuItem {
+  MenuItemStoredResults(std::string output_directory, uint32_t width,
+                        uint32_t height);
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void OnEnter() override;
+
+ private:
+  std::string output_directory_;
 };
 
 struct MenuItemCallable : public MenuItem {
@@ -126,7 +150,8 @@ struct MenuItemRoot : public MenuItem {
                         std::function<void()> on_exit,
                         std::function<void(const TestDescriptor &)> on_run_catalog_route,
                         uint32_t width, uint32_t height, bool disable_autorun,
-                        bool autorun_immediately, const std::string &active_plan);
+                        bool autorun_immediately, const std::string &active_plan,
+                        const std::string &output_directory);
 
   void Draw() override;
   void Activate() override;
