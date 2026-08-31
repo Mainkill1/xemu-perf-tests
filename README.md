@@ -7,11 +7,11 @@ a faster result cannot silently hide changed output.
 
 ## Current release
 
-Use `xemu-perf-tests-eng467-menu-f98b804.iso`.
+Use `xemu-perf-tests-eng467-menu-95ca53d.iso`.
 
 ```text
-XISO SHA-256: 3c1b9f2b7e7fe1ed6e49b0db6adfd7b6dc230bb3eb3b679e8961ba191321361d
-Guest source: f98b804ca7d1a9789fb154a0e3bb3a556ab7c1cf
+XISO SHA-256: 175bcdf1ddd02112ebd0f6f72f3ea4dcd9aaf22d399c0bf0d2b94de75db409c9
+Guest source: 95ca53dd95a61ed30b33d257a7e4e4ffd691552a
 Catalog: 136 executable leaves + 5 structural groups = 141 full-suite records
 ```
 
