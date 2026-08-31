@@ -42,14 +42,17 @@ and both pass correctness.
 | ENG458 | Historical | Twelve texture lifetime, S3TC/BC, fallback, and dirty-revalidation routes |
 | ENG459 | Integrated | Stable catalog IDs, explicit resolved plans, exact leaf completion, structural groups |
 | ENG462 | Canonical | 141-record image, console UI/progress, soft failures, three new workload families, strict hash tool |
+| ENG467 | Current | Results inspector, graphs/reference, device information, Time Spirit combined image |
 
-Current image: `xemu-perf-tests-eng462-ui-outline-6914f65.iso`, SHA-256
-`9d21853bda794657d0165717d47840caaef84810ac5390bb86bb41d63840808f`.
-It passed 96/96 source/tool contracts, built on the LAN builder, displayed readable
-outlined progress at runtime, and completed the final 141-record compatible A/B.
-That A/B used the wider pull-#10-plus-ENG-465 candidate; the PR #2-#9 public
-binary is deliberately identified as a narrower package and does not inherit
-the wider candidate's aggregate performance claim.
+Current image: `xemu-perf-tests-eng467-time-spirit-2a65eba.iso`, SHA-256
+`3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c`,
+source `2a65ebabcd030d3b14204c923fadfcf50a34a3ee`. It passed 113/113 source
+contracts, release-XISO build, 19/19 combined payload hashes, production root
+menu boot, and validation-autolaunch copy/boot. See the
+[release contract](../releases/eng467-time-spirit-v7.json). The final
+141-record A/B used the wider pull-#10-plus-ENG-465 candidate; the PR #2-#9
+public binary remains a narrower package and does not inherit that aggregate
+performance claim.
 The current final A/B evidence is appended in `releases/`; earlier incomplete runs
 remain historical evidence and are not silently rewritten.
 

@@ -42,7 +42,7 @@ Run the complete current selection from Windows Command Prompt:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --full-suite ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng467-menu-7d56155.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
   --backend vulkan --scale 1 ^
   --completion-mode per_iteration --expected-record-count 141
 ```
@@ -51,13 +51,25 @@ For OpenGL, change only `--backend`. For another scale, change only `--scale`.
 Add `--vulkan-validation` to a Vulkan correctness run; do not use that run for
 timing.
 
+An unmodified upstream xemu may lack the lab live-marker transport. For that
+case only, add:
+
+```text
+--allow-missing-live-markers --host-telemetry off
+```
+
+This narrowly waives live-marker attribution. It cannot be combined with host
+GDB samples. Record inventory, guest checks, functional hashes, and renderer
+validation remain mandatory, so correctness is not relaxed. Timing from the
+waived run is explicitly ineligible for a PR-grade performance claim.
+
 Reduce an S3TC failure to its exact grouped route:
 
 ```bat
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --test-id GameLoadComposite::10-S3tcSyncFactor ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng467-menu-7d56155.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
   --backend vulkan --scale 1 --completion-mode per_iteration ^
   --expected-record-count 13 --vulkan-validation
 ```
@@ -134,17 +146,20 @@ gate.
 
 ## Result locations and safe copy
 
-The guest writes:
+With the default `output_directory_path`, the guest writes:
 
 ```text
 E:\xemu_perf_tests\results.txt
 E:\xemu_perf_tests\resolved-plan-result.json
-E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS.txt
+E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS[-N].txt
 ```
 
 The plan result exists only for resolved plans. Before a new run, current
 `results.txt` moves into `history`. The guest never prunes history. If archival
 fails, it refuses the new run instead of overwriting evidence.
+`-N` is added only when multiple archives would otherwise have the same name.
+Changing `output_directory_path` relocates current, plan, and history output
+together; it does not relocate the read-only D: reference.
 
 Safe copy:
 

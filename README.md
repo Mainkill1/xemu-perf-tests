@@ -16,13 +16,21 @@ failure-recovery workflows.
 
 ## Current release
 
-Use `xemu-perf-tests-eng467-menu-7d56155.iso`.
+Use `xemu-perf-tests-eng467-time-spirit-2a65eba.iso`.
 
 ```text
-XISO SHA-256: ce78a772a3ae494ed3c38e602752ab8060fda54bd13d8c935ffbb59b97da389b
-Guest source: 7d561556ed17dda12a83422d48c7fea65d3e3acf
+XISO SHA-256: 3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c
+Guest source: 2a65ebabcd030d3b14204c923fadfcf50a34a3ee
 Catalog: 136 executable leaves + 5 structural groups = 141 full-suite records
 ```
+
+The authoritative image contract is
+[`releases/eng467-time-spirit-v7.json`](releases/eng467-time-spirit-v7.json).
+Its source is Forgejo commit
+[`2a65ebabcd03`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/2a65ebabcd030d3b14204c923fadfcf50a34a3ee).
+Download published artifacts from the
+[`xemu-perf-tests` releases](http://10.0.4.4:3000/main/xemu-perf-tests/releases)
+and verify this digest before use.
 
 The matching xemu release and diagnostic executables are published in the
 [`xemu-pr-train` releases](http://10.0.4.4:3000/main/xemu-pr-train/releases).
@@ -34,10 +42,11 @@ Exact source, binary, XISO, and validation identities are recorded in
 
 ### Latest complete suite result
 
-The final compatible campaign used this XISO against upstream `d73326b6` and
-the later tested candidate `2ae71e6c` (published equivalent tree through pull
-#10 plus ENG-465). The dedicated Windows rig used 1x scale, VSync off, three
-guest warmups, work multiplier four, and per-iteration completion.
+The final compatible campaign exercised this 141-record workload contract
+against upstream `d73326b6` and the later tested candidate `2ae71e6c` (published
+equivalent tree through pull #10 plus ENG-465). The dedicated Windows rig used
+1x scale, VSync off, three guest warmups, work multiplier four, and
+per-iteration completion.
 
 | Backend | Candidate records | Semantic differences | Fresh-process image checks | Fixed-work throughput |
 | --- | ---: | ---: | ---: | ---: |
@@ -295,13 +304,14 @@ Results are saved to:
 ```text
 E:\xemu_perf_tests\results.txt
 E:\xemu_perf_tests\resolved-plan-result.json  (resolved plans only)
-E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS.txt
+E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS[-N].txt
 ```
 
 At startup, an existing `results.txt` is moved into `history` before a new log
 is opened. Files are never pruned by the XISO: retention is an explicit storage
 decision and benchmark evidence is not silently discarded. If preservation
 fails, the new run is refused instead of overwriting the old result.
+`-N` disambiguates archives created in the same clock second.
 
 The UI reports execution/oracle status. A framebuffer hash from xemu is still
 a regression oracle, not proof of retail-hardware correctness.
