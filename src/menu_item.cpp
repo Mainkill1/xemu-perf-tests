@@ -293,14 +293,6 @@ constexpr int kPlotHeight = 210;
 // legible on 480i output; it is not a workload or data retention limit.
 constexpr int kMinimumHistogramBarWidth = 8;
 
-std::string FormatResultTime(const char *label, uint32_t microseconds) {
-  char text[80] = {};
-  snprintf(text, sizeof(text), "%s: %lu.%03lu ms", label,
-           static_cast<unsigned long>(microseconds / 1000),
-           static_cast<unsigned long>(microseconds % 1000));
-  return text;
-}
-
 std::string FormatResultSize(uint64_t bytes) {
   char text[80] = {};
   snprintf(text, sizeof(text), "Size: %llu bytes",
@@ -486,16 +478,15 @@ bool MenuItemStoredResults::HandleY() {
   if (submenu.empty()) {
     return true;
   }
-  auto selected =
-      std::dynamic_pointer_cast<MenuItemStoredResultFile>(submenu[cursor_position]);
-  if (!selected) {
+  const auto *selected_path = submenu[cursor_position]->StoredResultPath();
+  if (!selected_path) {
     return true;
   }
-  g_result_baseline_path = selected->Path();
+  g_result_baseline_path = *selected_path;
   for (const auto &item : submenu) {
-    auto run = std::dynamic_pointer_cast<MenuItemStoredResultFile>(item);
-    if (run) {
-      run->SetBaselineIndicator(run->Path() == g_result_baseline_path);
+    const auto *path = item->StoredResultPath();
+    if (path) {
+      item->SetBaselineIndicator(*path == g_result_baseline_path);
     }
   }
   return true;

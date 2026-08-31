@@ -42,6 +42,10 @@ struct MenuItem {
   // the global X/Y behavior.
   virtual bool HandleX();
   virtual bool HandleY();
+  [[nodiscard]] virtual const std::string *StoredResultPath() const {
+    return nullptr;
+  }
+  virtual void SetBaselineIndicator(bool selected) {}
 
   void SetHeader(std::string value) { header = std::move(value); }
   void SetFooter(std::string value) { footer = std::move(value); }
@@ -90,8 +94,10 @@ struct MenuItemStoredResultFile : public MenuItem {
   [[nodiscard]] bool IsEnterable() const override { return true; }
   void OnEnter() override;
   bool HandleX() override;
-  [[nodiscard]] const std::string &Path() const { return path_; }
-  void SetBaselineIndicator(bool selected);
+  [[nodiscard]] const std::string *StoredResultPath() const override {
+    return &path_;
+  }
+  void SetBaselineIndicator(bool selected) override;
 
  private:
   void RebuildMenu();
