@@ -77,6 +77,15 @@
     "performance_claim": "INVALID_INCOMPLETE_RUN"
   },
   "tooling_defect": "A zero-check oracle report was labeled PASSED. Treat checks=[] and null provenance as UNVERIFIED; ENG-2026-463 adds an enforcing comparison tool.",
+  "post_run_ui_followup": {
+    "source": "6914f652ad81caaca1daf181bf925fbbddef4a42",
+    "image": "xemu-perf-tests-eng462-ui-outline-6914f65.iso",
+    "sha256": "9d21853bda794657d0165717d47840caaef84810ac5390bb86bb41d63840808f",
+    "change": "Padded black backing behind result and RUNNING text; drawn after framebuffer hashing.",
+    "static_tests": "96/96 PASS",
+    "build": "PASS on LAN build box 10.0.100.1",
+    "runtime_validation": "NOT_RUN; this image was built after the final A/B matrix"
+  },
   "run_directories": {
     "baseline_opengl": "C:\\xemu-lab\\runs\\suite\\2026-08-30-203705-perf-full-suite-d73326b62199",
     "candidate_opengl": "C:\\xemu-lab\\runs\\suite\\2026-08-30-204624-perf-full-suite-6b4424c55d44",
