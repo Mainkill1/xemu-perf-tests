@@ -237,26 +237,21 @@ Individual tests may be executed via the menu.
 Booting the XISO opens a controller-driven interface before autorun. Any
 controller input cancels the three-second autorun countdown.
 
-The root screen identifies the bundled catalog and active selection, then
-offers:
+The root screen identifies the catalog and active selection. It has seven
+stable entries:
 
-- `Run all and exit`: execute every enabled route, save results, and show the
-  final verdict;
-- `Previous results`: open the current or any archived run, inspect completion,
-  leaf/group/failure counts, then browse each record and its timing;
-- `System information`: poll guest CPU identity, performance-timer frequency, processor count,
-  RAM, output-drive capacity/free space, Xbox GPU/MCP revision, video mode, and
-  kernel version. Press A to refresh. Host GPU identity, clock, and VRAM are
-  reported as unavailable because Xbox software cannot query them reliably;
-- one entry per enabled suite: select one execution test or press X to run the
-  complete suite;
-- `Catalog browser`: inspect all stable test/group identities available in
-  this boot, their legacy alias, description, and mapped execution route;
-- `Plans`: run the active selection, quick smoke routes, the S3TC/BC texture
-  matrix, or either Vulkan memory-pressure route without preparing a host
-  configuration;
-- `About / controls`: catalog ID, inventory counts, controls, result path, and
-  run-mode meaning.
+1. `Run Suite`: run the full selection or open one suite and run its tests.
+2. `Individual Tests`: browse stable IDs by subsystem, inspect contracts, and
+   run mapped routes.
+3. `Results`: browse the bundled reference, current result, and archives;
+   inspect records, graphs, failures, and A/B comparisons.
+4. `System Information`: refresh guest CPU, timer, RAM, drive, NV2A/MCP,
+   CPU/board temperature, video, and kernel values.
+5. `Plans`: run the full selection, quick smoke, S3TC/BC, or Vulkan-memory
+   plans.
+6. `Settings`: select single-run/result-saving or continuous/no-save behavior.
+7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
+   identity, result path, and controller actions.
 
 The full unfiltered image exposes 136 leaf tests, five structural groups, and
 141 exact legacy aliases. A catalog stage belonging to a grouped execution
@@ -294,14 +289,16 @@ The guest stays at the Xbox-native 640x480 logical framebuffer. Internal xemu
 scaling enlarges rendered surfaces; it does not create more guest UI space.
 The result browser spends that fixed screen on progressive detail:
 
-1. `Previous results` lists the current result and timestamped archives.
-2. Press Y on a run to mark the in-memory A/B baseline.
-3. Open a run for its completion/count summary and records. Press X to switch
-   between all records and failures only.
-4. Open a record. Press X to cycle `SUMMARY`, `TRACE`, and `HISTOGRAM`; use
-   Left/Right to move the trace cursor.
-5. Open `Compare to selected baseline` from another run. Records match by
-   stable ID, timing unit, and metric direction. Press X for regressions only.
+1. `Results` lists a bundled completed OpenGL 1x reference, the current result,
+   and timestamped archives. The bundled run is the default in-memory baseline.
+2. Open a run, then `Graphs`, to see every timed record directly. Each opens on
+   `TRACE`; X cycles `TRACE`, `HISTOGRAM`, and `SUMMARY`.
+3. Press Y on any run to replace the in-memory A/B baseline.
+4. Open a non-baseline run and select `Compare to selected baseline`. Matching
+   stable IDs show aggregate values and a cyan-baseline/green-candidate trace
+   when sample procedures match. Press X for regressions only.
+5. The normal record list remains available. Press X there to switch between
+   all records and failures only.
 
 New timing records store average, minimum, maximum, median, nearest-rank p95,
 MAD, sample count, unit, and direction. Trace rendering buckets samples by the
@@ -323,6 +320,11 @@ append-record container and byte-offset sidecar remain future format work.
 Framebuffer images are not stored, so the console can show hashes and failure
 text but cannot reconstruct a visual difference. Baseline selection lasts for
 the current application session and does not rename or mutate either run.
+`D:\reference-results.txt` is a read-only, 141-record completed run captured on
+2026-08-30 with OpenGL, 1x scale, xemu `d73326b62199`, three warmups,
+multiplier four, and per-iteration completion. It is a performance/regression
+reference, not a retail-Xbox correctness oracle. Full provenance is stored in
+`D:\reference-results-provenance.txt`.
 
 ### Physical Xbox acceptance checklist
 
@@ -331,7 +333,7 @@ real controller/display test. Before calling the UI hardware-validated:
 
 1. Boot the release XISO on a retail Xbox with no config. Confirm catalog ID,
    `136 tests / 5 groups / 141 aliases`, countdown, and cancellation.
-2. Open Previous results and inspect one run summary and record. Open System
+2. Open Results and inspect one run summary, graph, and record. Open System
    information, press A, and confirm RAM/drive values refresh. Visit About,
    every root suite, and every catalog suite. Hold Up/Down and use
    Left/Right at first, middle, and last pages; confirm no blank or stuck page.

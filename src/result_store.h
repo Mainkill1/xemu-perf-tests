@@ -51,6 +51,10 @@ struct StoredResultSamples {
 // The loader downsamples deterministically if the selected record exceeds it.
 constexpr size_t kResultViewerSampleScratchBytes = 512U * 1024U;
 
+// Read-only, completed regression reference shipped in the XISO resource root.
+const char *BundledReferenceResultsPath();
+bool HasBundledReferenceResults();
+
 // Moves the prior results file into the history directory. History is not
 // pruned automatically: deleting benchmark evidence requires an explicit host
 // or console-storage decision, not an arbitrary retention magic number.

@@ -98,8 +98,8 @@ last child's timing.
 
 ### On-console menu and retained results
 
-The XISO root menu can run the full selection, built-in workload plans, a
-suite, or a catalog-mapped test. `Previous results` discovers the active result
+The XISO root menu contains only Run Suite, Individual Tests, Results, System
+Information, Plans, Settings, and About/Controls. `Results` discovers the active result
 and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
 run shows complete/partial state, file size, leaf/group/pass/failure/no-oracle
 counts, a failure-only filter, and one detail page per emitted record. New
@@ -107,6 +107,13 @@ records retain median, nearest-rank p95, MAD, sample count, unit, and metric
 direction. The detail page renders a min/max-envelope trace or width-derived
 histogram. The console can select one run as a baseline and compare compatible
 measurements by stable ID.
+
+The XISO ships one read-only, completed 141-record OpenGL 1x run as its default
+performance baseline. Its provenance names the source build, XISO, measurement
+settings, backend, date, and regression-only status. Each run exposes an
+explicit Graphs submenu. A/B details overlay baseline samples in cyan and
+candidate samples in green only when the procedures have equal sample counts;
+otherwise they show aggregates and explain why trace overlay is disabled.
 
 Run summaries are streamed. Raw samples are loaded by rescanning only the
 selected stable ID and are bounded by the explicit 512 KiB viewer scratch
@@ -120,13 +127,14 @@ Before a new result log opens, the existing `results.txt` is moved into
 refuses to start if the old result cannot be preserved. Cleanup remains a
 deliberate operator action after evidence is extracted.
 
-`System information` polls only guest-visible facts: CPUID vendor/signature,
+`System Information` polls only guest-visible facts: CPUID vendor/signature,
 performance-timer frequency reported by nxdk, logical CPU count, memory-manager totals,
-output-drive size/free space, NV2A/MCP revision, framebuffer mode, and kernel
-version. A refresh is explicit (A button), so data collection cannot add noise
-to timed workloads. Host GPU identity, frequency, and VRAM are not exposed to
-Xbox software and are labeled `Unavailable`; host automation must record those
-values separately.
+output-drive size/free space, NV2A/MCP revision, SMC CPU/board temperature,
+framebuffer mode, and kernel version. A refresh is explicit (A button), so data
+collection cannot add noise to timed workloads. A zero, invalid, or unavailable
+SMC reading is shown as `no sensor data`. Host automation remains responsible
+for host GPU identity, frequency, and VRAM; the guest page no longer spends a
+row restating that limitation.
 
 ## Test inventory
 

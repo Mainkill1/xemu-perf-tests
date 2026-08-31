@@ -26,9 +26,18 @@ TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSui
   auto on_run_catalog_route = [this](const TestDescriptor &descriptor) {
     RunCatalogRoute(descriptor);
   };
+  auto on_single_run_mode = [this]() {
+    MenuItemTest::SetRunMode(MenuItemTest::RunMode::SINGLE_FRAME);
+    test_host_.SetSaveResults(true);
+  };
+  auto on_continuous_run_mode = [this]() {
+    MenuItemTest::SetRunMode(MenuItemTest::RunMode::CONTINUOUS);
+    test_host_.SetSaveResults(false);
+  };
   std::string active_plan = test_host_.HasResolvedPlan() ? "resolved plan" : "full/legacy selection";
   root_menu_ = std::make_shared<MenuItemRoot>(
-      test_suites, on_run_all, on_exit, on_run_catalog_route, framebuffer_width,
+      test_suites, on_run_all, on_exit, on_run_catalog_route,
+      on_single_run_mode, on_continuous_run_mode, framebuffer_width,
       framebuffer_height, disable_autorun, autorun_immediately, active_plan,
       output_directory);
 

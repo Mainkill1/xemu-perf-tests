@@ -306,17 +306,6 @@ std::string FormatResultSize(uint64_t bytes) {
   return text;
 }
 
-std::string FormatResultPair(const char *label, uint32_t baseline_us,
-                             uint32_t candidate_us) {
-  char text[112] = {};
-  snprintf(text, sizeof(text), "%s %lu.%03lu -> %lu.%03lu ms", label,
-           static_cast<unsigned long>(baseline_us / 1000),
-           static_cast<unsigned long>(baseline_us % 1000),
-           static_cast<unsigned long>(candidate_us / 1000),
-           static_cast<unsigned long>(candidate_us % 1000));
-  return text;
-}
-
 bool IsFailure(const StoredResultRecord &record) {
   return record.oracle_failed || record.outcome == "FAIL";
 }
@@ -394,6 +383,12 @@ void MenuItemStoredResultFile::RebuildMenu() {
                     : "Recovered records: " +
                           std::to_string(file.records.size()),
       oracle_counts, FormatResultSize(file.size_bytes), "Path: " + file.path};
+  if (path_ == BundledReferenceResultsPath()) {
+    summary.insert(summary.begin(),
+                   "REFERENCE: completed OpenGL 1x regression run");
+    summary.emplace_back("Recorded 2026-08-30; xemu d73326b62199");
+    summary.emplace_back("Not a retail-Xbox correctness oracle.");
+  }
   if (!file.error.empty()) {
     summary.emplace_back("Error: " + file.error);
   }
@@ -401,6 +396,23 @@ void MenuItemStoredResultFile::RebuildMenu() {
       "Run summary", std::move(summary), width, height);
   summary_item->parent = this;
   submenu.push_back(summary_item);
+
+  auto graphs = std::make_shared<MenuItem>("Graphs", width, height);
+  graphs->SetHeader("Timing graphs | trace and histogram");
+  graphs->SetFooter("A open graph  X graph mode  B return");
+  graphs->parent = this;
+  for (const auto &record : file.records) {
+    if (!record.has_measurement) {
+      continue;
+    }
+    auto graph = std::make_shared<MenuItemStoredRecord>(
+        path_, record, width, height, true);
+    graph->parent = graphs.get();
+    graphs->submenu.push_back(graph);
+  }
+  if (!graphs->submenu.empty()) {
+    submenu.push_back(graphs);
+  }
 
   if (!g_result_baseline_path.empty() &&
       g_result_baseline_path != path_) {
@@ -446,7 +458,7 @@ void MenuItemStoredResultFile::SetBaselineIndicator(bool selected) {
 
 MenuItemStoredResults::MenuItemStoredResults(std::string output_directory,
                                              uint32_t width, uint32_t height)
-    : MenuItem("Previous results", width, height),
+    : MenuItem("Results", width, height),
       output_directory_(std::move(output_directory)) {
   header = "Saved benchmark runs";
   footer = "A open  Y baseline  B return  Left/Right page";
@@ -456,6 +468,9 @@ void MenuItemStoredResults::OnEnter() {
   submenu.clear();
   cursor_position = 0;
   const auto paths = DiscoverStoredResults(output_directory_);
+  if (g_result_baseline_path.empty() && HasBundledReferenceResults()) {
+    g_result_baseline_path = BundledReferenceResultsPath();
+  }
   if (paths.empty()) {
     auto empty = std::make_shared<MenuItemInfo>(
         "No saved results",
@@ -469,8 +484,11 @@ void MenuItemStoredResults::OnEnter() {
   }
   for (const auto &path : paths) {
     const auto slash = path.find_last_of("\\/");
-    const std::string label =
-        slash == std::string::npos ? path : path.substr(slash + 1);
+    const std::string label = path == BundledReferenceResultsPath()
+                                  ? "Reference: OpenGL 1x completed run"
+                                  : (slash == std::string::npos
+                                         ? path
+                                         : path.substr(slash + 1));
     auto item = std::make_shared<MenuItemStoredResultFile>(
         path, label, width, height);
     item->SetBaselineIndicator(path == g_result_baseline_path);
@@ -503,10 +521,11 @@ bool MenuItemStoredResults::HandleY() {
 
 MenuItemStoredRecord::MenuItemStoredRecord(
     std::string path, const StoredResultRecord &record, uint32_t width,
-    uint32_t height)
+    uint32_t height, bool open_graph)
     : MenuItem(record.id.empty() ? record.name : record.id, width, height),
       path_(std::move(path)),
-      record_(std::make_shared<StoredResultRecord>(record)) {}
+      record_(std::make_shared<StoredResultRecord>(record)),
+      open_graph_(open_graph) {}
 
 void MenuItemStoredRecord::OnEnter() {
   const auto loaded = ReadStoredResultSamples(path_, record_->id);
@@ -519,7 +538,7 @@ void MenuItemStoredRecord::OnEnter() {
   samples_approximate_ = loaded.approximate;
   load_error_ = loaded.error;
   cursor_bucket_ = 0;
-  view_mode_ = ViewMode::SUMMARY;
+  view_mode_ = open_graph_ ? ViewMode::TRACE : ViewMode::SUMMARY;
   dirty_ = true;
 
   if (!record_->has_distribution && !samples_.empty()) {
@@ -704,6 +723,106 @@ void MenuItemStoredRecord::CursorRight(bool is_repeat) {
   }
 }
 
+MenuItemResultComparisonRecord::MenuItemResultComparisonRecord(
+    std::string baseline_path, StoredResultRecord baseline,
+    std::string candidate_path, StoredResultRecord candidate, uint32_t width,
+    uint32_t height)
+    : MenuItem(candidate.id, width, height),
+      baseline_path_(std::move(baseline_path)),
+      candidate_path_(std::move(candidate_path)),
+      baseline_(std::move(baseline)),
+      candidate_(std::move(candidate)) {}
+
+void MenuItemResultComparisonRecord::OnEnter() {
+  const auto baseline =
+      ReadStoredResultSamples(baseline_path_, baseline_.id);
+  const auto candidate =
+      ReadStoredResultSamples(candidate_path_, candidate_.id);
+  baseline_samples_ = baseline.values;
+  candidate_samples_ = candidate.values;
+  if (!baseline_.has_distribution && !baseline_samples_.empty()) {
+    const auto stats = CalculateResultStatistics(baseline_samples_);
+    baseline_.median_us = stats.median_us;
+    baseline_.p95_us = stats.p95_us;
+    baseline_.mad_us = stats.mad_us;
+    baseline_.has_distribution = true;
+  }
+  if (!candidate_.has_distribution && !candidate_samples_.empty()) {
+    const auto stats = CalculateResultStatistics(candidate_samples_);
+    candidate_.median_us = stats.median_us;
+    candidate_.p95_us = stats.p95_us;
+    candidate_.mad_us = stats.mad_us;
+    candidate_.has_distribution = true;
+  }
+  if (!baseline.error.empty() || !candidate.error.empty()) {
+    load_error_ = "Raw samples unavailable; aggregate comparison only";
+  } else if (baseline_samples_.size() != candidate_samples_.size()) {
+    load_error_ = "Sample procedures differ; trace overlay disabled";
+  }
+  dirty_ = true;
+}
+
+void MenuItemResultComparisonRecord::Draw() {
+  if (!dirty_) {
+    return;
+  }
+  dirty_ = false;
+  PrepareDraw(kViewerBackground);
+  pb_fill(20, 16, width - 40, 145, kViewerPanel);
+  pb_fill(20, 16, width - 40, 3, kViewerAccent);
+  pb_print("A/B TRACE | baseline cyan | candidate green\n");
+  pb_print("%s\n", candidate_.id.c_str());
+  pb_print("             BASE       CANDIDATE\n");
+  pb_print("AVG          %lu.%03lu     %lu.%03lu ms\n",
+           baseline_.average_us / 1000, baseline_.average_us % 1000,
+           candidate_.average_us / 1000, candidate_.average_us % 1000);
+  pb_print("MED          %lu.%03lu     %lu.%03lu ms\n",
+           baseline_.median_us / 1000, baseline_.median_us % 1000,
+           candidate_.median_us / 1000, candidate_.median_us % 1000);
+  pb_print("P95          %lu.%03lu     %lu.%03lu ms\n",
+           baseline_.p95_us / 1000, baseline_.p95_us % 1000,
+           candidate_.p95_us / 1000, candidate_.p95_us % 1000);
+
+  DrawPlotFrame();
+  if (load_error_.empty() && !baseline_samples_.empty()) {
+    const auto baseline_range =
+        std::minmax_element(baseline_samples_.begin(), baseline_samples_.end());
+    const auto candidate_range = std::minmax_element(candidate_samples_.begin(),
+                                                     candidate_samples_.end());
+    const uint32_t minimum = std::min(*baseline_range.first,
+                                      *candidate_range.first);
+    const uint32_t maximum = std::max(*baseline_range.second,
+                                      *candidate_range.second);
+    const size_t sample_count = baseline_samples_.size();
+    const size_t columns = std::min<size_t>(kPlotWidth, sample_count);
+    auto draw_series = [minimum, maximum, columns, sample_count](
+                           const std::vector<uint32_t> &samples,
+                           uint32_t color, int offset) {
+      for (size_t column = 0; column < columns; ++column) {
+        const size_t start = column * sample_count / columns;
+        const size_t end = std::max(
+            start + 1U, (column + 1U) * sample_count / columns);
+        uint64_t sum = 0;
+        for (size_t i = start; i < end; ++i) {
+          sum += samples[i];
+        }
+        const uint32_t mean = static_cast<uint32_t>(sum / (end - start));
+        const int x = kPlotLeft + offset + static_cast<int>(
+                                            column * (kPlotWidth - 2) /
+                                            columns);
+        pb_fill(x, ScaleGraphY(mean, minimum, maximum), 2, 2, color);
+      }
+    };
+    draw_series(baseline_samples_, kViewerInfo, 0);
+    draw_series(candidate_samples_, kViewerAccent, 1);
+  }
+  if (!load_error_.empty()) {
+    pb_print("%s\n", load_error_.c_str());
+  }
+  pb_print("B return\n");
+  Swap();
+}
+
 MenuItemResultComparison::MenuItemResultComparison(
     std::string baseline_path, std::string candidate_path, uint32_t width,
     uint32_t height)
@@ -767,22 +886,9 @@ void MenuItemResultComparison::RebuildMenu() {
     char label[160] = {};
     snprintf(label, sizeof(label), "%c%+.1f%% %s",
              regression ? '!' : ' ', change, record.id.c_str());
-    char interpretation[96] = {};
-    snprintf(interpretation, sizeof(interpretation), "%+.1f%% %s", change,
-             regression ? "REGRESSION" : "IMPROVEMENT");
-    std::vector<std::string> lines{
-        std::string("Primary: ") +
-            (record.has_distribution && found->second.has_distribution
-                 ? "median"
-                 : "average (legacy)"),
-        FormatResultPair("MED", found->second.median_us, record.median_us),
-        FormatResultPair("P95", found->second.p95_us, record.p95_us),
-        FormatResultPair("MAD", found->second.mad_us, record.mad_us),
-        FormatResultPair("AVG", found->second.average_us, record.average_us),
-        interpretation,
-        "Matched stable ID / unit / direction"};
-    auto item = std::make_shared<MenuItemInfo>(label, std::move(lines), width,
-                                               height);
+    auto item = std::make_shared<MenuItemResultComparisonRecord>(
+        baseline_path_, found->second, candidate_path_, record, width, height);
+    item->name = label;
     item->parent = this;
     submenu.push_back(item);
   }
@@ -886,6 +992,8 @@ void MenuItemSuite::ActivateCurrentSuite() {
 MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites, std::function<void()> on_run_all,
                            std::function<void()> on_exit,
                            std::function<void(const TestDescriptor &)> on_run_catalog_route,
+                           std::function<void()> on_single_run_mode,
+                           std::function<void()> on_continuous_run_mode,
                            uint32_t width, uint32_t height, bool disable_autorun,
                            bool autorun_immediately, const std::string &active_plan,
                            const std::string &output_directory)
@@ -901,32 +1009,88 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
            static_cast<unsigned long>(TestCatalogGroupCount()),
            static_cast<unsigned long>(TestCatalogLegacyAliasCount()));
   header = "xemu perf tests | " + active_plan;
-  footer = "A/Start select  B/Back return  X run suite  Black exit";
-  if (!disable_autorun) {
-    submenu.push_back(std::make_shared<MenuItemCallable>(on_run_all, "Run all and exit", width, height));
+  footer = "A/Start select  B/Back exit  Black exit";
+
+  auto run_suite = std::make_shared<MenuItem>("Run Suite", width, height);
+  run_suite->SetHeader("Run full selection or one suite");
+  run_suite->SetFooter("A open  X run highlighted suite  B return");
+  run_suite->submenu.push_back(std::make_shared<MenuItemCallable>(
+      on_run_all, "Run full selection and exit", width, height));
+  for (auto &suite : suites) {
+    auto child = std::make_shared<MenuItemSuite>(suite, width, height);
+    child->parent = run_suite.get();
+    child->SetHeader("Suite: " + suite->Name());
+    child->SetFooter("A run test  X run suite  B return  Left/Right page");
+    run_suite->submenu.push_back(child);
   }
+  run_suite->parent = this;
+  submenu.push_back(run_suite);
+
+  auto catalog_root =
+      std::make_shared<MenuItem>("Individual Tests", width, height);
+  catalog_root->SetHeader("Individual tests: stable IDs by subsystem");
+  catalog_root->SetFooter("A details  B return  Left/Right page");
+  std::map<std::string, std::shared_ptr<MenuItem>> catalog_suites;
+  for (const auto *descriptor : TestCatalogEntries()) {
+    std::shared_ptr<TestSuite> route_suite;
+    for (const auto &suite : suites) {
+      if (suite->Name() == descriptor->legacy_suite &&
+          suite->HasTest(descriptor->execution_test)) {
+        route_suite = suite;
+        break;
+      }
+    }
+    // A resolved plan may remove execution routes. Only advertise routes that
+    // this boot can actually execute.
+    if (!route_suite) {
+      continue;
+    }
+    auto &suite_menu = catalog_suites[descriptor->suite_id];
+    if (!suite_menu) {
+      suite_menu =
+          std::make_shared<MenuItem>(descriptor->suite_id, width, height);
+      suite_menu->SetHeader("Test group: " + std::string(descriptor->suite_id));
+      suite_menu->SetFooter("A details  B return  Left/Right page");
+      suite_menu->parent = catalog_root.get();
+      catalog_root->submenu.push_back(suite_menu);
+    }
+    std::vector<std::string> lines{
+        std::string("ID: ") + descriptor->id,
+        std::string("Kind: ") +
+            (descriptor->kind == TestKind::LEAF ? "test" : "group"),
+        std::string("Legacy: ") + descriptor->legacy_suite + "::" +
+            descriptor->legacy_result,
+        std::string("Route: ") + descriptor->legacy_suite + "::" +
+            descriptor->execution_test,
+        descriptor->description};
+    if (descriptor->selection_group != 0) {
+      lines.emplace_back("Grouped route: running it may emit sibling stages.");
+    }
+    auto entry = std::make_shared<MenuItemInfo>(
+        descriptor->display_name, std::move(lines), width, height,
+        [on_run_catalog_route, descriptor]() {
+          on_run_catalog_route(*descriptor);
+        });
+    entry->parent = suite_menu.get();
+    suite_menu->submenu.push_back(entry);
+  }
+  catalog_root->parent = this;
+  submenu.push_back(catalog_root);
 
   auto stored_results = std::make_shared<MenuItemStoredResults>(
       output_directory, width, height);
+  stored_results->name = "Results";
   stored_results->parent = this;
   submenu.push_back(stored_results);
 
   auto device_info = std::make_shared<MenuItemInfo>(
-      "System information",
+      "System Information",
       [output_directory, width, height]() {
         return PollDeviceInfo(output_directory, width, height);
       },
       width, height);
   device_info->parent = this;
   submenu.push_back(device_info);
-
-  submenu.push_back(std::make_shared<MenuItemInfo>(
-      "About / controls",
-      std::vector<std::string>{inventory, "Catalog ID:", TestCatalogId(),
-                               "Results: E:\\xemu_perf_tests\\results.txt",
-                               "Green=single run; red=continuous (Y toggles).",
-                               "Catalog entries run their mapped execution route."},
-      width, height));
 
   auto plans = std::make_shared<MenuItem>("Plans", width, height);
   plans->SetHeader("On-disc plans (mapped execution routes)");
@@ -956,60 +1120,43 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
   plans->parent = this;
   submenu.push_back(plans);
 
-  for (auto &suite : suites) {
-    auto child = std::make_shared<MenuItemSuite>(suite, width, height);
-    child->parent = this;
-    child->SetHeader("Suite: " + suite->Name());
-    child->SetFooter("A run test  X run suite  B return  Left/Right page");
-    submenu.push_back(child);
-  }
+  auto settings = std::make_shared<MenuItem>("Settings", width, height);
+  settings->SetHeader("Run behavior");
+  settings->SetFooter("A apply  B return");
+  auto current_settings = std::make_shared<MenuItemInfo>(
+      "Current settings",
+      [active_plan, output_directory]() {
+        return std::vector<std::string>{
+            std::string("Mode: ") +
+                (MenuItemTest::GetRunMode() ==
+                         MenuItemTest::RunMode::SINGLE_FRAME
+                     ? "single run; save results"
+                     : "continuous; do not save results"),
+            "Plan: " + active_plan, "Output: " + output_directory,
+            "Y also toggles mode from any ordinary menu."};
+      },
+      width, height);
+  current_settings->parent = settings.get();
+  settings->submenu.push_back(current_settings);
+  settings->submenu.push_back(std::make_shared<MenuItemCallable>(
+      std::move(on_single_run_mode), "Use single run + save results", width,
+      height));
+  settings->submenu.push_back(std::make_shared<MenuItemCallable>(
+      std::move(on_continuous_run_mode), "Use continuous + no result save",
+      width, height));
+  settings->parent = this;
+  submenu.push_back(settings);
 
-  auto catalog_root = std::make_shared<MenuItem>("Catalog browser", width, height);
-  catalog_root->SetHeader("Catalog browser: stable test and group IDs");
-  catalog_root->SetFooter("A details  B return  Left/Right page");
-  std::map<std::string, std::shared_ptr<MenuItem>> catalog_suites;
-  for (const auto *descriptor : TestCatalogEntries()) {
-    std::shared_ptr<TestSuite> route_suite;
-    for (const auto &suite : suites) {
-      if (suite->Name() == descriptor->legacy_suite && suite->HasTest(descriptor->execution_test)) {
-        route_suite = suite;
-        break;
-      }
-    }
-    // A resolved plan may remove execution routes. Only advertise routes that
-    // this boot can actually execute.
-    if (!route_suite) {
-      continue;
-    }
-    auto &suite_menu = catalog_suites[descriptor->suite_id];
-    if (!suite_menu) {
-      suite_menu = std::make_shared<MenuItem>(descriptor->suite_id, width, height);
-      suite_menu->SetHeader("Catalog suite: " + std::string(descriptor->suite_id));
-      suite_menu->SetFooter("A details  B return  Left/Right page");
-      suite_menu->parent = catalog_root.get();
-      catalog_root->submenu.push_back(suite_menu);
-    }
-    std::vector<std::string> lines{
-        std::string("ID: ") + descriptor->id,
-        std::string("Kind: ") + (descriptor->kind == TestKind::LEAF ? "test" : "group"),
-        std::string("Legacy: ") + descriptor->legacy_suite + "::" + descriptor->legacy_result,
-        std::string("Route: ") + descriptor->legacy_suite + "::" + descriptor->execution_test,
-        descriptor->description};
-    if (descriptor->selection_group != 0) {
-      lines.emplace_back("Grouped route: running it may emit sibling stages.");
-    }
-    auto entry = std::make_shared<MenuItemInfo>(
-        descriptor->display_name, std::move(lines), width, height,
-        [on_run_catalog_route, descriptor]() { on_run_catalog_route(*descriptor); });
-    entry->parent = suite_menu.get();
-    suite_menu->submenu.push_back(entry);
-  }
-  catalog_root->parent = this;
-  submenu.push_back(catalog_root);
-
-  if (disable_autorun) {
-    submenu.push_back(std::make_shared<MenuItemCallable>(on_run_all, "! Run all and exit", width, height));
-  }
+  auto about = std::make_shared<MenuItemInfo>(
+      "About/Controls",
+      std::vector<std::string>{"Mainkill1's Test Suite", inventory,
+                               "Catalog ID:", TestCatalogId(),
+                               "Results: E:\\xemu_perf_tests\\results.txt",
+                               "A/Start select; B return; Black exit.",
+                               "X runs suite/mode action; Y toggles run mode."},
+      width, height);
+  about->parent = this;
+  submenu.push_back(about);
 }
 
 void MenuItemRoot::ActivateCurrentSuite() {

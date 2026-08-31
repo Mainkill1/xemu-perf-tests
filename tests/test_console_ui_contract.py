@@ -45,9 +45,10 @@ class ConsoleUiContractTests(unittest.TestCase):
         self.assertIn("if (submenu.empty())", self.menu_source)
 
     def test_ui_exposes_identity_help_routes_progress_and_result_location(self):
-        for token in ("About / controls", "Catalog browser", "Plans", "Quick smoke routes", "TestCatalogId()",
-                      "A/Start select", "Grouped route", "results.txt", "Previous results",
-                      "System information", "A: refresh"):
+        for token in ("About/Controls", "Individual Tests", "Plans", "Quick smoke routes", "TestCatalogId()",
+                      "A/Start select", "Grouped route", "results.txt", "Results",
+                      "System Information", "Settings", "A: refresh",
+                      "Mainkill1's Test Suite"):
             self.assertIn(token, self.menu_source)
         for token in ("RunCatalogRoute", "HasTest"):
             self.assertIn(token, self.driver_source)
@@ -72,15 +73,29 @@ class ConsoleUiContractTests(unittest.TestCase):
         sample = json.loads((ROOT / "resources/sample-config.json").read_text(encoding="utf-8"))
         self.assertGreaterEqual(sample["settings"]["reboot_or_shutdown_delay"], 30000)
 
-    def test_previous_results_are_preserved_and_device_values_are_polled(self):
+    def test_root_menu_has_only_the_seven_public_sections_in_order(self):
+        constructor = self.menu_source.split("MenuItemRoot::MenuItemRoot", 1)[1].split(
+            "void MenuItemRoot::ActivateCurrentSuite", 1
+        )[0]
+        positions = [constructor.index('"' + label + '"') for label in (
+            "Run Suite", "Individual Tests", "Results", "System Information",
+            "Plans", "Settings", "About/Controls"
+        )]
+        self.assertEqual(positions, sorted(positions))
+
+    def test_results_are_preserved_reference_backed_and_device_values_are_polled(self):
         store = (ROOT / "src/result_store.cpp").read_text(encoding="utf-8")
         device = (ROOT / "src/device_info.cpp").read_text(encoding="utf-8")
         for token in ("ArchiveCurrentResults", "DiscoverStoredResults", "ReadStoredResults",
-                      "MoveFile", "results-*.txt"):
+                      "MoveFile", "results-*.txt", "reference-results.txt"):
             self.assertIn(token, store)
         for token in ("QueryPerformanceFrequency", "MmQueryStatistics", "GetDiskFreeSpaceEx",
-                      "XboxHardwareInfo", "Host GPU / clock / VRAM: Unavailable to guest"):
+                      "XboxHardwareInfo", "HalReadSMBusValue",
+                      "CPU / board temperature"):
             self.assertIn(token, device)
+        self.assertNotIn("Host GPU / clock / VRAM", device)
+        self.assertTrue((ROOT / "resources/reference-results.txt").is_file())
+        self.assertTrue((ROOT / "resources/reference-results-provenance.txt").is_file())
         self.assertIn("ArchiveCurrentResults", self.main_source)
 
 

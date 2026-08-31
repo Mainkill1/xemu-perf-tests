@@ -13,6 +13,10 @@
 
 namespace {
 
+constexpr UCHAR kSmcAddress = 0x20;
+constexpr UCHAR kSmcCpuTemperature = 0x09;
+constexpr UCHAR kSmcBoardTemperature = 0x0A;
+
 std::string FormatBytes(const char *label, uint64_t bytes) {
   constexpr uint64_t kBytesPerMiB = 1024ULL * 1024ULL;
   const uint64_t whole = bytes / kBytesPerMiB;
@@ -53,6 +57,24 @@ std::string CpuSignature() {
   snprintf(text, sizeof(text), "CPU signature: family %lu model %lu step %lu",
            static_cast<unsigned long>(family), static_cast<unsigned long>(model),
            static_cast<unsigned long>(stepping));
+  return text;
+}
+
+std::string TemperatureStatus() {
+  ULONG cpu = 0;
+  ULONG board = 0;
+  const NTSTATUS cpu_status =
+      HalReadSMBusValue(kSmcAddress, kSmcCpuTemperature, FALSE, &cpu);
+  const NTSTATUS board_status =
+      HalReadSMBusValue(kSmcAddress, kSmcBoardTemperature, FALSE, &board);
+  if (!NT_SUCCESS(cpu_status) || !NT_SUCCESS(board_status) || cpu == 0 ||
+      board == 0 || cpu > 127 || board > 127) {
+    return "CPU / board temperature: no sensor data";
+  }
+  char text[80] = {};
+  snprintf(text, sizeof(text), "CPU / board temperature: %lu C / %lu C",
+           static_cast<unsigned long>(cpu),
+           static_cast<unsigned long>(board));
   return text;
 }
 
@@ -110,7 +132,7 @@ std::vector<std::string> PollDeviceInfo(const std::string &output_directory,
   snprintf(hardware, sizeof(hardware), "NV2A rev %u; MCP rev %u",
            XboxHardwareInfo.GpuRevision, XboxHardwareInfo.McpRevision);
   lines.emplace_back(hardware);
-  lines.emplace_back("Host GPU / clock / VRAM: Unavailable to guest");
+  lines.emplace_back(TemperatureStatus());
 
   char video[64] = {};
   snprintf(video, sizeof(video), "Test video: %lux%lu RGBA8",

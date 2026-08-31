@@ -14,6 +14,8 @@ namespace {
 
 constexpr const char *kResultsFileName = "results.txt";
 constexpr const char *kHistoryDirectoryName = "history";
+constexpr const char *kBundledReferenceResultsPath =
+    "D:\\reference-results.txt";
 
 std::string JoinPath(const std::string &directory, const std::string &name) {
   if (!directory.empty() && directory.back() == '\\') {
@@ -109,6 +111,14 @@ bool IsRecordEnd(const std::string &line) {
 
 }  // namespace
 
+const char *BundledReferenceResultsPath() {
+  return kBundledReferenceResultsPath;
+}
+
+bool HasBundledReferenceResults() {
+  return FileExists(kBundledReferenceResultsPath);
+}
+
 bool ArchiveCurrentResults(const std::string &output_directory,
                            std::string &error) {
   const std::string current = JoinPath(output_directory, kResultsFileName);
@@ -152,6 +162,9 @@ bool ArchiveCurrentResults(const std::string &output_directory,
 std::vector<std::string> DiscoverStoredResults(
     const std::string &output_directory) {
   std::vector<std::string> paths;
+  if (HasBundledReferenceResults()) {
+    paths.emplace_back(BundledReferenceResultsPath());
+  }
   const std::string current = JoinPath(output_directory, kResultsFileName);
   if (FileExists(current)) {
     paths.push_back(current);

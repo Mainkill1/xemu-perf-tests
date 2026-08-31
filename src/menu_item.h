@@ -8,9 +8,10 @@
 #include <string>
 #include <vector>
 
+#include "result_store.h"
+
 class TestSuite;
 struct TestDescriptor;
-struct StoredResultRecord;
 
 struct MenuItem {
  public:
@@ -121,7 +122,8 @@ struct MenuItemStoredRecord : public MenuItem {
   enum class ViewMode { SUMMARY, TRACE, HISTOGRAM };
 
   MenuItemStoredRecord(std::string path, const StoredResultRecord &record,
-                       uint32_t width, uint32_t height);
+                       uint32_t width, uint32_t height,
+                       bool open_graph = false);
   [[nodiscard]] bool IsEnterable() const override { return true; }
   void OnEnter() override;
   void Draw() override;
@@ -141,7 +143,29 @@ struct MenuItemStoredRecord : public MenuItem {
   ViewMode view_mode_{ViewMode::SUMMARY};
   bool samples_approximate_{false};
   bool dirty_{true};
+  bool open_graph_{false};
   std::string load_error_;
+};
+
+struct MenuItemResultComparisonRecord : public MenuItem {
+  MenuItemResultComparisonRecord(std::string baseline_path,
+                                 StoredResultRecord baseline,
+                                 std::string candidate_path,
+                                 StoredResultRecord candidate,
+                                 uint32_t width, uint32_t height);
+  [[nodiscard]] bool IsEnterable() const override { return true; }
+  void OnEnter() override;
+  void Draw() override;
+
+ private:
+  std::string baseline_path_;
+  std::string candidate_path_;
+  StoredResultRecord baseline_;
+  StoredResultRecord candidate_;
+  std::vector<uint32_t> baseline_samples_;
+  std::vector<uint32_t> candidate_samples_;
+  std::string load_error_;
+  bool dirty_{true};
 };
 
 struct MenuItemResultComparison : public MenuItem {
@@ -209,6 +233,8 @@ struct MenuItemRoot : public MenuItem {
   explicit MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>>& suites, std::function<void()> on_run_all,
                         std::function<void()> on_exit,
                         std::function<void(const TestDescriptor &)> on_run_catalog_route,
+                        std::function<void()> on_single_run_mode,
+                        std::function<void()> on_continuous_run_mode,
                         uint32_t width, uint32_t height, bool disable_autorun,
                         bool autorun_immediately, const std::string &active_plan,
                         const std::string &output_directory);

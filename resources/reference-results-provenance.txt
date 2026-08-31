@@ -1,0 +1,20 @@
+Bundled performance reference
+
+Purpose: default graph and A/B timing baseline
+Status: completed regression-only benchmark; not a retail-Xbox correctness oracle
+Date: 2026-08-30
+Host: dedicated Windows test rig
+Backend: OpenGL
+Internal scale: 1x
+VSync: disabled
+Warmup samples: 3
+Measurement multiplier: 4
+GPU completion: per iteration
+Completed records: 141 of 141
+xemu source: d73326b62199c6dd952ef512947710e1333a49d3
+XISO SHA-256: f772ff2b655252c1984e9a22c8fd62aff17a441d33bd1d9714bf42824c1a4c43
+Reference file SHA-256: 831354e1839e44be382ffd6242be18803d5327998acb1bf0537b38860be13c60
+
+The reference is read-only in D:\reference-results.txt. Results uses it as
+the default comparison baseline. Selecting another run with Y changes only the
+in-memory baseline and never modifies either file.

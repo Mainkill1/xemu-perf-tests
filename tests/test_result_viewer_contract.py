@@ -1,3 +1,4 @@
+import json
 import unittest
 from pathlib import Path
 
@@ -44,6 +45,32 @@ class ResultViewerContractTests(unittest.TestCase):
             "record.direction != found->second.direction",
         ):
             self.assertIn(token, self.menu)
+
+    def test_results_expose_graphs_and_a_b_trace_overlay(self):
+        for token in (
+            'std::make_shared<MenuItem>("Graphs"',
+            "MenuItemResultComparisonRecord",
+            "baseline cyan | candidate green",
+            "Sample procedures differ; trace overlay disabled",
+        ):
+            self.assertIn(token, self.menu)
+
+    def test_bundled_reference_is_complete_unique_and_measured(self):
+        records = json.loads(
+            (ROOT / "resources/reference-results.txt").read_text(encoding="utf-8")
+        )
+        self.assertEqual(len(records), 141)
+        self.assertEqual(len({record["id"] for record in records}), 141)
+        measured = [record for record in records if record.get("raw_results")]
+        self.assertGreaterEqual(len(measured), 130)
+        self.assertTrue(all(record.get("sample_count") == len(record["raw_results"])
+                            for record in measured))
+        provenance = (ROOT / "resources/reference-results-provenance.txt").read_text(
+            encoding="utf-8"
+        )
+        for token in ("completed regression-only benchmark", "OpenGL", "1x",
+                      "d73326b62199", "141 of 141"):
+            self.assertIn(token, provenance)
 
 
 if __name__ == "__main__":
