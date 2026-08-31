@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "release": "ENG467 Xbox menu and device information v2",
+  "image": {
+    "name": "xemu-perf-tests-eng467-menu-33c4b82.iso",
+    "source_commit": "33c4b82900b8651c1a572ca8e61a0849ee7c426d",
+    "sha256": "cca955b0e9c12d16a2885262fc4b49471a9f5ce72f1405b3cf2b9c723fcfffa1",
+    "catalog_leaf_tests": 136,
+    "structural_groups": 5,
+    "full_suite_records": 141
+  },
+  "build": {
+    "type": "Release",
+    "autorun_menu": true,
+    "runtime_config": "E:\\xemu_perf_tests\\xemu_perf_tests_config.json"
+  },
+  "validation": {
+    "source_contract_tests": "102/102 PASS",
+    "catalog_check": "PASS",
+    "release_xiso_build": "PASS"
+  },
+  "display_policy": {
+    "direct_single_test": "Retain current frame until workload draws",
+    "continuous_test": "Retain current frame until workload draws",
+    "direct_route_preamble": "Disabled",
+    "full_suite_progress": "Enabled"
+  },
+  "device_info_limit": "Xbox software cannot reliably query host GPU identity, host clock, or host VRAM; those values are labeled unavailable and belong in the host run manifest."
+}
