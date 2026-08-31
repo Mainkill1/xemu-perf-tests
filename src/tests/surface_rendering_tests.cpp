@@ -1086,6 +1086,6 @@ void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,
   metadata << "\"growth_profile_iterations\":" << growth_results.iterations << ",";
   metadata << "\"idle_profile_iterations\":" << idle_results.iterations;
   metadata << "}";
-  host_.FinishDraw(suite_name_, test_name, idle_results, metadata.str());
+  host_.FinishGroup(suite_name_, test_name, 5, metadata.str());
   ClearXemuPerfEventContext();
 }

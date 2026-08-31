@@ -16,6 +16,7 @@
 
 #include "debug_output.h"
 #include "logger.h"
+#include "test_catalog.h"
 #include "shaders/vertex_shader_program.h"
 #include "xbox_math_matrix.h"
 #include "xbox_math_types.h"
@@ -111,6 +112,7 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
   NV2AState::FinishDraw();
 
   if (save_results_) {
+    const auto *descriptor = RecordDescriptor(suite_name, test_name, false);
     auto& log = Logger::Log();
     if (!first_result_) {
       log << "," << std::endl;
@@ -118,6 +120,9 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
     first_result_ = false;
     log << "  {" << std::endl;
     log << "    \"schema_version\": 1," << std::endl;
+    log << R"(    "id": ")" << descriptor->id << "\"," << std::endl;
+    log << "    \"revision\": " << descriptor->revision << "," << std::endl;
+    log << "    \"kind\": \"leaf\"," << std::endl;
     log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
     log << "    \"iterations\": " << results.iterations << "," << std::endl;
     log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
@@ -184,6 +189,7 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   char framebuffer_hash_string[17] = {};
   snprintf(framebuffer_hash_string, sizeof(framebuffer_hash_string), "%016llx",
            static_cast<unsigned long long>(framebuffer_hash));
+  const auto *descriptor = RecordDescriptor(suite_name, test_name, false);
   auto &log = Logger::Log();
   if (!first_result_) {
     log << "," << std::endl;
@@ -191,6 +197,9 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   first_result_ = false;
   log << "  {" << std::endl;
   log << "    \"schema_version\": 1," << std::endl;
+  log << R"(    "id": ")" << descriptor->id << "\"," << std::endl;
+  log << "    \"revision\": " << descriptor->revision << "," << std::endl;
+  log << "    \"kind\": \"leaf\"," << std::endl;
   log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
   log << "    \"iterations\": " << results.iterations << "," << std::endl;
   log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
@@ -222,6 +231,120 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   log << "  }" << std::endl;
   log.flush();
   ASSERT(log && "Failed to write benchmark result");
+}
+
+void TestHost::FinishGroup(const std::string &suite_name, const std::string &group_name,
+                           uint32_t child_result_count, const std::string &metadata_json) {
+  WaitForGpu();
+  const uint64_t framebuffer_hash = HashBackBuffer();
+  char framebuffer_hash_string[17] = {};
+  snprintf(framebuffer_hash_string, sizeof(framebuffer_hash_string), "%016llx",
+           static_cast<unsigned long long>(framebuffer_hash));
+  PrintMsg("CORRECTNESS_HASH %s::%s fnv1a64=%s kind=group\n",
+           suite_name.c_str(), group_name.c_str(), framebuffer_hash_string);
+  const TestDescriptor *descriptor = nullptr;
+  if (save_results_) {
+    descriptor = RecordDescriptor(suite_name, group_name, true);
+  }
+
+  SetVertexShaderProgram(nullptr);
+  SetXDKDefaultViewportAndFixedFunctionMatrices();
+  SetBlend();
+  SetFinalCombiner0Just(SRC_DIFFUSE);
+  SetFinalCombiner1Just(SRC_DIFFUSE, true);
+  Begin(TestHost::PRIMITIVE_QUADS);
+  SetDiffuse(kResultsOverlayColor);
+  SetScreenVertex(0.f, 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), 0.f);
+  SetScreenVertex(GetFramebufferWidthF(), GetFramebufferHeightF());
+  SetScreenVertex(0.f, GetFramebufferHeightF());
+  End();
+  pb_print("%s::%s\n  PASS (%lu child results; no group timing)\n",
+           suite_name.c_str(), group_name.c_str(), child_result_count);
+  pb_draw_text_screen();
+  NV2AState::FinishDraw();
+
+  if (!save_results_) {
+    PrintMsg("TEST_END %s::%s\n", suite_name.c_str(), group_name.c_str());
+    return;
+  }
+
+  auto &log = Logger::Log();
+  if (!first_result_) {
+    log << "," << std::endl;
+  }
+  first_result_ = false;
+  log << "  {" << std::endl;
+  log << "    \"schema_version\": 1," << std::endl;
+  log << R"(    "id": ")" << descriptor->id << "\"," << std::endl;
+  log << "    \"revision\": " << descriptor->revision << "," << std::endl;
+  log << "    \"kind\": \"group\"," << std::endl;
+  log << R"(    "name": ")" << suite_name << "::" << group_name << "\"," << std::endl;
+  log << "    \"outcome\": \"PASS\"," << std::endl;
+  log << "    \"child_result_count\": " << child_result_count << "," << std::endl;
+  log << "    \"measurement\": null," << std::endl;
+  // Keep the legacy numeric shape during migration, but explicitly mark it as
+  // non-measurement data. Zeroes are never copied from the final child.
+  log << "    \"iterations\": 0," << std::endl;
+  log << "    \"sample_count\": 0," << std::endl;
+  log << "    \"measurement_iterations_multiplier\": "
+      << GetMeasurementIterationsMultiplier() << "," << std::endl;
+  log << "    \"warmup_iterations\": " << GetWarmupIterations() << "," << std::endl;
+  log << R"(    "gpu_completion_mode": ")" << GetGpuCompletionModeName() << "\"," << std::endl;
+  log << "    \"completion_wait_us\": 0," << std::endl;
+  log << "    \"total_us\": 0," << std::endl;
+  log << "    \"average_us\": 0," << std::endl;
+  log << "    \"min_us\": 0," << std::endl;
+  log << "    \"max_us\": 0," << std::endl;
+  log << "    \"raw_results\": []," << std::endl;
+  log << R"(    "framebuffer_fnv1a64": ")" << framebuffer_hash_string << "\"";
+  if (!metadata_json.empty()) {
+    log << "," << std::endl << "    \"metadata\": " << metadata_json << std::endl;
+  } else {
+    log << std::endl;
+  }
+  log << "  }" << std::endl;
+  log.flush();
+  ASSERT(log && "Failed to write group outcome");
+  PrintMsg("TEST_END %s::%s\n", suite_name.c_str(), group_name.c_str());
+}
+
+void TestHost::ConfigureResolvedPlan(const std::string &plan_id,
+                                     const std::set<std::string> &selected_test_ids) {
+  plan_id_ = plan_id;
+  selected_test_ids_ = selected_test_ids;
+  emitted_test_ids_.clear();
+  unexpected_or_duplicate_result_ = false;
+}
+
+const TestDescriptor *TestHost::RecordDescriptor(const std::string &suite_name,
+                                                 const std::string &test_name,
+                                                 bool expect_group) {
+  const auto *descriptor = FindTestDescriptorByLegacyResult(suite_name, test_name);
+  ASSERT(descriptor && "Result is missing from the generated test catalog");
+  ASSERT((descriptor->kind == TestKind::GROUP) == expect_group);
+  if (!expect_group && !plan_id_.empty()) {
+    if (!selected_test_ids_.count(descriptor->id) ||
+        !emitted_test_ids_.insert(descriptor->id).second) {
+      unexpected_or_duplicate_result_ = true;
+    }
+  }
+  return descriptor;
+}
+
+bool TestHost::ValidateResolvedPlan(std::string &error) const {
+  if (plan_id_.empty()) {
+    return true;
+  }
+  if (unexpected_or_duplicate_result_) {
+    error = "resolved plan emitted an unexpected or duplicate leaf result";
+    return false;
+  }
+  if (emitted_test_ids_ != selected_test_ids_) {
+    error = "resolved plan leaf completion set does not match selected leaf ids";
+    return false;
+  }
+  return true;
 }
 
 const char *TestHost::GetGpuCompletionModeName() const {

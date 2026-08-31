@@ -4,6 +4,7 @@
 #include <list>
 
 #include "tiny-json.h"
+#include "test_catalog.h"
 
 #define MAX_CONFIG_FILE_SIZE (1024 * 1024)
 
@@ -115,6 +116,19 @@ static bool LoadUint32(json_t const* object, const char* key, uint32_t& out) {
   out = static_cast<uint32_t>(value & 0xFFFFFFFF);
   return true;
 };
+
+static bool IsSha256Id(const std::string &value) {
+  if (value.size() != 71 || value.compare(0, 7, "sha256:") != 0) {
+    return false;
+  }
+  for (size_t i = 7; i < value.size(); ++i) {
+    const char c = value[i];
+    if (!((c >= '0' && c <= '9') || (c >= 'a' && c <= 'f'))) {
+      return false;
+    }
+  }
+  return true;
+}
 
 static int GameLoadCompositeStageIndex(const std::string &name) {
   if (name == "cpu") return 0;
@@ -372,14 +386,116 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     return false;
   }
 
-  auto settings = json_getProperty(root, "settings");
-  if (!settings) {
-    errors.emplace_back("'settings' not found");
+  if (!ParseGameLoadCompositeConfig(root, test_suite_config_, errors)) {
     return false;
   }
-  if (json_getType(settings) != JSON_OBJ) {
+
+  auto resolved_plan = json_getProperty(root, "resolved_plan");
+  if (resolved_plan) {
+    if (json_getType(resolved_plan) != JSON_OBJ) {
+      errors.emplace_back("'resolved_plan' must be an object");
+      return false;
+    }
+    uint32_t schema_version = 0;
+    if (!LoadUint32(resolved_plan, "schema_version", schema_version) || schema_version != 2) {
+      errors.emplace_back("resolved_plan[schema_version] must be 2");
+      return false;
+    }
+    if (!LoadString(resolved_plan, "plan_id", plan_id_) || !IsSha256Id(plan_id_)) {
+      errors.emplace_back("resolved_plan[plan_id] must be a lowercase sha256 identifier");
+      return false;
+    }
+    std::string catalog_id;
+    if (!LoadString(resolved_plan, "catalog_id", catalog_id) || catalog_id != TestCatalogId()) {
+      errors.emplace_back("resolved_plan[catalog_id] does not match the bundled catalog");
+      return false;
+    }
+    uint32_t declared_leaf_count = 0;
+    if (!LoadUint32(resolved_plan, "selected_leaf_count", declared_leaf_count)) {
+      errors.emplace_back("resolved_plan[selected_leaf_count] must be an integer");
+      return false;
+    }
+    auto tests = json_getProperty(resolved_plan, "tests");
+    if (!tests || json_getType(tests) != JSON_ARRAY) {
+      errors.emplace_back("resolved_plan[tests] must be an array");
+      return false;
+    }
+    test_suite_config_.game_load_composite_stage_mask = 0;
+    test_suite_config_.game_load_composite_cross_title_stage_mask = 0;
+    test_suite_config_.game_load_composite_s3tc_sync_factor_stage_mask = 0;
+    uint32_t memory_pressure_representative_mask = 0;
+    uint32_t memory_pressure_stress_mask = 0;
+    for (auto test = json_getChild(tests); test; test = json_getSibling(test)) {
+      if (json_getType(test) != JSON_OBJ) {
+        errors.emplace_back("resolved_plan[tests] entries must be objects");
+        return false;
+      }
+      std::string id;
+      if (!LoadString(test, "id", id) || id.empty()) {
+        errors.emplace_back("resolved_plan test id must be a non-empty string");
+        return false;
+      }
+      const auto *descriptor = FindTestDescriptorById(id);
+      if (!descriptor) {
+        errors.emplace_back("resolved_plan contains unknown test id: " + id);
+        return false;
+      }
+      if (descriptor->kind != TestKind::LEAF) {
+        errors.emplace_back("resolved_plan must contain leaf ids, not group id: " + id);
+        return false;
+      }
+      if (!selected_test_ids_.insert(id).second) {
+        errors.emplace_back("resolved_plan contains duplicate test id: " + id);
+        return false;
+      }
+      const uint32_t bit = 1U << descriptor->selection_bit;
+      switch (static_cast<TestSelectionGroup>(descriptor->selection_group)) {
+        case TestSelectionGroup::LONG_SCENE:
+          test_suite_config_.game_load_composite_stage_mask |= bit;
+          break;
+        case TestSelectionGroup::CROSS_TITLE:
+          test_suite_config_.game_load_composite_cross_title_stage_mask |= bit;
+          break;
+        case TestSelectionGroup::S3TC_SYNC_FACTOR:
+          test_suite_config_.game_load_composite_s3tc_sync_factor_stage_mask |= bit;
+          break;
+        case TestSelectionGroup::MEMORY_PRESSURE_REPRESENTATIVE:
+          memory_pressure_representative_mask |= bit;
+          break;
+        case TestSelectionGroup::MEMORY_PRESSURE_STRESS:
+          memory_pressure_stress_mask |= bit;
+          break;
+        case TestSelectionGroup::NONE:
+          break;
+      }
+    }
+    selected_leaf_count_ = static_cast<uint32_t>(selected_test_ids_.size());
+    if (!selected_leaf_count_ || selected_leaf_count_ != declared_leaf_count) {
+      errors.emplace_back("resolved_plan[selected_leaf_count] does not match its unique leaf ids");
+      return false;
+    }
+    static constexpr uint32_t kAllMemoryPressureCheckpoints = 0x1F;
+    if ((memory_pressure_representative_mask &&
+         memory_pressure_representative_mask != kAllMemoryPressureCheckpoints) ||
+        (memory_pressure_stress_mask && memory_pressure_stress_mask != kAllMemoryPressureCheckpoints)) {
+      errors.emplace_back("memory-pressure plans must include all five checkpoint leaf ids");
+      return false;
+    }
+    has_resolved_plan_ = true;
+  }
+
+  auto settings = json_getProperty(root, "settings");
+  if (!settings) {
+    if (!has_resolved_plan_) {
+      errors.emplace_back("'settings' not found");
+      return false;
+    }
+  } else if (json_getType(settings) != JSON_OBJ) {
     errors.emplace_back("'settings' not an object");
     return false;
+  }
+  if (!settings) {
+    settings = root;
   }
 
   if (!LoadBool(settings, "disable_autorun", disable_autorun_)) {
@@ -443,13 +559,14 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     }
   }
 
-  if (!ParseGameLoadCompositeConfig(root, test_suite_config_, errors)) {
-    return false;
-  }
-
   auto test_suites = json_getProperty(root, "test_suites");
   if (!test_suites) {
     return true;
+  }
+
+  if (has_resolved_plan_) {
+    errors.emplace_back("resolved_plan and legacy test_suites filtering cannot be combined");
+    return false;
   }
 
   if (json_getType(test_suites) != JSON_OBJ) {
@@ -560,6 +677,30 @@ static bool ParseTestSuites(
 bool RuntimeConfig::ApplyConfig(std::vector<std::shared_ptr<TestSuite>>& test_suites,
                                 std::vector<std::string>& errors) {
   std::vector<std::shared_ptr<TestSuite>> filtered_test_suites;
+
+  if (has_resolved_plan_) {
+    std::map<std::string, std::set<std::string>> enabled_execution_tests;
+    for (const auto &id : selected_test_ids_) {
+      const auto *descriptor = FindTestDescriptorById(id);
+      ASSERT(descriptor && descriptor->kind == TestKind::LEAF);
+      enabled_execution_tests[descriptor->legacy_suite].insert(descriptor->execution_test);
+    }
+    for (auto &suite : test_suites) {
+      std::set<std::string> disabled;
+      const auto enabled = enabled_execution_tests.find(suite->Name());
+      for (const auto &test_name : suite->TestNames()) {
+        if (enabled == enabled_execution_tests.end() || !enabled->second.count(test_name)) {
+          disabled.insert(test_name);
+        }
+      }
+      suite->DisableTests(disabled);
+      if (suite->HasEnabledTests()) {
+        filtered_test_suites.push_back(suite);
+      }
+    }
+    test_suites = filtered_test_suites;
+    return true;
+  }
 
   for (auto& suite : test_suites) {
     auto default_skip_test_case = skip_tests_by_default_;

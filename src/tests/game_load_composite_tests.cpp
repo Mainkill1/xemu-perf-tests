@@ -1594,7 +1594,6 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
   PrepareCrossTitleWorkState();
   host_.PrepareDraw(0xFF182028);
 
-  TestHost::ProfileResults final_results{};
   const CrossTitleStageDefinition *last_stage = nullptr;
   Preset last_preset{};
   uint32_t stage_record_count = 0;
@@ -1724,7 +1723,6 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
       g_composite_result = aggregate_checksum_;
     });
 
-    final_results = results;
     if (definition.mode == CrossTitleStageMode::PGR2_SMALL_DRAWS ||
         definition.mode == CrossTitleStageMode::PGR2_LAGSPOT_INLINE_ELEMENTS) {
       ValidatePfifoTerminal();
@@ -1816,8 +1814,8 @@ void GameLoadCompositeTests::RunCrossTitleHotpath() {
   summary_metadata << "\"fast_smoke\":"
                    << (cross_title_fast_smoke_ ? "true" : "false") << ",";
   summary_metadata << "\"stage_record_count\":" << stage_record_count << "}";
-  host_.FinishDraw(suite_name_, kCrossTitleHotpathName, final_results,
-                   summary_metadata.str());
+  host_.FinishGroup(suite_name_, kCrossTitleHotpathName, stage_record_count,
+                    summary_metadata.str());
   ClearXemuPerfEventContext();
 }
 
@@ -1862,7 +1860,6 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                       "BC3 native-size source corpus matches its fixed KAT",
                       __FILE__, __LINE__);
 
-  TestHost::ProfileResults final_results{};
   uint32_t stage_record_count = 0;
   for (uint32_t stage_index = 0;
        stage_index < sizeof(kS3tcSyncFactorStages) /
@@ -1897,7 +1894,6 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                                  __FILE__, __LINE__);
                              g_composite_result = actual;
                            });
-    final_results = results;
 
     // This correctness-only readback is outside Profile. It is a regression
     // oracle, not yet a hardware oracle. Record mismatches without halting so
@@ -2030,8 +2026,8 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
   summary_metadata << "\"exclude_from_stage_window_mapping\":true,";
   summary_metadata << "\"stage_mask\":" << s3tc_sync_factor_stage_mask_ << ",";
   summary_metadata << "\"stage_record_count\":" << stage_record_count << "}";
-  host_.FinishDraw(
-      suite_name_, kS3tcSyncFactorName, final_results, summary_metadata.str());
+  host_.FinishGroup(suite_name_, kS3tcSyncFactorName, stage_record_count,
+                    summary_metadata.str());
   ClearXemuPerfEventContext();
 }
 
@@ -2453,7 +2449,8 @@ void GameLoadCompositeTests::RunLongUnlockedScene() {
   summary_metadata << stage_record_count << ",";
   summary_metadata << "\"expected_final_state\":" << expected_final_state << ",";
   summary_metadata << "\"actual_final_state\":" << aggregate_checksum_ << "}";
-  host_.FinishDraw(suite_name_, kLongUnlockedSceneName, final_results, summary_metadata.str());
+  host_.FinishGroup(suite_name_, kLongUnlockedSceneName, stage_record_count,
+                    summary_metadata.str());
   ClearXemuPerfEventContext();
 }
 

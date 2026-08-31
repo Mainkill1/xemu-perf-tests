@@ -144,6 +144,9 @@ add_executable(
         test_driver.h
         test_host.cpp
         test_host.h
+        test_catalog.cpp
+        test_catalog.h
+        generated/test_catalog.inc
 )
 
 # Pull debug info out of the binary into a host-side linked binary.

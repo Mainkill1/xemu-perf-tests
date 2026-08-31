@@ -34,6 +34,8 @@
 #include "tests/uniform_thrash_tests.h"
 #include "tests/vertex_buffer_allocation_tests.h"
 
+#include <fstream>
+
 static constexpr const char* kLogFileName = "results.txt";
 
 static const int kFramebufferWidth = 640;
@@ -48,7 +50,7 @@ const UCHAR kSMCPowerShutdown = 0x80;
 
 static bool EnsureDriveMounted(char drive_letter);
 static bool LoadConfig(RuntimeConfig& config, std::vector<std::string>& errors);
-static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites);
+static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites);
 static void RegisterSuites(TestHost& host, RuntimeConfig& config, std::vector<std::shared_ptr<TestSuite>>& test_suites,
                            const std::string& output_directory);
 static void Shutdown();
@@ -136,7 +138,10 @@ int main() {
 
   pb_show_front_screen();
   debugClearScreen();
-  RunTests(config, host, test_suites);
+  if (!RunTests(config, host, test_suites)) {
+    pb_kill();
+    return 2;
+  }
 
   pb_kill();
   return 0;
@@ -190,11 +195,14 @@ static void Shutdown() {
   }
 }
 
-static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites) {
+static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites) {
   std::string log_file = config.output_directory_path() + "\\" + kLogFileName;
   DeleteFile(log_file.c_str());
   Logger::Initialize(log_file, true);
   host.ResetResultLogState();
+  if (config.has_resolved_plan()) {
+    host.ConfigureResolvedPlan(config.plan_id(), config.selected_test_ids());
+  }
 
   TestDriver driver(host, test_suites, kFramebufferWidth, kFramebufferHeight, false, config.disable_autorun(),
                     config.enable_autorun_immediately());
@@ -204,6 +212,34 @@ static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   Logger::Log() << "]" << std::endl;
   PrintMsg("Test loop completed normally\n");
   Logger::Log().close();
+
+  std::string plan_error;
+  const bool plan_complete = host.ValidateResolvedPlan(plan_error);
+  if (config.has_resolved_plan()) {
+    const std::string plan_result_path =
+        config.output_directory_path() + "\\resolved-plan-result.json";
+    std::ofstream plan_result(plan_result_path, std::ios_base::trunc);
+    if (!plan_result) {
+      debugPrint("Failed to write resolved plan result at %s\n", plan_result_path.c_str());
+      return false;
+    }
+    plan_result << "{\n  \"schema_version\": 1,\n  \"plan_id\": \""
+                << config.plan_id() << "\",\n  \"selected_leaf_count\": "
+                << config.selected_leaf_count() << ",\n  \"emitted_leaf_count\": "
+                << host.EmittedLeafCount() << ",\n  \"completion\": \""
+                << (plan_complete ? "COMPLETE" : "INCOMPLETE") << "\"\n}\n";
+    plan_result.close();
+    if (!plan_result) {
+      debugPrint("Failed to finalize resolved plan result at %s\n", plan_result_path.c_str());
+      return false;
+    }
+    if (!plan_complete) {
+      debugPrint("Resolved plan incomplete: %s\n", plan_error.c_str());
+      pb_show_debug_screen();
+      Sleep(kDelayOnFailureMilliseconds);
+      return false;
+    }
+  }
 
   if (config.enable_shutdown_on_completion()) {
     debugPrint("Results written to %s\n\nShutting down in %d seconds...\n", config.output_directory_path().c_str(),
@@ -218,6 +254,7 @@ static void RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
     pb_show_debug_screen();
     Sleep(config.reboot_or_shutdown_delay_ms());
   }
+  return true;
 }
 
 static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,

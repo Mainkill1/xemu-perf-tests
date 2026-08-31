@@ -2,6 +2,8 @@
 #define XEMU_PERF_TESTS_RUNTIME_CONFIG_H
 
 #include <memory>
+#include <set>
+#include <string>
 #include <vector>
 
 #include "configure.h"
@@ -52,6 +54,10 @@ class RuntimeConfig {
   }
   [[nodiscard]] TestHost::GpuCompletionMode gpu_completion_mode() const { return gpu_completion_mode_; }
   [[nodiscard]] const TestSuite::Config &test_suite_config() const { return test_suite_config_; }
+  [[nodiscard]] bool has_resolved_plan() const { return has_resolved_plan_; }
+  [[nodiscard]] uint32_t selected_leaf_count() const { return selected_leaf_count_; }
+  [[nodiscard]] const std::string &plan_id() const { return plan_id_; }
+  [[nodiscard]] const std::set<std::string> &selected_test_ids() const { return selected_test_ids_; }
 
   [[nodiscard]] const std::string& output_directory_path() const { return output_directory_path_; }
 
@@ -67,6 +73,10 @@ class RuntimeConfig {
   uint32_t measurement_iterations_multiplier_ = 1;
   TestHost::GpuCompletionMode gpu_completion_mode_ = TestHost::GpuCompletionMode::ENQUEUE;
   TestSuite::Config test_suite_config_{};
+  bool has_resolved_plan_{false};
+  uint32_t selected_leaf_count_{0};
+  std::string plan_id_{};
+  std::set<std::string> selected_test_ids_{};
 
   std::string output_directory_path_ = SanitizePath(DEFAULT_OUTPUT_DIRECTORY_PATH);
 

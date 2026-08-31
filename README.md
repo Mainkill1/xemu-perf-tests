@@ -62,6 +62,35 @@ When building from source, the `sample-config.json` file in the `resources` dire
 
 #### Filtering test suites/cases
 
+New automation should use a host-resolved plan containing explicit stable leaf
+IDs. The guest validates the bundled catalog ID, rejects duplicate, unknown, or
+group IDs, derives the selected execution cases and composite stage masks, and
+requires the emitted leaf set to match the plan. `selected_leaf_count` is
+validated against the unique IDs instead of a fixed whole-suite record count.
+
+```json
+{
+  "settings": {"enable_autorun_immediately": true},
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:...",
+    "catalog_id": "sha256:...",
+    "selected_leaf_count": 1,
+    "tests": [{"id": "surface.cpu_read_clean_surface"}]
+  }
+}
+```
+
+`resources/catalog.json` and `docs/generated/test-catalog.md` are generated
+from `utils/test_catalog.py`. Run `python3 utils/test_catalog.py --check` in CI.
+The checked-in `resources/plans/smoke.json` is a complete example. Legacy
+`test_suites`/`skipped` configuration remains supported as an adapter, but it
+cannot be combined with a resolved plan.
+
+Composite parents are group outcomes. They retain their legacy result record
+shape during migration, with zero-valued compatibility timing fields and an
+explicit `kind: group`; they never copy the final child's timing.
+
 The `"test_suites"` section may be used to filter the set of tests.
 
 For example, suppose the program contains four test suites: `Default suite`, `Unlisted suite`, `Skipped suite`, and

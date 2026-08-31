@@ -2,9 +2,11 @@
 #define XEMU_PERF_TESTS_TEST_HOST_H
 
 #include <cstdint>
+#include <set>
 #include <string>
 
 #include "nv2astate.h"
+#include "test_catalog.h"
 
 /**
  * Provides utility methods for use by TestSuite subclasses.
@@ -45,6 +47,17 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   void RecordProfileResult(const std::string &suite_name, const std::string &test_name,
                            const ProfileResults &results, const std::string &metadata_json = "");
 
+  //! Writes a structural group outcome without assigning it a timing measurement.
+  void FinishGroup(const std::string &suite_name, const std::string &group_name,
+                   uint32_t child_result_count, const std::string &metadata_json = "");
+
+  void ConfigureResolvedPlan(const std::string &plan_id,
+                             const std::set<std::string> &selected_test_ids);
+  [[nodiscard]] bool ValidateResolvedPlan(std::string &error) const;
+  [[nodiscard]] uint32_t EmittedLeafCount() const {
+    return static_cast<uint32_t>(emitted_test_ids_.size());
+  }
+
   //! Sets up the projection matrix for passthrough operation / direct addressing of pixels.
   void SetupFixedFunctionPassthrough();
 
@@ -80,12 +93,19 @@ class TestHost : public PBKitPlusPlus::NV2AState {
 
  private:
   [[nodiscard]] uint64_t HashBackBuffer() const;
+  const TestDescriptor *RecordDescriptor(const std::string &suite_name,
+                                         const std::string &test_name,
+                                         bool expect_group);
 
   bool save_results_{true};
   bool first_result_{true};
   GpuCompletionMode gpu_completion_mode_{GpuCompletionMode::ENQUEUE};
   uint32_t warmup_iterations_{0};
   uint32_t measurement_iterations_multiplier_{1};
+  std::string plan_id_{};
+  std::set<std::string> selected_test_ids_{};
+  std::set<std::string> emitted_test_ids_{};
+  bool unexpected_or_duplicate_result_{false};
 
   static constexpr auto kFrameTimeWindow = 10;
   double perf_counter_frequency_;

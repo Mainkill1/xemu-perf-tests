@@ -1,0 +1,22 @@
+{
+  "settings": {
+    "enable_autorun_immediately": true
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:a8a7e8916cad8042d0fc87674e911cf75f562cea6db2d90274a97bc3baf6e830",
+    "catalog_id": "sha256:9d58d2f3fde715a7aa6ecc6c893f7d661eb4b2fa40d5946add214522e54590d8",
+    "selected_leaf_count": 3,
+    "tests": [
+      {
+        "id": "busy_pfifo.pgraph_pattern_polling"
+      },
+      {
+        "id": "surface.cpu_read_clean_surface"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw"
+      }
+    ]
+  }
+}
