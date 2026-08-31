@@ -1,16 +1,26 @@
 {
   "settings": {
-    "skip_tests_by_default": true,
+    "enable_autorun_immediately": true,
     "warmup_iterations": 750,
     "measurement_iterations_multiplier": 375,
     "gpu_completion_mode": "batch_complete",
     "output_directory_path": "e:/xemu_perf_tests"
   },
-  "test_suites": {
-    "PFIFOArrayElements": {
-      "pfifo.array-element16": { "skipped": false },
-      "pfifo.array-element32": { "skipped": false },
-      "pfifo.array-element-pgr2": { "skipped": false }
-    }
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:92bc0005d666fce72bbb2810332aac940606467cb88d0f5c15e1276b43b43a1b",
+    "catalog_id": "sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9",
+    "selected_leaf_count": 3,
+    "tests": [
+      {
+        "id": "pfifo_array_elements.array_element16"
+      },
+      {
+        "id": "pfifo_array_elements.array_element32"
+      },
+      {
+        "id": "pfifo_array_elements.array_element_pgr2"
+      }
+    ]
   }
 }

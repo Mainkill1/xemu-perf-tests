@@ -1,11 +1,14 @@
 # Generated test catalog
 
-Catalog `sha256:9d58d2f3fde715a7aa6ecc6c893f7d661eb4b2fa40d5946add214522e54590d8` contains 129 leaves and 5 groups.
+Catalog `sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9` contains 132 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
 | `busy_pfifo.pfifo_saturation` | leaf | `BusyPfifo::PFIFOSaturation` |
 | `busy_pfifo.pgraph_pattern_polling` | leaf | `BusyPfifo::PgraphPatternPolling` |
+| `pfifo_array_elements.array_element16` | leaf | `PFIFOArrayElements::pfifo.array-element16` |
+| `pfifo_array_elements.array_element32` | leaf | `PFIFOArrayElements::pfifo.array-element32` |
+| `pfifo_array_elements.array_element_pgr2` | leaf | `PFIFOArrayElements::pfifo.array-element-pgr2` |
 | `cpu_floating_point.sse_scalar` | leaf | `CpuFloatingPoint::SSEScalar` |
 | `cpu_floating_point.x87_scalar` | leaf | `CpuFloatingPoint::X87Scalar` |
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |

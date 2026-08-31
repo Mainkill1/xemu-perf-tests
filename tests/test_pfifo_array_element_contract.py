@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Static contracts for deterministic PFIFO array-element capsules."""
 
+import hashlib
 import json
 import struct
 import unittest
@@ -24,6 +25,11 @@ TEST_IDS = (
     "pfifo.array-element16",
     "pfifo.array-element32",
     "pfifo.array-element-pgr2",
+)
+STABLE_IDS = (
+    "pfifo_array_elements.array_element16",
+    "pfifo_array_elements.array_element32",
+    "pfifo_array_elements.array_element_pgr2",
 )
 
 
@@ -91,10 +97,19 @@ class PfifoArrayElementContractTests(unittest.TestCase):
             "pfifo-array-elements-sustained.json",
         ):
             config = self.load(resource)
-            self.assertTrue(config["settings"]["skip_tests_by_default"])
-            self.assertEqual(
-                set(config["test_suites"]["PFIFOArrayElements"]), set(TEST_IDS)
-            )
+            plan = config["resolved_plan"]
+            catalog = self.load("catalog.json")
+            self.assertEqual(plan["catalog_id"], catalog["catalog_id"])
+            self.assertEqual(plan["selected_leaf_count"], len(STABLE_IDS))
+            self.assertEqual({entry["id"] for entry in plan["tests"]},
+                             set(STABLE_IDS))
+            contract = {"catalog_id": plan["catalog_id"],
+                        "tests": plan["tests"]}
+            expected_plan_id = "sha256:" + hashlib.sha256(
+                json.dumps(contract, sort_keys=True,
+                           separators=(",", ":")).encode()).hexdigest()
+            self.assertEqual(plan["plan_id"], expected_plan_id)
+            self.assertNotIn("test_suites", config)
         self.assertEqual(
             self.load("pfifo-array-elements-fast-smoke.json")["settings"]["gpu_completion_mode"],
             "enqueue",
@@ -111,6 +126,13 @@ class PfifoArrayElementContractTests(unittest.TestCase):
             self.assertIn(test_id, SOURCE)
             self.assertIn(test_id, README)
             self.assertIn(test_id, DOC)
+        catalog = self.load("catalog.json")
+        descriptors = {entry["id"]: entry for entry in catalog["tests"]}
+        for stable_id, legacy_id in zip(STABLE_IDS, TEST_IDS):
+            self.assertEqual(descriptors[stable_id]["legacy_ids"],
+                             [f"PFIFOArrayElements::{legacy_id}"])
+            self.assertEqual(descriptors[stable_id]["execution"], {
+                "legacy_suite": "PFIFOArrayElements", "legacy_test": legacy_id})
 
     def test_fixed_packet_shapes_are_non_incrementing(self):
         for literal in (

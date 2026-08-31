@@ -19,6 +19,14 @@ These shapes reduce trace evidence from Morrowind (38 words) and PGR2 (29
 words). They do not contain title data and do not claim that every title packet
 has these lengths.
 
+Automation selects the catalog IDs
+`pfifo_array_elements.array_element16`,
+`pfifo_array_elements.array_element32`, and
+`pfifo_array_elements.array_element_pgr2`. The historical names above remain
+the guest execution IDs. All three supplied resource plans are catalog-bound
+resolved plans; they intentionally cannot run against an XISO with a different
+catalog ID.
+
 ## Known input and output
 
 Seed `0x50464946` generates one shared 76-vertex tile grid. The literal logical

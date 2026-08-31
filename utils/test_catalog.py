@@ -52,6 +52,11 @@ def entries():
 
     simple("busy_pfifo", "BusyPfifo", [("pfifo_saturation", "PFIFOSaturation"),
            ("pgraph_pattern_polling", "PgraphPatternPolling")], ("pfifo", "performance", "hardware-safe"))
+    simple("pfifo_array_elements", "PFIFOArrayElements", [
+           ("array_element16", "pfifo.array-element16"),
+           ("array_element32", "pfifo.array-element32"),
+           ("array_element_pgr2", "pfifo.array-element-pgr2")],
+           ("pfifo", "gpu", "performance", "hardware-safe"))
     simple("cpu_floating_point", "CpuFloatingPoint", [("sse_scalar", "SSEScalar"),
            ("x87_scalar", "X87Scalar")], ("cpu", "performance", "hardware-safe"))
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
@@ -248,18 +253,41 @@ def catalog_json(doc):
 
 def render():
     items = entries(); validate(items); doc = catalog(items)
+
+    def resolved_plan(ids, settings):
+        plan_contract = {"catalog_id": doc["catalog_id"],
+                         "tests": [{"id": x} for x in ids]}
+        plan_id = "sha256:" + hashlib.sha256(json.dumps(
+            plan_contract, sort_keys=True, separators=(",", ":")).encode()).hexdigest()
+        return {"settings": settings,
+                "resolved_plan": {"schema_version": 2, "plan_id": plan_id,
+                                  "catalog_id": doc["catalog_id"],
+                                  "selected_leaf_count": len(ids),
+                                  "tests": [{"id": x} for x in ids]}}
+
     smoke_ids = ["busy_pfifo.pgraph_pattern_polling", "surface.cpu_read_clean_surface",
                  "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw"]
-    plan_contract = {"catalog_id": doc["catalog_id"], "tests": [{"id": x} for x in smoke_ids]}
-    plan_id = "sha256:" + hashlib.sha256(json.dumps(plan_contract, sort_keys=True,
-                                                     separators=(",", ":")).encode()).hexdigest()
-    smoke_plan = {"settings": {"enable_autorun_immediately": True},
-                  "resolved_plan": {"schema_version": 2, "plan_id": plan_id,
-                                    "catalog_id": doc["catalog_id"],
-                                    "selected_leaf_count": len(smoke_ids),
-                                    "tests": [{"id": x} for x in smoke_ids]}}
+    smoke_plan = resolved_plan(smoke_ids, {"enable_autorun_immediately": True})
+    pfifo_ids = ["pfifo_array_elements.array_element16",
+                 "pfifo_array_elements.array_element32",
+                 "pfifo_array_elements.array_element_pgr2"]
+    pfifo_smoke = resolved_plan(pfifo_ids, {
+        "enable_autorun_immediately": True, "warmup_iterations": 1,
+        "measurement_iterations_multiplier": 1, "gpu_completion_mode": "enqueue",
+        "output_directory_path": "e:/xemu_perf_tests"})
+    pfifo_quick = resolved_plan(pfifo_ids, {
+        "enable_autorun_immediately": True, "warmup_iterations": 300,
+        "measurement_iterations_multiplier": 150, "gpu_completion_mode": "batch_complete",
+        "output_directory_path": "e:/xemu_perf_tests"})
+    pfifo_sustained = resolved_plan(pfifo_ids, {
+        "enable_autorun_immediately": True, "warmup_iterations": 750,
+        "measurement_iterations_multiplier": 375, "gpu_completion_mode": "batch_complete",
+        "output_directory_path": "e:/xemu_perf_tests"})
     return {ROOT / "resources/catalog.json": catalog_json(doc),
             ROOT / "resources/plans/smoke.json": json.dumps(smoke_plan, indent=2) + "\n",
+            ROOT / "resources/pfifo-array-elements-fast-smoke.json": json.dumps(pfifo_smoke, indent=2) + "\n",
+            ROOT / "resources/pfifo-array-elements-quick.json": json.dumps(pfifo_quick, indent=2) + "\n",
+            ROOT / "resources/pfifo-array-elements-sustained.json": json.dumps(pfifo_sustained, indent=2) + "\n",
             ROOT / "docs/generated/test-catalog.md": markdown(doc),
             ROOT / "src/generated/test_catalog.inc": cpp(items, doc["catalog_id"])}
 

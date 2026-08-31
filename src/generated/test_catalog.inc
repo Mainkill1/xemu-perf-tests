@@ -2,6 +2,9 @@
 static const TestDescriptor kTestCatalog[] = {
   {"busy_pfifo.pfifo_saturation", 1, "busy_pfifo", "BusyPfifo", "PFIFOSaturation", "PFIFOSaturation", TestKind::LEAF, 0, 0},
   {"busy_pfifo.pgraph_pattern_polling", 1, "busy_pfifo", "BusyPfifo", "PgraphPatternPolling", "PgraphPatternPolling", TestKind::LEAF, 0, 0},
+  {"pfifo_array_elements.array_element16", 1, "pfifo_array_elements", "PFIFOArrayElements", "pfifo.array-element16", "pfifo.array-element16", TestKind::LEAF, 0, 0},
+  {"pfifo_array_elements.array_element32", 1, "pfifo_array_elements", "PFIFOArrayElements", "pfifo.array-element32", "pfifo.array-element32", TestKind::LEAF, 0, 0},
+  {"pfifo_array_elements.array_element_pgr2", 1, "pfifo_array_elements", "PFIFOArrayElements", "pfifo.array-element-pgr2", "pfifo.array-element-pgr2", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.sse_scalar", 1, "cpu_floating_point", "CpuFloatingPoint", "SSEScalar", "SSEScalar", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_scalar", 1, "cpu_floating_point", "CpuFloatingPoint", "X87Scalar", "X87Scalar", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.direct_loop", 1, "cpu_translation_blocks", "CpuTranslationBlocks", "DirectLoop", "DirectLoop", TestKind::LEAF, 0, 0},
@@ -136,4 +139,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:9d58d2f3fde715a7aa6ecc6c893f7d661eb4b2fa40d5946add214522e54590d8";
+static constexpr const char *kTestCatalogId = "sha256:458b66d168f8a40ed541671e2c7f5de0331b2047660c52e4e503c542db4bfcc9";
