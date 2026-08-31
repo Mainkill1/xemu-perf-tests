@@ -3271,6 +3271,11 @@ void GameLoadCompositeTests::StopAudio() {
     return;
   }
   XAudioPause();
+  // StopAudio is called at the end of the measured phase, again by RunTest's
+  // cleanup, and by suite teardown. Clear ownership after the first pause so
+  // later cleanup is a no-op instead of repeatedly pausing the same engine.
+  audio_voices_ = 0;
+  g_audio_voice_count = 0;
 }
 
 uint32_t GameLoadCompositeTests::ValidateStreamingSurface(uint32_t checksum,
