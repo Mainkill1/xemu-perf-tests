@@ -172,6 +172,8 @@ void BeginXemuPerfTest() {
   g_failure_screen_shown = false;
 }
 
+bool XemuPerfTestFailed() { return g_failure_reported; }
+
 void FinishXemuPerfTestFailureScreen() {
   if (g_failure_reported && !g_failure_screen_shown) {
     ShowSoftFailureScreen("See saved test result for failure details", "guest test", 0);

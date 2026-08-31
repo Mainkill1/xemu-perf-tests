@@ -35,6 +35,12 @@ static bool MetadataReportsOracleFailure(const std::string &metadata_json) {
   return metadata_json.find("\"oracle_status\":\"FAIL\"") != std::string::npos;
 }
 
+static const char *ResultOutcome(const std::string &metadata_json) {
+  return XemuPerfTestFailed() || MetadataReportsOracleFailure(metadata_json)
+             ? "FAIL"
+             : "PASS";
+}
+
 #define MAX_FILE_PATH_SIZE 248
 #define MAX_FILENAME_SIZE 42
 
@@ -217,6 +223,7 @@ void TestHost::FinishDraw(const std::string &suite_name, const std::string &test
     log << "    \"revision\": " << descriptor->revision << "," << std::endl;
     log << "    \"kind\": \"leaf\"," << std::endl;
     log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
+    log << R"(    "outcome": ")" << ResultOutcome(metadata_json) << "\"," << std::endl;
     log << "    \"iterations\": " << results.iterations << "," << std::endl;
     log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
     log << "    \"measurement_iterations_multiplier\": "
@@ -300,6 +307,7 @@ void TestHost::RecordProfileResult(const std::string &suite_name, const std::str
   log << "    \"revision\": " << descriptor->revision << "," << std::endl;
   log << "    \"kind\": \"leaf\"," << std::endl;
   log << R"(    "name": ")" << suite_name << "::" << test_name << "\"," << std::endl;
+  log << R"(    "outcome": ")" << ResultOutcome(metadata_json) << "\"," << std::endl;
   log << "    \"iterations\": " << results.iterations << "," << std::endl;
   log << "    \"sample_count\": " << results.sample_count << "," << std::endl;
   log << "    \"measurement_iterations_multiplier\": "
@@ -372,7 +380,7 @@ void TestHost::FinishGroup(const std::string &suite_name, const std::string &gro
   log << "    \"revision\": " << descriptor->revision << "," << std::endl;
   log << "    \"kind\": \"group\"," << std::endl;
   log << R"(    "name": ")" << suite_name << "::" << group_name << "\"," << std::endl;
-  log << "    \"outcome\": \"PASS\"," << std::endl;
+  log << R"(    "outcome": ")" << ResultOutcome(metadata_json) << "\"," << std::endl;
   log << "    \"child_result_count\": " << child_result_count << "," << std::endl;
   log << "    \"measurement\": null," << std::endl;
   // Keep the legacy numeric shape during migration, but explicitly mark it as
@@ -399,6 +407,23 @@ void TestHost::FinishGroup(const std::string &suite_name, const std::string &gro
   log.flush();
   ASSERT(log && "Failed to write group outcome");
   PrintMsg("TEST_END %s::%s\n", suite_name.c_str(), group_name.c_str());
+}
+
+void TestHost::RecordSoftTestOutcome(const std::string &suite_name,
+                                     const std::string &test_name,
+                                     bool failed) {
+  if (!failed) {
+    return;
+  }
+  ++soft_failure_count_;
+  if (!first_soft_failure_.empty()) {
+    return;
+  }
+  const auto *descriptor =
+      FindTestDescriptorByLegacyResult(suite_name, test_name);
+  first_soft_failure_ = descriptor
+                            ? descriptor->id
+                            : suite_name + "::" + test_name;
 }
 
 void TestHost::ConfigureResolvedPlan(const std::string &plan_id,

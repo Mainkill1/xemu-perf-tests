@@ -76,6 +76,10 @@ later ENG-465 bordered-S3TC Vulkan fix; on affected drivers, run the full suite
 with OpenGL or isolate the S3TC route masks. The wider tested candidate completes
 all four isolated native/fallback routes.
 
+A continued soft failure is still a failed test. Its record writes
+`"outcome":"FAIL"`; the final screen reports a separate soft-failure count and
+returns FAIL even when the metadata-only oracle count is zero.
+
 ### Correct A/B run
 
 Use one XISO, configuration, renderer, scale, completion policy, and fixed-work

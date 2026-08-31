@@ -65,6 +65,10 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   [[nodiscard]] uint32_t RecordedGroupCount() const { return recorded_group_count_; }
   [[nodiscard]] uint32_t OracleFailureCount() const { return oracle_failure_count_; }
   [[nodiscard]] const std::string &FirstOracleFailure() const { return first_oracle_failure_; }
+  [[nodiscard]] uint32_t SoftFailureCount() const { return soft_failure_count_; }
+  [[nodiscard]] const std::string &FirstSoftFailure() const { return first_soft_failure_; }
+  void RecordSoftTestOutcome(const std::string &suite_name,
+                             const std::string &test_name, bool failed);
 
   //! Sets up the projection matrix for passthrough operation / direct addressing of pixels.
   void SetupFixedFunctionPassthrough();
@@ -93,6 +97,8 @@ class TestHost : public PBKitPlusPlus::NV2AState {
     recorded_group_count_ = 0;
     oracle_failure_count_ = 0;
     first_oracle_failure_.clear();
+    soft_failure_count_ = 0;
+    first_soft_failure_.clear();
   }
 
   [[nodiscard]] const double &GetPerformanceCounterFrequency() const { return perf_counter_frequency_; }
@@ -138,6 +144,8 @@ class TestHost : public PBKitPlusPlus::NV2AState {
   uint32_t recorded_group_count_{0};
   uint32_t oracle_failure_count_{0};
   std::string first_oracle_failure_{};
+  uint32_t soft_failure_count_{0};
+  std::string first_soft_failure_{};
 
   static constexpr auto kFrameTimeWindow = 10;
   double perf_counter_frequency_;

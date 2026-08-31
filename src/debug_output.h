@@ -78,6 +78,7 @@ void EmitXemuPerfEvent(XemuPerfEventType type, uint16_t assertion,
                        uint32_t expected, uint32_t actual);
 void EmitXemuPerfHeartbeat();
 void BeginXemuPerfTest();
+bool XemuPerfTestFailed();
 void FinishXemuPerfTestFailureScreen();
 void AssertXemuPerfEqual(uint32_t expected, uint32_t actual,
                          XemuPerfAssertion assertion, const char *assert_code,

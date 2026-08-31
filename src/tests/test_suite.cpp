@@ -59,6 +59,7 @@ void TestSuite::Run(const std::string& test_name, uint32_t frame_count) {
   it->second();
   TearDownTest();
   FinishXemuPerfTestFailureScreen();
+  host_.RecordSoftTestOutcome(suite_name_, test_name, XemuPerfTestFailed());
 }
 
 void TestSuite::RunAll() {

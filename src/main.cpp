@@ -248,7 +248,8 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   }
 
   const bool oracle_pass = host.OracleFailureCount() == 0;
-  const bool run_pass = plan_complete && oracle_pass;
+  const bool soft_pass = host.SoftFailureCount() == 0;
+  const bool run_pass = plan_complete && oracle_pass && soft_pass;
   debugClearScreen();
   debugPrint("xemu perf tests: %s\n\n", run_pass ? "PASS" : "FAIL");
   debugPrint("Catalog: %s\n", TestCatalogId());
@@ -256,7 +257,10 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   debugPrint("Leaves: %lu  Groups: %lu\n", host.RecordedLeafCount(),
              host.RecordedGroupCount());
   debugPrint("Oracle failures: %lu\n", host.OracleFailureCount());
-  if (!oracle_pass) {
+  debugPrint("Soft failures: %lu\n", host.SoftFailureCount());
+  if (!soft_pass) {
+    debugPrint("First failure: %s\n", host.FirstSoftFailure().c_str());
+  } else if (!oracle_pass) {
     debugPrint("First failure: %s\n", host.FirstOracleFailure().c_str());
   }
   if (!plan_complete) {
