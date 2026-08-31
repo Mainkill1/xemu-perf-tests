@@ -3,6 +3,7 @@
 #include <fstream>
 #include <list>
 
+#include "debug_output.h"
 #include "tiny-json.h"
 #include "test_catalog.h"
 
