@@ -1289,6 +1289,9 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
 #endif
   time_spirit->parent = this;
   submenu.push_back(time_spirit);
+#ifdef XEMU_PERF_TESTS_AUTOLAUNCH_TIME_SPIRIT
+  XLaunchXBE("D:\\time_spirit\\default.xbe");
+#endif
 
   auto about = std::make_shared<MenuItemInfo>(
       "About/Controls",

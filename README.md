@@ -267,6 +267,8 @@ Configuration fails unless its SHA-256 is
 `833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31`.
 The build extracts it into the single output XISO; selecting `Time Spirit`
 quick-reboots directly into `D:\time_spirit\default.xbe`.
+`-DTIME_SPIRIT_AUTOLAUNCH=ON` is a validation-only build option that performs
+that handoff immediately; published interactive images leave it off.
 
 The full unfiltered image exposes 136 leaf tests, five structural groups, and
 141 exact legacy aliases. A catalog stage belonging to a grouped execution

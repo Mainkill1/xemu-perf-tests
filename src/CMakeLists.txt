@@ -12,6 +12,11 @@ set(
         CACHE STRING
         "Approved SHA-256 for the Time Spirit XISO supplied for this disc"
 )
+option(
+        TIME_SPIRIT_AUTOLAUNCH
+        "Validation only: launch bundled Time Spirit as soon as the root menu is created"
+        OFF
+)
 
 include(XBEUtils REQUIRED)
 
@@ -206,6 +211,11 @@ if (TIME_SPIRIT_XISO)
     list(APPEND PERF_TEST_RESOURCE_ROOTS "${TIME_SPIRIT_RESOURCE_ROOT}")
     list(APPEND PERF_TEST_RESOURCE_DIRS "${TIME_SPIRIT_RESOURCE_DIR}")
     target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_HAS_TIME_SPIRIT=1)
+    if (TIME_SPIRIT_AUTOLAUNCH)
+        target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_AUTOLAUNCH_TIME_SPIRIT=1)
+    endif ()
+elseif (TIME_SPIRIT_AUTOLAUNCH)
+    message(FATAL_ERROR "TIME_SPIRIT_AUTOLAUNCH requires TIME_SPIRIT_XISO")
 endif ()
 
 # Pull debug info out of the binary into a host-side linked binary.
