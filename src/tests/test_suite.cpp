@@ -48,9 +48,11 @@ void TestSuite::Run(const std::string& test_name, uint32_t frame_count) {
     host_.PreTest();
   }
 
+  BeginXemuPerfTest();
   SetupTest();
   it->second();
   TearDownTest();
+  FinishXemuPerfTestFailureScreen();
 }
 
 void TestSuite::RunAll() {
@@ -294,6 +296,11 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   auto run_times = std::make_unique<uint32_t[]>(sample_count);
 
   const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  debugClearScreen();
+  debugPrint("RUNNING\n\n%s::%s\n", suite_name_.c_str(), test_name.c_str());
+  debugPrint("\nWarmup: %lu\nSamples: %lu\nWork multiplier: %lu\n",
+             warmup_iterations, sample_count, measurement_iterations_multiplier);
+  pb_show_debug_screen();
   PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());
   if (warmup_iterations) {
     PrintMsg("WARMUP_BEGIN %s::%s iterations=%lu\n", suite_name_.c_str(), test_name.c_str(), warmup_iterations);
@@ -343,6 +350,7 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
 
   auto duration = host_.GetMicrosecondsSince(profile_start);
   EmitXemuPerfMarker(kXemuPerfMarkerMeasureEnd);
+  pb_show_front_screen();
 
   PrintMsg("MEASURE_END %s::%s duration_us=%lu completion_wait_us=%lu\n", suite_name_.c_str(), test_name.c_str(),
            duration, ret.completion_wait_microseconds);

@@ -6,6 +6,7 @@
 #pragma clang diagnostic pop
 
 #include <pbkit/pbkit.h>
+#include <SDL.h>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmacro-redefined"
@@ -21,6 +22,30 @@ volatile uint32_t g_event_final_state = 0;
 volatile uint32_t g_event_sequence = 0;
 volatile bool g_event_context_active = false;
 volatile bool g_failure_reported = false;
+volatile bool g_failure_screen_shown = false;
+
+void ShowSoftFailureScreen(const char *assert_code, const char *filename,
+                           uint32_t line) {
+  g_failure_screen_shown = true;
+  debugClearScreen();
+  debugPrint("TEST FAILED\n\n%s\n\n%s:%lu\n", assert_code, filename, line);
+  debugPrint("\nContinuing in 10 seconds.\nPress A to continue now.\n");
+  pb_show_debug_screen();
+
+  const DWORD start = GetTickCount();
+  bool advance = false;
+  while (!advance && GetTickCount() - start < 10000) {
+    SDL_Event event;
+    while (SDL_PollEvent(&event)) {
+      if (event.type == SDL_CONTROLLERBUTTONUP &&
+          event.cbutton.button == SDL_CONTROLLER_BUTTON_A) {
+        advance = true;
+      }
+    }
+    Sleep(16);
+  }
+  pb_show_front_screen();
+}
 
 inline bool XemuPerfMarkerAvailable() {
   uint8_t readback;
@@ -73,6 +98,11 @@ void ClearXemuPerfEventContext() {
 
 void EmitXemuPerfEvent(XemuPerfEventType type, uint16_t assertion,
                        uint32_t expected, uint32_t actual) {
+  if (type == XemuPerfEventType::FAIL) {
+    g_failure_reported = true;
+  } else if (type == XemuPerfEventType::PASS && g_failure_reported) {
+    return;
+  }
   if (!g_event_context_active || !XemuPerfMarkerAvailable()) {
     return;
   }
@@ -104,6 +134,17 @@ void EmitXemuPerfHeartbeat() {
   EmitXemuPerfEvent(XemuPerfEventType::HEARTBEAT, 0, 0, 0);
 }
 
+void BeginXemuPerfTest() {
+  g_failure_reported = false;
+  g_failure_screen_shown = false;
+}
+
+void FinishXemuPerfTestFailureScreen() {
+  if (g_failure_reported && !g_failure_screen_shown) {
+    ShowSoftFailureScreen("See saved test result for failure details", "guest test", 0);
+  }
+}
+
 void AssertXemuPerfEqual(uint32_t expected, uint32_t actual,
                          XemuPerfAssertion assertion, const char *assert_code,
                          const char *filename, uint32_t line) {
@@ -113,8 +154,9 @@ void AssertXemuPerfEqual(uint32_t expected, uint32_t actual,
 
   EmitXemuPerfEvent(XemuPerfEventType::FAIL, static_cast<uint16_t>(assertion),
                     expected, actual);
-  g_failure_reported = true;
-  PrintAssertAndWaitForever(assert_code, filename, line);
+  if (!g_failure_screen_shown) {
+    ShowSoftFailureScreen(assert_code, filename, line);
+  }
 }
 
 [[noreturn]] void PrintAssertAndWaitForever(const char *assert_code, const char *filename, uint32_t line) {
