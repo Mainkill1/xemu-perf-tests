@@ -142,6 +142,22 @@ static int GameLoadCompositeCrossTitleStageIndex(const std::string &name) {
   return -1;
 }
 
+static int GameLoadCompositeS3tcSyncFactorStageIndex(const std::string &name) {
+  if (name == "dxt1_same_address_wait") return 0;
+  if (name == "dxt1_same_address_queued") return 1;
+  if (name == "dxt1_ring") return 2;
+  if (name == "dxt1_dirty_once") return 3;
+  if (name == "rgba8_same_address_wait") return 4;
+  if (name == "rgba8_same_address_queued") return 5;
+  if (name == "rgba8_ring") return 6;
+  if (name == "rgba8_dirty_once") return 7;
+  if (name == "bc2_native_eligible") return 8;
+  if (name == "bc2_bordered_fallback") return 9;
+  if (name == "bc3_native_eligible") return 10;
+  if (name == "bc3_bordered_fallback") return 11;
+  return -1;
+}
+
 static bool ParseGameLoadCompositeStageValues(
     json_t const *object, const char *name,
     std::array<uint32_t, TestSuite::Config::kGameLoadCompositeStageCount> &values,
@@ -292,6 +308,52 @@ static bool ParseGameLoadCompositeConfig(json_t const *root, TestSuite::Config &
       config.game_load_composite_cross_title_stage_mask &= stage_list_mask;
       if (!config.game_load_composite_cross_title_stage_mask) {
         errors.emplace_back("game_load_composite.cross_title_hotpath selects no stages");
+        return false;
+      }
+    }
+  }
+
+  auto sync_factor = json_getProperty(game_load_composite, "s3tc_sync_factor");
+  if (sync_factor) {
+    if (json_getType(sync_factor) != JSON_OBJ) {
+      errors.emplace_back("game_load_composite[s3tc_sync_factor] must be an object");
+      return false;
+    }
+
+    if (!LoadUint32(sync_factor, "stage_mask",
+                    config.game_load_composite_s3tc_sync_factor_stage_mask) ||
+        !config.game_load_composite_s3tc_sync_factor_stage_mask ||
+        (config.game_load_composite_s3tc_sync_factor_stage_mask &
+         ~TestSuite::Config::kAllGameLoadCompositeS3tcSyncFactorStages)) {
+      errors.emplace_back(
+          "game_load_composite.s3tc_sync_factor[stage_mask] must select bits 0 through 11");
+      return false;
+    }
+
+    auto stages = json_getProperty(sync_factor, "stages");
+    if (stages) {
+      if (json_getType(stages) != JSON_OBJ) {
+        errors.emplace_back(
+            "game_load_composite.s3tc_sync_factor[stages] must be an object");
+        return false;
+      }
+      uint32_t stage_list_mask = 0;
+      for (auto stage = json_getChild(stages); stage;
+           stage = json_getSibling(stage)) {
+        const int index =
+            GameLoadCompositeS3tcSyncFactorStageIndex(json_getName(stage));
+        if (index < 0 || json_getType(stage) != JSON_BOOLEAN) {
+          errors.emplace_back(
+              "game_load_composite.s3tc_sync_factor[stages] contains an invalid stage/value");
+          return false;
+        }
+        if (json_getBoolean(stage)) {
+          stage_list_mask |= 1U << index;
+        }
+      }
+      config.game_load_composite_s3tc_sync_factor_stage_mask &= stage_list_mask;
+      if (!config.game_load_composite_s3tc_sync_factor_stage_mask) {
+        errors.emplace_back("game_load_composite.s3tc_sync_factor selects no stages");
         return false;
       }
     }

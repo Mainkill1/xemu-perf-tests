@@ -25,6 +25,9 @@ class TestSuite {
     static constexpr uint32_t kGameLoadCompositeCrossTitleStageCount = 11;
     static constexpr uint32_t kAllGameLoadCompositeCrossTitleStages =
         (1U << kGameLoadCompositeCrossTitleStageCount) - 1;
+    static constexpr uint32_t kGameLoadCompositeS3tcSyncFactorStageCount = 12;
+    static constexpr uint32_t kAllGameLoadCompositeS3tcSyncFactorStages =
+        (1U << kGameLoadCompositeS3tcSyncFactorStageCount) - 1;
 
     // Zero multiplier inherits the global setting. UINT32_MAX warmup inherits
     // the global setting, allowing an explicit per-stage zero warmup.
@@ -39,6 +42,8 @@ class TestSuite {
     uint32_t game_load_composite_gpu_precondition_alpha_draws{8192};
     uint32_t game_load_composite_cross_title_stage_mask{
         kAllGameLoadCompositeCrossTitleStages};
+    uint32_t game_load_composite_s3tc_sync_factor_stage_mask{
+        kAllGameLoadCompositeS3tcSyncFactorStages};
     bool game_load_composite_cross_title_fast_smoke{false};
   };
 

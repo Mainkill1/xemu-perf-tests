@@ -139,10 +139,9 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
 
     def test_s3tc_factor_owns_state_after_cross_title(self) -> None:
         body = function_body(
-            "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,\n"
-            "                                                       bool per_draw_wait,\n"
-            "                                                       bool dirty_once,\n"
-            "                                                       uint32_t seed)"
+            "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(\n"
+            "    uint32_t format, bool per_draw_wait, bool dirty_once,\n"
+            "    bool queued_same_address, bool bordered, uint32_t seed)"
         )
         required = (
             "NV097_SET_ALPHA_TEST_ENABLE, false",
@@ -216,7 +215,7 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
     def test_s3tc_uses_exact_interior_tile_center_oracle(self) -> None:
         body = function_body(
             "uint32_t GameLoadCompositeTests::ValidateS3tcSyncFactorFramebuffer(\n"
-            "    bool compressed, bool dirty_once, uint32_t *failure_count,\n"
+            "    bool dirty_once, uint32_t *failure_count,\n"
             "    uint64_t *failure_mask) const"
         )
         required = (
@@ -238,7 +237,7 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
                 self.assertIn(statement, body)
         run = function_body("void GameLoadCompositeTests::RunS3tcSyncFactor()")
         self.assertIn(
-            "definition.compressed, definition.dirty_once", run
+            "definition.dirty_once, &oracle_failure_count", run
         )
         self.assertLess(
             run.index("ValidateS3tcSyncFactorFramebuffer("),
@@ -254,13 +253,12 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
         for route in routes:
             with self.subTest(route=route):
                 self.assertEqual(SOURCE.count(f'.revalidation_route = "{route}"'), 2)
-        self.assertIn('\\"stage_record_count\\":6}', SOURCE)
+        self.assertIn('summary_metadata << "\\"stage_record_count\\":"', SOURCE)
 
         work = function_body(
-            "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(bool compressed,\n"
-            "                                                       bool per_draw_wait,\n"
-            "                                                       bool dirty_once,\n"
-            "                                                       uint32_t seed)"
+            "uint32_t GameLoadCompositeTests::RunS3tcSyncFactorWork(\n"
+            "    uint32_t format, bool per_draw_wait, bool dirty_once,\n"
+            "    bool queued_same_address, bool bordered, uint32_t seed)"
         )
         dirty_write = work.index("if (dirty_once)")
         draw_loop = work.index("for (uint32_t draw = 0; draw < kFactorDraws; ++draw)")

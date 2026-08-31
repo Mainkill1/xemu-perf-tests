@@ -130,11 +130,12 @@ class GameLoadCompositeTests : public TestSuite {
   uint32_t RunScaledSurfacePressureWork(const Preset &preset, uint32_t seed);
   uint32_t RunS3tcStreamingFencedDrawsWork(const Preset &preset, uint32_t seed);
   uint32_t RunGpuWaitControlWork(const Preset &preset, uint32_t seed);
-  uint32_t RunS3tcSyncFactorWork(bool compressed, bool per_draw_wait,
-                                 bool dirty_once, uint32_t seed);
-  uint32_t ValidateS3tcSyncFactorFramebuffer(bool compressed, bool dirty_once,
-                                              uint32_t *failure_count,
-                                              uint64_t *failure_mask) const;
+  uint32_t RunS3tcSyncFactorWork(uint32_t format, bool per_draw_wait,
+                                 bool dirty_once, bool queued_same_address,
+                                 bool bordered, uint32_t seed);
+  uint32_t ValidateS3tcSyncFactorFramebuffer(bool dirty_once,
+                                             uint32_t *failure_count,
+                                             uint64_t *failure_mask) const;
   void StartAudio(uint32_t voices);
   void WaitForAudio();
   void StopAudio();
@@ -161,9 +162,15 @@ class GameLoadCompositeTests : public TestSuite {
   std::array<uint32_t, 2> streaming_buffer_checksums_{};
   std::array<std::vector<uint8_t>, 16> factor_s3tc_sources_;
   std::array<std::vector<uint8_t>, 16> factor_rgba8_sources_;
+  std::array<std::vector<uint8_t>, 16> factor_bc2_sources_;
+  std::array<std::vector<uint8_t>, 16> factor_bc3_sources_;
   uint8_t *factor_texture_ring_{nullptr};
   uint32_t factor_s3tc_source_checksum_{0};
   uint32_t factor_rgba8_source_checksum_{0};
+  uint32_t factor_bc2_source_checksum_{0};
+  uint32_t factor_bc3_source_checksum_{0};
+  uint32_t factor_bc2_native_source_checksum_{0};
+  uint32_t factor_bc3_native_source_checksum_{0};
   std::vector<uint8_t> cpu_memory_;
 
   void *loader_start_event_{nullptr};
@@ -184,6 +191,8 @@ class GameLoadCompositeTests : public TestSuite {
   std::array<uint32_t, Config::kGameLoadCompositeStageCount> long_scene_stage_warmups_{};
   uint32_t long_scene_gpu_precondition_alpha_draws_{0};
   uint32_t cross_title_stage_mask_{Config::kAllGameLoadCompositeCrossTitleStages};
+  uint32_t s3tc_sync_factor_stage_mask_{
+      Config::kAllGameLoadCompositeS3tcSyncFactorStages};
   bool cross_title_fast_smoke_{false};
 };
 
