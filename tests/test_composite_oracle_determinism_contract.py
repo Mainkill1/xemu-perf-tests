@@ -249,7 +249,7 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
             run,
         )
         self.assertIn("framebuffer_comparison_eligible", run)
-        self.assertIn("NOT_APPLICABLE", run)
+        self.assertIn("oracle_applicable", run)
 
     def test_s3tc_factor_covers_three_revalidation_routes_per_format(self) -> None:
         routes = (

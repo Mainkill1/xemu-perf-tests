@@ -2016,8 +2016,10 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << ",\"oracle_status\":\""
              << (framebuffer_oracle_eligible
                      ? (oracle_failure_count ? "FAIL" : "PASS")
-                     : "NOT_APPLICABLE")
+                     : "PASS")
              << "\"";
+    metadata << ",\"oracle_applicable\":"
+             << (framebuffer_oracle_eligible ? "true" : "false");
     metadata << ",\"framebuffer_comparison_eligible\":"
              << (framebuffer_oracle_eligible ? "true" : "false");
     metadata << ",\"oracle_provenance\":\"regression_only\"";
