@@ -19,6 +19,7 @@ struct MenuItem {
   virtual ~MenuItem() = default;
 
   static void SetBackgroundColor(uint32_t background_color);
+  static void SetBorderColor(uint32_t border_color);
 
   // Whether or not this menu item becomes the active drawable when activated.
   [[nodiscard]] virtual bool IsEnterable() const { return !submenu.empty(); }
@@ -66,6 +67,7 @@ struct MenuItem {
   std::string footer;
 
   static uint32_t menu_background_color_;
+  static uint32_t menu_border_color_;
 
   uint32_t cursor_position{0};
   std::vector<std::shared_ptr<MenuItem>> submenu{};

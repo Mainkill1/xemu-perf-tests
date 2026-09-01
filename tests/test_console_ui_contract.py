@@ -103,6 +103,12 @@ class ConsoleUiContractTests(unittest.TestCase):
         ):
             self.assertIn(token, self.menu_source)
 
+    def test_continuous_stress_mode_has_a_bright_red_border(self):
+        driver = (ROOT / "src/test_driver.cpp").read_text(encoding="utf-8")
+        self.assertIn("kStressMenuBorder = 0xFFFF3030", driver)
+        continuous = driver.split("case MenuItemTest::RunMode::CONTINUOUS:", 1)[1]
+        self.assertIn("SetBorderColor(kStressMenuBorder)", continuous)
+
     def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
         for token in (
             "SDL_CONTROLLERAXISMOTION",

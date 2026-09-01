@@ -128,6 +128,7 @@ void LaunchTimeSpirit() {
 #endif
 
 uint32_t MenuItem::menu_background_color_ = 0xFF3E003E;
+uint32_t MenuItem::menu_border_color_ = 0xFF58CF87;
 MenuItemTest::RunMode MenuItemTest::run_mode_ = RunMode::SINGLE_FRAME;
 
 void MenuItem::PrepareDraw(uint32_t background_color) const {
@@ -160,7 +161,7 @@ void MenuItem::Draw() {
   // Opaque overscan-safe instrument panel. The low-contrast frame remains
   // stable on 480i output and keeps debug-font text away from bright edges.
   pb_fill(16, 12, width - 32, height - 24, 0xFF0E2118);
-  pb_fill(16, 12, width - 32, 3, 0xFF58CF87);
+  pb_fill(16, 12, width - 32, 3, menu_border_color_);
 
   if (!header.empty()) {
     pb_print("%s\n", header.c_str());
@@ -333,6 +334,10 @@ void MenuItem::CursorDownAndActivate() {
 }
 
 void MenuItem::SetBackgroundColor(uint32_t background_color) { menu_background_color_ = background_color; }
+
+void MenuItem::SetBorderColor(uint32_t border_color) {
+  menu_border_color_ = border_color;
+}
 
 MenuItemInfo::MenuItemInfo(std::string name, std::vector<std::string> lines,
                            uint32_t width, uint32_t height,

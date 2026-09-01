@@ -20,6 +20,12 @@ static constexpr auto kButtonRepeatMilliseconds = 150;
 
 namespace {
 
+// Normal mode uses the project accent. Continuous mode is deliberately a
+// brighter red than its dark red background so the destructive-duration
+// stress behavior remains obvious on both CRT output and emulator captures.
+constexpr uint32_t kNormalMenuBorder = 0xFF58CF87;
+constexpr uint32_t kStressMenuBorder = 0xFFFF3030;
+
 // Xbox sticks use signed 16-bit values. Engaging at half travel rejects normal
 // center drift; releasing at quarter travel adds hysteresis so one held gesture
 // cannot chatter between active and inactive states.
@@ -185,10 +191,12 @@ void TestDriver::Run() {
     switch (MenuItemTest::GetRunMode()) {
       case MenuItemTest::RunMode::SINGLE_FRAME:
         active_menu_->SetBackgroundColor(0xFF07110D);
+        active_menu_->SetBorderColor(kNormalMenuBorder);
         break;
 
       case MenuItemTest::RunMode::CONTINUOUS:
         active_menu_->SetBackgroundColor(0xFF170A0A);
+        active_menu_->SetBorderColor(kStressMenuBorder);
         break;
     }
 
