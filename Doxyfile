@@ -668,8 +668,6 @@ HIDE_SCOPE_NAMES       = NO
 # YES the compound reference will be hidden.
 # The default value is: NO.
 
-HIDE_COMPOUND_REFERENCE= NO
-
 # If the SHOW_HEADERFILE tag is set to YES then the documentation for a class
 # will show which file needs to be included to use the class.
 # The default value is: YES.
@@ -777,8 +775,6 @@ GENERATE_BUGLIST       = YES
 # the deprecated list. This list is created by putting \deprecated commands in
 # the documentation.
 # The default value is: YES.
-
-GENERATE_DEPRECATEDLIST= YES
 
 # The ENABLED_SECTIONS tag can be used to enable conditional documentation
 # sections, marked by \if <section_label> ... \endif and \cond <section_label>
