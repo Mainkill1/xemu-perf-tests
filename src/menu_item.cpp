@@ -1238,13 +1238,14 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
            static_cast<unsigned long>(TestCatalogGroupCount()),
            static_cast<unsigned long>(TestCatalogLegacyAliasCount()));
   header = "xemu perf tests | " + active_plan;
+  root_header_ = header;
   footer = "A/Start select  B/Back exit  Black exit";
 
   auto run_suite = std::make_shared<MenuItem>("Run Suite", width, height);
   run_suite->SetHeader("Run full selection or one suite");
   run_suite->SetFooter("A open  X run highlighted suite  B return");
   run_suite->submenu.push_back(std::make_shared<MenuItemCallable>(
-      on_run_all, "Run full selection and exit", width, height));
+      on_run_all, "Run full selection", width, height));
   for (auto &suite : suites) {
     auto child = std::make_shared<MenuItemSuite>(suite, width, height);
     child->parent = run_suite.get();
@@ -1338,7 +1339,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
         name, width, height));
   };
   plans->submenu.push_back(std::make_shared<MenuItemCallable>(
-      on_run_all, "Active selection: run all and exit", width, height));
+      on_run_all, "Active selection: run all", width, height));
   add_plan("Quick smoke routes", {"busy_pfifo.pgraph_pattern_polling",
                                    "surface.cpu_read_clean_surface",
                                    "game_load.s3tc_sync_factor"});
@@ -1422,18 +1423,21 @@ void MenuItemRoot::Draw() {
       const uint32_t elapsed = GetTickCount() - start_tick;
 
       if (autorun_immediately_ || elapsed >= kAutoTestAllTimeoutMilliseconds) {
+        // Autorun is a one-shot boot action. If the suite returns to this
+        // menu, do not immediately start it again.
+        timer_cancelled = true;
         on_run_all();
         return;
       }
 
-      char run_all[128] = {0};
-      snprintf(run_all, sizeof(run_all),
-               "Run all and exit (automatic in %lu ms)",
+      char countdown[160] = {0};
+      snprintf(countdown, sizeof(countdown),
+               "%s | automatic run in %lu ms", root_header_.c_str(),
                static_cast<unsigned long>(kAutoTestAllTimeoutMilliseconds -
                                           elapsed));
-      submenu[0]->name = run_all;
+      header = countdown;
     } else {
-      submenu[0]->name = "Run all and exit";
+      header = root_header_;
     }
   }
 

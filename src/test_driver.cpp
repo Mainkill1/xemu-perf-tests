@@ -67,8 +67,9 @@ struct HeldStickDirection {
 TestDriver::TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSuite>> &test_suites,
                        uint32_t framebuffer_width, uint32_t framebuffer_height, bool show_options_menu,
                        bool disable_autorun, bool autorun_immediately,
+                       bool exit_after_run,
                        const std::string &output_directory)
-    : test_host_(host), test_suites_(test_suites) {
+    : test_host_(host), test_suites_(test_suites), exit_after_run_(exit_after_run) {
   auto on_run_all = [this]() { RunAllTestsNonInteractive(); };
   auto on_exit = [this]() { running_ = false; };
   auto on_run_catalog_route = [this](const TestDescriptor &descriptor) {
@@ -217,7 +218,11 @@ void TestDriver::RunAllTestsNonInteractive() {
     test_host_.ShowResultProgress("Suite teardown: " + suite->Name());
     suite->Deinitialize();
   }
-  running_ = false;
+  // Interactive/default boots return to the menu so results can be inspected.
+  // Unattended plans still leave the driver and reach configured shutdown.
+  if (exit_after_run_) {
+    running_ = false;
+  }
 }
 
 void TestDriver::RunCatalogRoute(const TestDescriptor &descriptor) {

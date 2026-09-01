@@ -26,7 +26,8 @@ class TestDriver {
  public:
   TestDriver(TestHost &host, const std::vector<std::shared_ptr<TestSuite>> &test_suites, uint32_t framebuffer_width,
              uint32_t framebuffer_height, bool show_options_menu, bool disable_autorun,
-             bool autorun_immediately, const std::string &output_directory);
+             bool autorun_immediately, bool exit_after_run,
+             const std::string &output_directory);
   ~TestDriver();
 
   //! Enters a loop that reacts to user input until the user requests an exit.
@@ -67,6 +68,7 @@ class TestDriver {
   std::shared_ptr<MenuItem> active_menu_;
   std::shared_ptr<MenuItem> root_menu_;
   std::shared_ptr<MenuItem> options_menu_;
+  bool exit_after_run_{false};
 };
 
 #endif  // XEMU_PERF_TESTS_TEST_DRIVER_H

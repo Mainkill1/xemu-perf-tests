@@ -258,6 +258,7 @@ struct MenuItemRoot : public MenuItem {
  private:
   bool disable_autorun_;
   bool autorun_immediately_;
+  std::string root_header_;
 };
 
 struct MenuItemOptions : public MenuItem {

@@ -217,6 +217,7 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
 
   TestDriver driver(host, test_suites, kFramebufferWidth, kFramebufferHeight, false, config.disable_autorun(),
                     config.enable_autorun_immediately(),
+                    config.enable_shutdown_on_completion(),
                     config.output_directory_path());
 
   Logger::Log() << "[" << std::endl;
