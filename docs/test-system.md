@@ -43,17 +43,16 @@ and both pass correctness.
 | ENG458 | Historical | Twelve texture lifetime, S3TC/BC, fallback, and dirty-revalidation routes |
 | ENG459 | Integrated | Stable catalog IDs, explicit resolved plans, exact leaf completion, structural groups |
 | ENG462 | Canonical | 141-record image, console UI/progress, soft failures, three new workload families, strict hash tool |
-| ENG467 | Current | Results inspector, graphs/reference, device information, Time Spirit combined image |
+| ENG467 | Historical | Results inspector, graphs/reference, and device information |
+| ENG473 | Current | State-isolated progress UI, honest texture-oracle eligibility, stress-mode border, final A/B validation |
 
-Current image: `xemu-perf-tests-eng467-time-spirit-2a65eba.iso`, SHA-256
-`3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c`,
-source `2a65ebabcd030d3b14204c923fadfcf50a34a3ee`. It passed 113/113 source
-contracts, release-XISO build, 19/19 combined payload hashes, production root
-menu boot, and validation-autolaunch copy/boot. See the
-[release contract](../releases/eng467-time-spirit-v7.json). The final
-141-record A/B used the wider pull-#10-plus-ENG-465 candidate; the PR #2-#9
-public binary remains a narrower package and does not inherit that aggregate
-performance claim.
+Current image: `xemu-perf-tests-eng473-final-1f5fb0d.iso`, SHA-256
+`04251d83f66afecb74fff19a8efcc4b6587fc17e8202e0f2031df65d4da54a55`,
+source `1f5fb0db59a68c55cbd4a3751d2540bca433b6c6`. It passed 117/117 source
+contracts and the complete 141-record suite on both baseline and PR #2-#9.
+The cross-build comparison checked 245 eligible hashes with zero mismatches,
+missing records, or extras. See the
+[release contract](../releases/eng473-final-v1.json).
 The current final A/B evidence is appended in `releases/`; earlier incomplete runs
 remain historical evidence and are not silently rewritten.
 
@@ -102,15 +101,8 @@ last child's timing.
 
 ### On-console menu and retained results
 
-The XISO root menu contains Run Suite, Individual Tests, Results, System
-Information, Plans, Settings, Time Spirit, and About/Controls. `Time Spirit`
-copies `D:\time_spirit` to `E:\xemu_perf_tests\time_spirit` and launches its
-`default.xbe` when the approved source image was included at build time. The
-image is unpacked into the same output XISO rather than mounted as a nested
-disc. E: staging is deliberate: Xbox quick reboot rejects a secondary XBE on
-the active DVD with service error 21, while dashboard-style E: launch works.
-Its configured SHA-256 is checked before build
-so the menu cannot silently target a different payload. `Results` discovers the active result
+The XISO test workflow contains Run Suite, Individual Tests, Results, System
+Information, Plans, Settings, and About/Controls. `Results` discovers the active result
 and every timestamp-named file under `E:\xemu_perf_tests\history`. Opening a
 run shows complete/partial state, file size, leaf/group/pass/failure/no-oracle
 counts, a failure-only filter, and one detail page per emitted record. New

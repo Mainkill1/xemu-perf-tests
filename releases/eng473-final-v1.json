@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "release": "ENG473 final test XISO v1",
+  "image": {
+    "name": "xemu-perf-tests-eng473-final-1f5fb0d.iso",
+    "source_commit": "1f5fb0db59a68c55cbd4a3751d2540bca433b6c6",
+    "sha256": "04251d83f66afecb74fff19a8efcc4b6587fc17e8202e0f2031df65d4da54a55",
+    "size_bytes": 42663936,
+    "catalog_leaf_tests": 136,
+    "structural_groups": 5,
+    "full_suite_records": 141
+  },
+  "validation": {
+    "backend": "opengl",
+    "scale": 1,
+    "completion_mode": "per_iteration",
+    "source_contract_tests": "117/117 PASS",
+    "baseline_records": "141/141 PASS",
+    "candidate_records": "141/141 PASS",
+    "eligible_hashes": "245/245 MATCH",
+    "hash_mismatches": 0,
+    "missing_records": 0,
+    "extra_records": 0,
+    "host_failures": 0
+  },
+  "baseline": {
+    "xemu_sha256": "2383e04aac8f8378da1a9a8e44a6548cf7ac2791b921387da6509139607da736",
+    "result_sha256": "2201c1706280ee7856a942d16885f98daa3fd30864fe1d2fa1e8c96adf32bba9",
+    "windows_run": "C:\\xemu-lab\\runs\\suite\\2026-08-31-181728-perf-full-suite-unknown"
+  },
+  "candidate": {
+    "xemu_source_commit": "bc8bef11ccc3adb313cdf0a884561d24418558d2",
+    "forgejo_pull_range": "2-9",
+    "xemu_sha256": "8656f9d3aa40cb0410696692f6eea4859c562890e4e3c3acc18ab88a752d2b10",
+    "result_sha256": "5d1a84ada1dbc607bccfaee5533ef5025615991faf6fe2f9c48a096f33b09e31",
+    "windows_run": "C:\\xemu-lab\\runs\\suite\\2026-08-31-181418-perf-full-suite-unknown"
+  },
+  "oracle_contract": {
+    "unsynchronized_same_address_framebuffers": "observation-only",
+    "reason": "Overwriting actively queued unified texture memory has no defined per-draw source generation.",
+    "strict_routes": "synchronized same-address and distinct-address ring",
+    "work_and_result_hashes": "required for every route"
+  }
+}

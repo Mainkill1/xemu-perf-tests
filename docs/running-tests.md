@@ -49,7 +49,7 @@ Run the complete current selection from Windows Command Prompt:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --full-suite ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
   --backend vulkan --scale 1 ^
   --completion-mode per_iteration --expected-record-count 141
 ```
@@ -76,7 +76,7 @@ Reduce an S3TC failure to its exact grouped route:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --test-id GameLoadComposite::10-S3tcSyncFactor ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
   --backend vulkan --scale 1 --completion-mode per_iteration ^
   --expected-record-count 13 --vulkan-validation
 ```
@@ -136,8 +136,8 @@ before attributing an old selection to a new XISO.
 Boot the verified XISO through the owner's legal disc/dashboard workflow. The
 primary output is functional evidence; host timing needs a separate contract.
 
-Root entries are `Run Suite`, `Individual Tests`, `Results`, `System
-Information`, `Plans`, `Settings`, `Time Spirit`, and `About/Controls`.
+The test workflow uses `Run Suite`, `Individual Tests`, `Results`, `System
+Information`, `Plans`, `Settings`, and `About/Controls`.
 D-pad/left stick moves; A/Start selects; B/Back returns; Left/Right moves half a
 page; X and Y perform the labeled suite/result actions; Black exits.
 

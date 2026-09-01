@@ -18,19 +18,19 @@ prevent a faster result from silently hiding changed output.
 
 ## Current package
 
-Use `xemu-perf-tests-eng467-time-spirit-2a65eba.iso`.
+Use `xemu-perf-tests-eng473-final-1f5fb0d.iso`.
 
 | Identity | Value |
 | --- | --- |
-| XISO SHA-256 | `3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c` |
-| Guest source | `2a65ebabcd030d3b14204c923fadfcf50a34a3ee` |
+| XISO SHA-256 | `04251d83f66afecb74fff19a8efcc4b6587fc17e8202e0f2031df65d4da54a55` |
+| Guest source | `1f5fb0db59a68c55cbd4a3751d2540bca433b6c6` |
 | Catalog | 136 executable leaves + 5 structural groups = 141 full-suite records |
-| Release contract | [`releases/eng467-time-spirit-v7.json`](releases/eng467-time-spirit-v7.json) |
+| Release contract | [`releases/eng473-final-v1.json`](releases/eng473-final-v1.json) |
 
 Download published artifacts from the
 [`xemu-perf-tests` releases](http://10.0.4.4:3000/main/xemu-perf-tests/releases)
 and verify the digest. Source is Forgejo commit
-[`2a65ebabcd03`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/2a65ebabcd030d3b14204c923fadfcf50a34a3ee).
+[`1f5fb0db59a6`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/1f5fb0db59a68c55cbd4a3751d2540bca433b6c6).
 
 ## System flow
 
@@ -65,7 +65,7 @@ process. This exact command selects every current guest test:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --full-suite ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
   --backend vulkan --scale 1 ^
   --completion-mode per_iteration --expected-record-count 141
 ```
@@ -144,7 +144,29 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 - [Machine-readable catalog](resources/catalog.json)
 - [Resolved smoke-plan example](resources/plans/smoke.json)
 
-### Latest complete suite result
+### ENG473 final suite validation
+
+The exact current XISO completed the 141-record OpenGL 1x full suite on the
+dedicated Windows rig with both the upstream baseline and PR #2-#9 release
+build. Both runs returned `PASSED` with no assertion, crash, hang, or device
+loss.
+
+| Check | Result |
+| --- | ---: |
+| Baseline records | 141/141 |
+| PR #2-#9 records | 141/141 |
+| Comparable framebuffer/work/result hashes | 245/245 match |
+| Hash mismatches | 0 |
+| Missing or extra records | 0 |
+
+Two same-address queued-texture framebuffer observations are excluded from
+pixel comparison because the guest overwrites unified texture memory without a
+GPU synchronization boundary. Their work and result hashes remain mandatory.
+Synchronized same-address and distinct-address ring routes remain strict pixel
+oracles. Exact identities and run paths are in
+[`releases/eng473-final-v1.json`](releases/eng473-final-v1.json).
+
+### Prior complete performance campaign
 
 The final compatible campaign exercised this 141-record workload contract
 against upstream `d73326b6` and candidate `2ae71e6c` (published equivalent tree
@@ -198,8 +220,8 @@ Individual tests may be executed via the menu.
 Booting the XISO opens a controller-driven interface before autorun. Any
 controller input cancels the three-second autorun countdown.
 
-The root screen identifies the catalog and active selection. It has eight
-stable entries:
+The root screen identifies the catalog and active selection. The test workflow
+uses these public entries:
 
 1. `Run Suite`: run the full selection or open one suite and run its tests.
 2. `Individual Tests`: browse stable IDs by subsystem, inspect contracts, and
@@ -211,27 +233,8 @@ stable entries:
 5. `Plans`: run the full selection, quick smoke, S3TC/BC, or Vulkan-memory
    plans.
 6. `Settings`: select single-run/result-saving or continuous/no-save behavior.
-7. `Time Spirit`: launch the copy bundled into this same XISO. The published
-   combined disc verifies the supplied source image by SHA-256 before packing
-   it under `D:\time_spirit`.
-8. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
+7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
-
-The source repository does not silently redistribute an arbitrary nested ISO.
-To produce the combined disc, configure with:
-
-```text
--DTIME_SPIRIT_XISO=/path/to/TimeSpirit.iso
-```
-
-Configuration fails unless its SHA-256 is
-`833207d56200e577e79da13ce229c4f240c6f3c05b3e966dd2e2fe5fe11f2c31`.
-The build extracts it into the single output XISO. Selecting `Time Spirit`
-copies that payload to `E:\xemu_perf_tests\time_spirit`, then quick-reboots
-into its `default.xbe`. The E: staging step is required because the Xbox quick
-launcher rejects a secondary XBE on the active DVD with service error 21.
-`-DTIME_SPIRIT_AUTOLAUNCH=ON` is a validation-only build option that performs
-that copy and handoff immediately; published interactive images leave it off.
 
 The full unfiltered image exposes 136 leaf tests, five structural groups, and
 141 exact legacy aliases. A catalog stage belonging to a grouped execution
