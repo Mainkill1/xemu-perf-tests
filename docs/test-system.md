@@ -218,7 +218,7 @@ E:\xemu_perf_tests\results.txt
 ```
 
 The internal lab runner reformats only its dedicated disposable
-`C:\xemu-lab\suite\work\test.img` for each run; FATX history does not persist.
+the dedicated disposable FATX image for each run; guest history does not persist.
 A public-safe runner must create a new per-run image and refuse any existing or
 user-provided HDD. The host runner must preserve the extracted file
 byte-for-byte and record the injected config, xemu binary identity, XISO
@@ -247,10 +247,9 @@ mode was constructing four large continuous-mode geometry sets its tests never
 selected. Saved mode now constructs only `single_frame_geometry_`; interactive
 continuous mode retains the large sets.
 
-Local run
-`C:\xemu-lab\runs\suite\2026-08-30-203104-perf-full-suite-unknown`
-completed 141/141 records on OpenGL 1x. Zero warmups and work multiplier one
-made this a lifecycle/correctness diagnostic, not performance evidence.
+A complete OpenGL 1x lifecycle validation produced 141/141 records. Zero
+warmups and work multiplier one make such a run lifecycle/correctness evidence,
+not performance evidence.
 
 For performance, use the same resolved work for both builds. Short operations
 must be batched into seconds-long samples; use warmups and repeated interleaved

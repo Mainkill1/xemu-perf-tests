@@ -64,57 +64,13 @@ jobs:
         run: cmake -S . -B build -DDOCS_ONLY=on && cmake --build build --verbose -- doc
       - name: Generate xemu_perf_tests_registry
         run: python3 .github/scripts/summarize_test_suites.py xml
-      - name: Create 'pages_doxygen' branch
-        run: |
-          git fetch origin --no-recurse-submodules
-          git checkout main
-          git pull
-          git checkout pages_doxygen || git checkout -b pages_doxygen
-          git rebase main
-      - name: Add and commit documentation changes
-        if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-        run: |
-          git add docs/*
-          git add xml/*
-          git config --local user.email "$GITHUB_ACTOR+github-actions@users.noreply.github.com"
-          git config --local user.name "$GITHUB_ACTOR via action"
-          git commit -m "Update Doxygen documentation" || echo "No changes to commit"
-          git push --set-upstream origin pages_doxygen -f
-
-  CreateRelease:
-    needs: [ BuildISO ]
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-    runs-on: ubuntu-latest
-    steps:
-      - name: Clone tree
-        uses: actions/checkout@v6
-
-      - name: Calculate version
-        id: calculate-version
-        run: |
-          echo "version=$(date +'%Y-%m-%d_%H-%M-%S-%N')" >> $GITHUB_OUTPUT
-
-      - name: Create tag
-        id: tag_version
-        uses: mathieudutour/github-tag-action@v6.2
+      - name: Upload generated documentation
+        uses: actions/upload-artifact@v7
         with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          custom_tag: ${{ steps.calculate-version.outputs.version }}
-
-      - uses: actions/download-artifact@v8
-        with:
-          name: xemu_perf_tests_xiso
-          path: .
-
-      - name: Create release
-        uses: softprops/action-gh-release@v3.0.0
-        with:
-          tag_name: ${{ steps.tag_version.outputs.new_tag }}
-          name: "xemu performance tests ${{ steps.tag_version.outputs.new_version }}"
-          prerelease: false
-          draft: false
-          files: |
-            xemu-perf-tests_xiso.iso
+          name: xemu_perf_tests_docs
+          path: |
+            docs/
+            xml/
 
   BuildMacOS:
     name: Build macOS
