@@ -78,6 +78,9 @@ performance proof for the narrower PR #2-#9 publication build.
 6. Extract `E:\xemu_perf_tests\results.txt` from the test HDD. Never edit or
    reformat it.
 
+The XISO never formats this manual HDD. It manages only
+`E:\xemu_perf_tests`, archiving the current result there before the next run.
+
 During a full-suite run, the screen initially names the running stage. Later
 stages leave the last completed result visible and update an outlined `RUNNING:`
 footer. Long composite stages may take minutes; the footer and host heartbeat
@@ -229,6 +232,10 @@ The runner writes its config to FATX
 `<run>\results.txt` beside `normalized-results.json`, `guest-config.json`,
 `xemu.log`, and validation evidence. For a manual launcher, use the same FATX
 paths and copy `results.txt` back without reformatting it.
+The internal lab runner reformats only its dedicated disposable
+`C:\xemu-lab\suite\work\test.img` each run, so its FATX history is temporary;
+the host run directory is the retained record. Public automation must create a
+new per-run disposable image and refuse any pre-existing or user-provided HDD.
 
 A missing/extra record means a truncated run or wrong mask. A source KAT
 mismatch means wrong/corrupt guest input; a work or result checksum mismatch
@@ -307,10 +314,12 @@ E:\xemu_perf_tests\resolved-plan-result.json  (resolved plans only)
 E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS[-N].txt
 ```
 
-At startup, an existing `results.txt` is moved into `history` before a new log
-is opened. Files are never pruned by the XISO: retention is an explicit storage
-decision and benchmark evidence is not silently discarded. If preservation
-fails, the new run is refused instead of overwriting the old result.
+On a persistent manual/physical-Xbox HDD, an existing `results.txt` is moved
+into `history` before a new log opens. Files are never pruned by the XISO:
+retention is an explicit storage decision and benchmark evidence is not
+silently discarded. If preservation fails, the new run is refused instead of
+overwriting the old result. Automated disposable images do not provide
+persistent FATX history.
 `-N` disambiguates archives created in the same clock second.
 
 The UI reports execution/oracle status. A framebuffer hash from xemu is still

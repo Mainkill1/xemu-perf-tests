@@ -33,8 +33,15 @@ Preflight:
 2. Verify XISO SHA-256 against the landing page or release manifest.
 3. Close every other xemu process.
 4. Fix renderer, scale, VSync, Xbox RAM, completion mode, and XISO.
-5. Preserve any existing FATX result before the run.
+5. Confirm the internal lab target is its dedicated disposable
+   `C:\xemu-lab\suite\work\test.img`, never a game or user-provided HDD.
 6. For A/B, calibrate work on baseline only; reuse that multiplier unchanged.
+
+The current internal runner reformats that dedicated `work\test.img` before
+every run. Guest `history` therefore does not persist between automated runs;
+the extracted host run directory is the durable evidence. A public-safe runner
+must instead create a new per-run disposable image at a new path and refuse any
+pre-existing image. It must not accept, reuse, or format a user-provided HDD.
 
 Run the complete current selection from Windows Command Prompt:
 
@@ -106,6 +113,10 @@ path improved, fixed-work ratio, environment, and correctness status.
 7. Close xemu only after the result closes. Copy it from the test HDD without
    reformatting.
 
+The XISO does not format the manual HDD. It creates and manages only its
+configured output directory, `E:\xemu_perf_tests` by default. Existing current
+results are archived there before a new manual run.
+
 For unattended use, set `reboot_or_shutdown_delay` to `0` and enable shutdown.
 For a person reading the display, use at least `30000` milliseconds. The
 [sample config](../resources/sample-config.json) uses a 30-second hold.
@@ -146,7 +157,9 @@ gate.
 
 ## Result locations and safe copy
 
-With the default `output_directory_path`, the guest writes:
+### Manual or physical Xbox
+
+With a persistent HDD and the default `output_directory_path`, the guest writes:
 
 ```text
 E:\xemu_perf_tests\results.txt
@@ -160,6 +173,13 @@ fails, it refuses the new run instead of overwriting evidence.
 `-N` is added only when multiple archives would otherwise have the same name.
 Changing `output_directory_path` relocates current, plan, and history output
 together; it does not relocate the read-only D: reference.
+
+### Automated xemu
+
+The same FATX paths exist only inside that run's disposable image. The current
+lab runner extracts `results.txt` into the timestamped host run directory, then
+reformats its dedicated image for the next run. Do not expect FATX `history` to
+survive. Preserve and compare the host run directories.
 
 Safe copy:
 

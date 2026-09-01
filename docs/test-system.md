@@ -25,7 +25,8 @@ host selects stable leaf IDs
             v
  E:\xemu_perf_tests\results.txt
             |
-next boot archives prior file under E:\xemu_perf_tests\history
+manual persistent HDD: next boot archives prior file under history
+automated disposable HDD: host extracts result; next run uses fresh storage
             |
 host extracts the byte-exact result and compares A/B runs
 ```
@@ -134,10 +135,13 @@ show Y-axis duration/count values, X-axis sample/value labels, and the selected
 bucket's sample range or selected bin's value range and count. No graph memory
 or drawing is active during a benchmark.
 
-Before a new result log opens, the existing `results.txt` is moved into
-`history`. The guest applies no unexplained file-count or byte cap. It also
-refuses to start if the old result cannot be preserved. Cleanup remains a
-deliberate operator action after evidence is extracted.
+On a persistent manual/physical-Xbox HDD, before a new result log opens the
+existing `results.txt` is moved into `history`. The XISO never formats the HDD
+and manages only its configured output directory. It applies no unexplained
+file-count or byte cap and refuses to start if the old result cannot be
+preserved. Cleanup remains a deliberate operator action after evidence is
+extracted. Automated runs use disposable FATX storage, so host-side extracted
+run directories—not guest history—are their durable record.
 
 `System Information` polls only guest-visible facts: CPUID vendor/signature,
 performance-timer frequency reported by nxdk, logical CPU count, memory-manager totals,
@@ -221,9 +225,13 @@ The first existing path wins. Results are written to:
 E:\xemu_perf_tests\results.txt
 ```
 
-The host runner must preserve this file byte-for-byte and record the injected
-config, xemu binary identity, XISO identity, backend, scale, completion policy,
-logs, validation messages, and normalized view. A missing final record,
+The internal lab runner reformats only its dedicated disposable
+`C:\xemu-lab\suite\work\test.img` for each run; FATX history does not persist.
+A public-safe runner must create a new per-run image and refuse any existing or
+user-provided HDD. The host runner must preserve the extracted file
+byte-for-byte and record the injected config, xemu binary identity, XISO
+identity, backend, scale, completion policy, logs, validation messages, and
+normalized view. A missing final record,
 unexpected record count, assertion, crash, hang, device loss, new VUID, or
 oracle failure invalidates the run.
 
