@@ -55,6 +55,10 @@ void TestSuite::Run(const std::string& test_name, uint32_t frame_count) {
     host_.PreTest();
   }
 
+  // Draw progress before the test configures NV2A. ShowResultProgress uses the
+  // normal render path once a prior result exists, so calling it from Profile
+  // would replace workload state between setup and measured execution.
+  host_.ShowResultProgress("Test: " + suite_name_ + "::" + test_name);
   BeginXemuPerfTest();
   SetupTest();
   it->second();
@@ -304,12 +308,6 @@ TestHost::ProfileResults TestSuite::Profile(const std::string& test_name, uint32
   auto run_times = std::make_unique<uint32_t[]>(sample_count);
 
   const auto warmup_iterations = host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
-  char running_activity[384] = {};
-  snprintf(running_activity, sizeof(running_activity),
-           "Test: %s::%s (warmup %lu, samples %lu, work %lu)",
-           suite_name_.c_str(), test_name.c_str(), warmup_iterations,
-           sample_count, measurement_iterations_multiplier);
-  host_.ShowResultProgress(running_activity);
   PrintMsg("TEST_BEGIN %s::%s\n", suite_name_.c_str(), test_name.c_str());
   if (warmup_iterations) {
     PrintMsg("WARMUP_BEGIN %s::%s iterations=%lu\n", suite_name_.c_str(), test_name.c_str(), warmup_iterations);
