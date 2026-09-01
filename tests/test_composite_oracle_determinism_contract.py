@@ -243,6 +243,13 @@ class CompositeOracleDeterminismContractTests(unittest.TestCase):
             run.index("ValidateS3tcSyncFactorFramebuffer("),
             run.index("host_.RecordProfileResult"),
         )
+        self.assertIn(
+            "const bool framebuffer_oracle_eligible =\n"
+            "        !definition.queued_same_address;",
+            run,
+        )
+        self.assertIn("framebuffer_comparison_eligible", run)
+        self.assertIn("NOT_APPLICABLE", run)
 
     def test_s3tc_factor_covers_three_revalidation_routes_per_format(self) -> None:
         routes = (

@@ -148,6 +148,29 @@ class HashCompareTests(unittest.TestCase):
         self.assertEqual(comparison["missing_records"], ["test.b"])
         self.assertEqual(comparison["extra_records"], ["test.c"])
 
+    def test_explicitly_ineligible_framebuffer_is_not_compared(self):
+        metadata = {
+            "framebuffer_comparison_eligible": False,
+            "work_checksum": "12",
+            "result_checksum": "34",
+        }
+        baseline = self.write("baseline.json", [{
+            "name": "test.queued", "framebuffer_fnv1a64": "aa",
+            "metadata": metadata,
+        }])
+        candidate = self.write("candidate.json", [{
+            "name": "test.queued", "framebuffer_fnv1a64": "bb",
+            "metadata": metadata,
+        }])
+
+        comparison = self.module.compare_runs(baseline, [candidate])["comparisons"][0]
+
+        self.assertEqual(comparison["verdict"], "PASS")
+        self.assertEqual(comparison["checked_hashes"], 2)
+        self.assertEqual(comparison["mismatched_hashes"], 0)
+        self.assertFalse(
+            comparison["records"][0]["hashes"]["framebuffer"]["checked"])
+
 
 if __name__ == "__main__":
     unittest.main()

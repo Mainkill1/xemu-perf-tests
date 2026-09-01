@@ -44,6 +44,14 @@ def _hash(record: dict[str, Any], field: str) -> str | None:
     return normalized or None
 
 
+def _hash_eligible(record: dict[str, Any] | None, label: str) -> bool:
+    if record is None:
+        return False
+    if label != "framebuffer":
+        return True
+    return _load_metadata(record).get("framebuffer_comparison_eligible", True) is not False
+
+
 def _record_id(record: dict[str, Any]) -> str:
     # Legacy summaries do not have stable IDs. Prefer the display name so a
     # summary can still be compared with its normalized-results counterpart.
@@ -118,7 +126,9 @@ def compare_runs(baseline_path: str | Path,
             for label, field in HASH_FIELDS:
                 expected = _hash(base_record, field) if base_record else None
                 actual = _hash(run_record, field) if run_record else None
-                eligible = expected is not None
+                eligible = expected is not None and _hash_eligible(base_record, label)
+                if eligible and not _hash_eligible(run_record, label):
+                    actual = None
                 match = (actual == expected) if eligible else None
                 if eligible:
                     checked += 1

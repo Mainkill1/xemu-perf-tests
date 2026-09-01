@@ -1902,10 +1902,16 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
                            });
 
     // This correctness-only readback is outside Profile. It is a regression
-    // oracle, not yet a hardware oracle. Record mismatches without halting so
-    // upstream compatibility runs retain this failure and finish the suite.
+    // oracle, not yet a hardware oracle. Eligible mismatches are recorded
+    // without halting so compatibility runs finish the suite.
     uint32_t oracle_failure_count = 0;
     uint64_t oracle_failure_mask = 0;
+    // Reusing one unified-memory address without waiting leaves the source
+    // generation consumed by each queued draw undefined. Keep those cells as
+    // performance/stress observations, while synchronized and ring-address
+    // cells remain strict framebuffer correctness oracles.
+    const bool framebuffer_oracle_eligible =
+        !definition.queued_same_address;
     const bool compressed =
         definition.format != NV097_SET_TEXTURE_FORMAT_COLOR_SZ_A8B8G8R8;
     const uint32_t tile_center_kat = ValidateS3tcSyncFactorFramebuffer(
@@ -2008,14 +2014,24 @@ void GameLoadCompositeTests::RunS3tcSyncFactor() {
     metadata << ",\"tile_center_kat\":\"" << tile_center_kat_string
              << "\"";
     metadata << ",\"oracle_status\":\""
-             << (oracle_failure_count ? "FAIL" : "PASS") << "\"";
+             << (framebuffer_oracle_eligible
+                     ? (oracle_failure_count ? "FAIL" : "PASS")
+                     : "NOT_APPLICABLE")
+             << "\"";
+    metadata << ",\"framebuffer_comparison_eligible\":"
+             << (framebuffer_oracle_eligible ? "true" : "false");
     metadata << ",\"oracle_provenance\":\"regression_only\"";
     metadata << ",\"oracle_failure_count\":" << oracle_failure_count;
     metadata << ",\"oracle_failure_mask\":\""
              << oracle_failure_mask_string << "\"";
     metadata << ",\"oracle_compatibility_key\":\""
              << "s3tc-factor-source-precision-v1\"";
-    if (oracle_failure_count) {
+    if (!framebuffer_oracle_eligible) {
+      metadata
+          << ",\"framebuffer_comparison_reason\":\""
+          << "unsynchronized same-address writes have no defined per-draw "
+             "source generation\"";
+    } else if (oracle_failure_count) {
       metadata << ",\"oracle_failure_reason\":\""
                << "source-precision tile readback mismatch\"";
     }
