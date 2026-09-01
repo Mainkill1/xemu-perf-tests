@@ -1,254 +1,195 @@
 xemu-perf-tests
 ====
 
-Deterministic Xbox workloads for finding xemu correctness and performance changes.
-Tests use fixed work plus checksums, known-answer values, and framebuffer hashes so
-a faster result cannot silently hide changed output.
+Deterministic Xbox workloads for finding xemu correctness and performance
+changes. Fixed work, checksums, known-answer values, and framebuffer hashes
+prevent a faster result from silently hiding changed output.
 
-Failure lookup: [`docs/generated/test-failure-guide.md`](docs/generated/test-failure-guide.md)
-lists every stable test ID, what subsystem most likely failed, and the first code
-paths or state transitions to inspect. It is generated with the catalog so missing
-or renamed tests fail repository validation.
+## Choose your goal
 
-Operator guide: [`docs/running-tests.md`](docs/running-tests.md) gives the exact
-xemu automation, manual emulator, physical Xbox, result-copy, hash/oracle, and
-failure-recovery workflows.
+| Goal | Start here |
+| --- | --- |
+| Run the full XISO in xemu | [Automated xemu run](#automated-xemu-run) |
+| Run from the on-disc Xbox menu | [Operator guide](docs/running-tests.md#manual-xemu) |
+| Collect physical-Xbox evidence | [Physical Xbox workflow](docs/running-tests.md#physical-xbox) |
+| Compare output hashes | [A/B correctness](#ab-correctness) |
+| Understand or extend a test | [Generated catalog](docs/generated/test-catalog.md) and [adding tests](docs/adding-tests.md) |
+| Diagnose a failed stable ID | [Generated failure guide](docs/generated/test-failure-guide.md) |
 
-## Current release
+## Current package
 
 Use `xemu-perf-tests-eng467-time-spirit-2a65eba.iso`.
 
-```text
-XISO SHA-256: 3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c
-Guest source: 2a65ebabcd030d3b14204c923fadfcf50a34a3ee
-Catalog: 136 executable leaves + 5 structural groups = 141 full-suite records
-```
+| Identity | Value |
+| --- | --- |
+| XISO SHA-256 | `3c1f79496db67fa54eaec9c26c7e80182dd863d3e6a287b62fd1686e48ca590c` |
+| Guest source | `2a65ebabcd030d3b14204c923fadfcf50a34a3ee` |
+| Catalog | 136 executable leaves + 5 structural groups = 141 full-suite records |
+| Release contract | [`releases/eng467-time-spirit-v7.json`](releases/eng467-time-spirit-v7.json) |
 
-The authoritative image contract is
-[`releases/eng467-time-spirit-v7.json`](releases/eng467-time-spirit-v7.json).
-Its source is Forgejo commit
-[`2a65ebabcd03`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/2a65ebabcd030d3b14204c923fadfcf50a34a3ee).
 Download published artifacts from the
 [`xemu-perf-tests` releases](http://10.0.4.4:3000/main/xemu-perf-tests/releases)
-and verify this digest before use.
+and verify the digest. Source is Forgejo commit
+[`2a65ebabcd03`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/2a65ebabcd030d3b14204c923fadfcf50a34a3ee).
 
-The matching xemu release and diagnostic executables are published in the
-[`xemu-pr-train` releases](http://10.0.4.4:3000/main/xemu-pr-train/releases).
-The public executable contains Forgejo pull requests #2 through #9. The diagnostic
-executable is built from the same source with assertions, symbols, QOM cast checks,
-and log tracing enabled. Do not use the diagnostic binary for performance numbers.
-Exact source, binary, XISO, and validation identities are recorded in
-[`releases/eng466-publication-v1.json`](releases/eng466-publication-v1.json).
+## System flow
+
+```text
+catalog + fixed workload + selected plan
+                  |
+                  v
+             Xbox XISO
+          /                 \
+manual persistent HDD       automated disposable HDD
+E:\xemu_perf_tests          C:\xemu-lab\suite\work\test.img
+archives current result     reformatted before each internal run
+          |                          |
+          v                          v
+byte-exact results/history   timestamped host run directory
+                             byte-exact + normalized evidence
+          \                          /
+           +-- correctness, then timing --+
+```
+
+The XISO never formats a manual HDD. It manages only its configured output
+directory. The internal lab runner formats only its dedicated disposable
+`work\test.img`; its FATX history is temporary. Public-safe automation must
+create a new per-run image and refuse every existing or user-provided HDD.
+
+## Automated xemu run
+
+The verified lab runner is `C:\xemu-lab\suite\run-suite.py`. Run one xemu
+process. This exact command selects every current guest test:
+
+```bat
+C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
+  --mode perf --full-suite ^
+  --xemu C:\path\to\xemu.exe ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng467-time-spirit-2a65eba.iso ^
+  --backend vulkan --scale 1 ^
+  --completion-mode per_iteration --expected-record-count 141
+```
+
+Use `--backend opengl` for OpenGL. Add `--vulkan-validation` only to a Vulkan
+correctness run; diagnostic/validation timing is not performance evidence.
+Unmodified upstream xemu without lab live markers may add
+`--allow-missing-live-markers --host-telemetry off`. That waives timing
+attribution only; record count, checks, hashes, and validation remain required.
+
+## Retrieve results
+
+Manual/physical-Xbox results use the persistent HDD:
+
+```text
+E:\xemu_perf_tests\results.txt
+E:\xemu_perf_tests\resolved-plan-result.json
+E:\xemu_perf_tests\history\results-YYYYMMDD-HHMMSS[-N].txt
+```
+
+Automation extracts the temporary FATX result into its timestamped host run
+directory. That host directory—not `work\test.img`—is the retained record. It
+contains byte-exact `results.txt`, `guest-config.json`,
+`normalized-results.json`, xemu/XISO identity, xemu log, backend, scale,
+completion mode, host identity, and available validation evidence. Copy; never
+edit or re-save `results.txt`. Detailed safe-copy rules are in the
+[operator guide](docs/running-tests.md#result-locations-and-safe-copy).
+
+## Read the verdict
+
+| Verdict | Meaning |
+| --- | --- |
+| PASS | Required records closed and checks passed |
+| FAIL | At least one required check or soft assertion failed |
+| PARTIAL | Only closed records recovered; never qualification evidence |
+| Crash/assert/device loss/hang | Incomplete emulator or infrastructure run |
+| Missing oracle | Execution may be valid; correctness remains unverified |
+
+A soft failure may continue to later tests, but its leaf and final run remain
+FAIL. A group reports child completion, never independent timing. A prior xemu
+framebuffer hash is a regression oracle, not retail-Xbox truth.
+
+## A/B correctness
+
+Use one XISO, config, renderer, scale, completion policy, seed, and fixed-work
+multiplier. Calibrate work on baseline only. Alternate process order and retain
+every raw result.
+
+```text
+python utils/hash_compare.py BASELINE_RUN CANDIDATE_RUN --json-out comparison.json
+```
+
+`1` means match, `0` mismatch, and `-` no baseline oracle. Missing/extra
+records, zero eligible checks, or any mismatch return nonzero. Timing is usable
+only after correctness passes. Batch tiny work into seconds-long samples; never
+compare nanosecond-scale noise or separately calibrated candidate work.
+
+## Troubleshooting
+
+| Symptom | First action |
+| --- | --- |
+| Wrong tests run | Remove stale `E:\xemu_perf_tests\xemu_perf_tests_config.json`; E: overrides D: |
+| Apparent hang | Record the final `RUNNING:` footer and host heartbeat before terminating |
+| Soft red failure | Preserve result; releasing A advances but does not convert it to PASS |
+| Missing/extra record | Check XISO identity, selection, expected count, and last closed record |
+| Hash/KAT mismatch | Look up the stable ID in the [failure guide](docs/generated/test-failure-guide.md) |
+| Upstream lacks live markers | Use the narrow compatibility flag above; do not claim timing attribution |
+| Need full operating steps | Read [`docs/running-tests.md`](docs/running-tests.md) |
+
+## Documentation and release evidence
+
+- [Test architecture and layout](docs/test-system.md)
+- [Operator workflows](docs/running-tests.md)
+- [Generated catalog](docs/generated/test-catalog.md)
+- [Add or extend a test](docs/adding-tests.md)
+- [Machine-readable catalog](resources/catalog.json)
+- [Resolved smoke-plan example](resources/plans/smoke.json)
 
 ### Latest complete suite result
 
 The final compatible campaign exercised this 141-record workload contract
-against upstream `d73326b6` and the later tested candidate `2ae71e6c` (published
-equivalent tree through pull #10 plus ENG-465). The dedicated Windows rig used
-1x scale, VSync off, three guest warmups, work multiplier four, and
-per-iteration completion.
+against upstream `d73326b6` and candidate `2ae71e6c` (published equivalent tree
+through pull #10 plus ENG-465). The dedicated Windows rig used 1x, VSync off,
+three guest warmups, multiplier four, and per-iteration completion.
 
 | Backend | Candidate records | Semantic differences | Fresh-process image checks | Fixed-work throughput |
 | --- | ---: | ---: | ---: | ---: |
 | OpenGL | 141/141 | 0 | 55/55 match | +3.87% |
 | Vulkan | 141/141 | 0 | 55/55 match | +6.61% |
 
-The 55 full-run image differences were rerun one target per fresh process;
-every pair matched. This identifies order-dependent guest state in the combined
-hash contract, not an accepted rendering difference. Upstream Vulkan lost the
-device on two bordered BC2 routes; the candidate completed them. Seven stale
-XISO pixel KAT expectations are accepted only as exact, XISO-hash-bound
-limitations after both builds produced the same values and their independent
-framebuffer oracles passed.
+All 55 full-run image differences matched when rerun one target per fresh
+process, identifying order-dependent guest state rather than an accepted render
+difference. Upstream Vulkan lost the device on two bordered BC2 routes; the
+candidate completed them. Seven stale pixel KAT expectations are exact,
+XISO-hash-bound limitations after both builds produced the same values and
+their independent framebuffer oracles passed.
 
-Strict tooling and evidence are in
+Strict evidence is in
 [`xemu-perf-lab` PR #5](http://10.0.4.4:3000/main/xemu-perf-lab/pulls/5).
-These numbers describe that wider tested candidate. They are not relabeled as
-performance proof for the narrower PR #2-#9 publication build.
+These numbers describe the wider candidate, not the narrower PR #2-#9 package.
+Matching release/diagnostic executables and identities are in
+[`xemu-pr-train` releases](http://10.0.4.4:3000/main/xemu-pr-train/releases)
+and [`releases/eng466-publication-v1.json`](releases/eng466-publication-v1.json).
 
-### Fastest manual run
+### ENG462 integration history
 
-1. Start the release xemu executable.
-2. Configure legally obtained MCPX, flash ROM, EEPROM, and HDD files.
-3. Insert the current XISO as the DVD image and reset the guest.
-4. Wait for autorun, or use the controller menu.
-5. Let `Run all and exit` finish. A failed test pauses on a light-red screen for
-   ten seconds; release A to continue early. Failures remain recorded and do not
-   abort later compatible tests.
-6. Extract `E:\xemu_perf_tests\results.txt` from the test HDD. Never edit or
-   reformat it.
-
-The XISO never formats this manual HDD. It manages only
-`E:\xemu_perf_tests`, archiving the current result there before the next run.
-
-During a full-suite run, the screen initially names the running stage. Later
-stages leave the last completed result visible and update an outlined `RUNNING:`
-footer. Long composite stages may take minutes; the footer and host heartbeat
-distinguish work from a hang.
-
-Direct single-test and continuous selections do not clear the framebuffer or
-draw a separate “next test” screen before execution. The menu or last result
-remains visible until the selected workload produces its own frame, preventing
-blank-frame strobing. Full-suite execution retains its progress reporting.
-
-Guest-side soft failures can continue. A host assertion, Vulkan device loss, or
-terminated xemu process cannot. The PR #2-#9 public binary does not include the
-later ENG-465 bordered-S3TC Vulkan fix; on affected drivers, run the full suite
-with OpenGL or isolate the S3TC route masks. The wider tested candidate completes
-all four isolated native/fallback routes.
-
-A continued soft failure is still a failed test. Its record writes
-`"outcome":"FAIL"`; the final screen reports a separate soft-failure count and
-returns FAIL even when the metadata-only oracle count is zero.
-
-### Correct A/B run
-
-Use one XISO, configuration, renderer, scale, completion policy, and fixed-work
-multiplier for both executables. Run only one xemu process. Warm the workload,
-alternate baseline/candidate process order, and retain every raw result.
-
-```text
-python utils/hash_compare.py BASELINE_RUN CANDIDATE_RUN --json-out comparison.json
-```
-
-The command accepts run directories or `summary.json`, `results.json`, and
-`normalized-results.json`. `1` means the candidate matches the baseline hash;
-`0` means it differs; `-` means no baseline oracle exists. Missing records, extra
-records, zero eligible checks, or any mismatch return nonzero.
-
-Timing is usable only after correctness passes. Short operations must be repeated
-inside the guest until each sample lasts seconds, not nanoseconds. Compare medians
-and distributions from identical fixed work; never calibrate candidate work
-separately.
-
-### What is saved
-
-The guest writes `E:\xemu_perf_tests\results.txt`. Host automation additionally
-retains the injected config, XISO and xemu identities, byte-exact guest result,
-normalized JSON, stdout/stderr, xemu log, renderer/scale, completion mode, host
-fingerprint, validation messages, and comparison report.
-
-Each leaf may emit:
-
-| Value | Detects |
-| --- | --- |
-| `source_kat` | Wrong generated input |
-| `work_checksum` | Wrong operation sequence or work amount |
-| `result_checksum` | Changed semantic result |
-| Named KAT | Changed critical pixel, tile, register, or state |
-| `framebuffer_fnv1a64` | Changed canonical guest framebuffer |
-| timing samples | Cost of the declared fixed-work region |
-
-A prior xemu framebuffer hash is a regression oracle, not retail-Xbox truth.
-Hardware goldens must record console provenance. Vulkan path claims also need host
-counters or validation evidence.
-
-## Start here
-
-This repository builds one Xbox XISO containing deterministic CPU, PFIFO,
-PGRAPH, texture, surface, vertex, scaling, and combined game-like workloads.
-The guest performs fixed work, records timing, and emits hashes/KATs so speed
-changes cannot silently hide corruption.
-
-- [Test system and current layout](docs/test-system.md): architecture, complete
-  suite map, selection, result meaning, extraction, and release status.
-- [Add or extend a test](docs/adding-tests.md): required descriptor, workload,
-  oracle, registration, and validation steps.
-- [Generated test catalog](docs/generated/test-catalog.md): all 136 executable
-  leaf IDs and five structural groups.
-- [`resources/catalog.json`](resources/catalog.json): machine-readable catalog
-  used by tooling and the guest.
-- [`resources/plans/smoke.json`](resources/plans/smoke.json): minimal explicit
-  resolved-plan example.
-
-ENG462 adds PFIFO array-element workloads,
-texture/sampler identity checks, Vulkan submission-lifetime plans, explicit
-RUNNING status, and soft failure screens (10 seconds or A). After the first
-test, completed totals remain onscreen over the rendered frame while a footer
-names the active test, initialization, or teardown. All seven new executable
-cases pass on Vulkan 1x; the 141-record OpenGL 1x diagnostic suite also
-completes. See
+ENG462 added PFIFO array elements, texture/sampler identity checks, Vulkan
+submission-lifetime plans, RUNNING status, soft-failure screens, and the
+141-record integration image. See
 [`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json) and
 [`releases/eng462-final-ab-20260830.md`](releases/eng462-final-ab-20260830.md).
-Earlier release data below is retained as history; it is not the current download.
+Older release data below remains history, not the current download.
 
-## Historical ENG458 texture validation release
+### Historical ENG458 texture validation
 
-The current texture-correctness image is
-`xemu-perf-tests-eng458-69a646a.iso`, built from commit `69a646a` with SHA-256
-`32eafdf212641ff7585ee5c6fd7b45d1fe92088ef3d1f8fb7a6bc88a394131b8`.
-The complete release contract is in
-[`releases/eng458-xiso-release-v1.json`](releases/eng458-xiso-release-v1.json).
-Earlier ENG454 images and the stale generic XISO are historical evidence under
-`J:\xemu-lab-working-set\archive\xiso\superseded\eng454`; that directory's
-manifest identifies their hashes and this release as their replacement.
-`GameLoadComposite::10-S3tcSyncFactor` emits these records in order; the mask
-may select any subset independently.
-
-| Bit | Stage key | Representation and route | Implementation exercised |
-| ---: | --- | --- | --- |
-| 1 | `dxt1_same_address_wait` | DXT1, changing payload, one address, per-draw wait | serialized control |
-| 2 | `dxt1_same_address_queued` | DXT1, changing payload, one address, final wait | ordered upload/lifetime |
-| 4 | `dxt1_ring` | DXT1, changing payload, 16-address ring | address-renaming control |
-| 8 | `dxt1_dirty_once` | DXT1, cache prime plus one dirty write | page-generation/latch |
-| 16 | `rgba8_same_address_wait` | RGBA8 equivalent of bit 1 | decoded serialized control |
-| 32 | `rgba8_same_address_queued` | RGBA8 equivalent of bit 2 | ordered upload/lifetime control |
-| 64 | `rgba8_ring` | RGBA8 equivalent of bit 4 | address-renaming control |
-| 128 | `rgba8_dirty_once` | RGBA8 equivalent of bit 8 | page-generation/latch control |
-| 256 | `bc2_native_eligible` | borderless 2D DXT3/BC2 | native BC2 upload |
-| 512 | `bc2_bordered_fallback` | bordered 2D DXT3/BC2 | required decoded fallback |
-| 1024 | `bc3_native_eligible` | borderless 2D DXT5/BC3 | native BC3 upload |
-| 2048 | `bc3_bordered_fallback` | bordered 2D DXT5/BC3 | required decoded fallback |
-
-The optional guest config selector is
-`game_load_composite.s3tc_sync_factor.stage_mask`; its bits are the table's
-`Bit` values. The `stages` object can further intersect that mask by stage key.
-The expected record count is the number of selected bits plus one summary, so
-the default mask `4095` expects 13 ordered records.
-
-Every selected stage records `source_kat`, `work_checksum`, `result_checksum`,
-`tile_center_kat`, `framebuffer_fnv1a64`, and the nonfatal `oracle_status` plus
-failure count/mask. Normal changing-payload cells expect result KAT `1a4ff923`;
-dirty-once cells expect `fede69d6`. Source KATs are DXT1 `0ea3ddc5`, RGBA8
-`9b909dc5`, BC2 native/fallback `0330ddc5`/`896d9dc5`, and BC3
-native/fallback `10e7ddc5`/`c0499dc5`. The normal/dirty tile KATs are
-`acc7c6b0`/`7981b305`.
-
-From the Windows lab checkout, run all 12 routes at Vulkan 1x, then repeat at
-4x by changing `--scale`:
-
-```bat
-python313\python.exe run-suite.py --mode perf ^
-  --test-id GameLoadComposite::10-S3tcSyncFactor ^
-  --guest-iso C:\xemu-lab\suite\assets\xemu-perf-tests-eng458-69a646a.iso ^
-  --backend vulkan --scale 1 --warmup-iterations 0 ^
-  --completion-mode per_iteration --expected-record-count 13 ^
-  --vulkan-validation
-```
-
-The runner writes its config to FATX
-`E:\xemu_perf_tests\xemu_perf_tests_config.json`, reads
-`E:\xemu_perf_tests\results.txt`, and preserves the byte-exact file as
-`<run>\results.txt` beside `normalized-results.json`, `guest-config.json`,
-`xemu.log`, and validation evidence. For a manual launcher, use the same FATX
-paths and copy `results.txt` back without reformatting it.
-The internal lab runner reformats only its dedicated disposable
-`C:\xemu-lab\suite\work\test.img` each run, so its FATX history is temporary;
-the host run directory is the retained record. Public automation must create a
-new per-run disposable image and refuse any pre-existing or user-provided HDD.
-
-A missing/extra record means a truncated run or wrong mask. A source KAT
-mismatch means wrong/corrupt guest input; a work or result checksum mismatch
-means the fixed-work contract changed; a tile/oracle failure means stale or
-incorrect texture output. A changed framebuffer hash is a regression signal,
-not retail-hardware proof. Any VUID, assertion, crash, hang, or oracle failure
-fails correctness. `upload_expectation` states the intended native/fallback
-route but must be corroborated by matching host counters when making a path or
-performance claim.
+The 12-route S3TC/BC lifetime matrix, exact KATs, historical image identity,
+and verified runner command moved to
+[`docs/s3tc-validation.md`](docs/s3tc-validation.md). It remains evidence, not
+the current download.
 
 # Usage
 
-Tests will be executed automatically if no gamepad input is given within an initial timeout.
+Tests execute automatically after the source-defined three-second timeout when
+no gamepad input is received.
 
 Individual tests may be executed via the menu.
 
@@ -397,7 +338,7 @@ real controller/display test. Before calling the UI hardware-validated:
 DPAD:
 
 * Up - Move the menu cursor up. Inside a test, go to the previous test in the active suite.
-* Down - Move the menu cursor down. Inside a test, go to the previous test in the active suite.
+* Down - Move the menu cursor down. Inside a test, go to the next test in the active suite.
 * Left - Move the menu cursor up by half a page.
 * Right - Move the menu cursor down by half a page.
 * A - Enter a submenu or test. Inside a test, re-run the test.
@@ -508,7 +449,8 @@ ___Note___: The names used within `"test_suites"` and its children are the same 
 
 By default, any descendant of the `"test_suites"` object that contains a `"skipped": true` will be omitted.
 
-For example, the following config will disable all tests except
+For example, the following config disables the named suite/test entries while
+retaining unlisted entries:
 
 ```json
 {
@@ -556,7 +498,7 @@ under `Default suite`.
   "test_suites": {
     "Default suite": {
       "TestOne": {
-        "skipped": true
+        "skipped": false
       }
     }
   }
@@ -801,7 +743,7 @@ Under Settings > Build, Execution, Deployment > CMake
 
 ### Debugging
 
-#### Using [xemu](xemu.app)
+#### Using [xemu](https://xemu.app/)
 
 1. Create a new `Embedded GDB Server` target
 1. Set the Target to the `<your project name>_xiso` target
