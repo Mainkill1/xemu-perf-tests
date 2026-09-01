@@ -109,6 +109,20 @@ class ConsoleUiContractTests(unittest.TestCase):
         continuous = driver.split("case MenuItemTest::RunMode::CONTINUOUS:", 1)[1]
         self.assertIn("SetBorderColor(kStressMenuBorder)", continuous)
 
+    def test_autorun_deadlines_use_the_xbox_monotonic_tick_counter(self):
+        header = (ROOT / "src/menu_item.h").read_text(encoding="utf-8")
+        root_draw = self.menu_source.split("void MenuItemRoot::Draw()", 1)[1].split(
+            "void MenuItemRoot::Activate()", 1
+        )[0]
+        options_draw = self.menu_source.split("void MenuItemOptions::Draw()", 1)[1].split(
+            "void MenuItemOptions::Activate()", 1
+        )[0]
+        for draw in (root_draw, options_draw):
+            self.assertIn("GetTickCount() - start_tick", draw)
+            self.assertNotIn("high_resolution_clock", draw)
+            self.assertNotIn("system_clock", draw)
+        self.assertGreaterEqual(header.count("uint32_t start_tick{0};"), 2)
+
     def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
         for token in (
             "SDL_CONTROLLERAXISMOTION",

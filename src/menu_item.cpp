@@ -5,13 +5,12 @@
 #ifdef XEMU_PERF_TESTS_HAS_TIME_SPIRIT
 #include <hal/debug.h>
 #include <hal/xbox.h>
+#endif
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wmacro-redefined"
 #include <windows.h>
 #pragma clang diagnostic pop
-#endif
 
-#include <chrono>
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
@@ -1414,22 +1413,24 @@ void MenuItemRoot::ActivateCurrentSuite() {
 
 void MenuItemRoot::Draw() {
   if (!timer_valid) {
-    start_time = std::chrono::high_resolution_clock::now();
+    start_tick = GetTickCount();
     timer_valid = true;
   }
 
   if (!disable_autorun_) {
     if (!timer_cancelled) {
-      auto now = std::chrono::high_resolution_clock::now();
-      auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
+      const uint32_t elapsed = GetTickCount() - start_tick;
 
-      if (autorun_immediately_ || elapsed > kAutoTestAllTimeoutMilliseconds) {
+      if (autorun_immediately_ || elapsed >= kAutoTestAllTimeoutMilliseconds) {
         on_run_all();
         return;
       }
 
       char run_all[128] = {0};
-      snprintf(run_all, 127, "Run all and exit (automatic in %d ms)", kAutoTestAllTimeoutMilliseconds - elapsed);
+      snprintf(run_all, sizeof(run_all),
+               "Run all and exit (automatic in %lu ms)",
+               static_cast<unsigned long>(kAutoTestAllTimeoutMilliseconds -
+                                          elapsed));
       submenu[0]->name = run_all;
     } else {
       submenu[0]->name = "Run all and exit";
@@ -1523,20 +1524,21 @@ MenuItemOptions::MenuItemOptions(const std::vector<std::shared_ptr<TestSuite>> &
 
 void MenuItemOptions::Draw() {
   if (!timer_valid) {
-    start_time = std::chrono::high_resolution_clock::now();
+    start_tick = GetTickCount();
     timer_valid = true;
   }
   if (!timer_cancelled) {
-    auto now = std::chrono::high_resolution_clock::now();
-    auto elapsed = std::chrono::duration_cast<std::chrono::milliseconds>(now - start_time).count();
-    if (elapsed > kAutoTestAllTimeoutMilliseconds) {
+    const uint32_t elapsed = GetTickCount() - start_tick;
+    if (elapsed >= kAutoTestAllTimeoutMilliseconds) {
       cursor_position = 0;
       Activate();
       return;
     }
 
     char run_all[128] = {0};
-    snprintf(run_all, 127, "Accept (automatic in %d ms)", kAutoTestAllTimeoutMilliseconds - elapsed);
+    snprintf(run_all, sizeof(run_all), "Accept (automatic in %lu ms)",
+             static_cast<unsigned long>(kAutoTestAllTimeoutMilliseconds -
+                                        elapsed));
     submenu[0]->name = run_all;
   } else {
     submenu[0]->name = "Accept";

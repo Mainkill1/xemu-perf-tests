@@ -1,7 +1,6 @@
 #ifndef XEMU_PERF_TESTS_MENU_ITEM_H
 #define XEMU_PERF_TESTS_MENU_ITEM_H
 
-#include <chrono>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -252,7 +251,7 @@ struct MenuItemRoot : public MenuItem {
 
   std::function<void()> on_run_all;
   std::function<void()> on_exit;
-  std::chrono::steady_clock::time_point start_time;
+  uint32_t start_tick{0};
   bool timer_valid{false};
   bool timer_cancelled{false};
 
@@ -275,7 +274,7 @@ struct MenuItemOptions : public MenuItem {
   void CursorRight(bool is_repeat) override;
 
   std::function<void()> on_exit;
-  std::chrono::steady_clock::time_point start_time;
+  uint32_t start_tick{0};
   bool timer_valid{false};
   bool timer_cancelled{false};
 };
