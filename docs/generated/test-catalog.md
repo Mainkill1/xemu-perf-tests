@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45` contains 136 leaves and 5 groups.
+Catalog `sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5` contains 142 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -20,6 +20,12 @@ Catalog `sha256:c3471cd082839b28452d344f52552a988831697779482f652a6e1157f16b1d45
 | `pipeline_texture_switch.shader_negative_control` | leaf | `PipelineTextureSwitch::pipeline.shader-negative-control` |
 | `pipeline_texture_switch.clear_texture_normal` | leaf | `PipelineTextureSwitch::pipeline.clear-texture-normal` |
 | `pipeline_texture_switch.sampler_only_identity` | leaf | `PipelineTextureSwitch::pipeline.sampler-only-identity` |
+| `report_query.zero_query` | leaf | `ReportQuery::report.zero-query` |
+| `report_query.single_boundary` | leaf | `ReportQuery::report.single-boundary` |
+| `report_query.clear_boundary` | leaf | `ReportQuery::report.clear-boundary` |
+| `report_query.multiple_boundaries` | leaf | `ReportQuery::report.multiple-boundaries` |
+| `report_query.dma_target_switch` | leaf | `ReportQuery::report.dma-target-switch` |
+| `report_query.fifo_producer_ordering` | leaf | `ReportQuery::report.fifo-producer-ordering` |
 | `game_load.long_unlocked_scene` | group | `GameLoadComposite::08-LongUnlockedScene` |
 | `game_load.long_unlocked_scene.cpu` | leaf | `GameLoadComposite::08-LongUnlockedScene-01-CPU` |
 | `game_load.long_unlocked_scene.pfifo` | leaf | `GameLoadComposite::08-LongUnlockedScene-02-PFIFO` |

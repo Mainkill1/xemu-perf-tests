@@ -1,0 +1,35 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "output_directory_path": "e:/xemu_perf_tests",
+    "warmup_iterations": 4,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "batch_complete"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:3b57fde5cd6031f8b3893a84f138159c4e966ac72198387e8a85cacd4e82b47b",
+    "catalog_id": "sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5",
+    "selected_leaf_count": 6,
+    "tests": [
+      {
+        "id": "report_query.zero_query"
+      },
+      {
+        "id": "report_query.single_boundary"
+      },
+      {
+        "id": "report_query.clear_boundary"
+      },
+      {
+        "id": "report_query.multiple_boundaries"
+      },
+      {
+        "id": "report_query.dma_target_switch"
+      },
+      {
+        "id": "report_query.fifo_producer_ordering"
+      }
+    ]
+  }
+}

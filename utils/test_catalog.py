@@ -70,6 +70,14 @@ def entries():
         ("clear_texture_normal", "pipeline.clear-texture-normal"),
         ("sampler_only_identity", "pipeline.sampler-only-identity")],
         ("texture", "gpu", "performance", "hardware-safe"))
+    simple("report_query", "ReportQuery", [
+        ("zero_query", "report.zero-query"),
+        ("single_boundary", "report.single-boundary"),
+        ("clear_boundary", "report.clear-boundary"),
+        ("multiple_boundaries", "report.multiple-boundaries"),
+        ("dma_target_switch", "report.dma-target-switch"),
+        ("fifo_producer_ordering", "report.fifo-producer-ordering")],
+        ("report", "gpu", "correctness", "performance", "hardware-safe"))
 
     def staged(parent, legacy_parent, selection_group, stages, tags, description):
         out.append(group(parent, parent.split(".")[0], "GameLoadComposite", legacy_parent,
@@ -189,7 +197,7 @@ def entries():
 def validate(items):
     valid_tags = {"allocation", "correctness", "cpu", "gpu", "group", "hardware-safe", "memory-pressure",
                   "microbenchmark", "performance", "pfifo", "primitive", "scenario", "surface", "texture",
-                  "vertex", "xemu-only"}
+                  "report", "vertex", "xemu-only"}
     ids, legacy = set(), set()
     for item in items:
         if item.id in ids or item.legacy_id in legacy:
@@ -546,6 +554,25 @@ def render():
                             gpu_completion_mode=completion)
             output[ROOT / f"resources/{prefix}-{profile}.json"] = \
                 resolved_plan(doc, settings, [stable_id])
+    report_ids = [
+        "report_query.zero_query",
+        "report_query.single_boundary",
+        "report_query.clear_boundary",
+        "report_query.multiple_boundaries",
+        "report_query.dma_target_switch",
+        "report_query.fifo_producer_ordering",
+    ]
+    report_profiles = {
+        "fast-smoke": (0, 1, "batch_complete"),
+        "quick": (4, 4, "batch_complete"),
+        "sustained": (16, 16, "batch_complete"),
+    }
+    for profile, (warmup, multiplier, completion) in report_profiles.items():
+        settings = dict(base_settings, warmup_iterations=warmup,
+                        measurement_iterations_multiplier=multiplier,
+                        gpu_completion_mode=completion)
+        output[ROOT / f"resources/report-query-{profile}.json"] = \
+            resolved_plan(doc, settings, report_ids)
     submission_ids = [
         "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
         "game_load.cross_title_hotpath.pgr2_small_draws",
