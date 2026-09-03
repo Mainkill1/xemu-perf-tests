@@ -1237,7 +1237,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
            static_cast<unsigned long>(TestCatalogLeafCount()),
            static_cast<unsigned long>(TestCatalogGroupCount()),
            static_cast<unsigned long>(TestCatalogLegacyAliasCount()));
-  header = "xemu perf tests | " + active_plan;
+  header = "Mains Test Suite";
   root_header_ = header;
   footer = "A/Start select  B/Back exit  Black exit";
 
@@ -1431,8 +1431,8 @@ void MenuItemRoot::Draw() {
       }
 
       char countdown[160] = {0};
-      snprintf(countdown, sizeof(countdown),
-               "%s | automatic run in %lu ms", root_header_.c_str(),
+      snprintf(countdown, sizeof(countdown), "%s | %lu ms",
+               root_header_.c_str(),
                static_cast<unsigned long>(kAutoTestAllTimeoutMilliseconds -
                                           elapsed));
       header = countdown;
