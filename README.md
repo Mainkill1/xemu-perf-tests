@@ -18,19 +18,18 @@ prevent a faster result from silently hiding changed output.
 
 ## Current package
 
-Use `xemu-perf-tests-eng473-final-1f5fb0d.iso`.
+Use `xemu-perf-tests-eng523-report-oracles-e767a48.iso`.
 
 | Identity | Value |
 | --- | --- |
-| XISO SHA-256 | `04251d83f66afecb74fff19a8efcc4b6587fc17e8202e0f2031df65d4da54a55` |
-| Guest source | `1f5fb0db59a68c55cbd4a3751d2540bca433b6c6` |
-| Catalog | 136 executable leaves + 5 structural groups = 141 full-suite records |
-| Release contract | [`releases/eng473-final-v1.json`](releases/eng473-final-v1.json) |
+| XISO SHA-256 | `34793a5ae8a142087fcc6dbf860283d8ec1999b271e6313dec1f8298bedffcec` |
+| Guest source | `e767a4813d9d2621aa46ef8e70593ea6f862b158` |
+| Catalog | 144 executable leaves + 5 structural groups = 149 full-suite records |
+| Release contract | [`releases/eng523-report-query-oracles-v1.json`](releases/eng523-report-query-oracles-v1.json) |
 
 Download published artifacts from the
-[`xemu-perf-tests` releases](http://10.0.4.4:3000/main/xemu-perf-tests/releases)
-and verify the digest. Source is Forgejo commit
-[`1f5fb0db59a6`](http://10.0.4.4:3000/main/xemu-perf-tests/commit/1f5fb0db59a68c55cbd4a3751d2540bca433b6c6).
+[`xemu-perf-tests` releases](https://github.com/Mainkill1/xemu-perf-tests/releases)
+and verify the digest.
 
 ## System flow
 
@@ -65,9 +64,10 @@ process. This exact command selects every current guest test:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --full-suite ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng523-report-oracles-e767a48.iso ^
+  --catalog C:\path\to\catalog.json ^
   --backend vulkan --scale 1 ^
-  --completion-mode per_iteration --expected-record-count 141
+  --completion-mode per_iteration --expected-record-count 149
 ```
 
 Use `--backend opengl` for OpenGL. Add `--vulkan-validation` only to a Vulkan
@@ -144,6 +144,32 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 - [Machine-readable catalog](resources/catalog.json)
 - [Resolved smoke-plan example](resources/plans/smoke.json)
 
+### ENG523 report-oracle suite validation
+
+The current XISO adds eight ordered ZPASS report-query leaves, including
+xemu-only DMA descriptor-rewrite and complete-record bounds oracles. The root
+menu is titled `Mainkill1's Test Suite` and automatically starts the active
+selection after ten seconds without input.
+
+The exact release image completed two independent 149-record Vulkan 1x runs
+with validation enabled. Both returned `PASSED`, matched every eligible
+functional oracle, and emitted zero Vulkan VUIDs. The release campaign also
+sampled process CPU/RAM, process GPU/dedicated/shared memory, and device
+GPU/VRAM usage.
+
+| Check | Result |
+| --- | ---: |
+| Source contract tests | 124/124 |
+| Release runs | 2/2 |
+| Records per run | 149/149 |
+| Functional hashes | PASS |
+| Vulkan VUIDs | 0 |
+
+The descriptor-rewrite record explicitly reports either `pending_cross` or
+`completed_before_rewrite`. The qualified Vulkan renderer reported
+`completed_before_rewrite`, proving its synchronous guest-visible boundary
+without falsely claiming an observed pending lifetime.
+
 ### ENG473 final suite validation
 
 The exact current XISO completed the 141-record OpenGL 1x full suite on the
@@ -210,7 +236,7 @@ the current download.
 
 # Usage
 
-Tests execute automatically after the source-defined three-second timeout when
+Tests execute automatically after the source-defined ten-second timeout when
 no gamepad input is received.
 
 Individual tests may be executed via the menu.
@@ -236,8 +262,8 @@ uses these public entries:
 7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
-The full unfiltered image exposes 136 leaf tests, five structural groups, and
-141 exact legacy aliases. A catalog stage belonging to a grouped execution
+The full unfiltered image exposes 144 leaf tests, five structural groups, and
+149 full-suite records. A catalog stage belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.
