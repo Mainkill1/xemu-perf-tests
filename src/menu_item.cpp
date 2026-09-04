@@ -31,7 +31,7 @@
 
 using namespace PBKitPlusPlus;
 
-static constexpr uint32_t kAutoTestAllTimeoutMilliseconds = 3000;
+static constexpr uint32_t kAutoTestAllTimeoutMilliseconds = 10000;
 static constexpr uint32_t kNumItemsPerPage = 12;
 static constexpr uint32_t kNumItemsPerHalfPage = kNumItemsPerPage >> 1;
 static constexpr uint32_t kLaunchFailureHoldMilliseconds = 10000;

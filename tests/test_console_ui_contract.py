@@ -134,6 +134,7 @@ class ConsoleUiContractTests(unittest.TestCase):
         self.assertIn('"%s | %lu ms"', root_draw)
         self.assertNotIn("automatic run in", root_draw)
         self.assertNotIn('header = "xemu perf tests | " + active_plan', constructor)
+        self.assertIn("kAutoTestAllTimeoutMilliseconds = 10000", self.menu_source)
 
     def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
         for token in (
