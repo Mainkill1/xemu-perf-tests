@@ -66,6 +66,8 @@ enum class XemuPerfAssertion : uint16_t {
   REPORT_CLEAR_VALUE = 0x164,
   REPORT_CUMULATIVE_VALUE = 0x165,
   REPORT_DMA_TARGET_VALUE = 0x166,
+  REPORT_DMA_DESCRIPTOR_SNAPSHOT = 0x167,
+  REPORT_DMA_RANGE_GUARD = 0x168,
 };
 
 inline void EmitXemuPerfMarker(uint8_t marker) {

@@ -23,6 +23,8 @@ class ReportQueryTests : public TestSuite {
     MULTIPLE_BOUNDARIES,
     DMA_TARGET_SWITCH,
     FIFO_PRODUCER_ORDERING,
+    DMA_DESCRIPTOR_REWRITE,
+    DMA_RANGE_GUARD,
   };
 
   struct ReportRecord {
@@ -38,6 +40,7 @@ class ReportQueryTests : public TestSuite {
   void SetZpassEnabled(bool enabled) const;
   void QueueReport(uint32_t byte_offset) const;
   void DrawCountedQuad() const;
+  void QueueDelayedCountedWork() const;
   void QueueProducerWork() const;
   void ResetRecord(volatile ReportRecord &record) const;
   bool WaitForReport(volatile ReportRecord &record) const;
@@ -47,7 +50,7 @@ class ReportQueryTests : public TestSuite {
   uint8_t *report_memory_b_{nullptr};
   s_CtxDma report_context_a_{};
   s_CtxDma report_context_b_{};
+  s_CtxDma report_context_limited_{};
 };
 
 #endif  // XEMU_PERF_TESTS_REPORT_QUERY_TESTS_H
-

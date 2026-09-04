@@ -20,6 +20,8 @@ EXPECTED = {
     "report_query.multiple_boundaries": "report.multiple-boundaries",
     "report_query.dma_target_switch": "report.dma-target-switch",
     "report_query.fifo_producer_ordering": "report.fifo-producer-ordering",
+    "report_query.dma_descriptor_rewrite": "report.dma-descriptor-rewrite",
+    "report_query.dma_range_guard": "report.dma-range-guard",
 }
 
 
@@ -57,12 +59,17 @@ class ReportQueryContractTests(unittest.TestCase):
             "AssertXemuPerfEqual(a0.value * 2, a1.value",
             "a0.value == b0.value",
             "XemuPerfAssertion::REPORT_TIMEOUT_A",
+            "pb_set_dma_address(&report_context_a_, report_memory_b_",
+            "kLimitedReportInclusiveLimit",
+            "XemuPerfAssertion::REPORT_DMA_RANGE_GUARD",
         ):
             self.assertIn(token, SOURCE)
         for phrase in (
             "report memory directly",
             "DMA-target ownership",
             "dropped, reordered, or mis-targeted reports",
+            "same RAMIN descriptor",
+            "complete 16-byte record",
         ):
             self.assertIn(phrase, DOC)
 

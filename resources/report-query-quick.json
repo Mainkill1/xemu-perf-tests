@@ -8,9 +8,9 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:3b57fde5cd6031f8b3893a84f138159c4e966ac72198387e8a85cacd4e82b47b",
-    "catalog_id": "sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5",
-    "selected_leaf_count": 6,
+    "plan_id": "sha256:a89e7775529fb8ad75e5d931852e0bc47f5e87c3a95ae603f07eeda4e5995358",
+    "catalog_id": "sha256:4c35da004c5858c0f7e8b9fc74d2789add026cfdc40a693fdd4dcb3291e6e1b1",
+    "selected_leaf_count": 8,
     "tests": [
       {
         "id": "report_query.zero_query"
@@ -29,6 +29,12 @@
       },
       {
         "id": "report_query.fifo_producer_ordering"
+      },
+      {
+        "id": "report_query.dma_descriptor_rewrite"
+      },
+      {
+        "id": "report_query.dma_range_guard"
       }
     ]
   }

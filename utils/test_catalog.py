@@ -76,7 +76,9 @@ def entries():
         ("clear_boundary", "report.clear-boundary"),
         ("multiple_boundaries", "report.multiple-boundaries"),
         ("dma_target_switch", "report.dma-target-switch"),
-        ("fifo_producer_ordering", "report.fifo-producer-ordering")],
+        ("fifo_producer_ordering", "report.fifo-producer-ordering"),
+        ("dma_descriptor_rewrite", "report.dma-descriptor-rewrite"),
+        ("dma_range_guard", "report.dma-range-guard")],
         ("report", "gpu", "correctness", "performance", "hardware-safe"))
 
     def staged(parent, legacy_parent, selection_group, stages, tags, description):
@@ -561,6 +563,8 @@ def render():
         "report_query.multiple_boundaries",
         "report_query.dma_target_switch",
         "report_query.fifo_producer_ordering",
+        "report_query.dma_descriptor_rewrite",
+        "report_query.dma_range_guard",
     ]
     report_profiles = {
         "fast-smoke": (0, 1, "batch_complete"),

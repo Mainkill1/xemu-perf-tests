@@ -22,6 +22,8 @@ static const TestDescriptor kTestCatalog[] = {
   {"report_query.multiple_boundaries", 1, "report_query", "report.multiple-boundaries", "Runs the report.multiple-boundaries workload and records its deterministic result.", "ReportQuery", "report.multiple-boundaries", "report.multiple-boundaries", TestKind::LEAF, 0, 0},
   {"report_query.dma_target_switch", 1, "report_query", "report.dma-target-switch", "Runs the report.dma-target-switch workload and records its deterministic result.", "ReportQuery", "report.dma-target-switch", "report.dma-target-switch", TestKind::LEAF, 0, 0},
   {"report_query.fifo_producer_ordering", 1, "report_query", "report.fifo-producer-ordering", "Runs the report.fifo-producer-ordering workload and records its deterministic result.", "ReportQuery", "report.fifo-producer-ordering", "report.fifo-producer-ordering", TestKind::LEAF, 0, 0},
+  {"report_query.dma_descriptor_rewrite", 1, "report_query", "report.dma-descriptor-rewrite", "Runs the report.dma-descriptor-rewrite workload and records its deterministic result.", "ReportQuery", "report.dma-descriptor-rewrite", "report.dma-descriptor-rewrite", TestKind::LEAF, 0, 0},
+  {"report_query.dma_range_guard", 1, "report_query", "report.dma-range-guard", "Runs the report.dma-range-guard workload and records its deterministic result.", "ReportQuery", "report.dma-range-guard", "report.dma-range-guard", TestKind::LEAF, 0, 0},
   {"game_load.long_unlocked_scene", 1, "game_load", "08-LongUnlockedScene", "Groups the long-scene stages; the group has no timing value.", "GameLoadComposite", "08-LongUnlockedScene", "08-LongUnlockedScene", TestKind::GROUP, 0, 0},
   {"game_load.long_unlocked_scene.cpu", 1, "game_load", "08-LongUnlockedScene-01-CPU", "Measures the cpu stage.", "GameLoadComposite", "08-LongUnlockedScene-01-CPU", "08-LongUnlockedScene", TestKind::LEAF, 1, 0},
   {"game_load.long_unlocked_scene.pfifo", 1, "game_load", "08-LongUnlockedScene-02-PFIFO", "Measures the pfifo stage.", "GameLoadComposite", "08-LongUnlockedScene-02-PFIFO", "08-LongUnlockedScene", TestKind::LEAF, 1, 1},
@@ -149,4 +151,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "XemuVertexRamDisjointSamePage", "Runs the XemuVertexRamDisjointSamePage workload and records its deterministic result.", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5";
+static constexpr const char *kTestCatalogId = "sha256:4c35da004c5858c0f7e8b9fc74d2789add026cfdc40a693fdd4dcb3291e6e1b1";

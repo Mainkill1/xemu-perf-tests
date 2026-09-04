@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5` contains 142 leaves and 5 groups.
+Catalog `sha256:4c35da004c5858c0f7e8b9fc74d2789add026cfdc40a693fdd4dcb3291e6e1b1` contains 144 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -26,6 +26,8 @@ Catalog `sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5
 | `report_query.multiple_boundaries` | leaf | `ReportQuery::report.multiple-boundaries` |
 | `report_query.dma_target_switch` | leaf | `ReportQuery::report.dma-target-switch` |
 | `report_query.fifo_producer_ordering` | leaf | `ReportQuery::report.fifo-producer-ordering` |
+| `report_query.dma_descriptor_rewrite` | leaf | `ReportQuery::report.dma-descriptor-rewrite` |
+| `report_query.dma_range_guard` | leaf | `ReportQuery::report.dma-range-guard` |
 | `game_load.long_unlocked_scene` | group | `GameLoadComposite::08-LongUnlockedScene` |
 | `game_load.long_unlocked_scene.cpu` | leaf | `GameLoadComposite::08-LongUnlockedScene-01-CPU` |
 | `game_load.long_unlocked_scene.pfifo` | leaf | `GameLoadComposite::08-LongUnlockedScene-02-PFIFO` |
