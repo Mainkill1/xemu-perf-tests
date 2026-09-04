@@ -250,10 +250,66 @@ def cpp(items, catalog_id):
                                 f"static constexpr const char *kTestCatalogId = {json.dumps(catalog_id)};", ""])
 
 
+def test_purpose(test):
+    """Return concise documentation-only purpose text without changing catalog data."""
+    test_id = test["id"]
+    if test["kind"] == "group":
+        return "Groups ordered child checkpoints; it has no independent timing result."
+
+    exact = {
+        "busy_pfifo.pfifo_saturation": "Saturates a fixed PFIFO packet stream and verifies progress.",
+        "busy_pfifo.pgraph_pattern_polling": "Polls a guest-visible PGRAPH completion pattern.",
+        "cpu_floating_point.sse_scalar": "Runs fixed SSE scalar arithmetic and flag known-answer checks.",
+        "cpu_floating_point.x87_scalar": "Runs fixed x87 scalar arithmetic and status known-answer checks.",
+        "cpu_translation_blocks.direct_loop": "Exercises direct-loop translation-block chaining.",
+        "cpu_translation_blocks.indirect_dispatch": "Exercises deterministic indirect translation-block dispatch.",
+        "cpu_translation_blocks.indirect_dispatch_stress": "Stresses a larger deterministic indirect-target set.",
+        "fill_rate.solid": "Measures sustained solid-fragment raster work.",
+        "fill_rate.textured": "Measures sustained textured-fragment raster and sampling work.",
+        "uniform_thrash.uniform_thrash": "Repeatedly changes shader constants to test dirty-row synchronization.",
+        "pipeline_texture_switch.texture_switch": "Switches texture bindings to test descriptor and texture-generation invalidation.",
+        "pipeline_texture_switch.shader_negative_control": "Changes shader state to prove state-elision does not suppress a real update.",
+        "pipeline_texture_switch.clear_texture_normal": "Crosses clear, texture-only, and normal-draw boundaries to detect state leakage.",
+        "pipeline_texture_switch.sampler_only_identity": "Repeats an identical sampler write to test identity-based dirty elision.",
+        "report_query.zero_query": "Checks an empty query boundary and zero-result DMA write.",
+        "report_query.single_boundary": "Checks one query report at a guest-visible GET boundary.",
+        "report_query.clear_boundary": "Checks a clear operation's query-report accumulation boundary.",
+        "report_query.multiple_boundaries": "Checks ordering across several query-report GET boundaries.",
+        "report_query.dma_target_switch": "Switches query-report DMA targets while work is queued.",
+        "report_query.fifo_producer_ordering": "Checks report visibility while producer FIFO work continues.",
+        "report_query.dma_descriptor_rewrite": "Rewrites a queued report DMA descriptor to test immutable ownership.",
+        "report_query.dma_range_guard": "Rejects an out-of-range report DMA target without corrupting VRAM.",
+    }
+    if test_id in exact:
+        return exact[test_id]
+    if test_id.startswith("pfifo_array_elements."):
+        if test_id.endswith("array_element16"):
+            return "Decodes and expands non-incrementing 16-bit PFIFO array elements."
+        if test_id.endswith("array_element32"):
+            return "Decodes and expands non-incrementing 32-bit PFIFO array elements."
+        return "Runs a PGR2-shaped mixed-width PFIFO array-element packet stream."
+    if test_id.startswith("high_vertex_count."):
+        mode = test_id.rsplit(".", 1)[-1].replace("_", " ")
+        return f"Submits a high vertex-count {mode} path."
+    if test_id.startswith("primitive_type."):
+        _, topology, path = test_id.split(".")
+        return f"Renders {topology.replace('_', ' ')} through the {path.replace('_', ' ')} path."
+    if test_id.startswith("tiny_draw."):
+        return f"Exercises a small-draw {test_id.rsplit('.', 1)[-1].replace('_', ' ')} state pattern."
+    if test_id.startswith("vertex_buffer_allocation."):
+        return f"Exercises vertex-buffer allocation {test_id.rsplit('.', 1)[-1].replace('_', ' ')} behavior."
+    if test_id.startswith("surface."):
+        return f"Exercises render-surface {test_id[len('surface.'):].replace('_', ' ')} behavior."
+    if test_id.startswith("game_load."):
+        return f"Runs the title-shaped game-load stage {test_id[len('game_load.'):].replace('_', ' ')}."
+    return test.get("description", "Runs a deterministic workload and records its result.")
+
+
 def markdown(doc):
-    lines = ["# Generated test catalog", "", f"Catalog `{doc['catalog_id']}` contains {doc['leaf_count']} leaves and {doc['group_count']} groups.", "",
-             "| Stable ID | Kind | Legacy ID |", "| --- | --- | --- |"]
-    lines += [f"| `{x['id']}` | {x['kind']} | `{x['legacy_ids'][0]}` |" for x in doc["tests"]]
+    lines = ["# Generated test catalog", "", f"Catalog `{doc['catalog_id']}` contains {doc['leaf_count']} leaves and {doc['group_count']} groups.",
+             "", "This table is documentation generated from stable IDs. `Use` describes the workload; use the [failure guide](test-failure-guide.md) for failure meaning and first code checks.", "",
+             "| Stable ID | Kind | Use | Legacy ID |", "| --- | --- | --- | --- |"]
+    lines += [f"| `{x['id']}` | {x['kind']} | {test_purpose(x)} | `{x['legacy_ids'][0]}` |" for x in doc["tests"]]
     return "\n".join(lines) + "\n"
 
 

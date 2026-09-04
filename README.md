@@ -13,6 +13,7 @@ prevent a faster result from silently hiding changed output.
 | Run from the on-disc Xbox menu | [Operator guide](docs/running-tests.md#manual-xemu) |
 | Collect physical-Xbox evidence | [Physical Xbox workflow](docs/running-tests.md#physical-xbox) |
 | Compare output hashes | [A/B correctness](#ab-correctness) |
+| See what every test exercises | [Test coverage](#test-coverage) and the [generated catalog](docs/generated/test-catalog.md) |
 | Understand or extend a test | [Generated catalog](docs/generated/test-catalog.md) and [adding tests](docs/adding-tests.md) |
 | Diagnose a failed stable ID | [Generated failure guide](docs/generated/test-failure-guide.md) |
 
@@ -59,7 +60,7 @@ create a new per-run image and refuse every existing or user-provided HDD.
 ## Automated xemu run
 
 The verified lab runner is `C:\xemu-lab\suite\run-suite.py`. Run one xemu
-process. This exact command selects every current guest test:
+process. This exact command selects every test in the published ENG473 image:
 
 ```bat
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
@@ -107,6 +108,36 @@ edit or re-save `results.txt`. Detailed safe-copy rules are in the
 A soft failure may continue to later tests, but its leaf and final run remain
 FAIL. A group reports child completion, never independent timing. A prior xemu
 framebuffer hash is a regression oracle, not retail-Xbox truth.
+
+## Test coverage
+
+The published ENG473 ISO contains **136 executable leaves**, five structural
+groups, and 141 emitted full-suite records. This development branch contains
+**144 leaves** and five groups: the eight `report_query` leaves are source
+validation coverage and are not claimed as part of the published ENG473 image
+until that image is rebuilt and qualified.
+
+The table is the short map. The [generated catalog](docs/generated/test-catalog.md)
+lists every stable ID and what it exercises; the
+[generated failure guide](docs/generated/test-failure-guide.md) explains every
+failure signal and first code areas to inspect.
+
+| Suite | Leaves | What it exercises / primary signal |
+| --- | ---: | --- |
+| Busy PFIFO | 2 | Fixed FIFO saturation and PGRAPH polling; packet progress, locks, reports, and completion ordering |
+| PFIFO array elements | 3 | 16-bit, 32-bit, and PGR2-shaped array-element packets; decode, endian handling, bulk dispatch, and index expansion |
+| CPU floating point | 2 | Deterministic x87 and SSE scalar arithmetic; TCG/helper correctness and throughput |
+| CPU translation blocks | 3 | Direct loops and indirect dispatch; TB lookup, chaining, invalidation, and branch exits |
+| Fill rate | 2 | Solid and textured sustained draws; raster and texture-sampling throughput |
+| Pipeline / texture switch | 4 | Texture, shader, clear, and sampler identity transitions; descriptor/pipeline cache and dirty-state correctness |
+| Report query | 8 | Query GET boundaries, FIFO ordering, DMA targets, descriptor rewrites, and bounds guards; guest-visible report correctness |
+| Game-load composite | 52 | Title-shaped CPU/PFIFO/GPU work: small draws, streaming, S3TC, scaling, state churn, waits, and memory pressure |
+| High vertex count | 4 | Large arrays, inline arrays, inline buffers, and inline elements; vertex conversion, upload, and dispatch |
+| Primitive type | 20 | Fixed-function and shader variants of Xbox primitive topologies; assembly and raster coverage |
+| Surface rendering | 26 | Clears, aliases, readback, upload/download, scaling, and Vulkan resource-lifetime pressure |
+| Tiny draw | 8 | Small submissions with changing state; CPU/API and pipeline-binding overhead |
+| Uniform thrash | 1 | Repeated shader-constant writes; dirty-row tracking and uniform synchronization |
+| Vertex buffer allocation | 9 | Buffer reuse, page/range aliasing, overlap, allocation lifetime, and CPU/GPU visibility |
 
 ## A/B correctness
 
@@ -236,8 +267,11 @@ uses these public entries:
 7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
-The full unfiltered image exposes 136 leaf tests, five structural groups, and
-141 exact legacy aliases. A catalog stage belonging to a grouped execution
+The published ENG473 image exposes 136 leaf tests, five structural groups, and
+141 exact legacy aliases. The current development catalog additionally exposes
+eight `report_query` leaves (144 leaves total); it must be rebuilt and
+qualified before its count replaces the published-image count. A catalog stage
+belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.
