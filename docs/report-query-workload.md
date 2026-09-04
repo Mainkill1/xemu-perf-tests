@@ -36,6 +36,19 @@ three sentinels, and B0 must contain a complete report. The exact four original
 RAMIN descriptor dwords are restored after completion.
 
 The A0/A1/B0/B1 layout makes every control and tested destination distinct.
+A bounded set of short guest-CPU busy delays searches for the interval after
+`GET_REPORT` consumption but before publication; there is no fixed sleep. The
+xemu-only oracle first observes the matching PFIFO DMA data-shadow parameter,
+which is exposed before the puller invokes `GET_REPORT`, and then searches only
+the narrow method-consumption window. A1 must still contain all three sentinels
+immediately before every RAMIN rewrite.
+An early attempt redirects the tested record to B1 and is classified and
+retried without being reported as a pass. Some renderers make `GET_REPORT` a
+synchronous guest-visible completion boundary; in that case the oracle accepts
+a complete A1 record before the rewrite rather than claiming it observed a
+pending lifetime. The durable `rewrite_window.mode` distinguishes
+`pending_cross` from `completed_before_rewrite`. In both modes the leaf passes
+only with complete A1 and B0 records and untouched B1.
 
 This leaf has no artificial sleep and does not reuse the A0 positive-control
 destination for the tested report. It is a correctness-only, xemu-only oracle

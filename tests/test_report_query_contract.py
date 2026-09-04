@@ -77,7 +77,15 @@ class ReportQueryContractTests(unittest.TestCase):
             "AssertXemuPerfEqual(a0.value * 2, a1.value",
             "a0.value == b0.value",
             "XemuPerfAssertion::REPORT_TIMEOUT_A",
-            "WriteDmaDescriptor(report_context_a_, ReadDmaDescriptor(report_context_b_))",
+            "ReadDmaDescriptor(report_context_b_)",
+            "rewrite_observed_pending_",
+            "kDescriptorRewriteDelaysUs",
+            "BusyWaitMicroseconds(delay_us);",
+            "WaitForDmaDataShadow(report_parameter)",
+            "kPfifoDmaDataShadowRegister",
+            "rewrite_early_attempts_",
+            "rewrite_completed_before_attempts_",
+            "completed_before_rewrite",
             "kLimitedReportInclusiveLimit",
             "kRangeCanaryBytes",
             "RangeCanariesIntact",
@@ -111,14 +119,17 @@ class ReportQueryContractTests(unittest.TestCase):
             "ResetRecord(b0);",
             "ResetRecord(b1);",
             "QueueReport(sizeof(ReportRecord));",
-            "WriteDmaDescriptor(report_context_a_, ReadDmaDescriptor(report_context_b_));",
+            "WriteDmaDescriptor(report_context_a_,",
+            "ReadDmaDescriptor(report_context_b_));",
             "b1.timestamp == kTimestampSentinel",
+            "pending_before_rewrite",
+            "shadow_observed",
             "original_report_descriptor_a_",
         ):
             self.assertIn(token, body)
         self.assertLess(body.index("QueueReport(sizeof(ReportRecord));"),
-                        body.index("WriteDmaDescriptor(report_context_a_"))
-        self.assertLess(body.index("WriteDmaDescriptor(report_context_a_"),
+                        body.index("ReadDmaDescriptor(report_context_b_)"))
+        self.assertLess(body.index("ReadDmaDescriptor(report_context_b_)"),
                         body.rindex("QueueReport(0);"))
 
     def test_teardown_quiesces_and_detaches_before_free(self):

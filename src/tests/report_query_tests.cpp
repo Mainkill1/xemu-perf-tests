@@ -25,7 +25,6 @@ static constexpr uint32_t kReportContextB = 21;
 static constexpr uint32_t kReportContextLimited = 22;
 static constexpr uint32_t kFullRamDmaContext = 3;
 static constexpr uint32_t kLimitedReportInclusiveLimit = 17;
-static constexpr uint32_t kDescriptorRewriteDraws = 4096;
 static constexpr uint32_t kProfileSamples = 4;
 static constexpr uint32_t kReportTimeoutUs = 2000000;
 static constexpr uint32_t kTerminalSemaphoreValue = 0x52E00142;
@@ -37,6 +36,12 @@ static constexpr uint32_t kExpectedDone = 0;
 static constexpr uint32_t kRangeCanaryOffset = 8;
 static constexpr uint32_t kRangeCanaryBytes = 32;
 static constexpr uint8_t kRangeCanaryByte = 0xC7;
+static constexpr uint32_t kDescriptorRewriteDelaysUs[] = {
+    0, 1, 2, 4, 8, 16, 32, 64, 128, 256, 512, 1024, 2048, 4096,
+};
+// outer.h exposes PFIFO register offsets in the full NV2A MMIO aperture but
+// does not currently name CACHE1_DMA_DATA_SHADOW.
+static constexpr uint32_t kPfifoDmaDataShadowRegister = 0x000032AC;
 static_assert(kRangeCanaryOffset + kRangeCanaryBytes <= kReportBufferBytes,
               "range canaries must remain within test-owned report memory");
 
@@ -165,6 +170,24 @@ void ReportQueryTests::QueueTerminalSemaphore() const {
              kTerminalSemaphoreValue);
 }
 
+void ReportQueryTests::BusyWaitMicroseconds(uint32_t delay_us) const {
+  LARGE_INTEGER start;
+  QueryPerformanceCounter(&start);
+  while (host_.GetMicrosecondsSince(start) < delay_us) {
+  }
+}
+
+bool ReportQueryTests::WaitForDmaDataShadow(uint32_t expected) const {
+  LARGE_INTEGER start;
+  QueryPerformanceCounter(&start);
+  while (VIDEOREG(kPfifoDmaDataShadowRegister) != expected) {
+    if (host_.GetMicrosecondsSince(start) >= kReportTimeoutUs) {
+      return false;
+    }
+  }
+  return true;
+}
+
 void ReportQueryTests::DrawCountedQuad() const {
   static constexpr float kLeft = 96.0f;
   static constexpr float kTop = 96.0f;
@@ -180,15 +203,6 @@ void ReportQueryTests::DrawCountedQuad() const {
   host_.SetVertex(kRight, kBottom, kZ, kW);
   host_.SetVertex(kLeft, kBottom, kZ, kW);
   host_.End();
-}
-
-void ReportQueryTests::QueueDelayedCountedWork() const {
-  // Build a GPU backlog before GET_REPORT. The guest CPU then has a stable
-  // interval in which to rewrite the report's RAMIN descriptor while the
-  // renderer is completing the already-queued query prefix.
-  for (uint32_t i = 0; i < kDescriptorRewriteDraws; ++i) {
-    DrawCountedQuad();
-  }
 }
 
 void ReportQueryTests::QueueProducerWork() const {
@@ -340,6 +354,21 @@ std::string ReportQueryTests::BuildObservationMetadata(Scenario scenario) const 
   metadata << "\"completion\":{\"kind\":\"terminal_semaphore\",";
   metadata << "\"completed\":" << (terminal_completed_ ? "true" : "false")
            << "},";
+  metadata << "\"rewrite_observed_pending\":"
+           << (rewrite_observed_pending_ ? "true" : "false") << ",";
+  metadata << "\"rewrite_window\":{";
+  metadata << "\"mode\":\""
+           << (rewrite_observed_pending_
+                   ? "pending_cross"
+                   : (rewrite_completed_before_
+                          ? "completed_before_rewrite"
+                          : "not_observed"))
+           << "\",";
+  metadata << "\"attempt_count\":" << rewrite_attempt_count_ << ",";
+  metadata << "\"selected_delay_us\":" << rewrite_selected_delay_us_ << ",";
+  metadata << "\"early_attempts\":" << rewrite_early_attempts_ << ",";
+  metadata << "\"completed_before_attempts\":"
+           << rewrite_completed_before_attempts_ << "},";
   metadata << "\"records\":{";
   append_record(metadata, "a0", observed_a0_);
   metadata << ",";
@@ -375,6 +404,12 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
   observed_b0_ = SnapshotRecord(b0);
   observed_b1_ = SnapshotRecord(b1);
   terminal_completed_ = false;
+  rewrite_observed_pending_ = false;
+  rewrite_completed_before_ = false;
+  rewrite_attempt_count_ = 0;
+  rewrite_selected_delay_us_ = 0;
+  rewrite_early_attempts_ = 0;
+  rewrite_completed_before_attempts_ = 0;
   range_canaries_intact_ = true;
 
   BindReportContext(report_context_a_);
@@ -420,48 +455,116 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
         1, a0.value != 0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
         "descriptor positive control A0 must contain a nonzero ZPASS count",
         __FILE__, __LINE__);
+    if (a0.value == 0) {
+      return;
+    }
 
-    ResetRecord(a1);
-    ResetRecord(b0);
-    ResetRecord(b1);
-    BindReportContext(report_context_a_);
-    ClearReportValue();
-    SetZpassEnabled(true);
-    QueueDelayedCountedWork();
-    QueueReport(sizeof(ReportRecord));
+    for (uint32_t delay_us : kDescriptorRewriteDelaysUs) {
+      ++rewrite_attempt_count_;
+      WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
+      ResetRecord(a1);
+      ResetRecord(b0);
+      ResetRecord(b1);
+      BindReportContext(report_context_a_);
+      ClearReportValue();
+      SetZpassEnabled(true);
+      DrawCountedQuad();
+      QueueReport(sizeof(ReportRecord));
 
-    // Mutate the RAMIN descriptor immediately from the guest CPU. This is not
-    // a FIFO method: the pending GET_REPORT must own the descriptor it saw
-    // when consumed, while the following report must observe the new B target.
-    WriteDmaDescriptor(report_context_a_, ReadDmaDescriptor(report_context_b_));
-    ClearReportValue();
-    DrawCountedQuad();
-    QueueReport(0);
-    SetZpassEnabled(false);
+      // CACHE1_DMA_DATA_SHADOW changes before the PFIFO puller invokes the
+      // GET_REPORT method. It gives this xemu-only oracle a deterministic
+      // boundary near descriptor consumption without sleeping for an
+      // arbitrary host interval. The bounded delay search then finds an
+      // execution where consumption has happened but publication has not.
+      const uint32_t report_parameter =
+          (NV097_GET_REPORT_TYPE_ZPASS_PIXEL_CNT << 24) |
+          sizeof(ReportRecord);
+      const bool shadow_observed = WaitForDmaDataShadow(report_parameter);
+      if (!shadow_observed) {
+        WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
+        AssertXemuPerfEqual(
+            1, 0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
+            "descriptor rewrite did not observe its PFIFO data shadow",
+            __FILE__, __LINE__);
+        return;
+      }
+      BusyWaitMicroseconds(delay_us);
+      const bool pending_before_rewrite =
+          a1.timestamp == kTimestampSentinel && a1.value == kValueSentinel &&
+          a1.done == kDoneSentinel;
+      const bool completed_before_rewrite =
+          a1.timestamp != kTimestampSentinel && a1.value != kValueSentinel &&
+          a1.done == kExpectedDone;
+      if (!pending_before_rewrite && !completed_before_rewrite) {
+        WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
+        AssertXemuPerfEqual(
+            1, 0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
+            "descriptor rewrite observed a partial A1 report before rewrite",
+            __FILE__, __LINE__);
+        return;
+      }
+      if (completed_before_rewrite) {
+        ++rewrite_completed_before_attempts_;
+      }
 
-    const bool completed = CompleteGpuWork(
-        "descriptor rewrite terminal semaphore did not complete");
-    if (completed) {
-      ValidatePublishedRecord(
-          a1, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
-          "pending pre-rewrite report must publish complete A1 record");
+      // Mutate RAMIN directly from the guest CPU. The pending report must own
+      // the A descriptor it consumed; the following control must see B.
+      WriteDmaDescriptor(report_context_a_,
+                         ReadDmaDescriptor(report_context_b_));
+      ClearReportValue();
+      DrawCountedQuad();
+      QueueReport(0);
+      SetZpassEnabled(false);
+
+      if (!CompleteGpuWork(
+              "descriptor rewrite terminal semaphore did not complete")) {
+        WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
+        return;
+      }
+
       const bool b1_unchanged =
           b1.timestamp == kTimestampSentinel && b1.value == kValueSentinel &&
           b1.done == kDoneSentinel;
+      const bool a1_complete =
+          a1.timestamp != kTimestampSentinel && a1.value != kValueSentinel &&
+          a1.done == kExpectedDone;
+      const bool b0_complete =
+          b0.timestamp != kTimestampSentinel && b0.value != kValueSentinel &&
+          b0.done == kExpectedDone;
+
+      WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
+
+      if (!(a1_complete && b1_unchanged && b0_complete)) {
+        if (!b1_unchanged) {
+          ++rewrite_early_attempts_;
+        }
+        continue;
+      }
+
+      rewrite_observed_pending_ = pending_before_rewrite;
+      rewrite_completed_before_ = completed_before_rewrite;
+      rewrite_selected_delay_us_ = delay_us;
+      ValidatePublishedRecord(
+          a1, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
+          "tested pre-rewrite report must publish complete A1 record");
       AssertXemuPerfEqual(
           1, b1_unchanged,
           XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
-          "pending pre-rewrite report must not be redirected to B1", __FILE__,
+          "tested pre-rewrite report must not be redirected to B1", __FILE__,
           __LINE__);
       ValidatePublishedRecord(
           b0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
           "post-rewrite control report must publish complete B0 record");
+      BindReportContext(report_context_a_);
+      return;
     }
 
-    // Restore all four original descriptor dwords only after the terminal
-    // semaphore proves both reports have retired.
     WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);
     BindReportContext(report_context_a_);
+    AssertXemuPerfEqual(
+        1, 0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
+        "no calibrated attempt produced complete A1 and B0 records while leaving B1 untouched",
+        __FILE__, __LINE__);
     return;
   }
 

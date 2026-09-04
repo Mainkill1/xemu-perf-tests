@@ -49,8 +49,9 @@ class ReportQueryTests : public TestSuite {
   void SetZpassEnabled(bool enabled) const;
   void QueueReport(uint32_t byte_offset) const;
   void QueueTerminalSemaphore() const;
+  void BusyWaitMicroseconds(uint32_t delay_us) const;
+  bool WaitForDmaDataShadow(uint32_t expected) const;
   void DrawCountedQuad() const;
-  void QueueDelayedCountedWork() const;
   void QueueProducerWork() const;
   void ResetRecord(volatile ReportRecord &record) const;
   bool WaitForTerminalSemaphore() const;
@@ -80,6 +81,12 @@ class ReportQueryTests : public TestSuite {
   mutable ReportRecord observed_b0_{};
   mutable ReportRecord observed_b1_{};
   mutable bool terminal_completed_{false};
+  mutable bool rewrite_observed_pending_{false};
+  mutable bool rewrite_completed_before_{false};
+  mutable uint32_t rewrite_attempt_count_{0};
+  mutable uint32_t rewrite_selected_delay_us_{0};
+  mutable uint32_t rewrite_early_attempts_{0};
+  mutable uint32_t rewrite_completed_before_attempts_{0};
   mutable bool range_canaries_intact_{true};
 };
 
