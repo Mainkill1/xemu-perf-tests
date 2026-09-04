@@ -1237,7 +1237,7 @@ MenuItemRoot::MenuItemRoot(const std::vector<std::shared_ptr<TestSuite>> &suites
            static_cast<unsigned long>(TestCatalogLeafCount()),
            static_cast<unsigned long>(TestCatalogGroupCount()),
            static_cast<unsigned long>(TestCatalogLegacyAliasCount()));
-  header = "Mains Test Suite";
+  header = "Mainkill1's Test Suite";
   root_header_ = header;
   footer = "A/Start select  B/Back exit  Black exit";
 

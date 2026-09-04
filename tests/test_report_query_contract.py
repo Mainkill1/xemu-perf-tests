@@ -8,6 +8,7 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = (ROOT / "src/tests/report_query_tests.cpp").read_text()
+HEADER = (ROOT / "src/tests/report_query_tests.h").read_text()
 MAIN = (ROOT / "src/main.cpp").read_text()
 CMAKE = (ROOT / "src/CMakeLists.txt").read_text()
 DOC = (ROOT / "docs/report-query-workload.md").read_text()
@@ -33,8 +34,22 @@ class ReportQueryContractTests(unittest.TestCase):
         for stable_id, legacy_test in EXPECTED.items():
             descriptor = by_id[stable_id]
             self.assertEqual(descriptor["execution"]["legacy_test"], legacy_test)
+            self.assertEqual(descriptor["revision"], 2)
             self.assertIn("report", descriptor["tags"])
+            self.assertIn(
+                {"name": "report.memory", "kind": "structured", "scope_version": 1},
+                descriptor["observations"],
+            )
             self.assertIn(legacy_test, SOURCE)
+        for stable_id in (
+            "report_query.dma_descriptor_rewrite",
+            "report_query.dma_range_guard",
+        ):
+            descriptor = by_id[stable_id]
+            self.assertEqual(descriptor["supported_targets"], ["xemu"])
+            self.assertEqual(descriptor["measurement_class"], "correctness")
+            self.assertNotIn("performance", descriptor["tags"])
+            self.assertEqual(descriptor["default_measurement"]["measured_samples"], 1)
 
     def test_focused_plans_are_catalog_bound(self):
         for profile in ("fast-smoke", "quick", "sustained"):
@@ -54,24 +69,73 @@ class ReportQueryContractTests(unittest.TestCase):
             "NV097_SET_CONTEXT_DMA_REPORT",
             "kTimestampSentinel",
             "kValueSentinel",
-            "WaitForReport",
+            "kDoneSentinel",
+            "QueueTerminalSemaphore",
+            "WaitForTerminalSemaphore",
+            "NV097_BACK_END_WRITE_SEMAPHORE_RELEASE",
             "AssertXemuPerfEqual(a0.value, a1.value",
             "AssertXemuPerfEqual(a0.value * 2, a1.value",
             "a0.value == b0.value",
             "XemuPerfAssertion::REPORT_TIMEOUT_A",
-            "pb_set_dma_address(&report_context_a_, report_memory_b_",
+            "WriteDmaDescriptor(report_context_a_, ReadDmaDescriptor(report_context_b_))",
             "kLimitedReportInclusiveLimit",
+            "kRangeCanaryBytes",
+            "RangeCanariesIntact",
             "XemuPerfAssertion::REPORT_DMA_RANGE_GUARD",
+            "performance_eligible",
+            "report_query_observations",
         ):
             self.assertIn(token, SOURCE)
+        self.assertIn("static_assert(sizeof(ReportRecord) == 16", HEADER)
+        self.assertNotIn("kDescriptorRewriteDelayMs", SOURCE)
+        self.assertNotIn("WaitForReport", SOURCE)
         for phrase in (
             "report memory directly",
             "DMA-target ownership",
-            "dropped, reordered, or mis-targeted reports",
+            "dropped, reordered",
             "same RAMIN descriptor",
             "complete 16-byte record",
+            "A0/A1/B0/B1",
+            "correctness-only, xemu-only",
+            "terminal GPU semaphore",
         ):
             self.assertIn(phrase, DOC)
+
+    def test_descriptor_rewrite_has_distinct_controls_and_exact_restore(self):
+        body = SOURCE.split(
+            "if (scenario == Scenario::DMA_DESCRIPTOR_REWRITE)", 1
+        )[1].split("if (scenario == Scenario::DMA_RANGE_GUARD)", 1)[0]
+        for token in (
+            "QueueReport(0);",
+            "ResetRecord(a1);",
+            "ResetRecord(b0);",
+            "ResetRecord(b1);",
+            "QueueReport(sizeof(ReportRecord));",
+            "WriteDmaDescriptor(report_context_a_, ReadDmaDescriptor(report_context_b_));",
+            "b1.timestamp == kTimestampSentinel",
+            "original_report_descriptor_a_",
+        ):
+            self.assertIn(token, body)
+        self.assertLess(body.index("QueueReport(sizeof(ReportRecord));"),
+                        body.index("WriteDmaDescriptor(report_context_a_"))
+        self.assertLess(body.index("WriteDmaDescriptor(report_context_a_"),
+                        body.rindex("QueueReport(0);"))
+
+    def test_teardown_quiesces_and_detaches_before_free(self):
+        body = SOURCE.split("void ReportQueryTests::Deinitialize()", 1)[1].split(
+            "void ReportQueryTests::BindReportContext", 1
+        )[0]
+        for token in (
+            "SetZpassEnabled(false);",
+            "BindReportContext(kFullRamDmaContext);",
+            "WriteDmaDescriptor(report_context_a_, original_report_descriptor_a_);",
+            "QueueTerminalSemaphore();",
+            "WaitForTerminalSemaphore();",
+            "MmFreeContiguousMemory(report_memory_a_)",
+        ):
+            self.assertIn(token, body)
+        self.assertLess(body.index("WaitForTerminalSemaphore();"),
+                        body.index("MmFreeContiguousMemory(report_memory_a_)"))
 
 
 if __name__ == "__main__":

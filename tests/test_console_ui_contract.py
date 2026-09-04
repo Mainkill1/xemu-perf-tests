@@ -130,7 +130,7 @@ class ConsoleUiContractTests(unittest.TestCase):
         root_draw = self.menu_source.split("void MenuItemRoot::Draw()", 1)[1].split(
             "void MenuItemRoot::Activate()", 1
         )[0]
-        self.assertIn('header = "Mains Test Suite";', constructor)
+        self.assertIn('header = "Mainkill1\'s Test Suite";', constructor)
         self.assertIn('"%s | %lu ms"', root_draw)
         self.assertNotIn("automatic run in", root_draw)
         self.assertNotIn('header = "xemu perf tests | " + active_plan', constructor)
