@@ -18,14 +18,14 @@ prevent a faster result from silently hiding changed output.
 
 ## Current package
 
-Use `xemu-perf-tests-eng523-report-oracles-e767a48.iso`.
+Use `xemu-perf-tests-eng523-report-oracles-baf221e.iso`.
 
 | Identity | Value |
 | --- | --- |
-| XISO SHA-256 | `34793a5ae8a142087fcc6dbf860283d8ec1999b271e6313dec1f8298bedffcec` |
-| Guest source | `e767a4813d9d2621aa46ef8e70593ea6f862b158` |
+| XISO SHA-256 | `10ca07f227ae4e1d03510fcc1d3237304ff4291741d4c552ab33991e71de1738` |
+| Guest source | `baf221e339f40801fee9ddd3abf1e1a6d21a1f0a` |
 | Catalog | 144 executable leaves + 5 structural groups = 149 full-suite records |
-| Release contract | [`releases/eng523-report-query-oracles-v1.json`](releases/eng523-report-query-oracles-v1.json) |
+| Release contract | [`releases/eng523-report-query-oracles-v2.json`](releases/eng523-report-query-oracles-v2.json) |
 
 Download published artifacts from the
 [`xemu-perf-tests` releases](https://github.com/Mainkill1/xemu-perf-tests/releases)
@@ -64,7 +64,7 @@ process. This exact command selects every current guest test:
 C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
   --mode perf --full-suite ^
   --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng523-report-oracles-e767a48.iso ^
+  --guest-iso C:\path\to\xemu-perf-tests-eng523-report-oracles-baf221e.iso ^
   --catalog C:\path\to\catalog.json ^
   --backend vulkan --scale 1 ^
   --completion-mode per_iteration --expected-record-count 149
@@ -151,16 +151,23 @@ xemu-only DMA descriptor-rewrite and complete-record bounds oracles. The root
 menu is titled `Mainkill1's Test Suite` and automatically starts the active
 selection after ten seconds without input.
 
-The exact release image completed two independent 149-record Vulkan 1x runs
-with validation enabled. Both returned `PASSED`, matched every eligible
-functional oracle, and emitted zero Vulkan VUIDs. The release campaign also
-sampled process CPU/RAM, process GPU/dedicated/shared memory, and device
-GPU/VRAM usage.
+Release v2 waits for deferred report publication after the terminal semaphore.
+This preserves the report-memory oracle while avoiding false soft failures on
+OpenGL, where report publication may complete after PFIFO returns. It also uses
+a later valid report as the range-guard drain fence, so the intentionally
+invalid record is never polled as if it were expected to publish.
+
+The exact v2 image completed two independent 149-record OpenGL 1x runs and two
+independent 149-record Vulkan 1x runs. All four returned `PASSED` and matched
+every eligible functional oracle; both Vulkan runs used validation and emitted
+zero VUIDs. Every run sampled process CPU/RAM, process
+GPU/dedicated/shared memory, and device GPU/VRAM usage.
 
 | Check | Result |
 | --- | ---: |
 | Source contract tests | 124/124 |
-| Release runs | 2/2 |
+| OpenGL Release runs | 2/2 |
+| Vulkan Release runs | 2/2 |
 | Records per run | 149/149 |
 | Functional hashes | PASS |
 | Vulkan VUIDs | 0 |
@@ -169,6 +176,10 @@ The descriptor-rewrite record explicitly reports either `pending_cross` or
 `completed_before_rewrite`. The qualified Vulkan renderer reported
 `completed_before_rewrite`, proving its synchronous guest-visible boundary
 without falsely claiming an observed pending lifetime.
+
+Release v1 is retained as historical evidence, but it is superseded because
+its report-query tests could validate report memory before deferred OpenGL
+publication completed.
 
 ### ENG473 final suite validation
 
