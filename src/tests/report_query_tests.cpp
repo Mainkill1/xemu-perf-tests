@@ -243,6 +243,36 @@ bool ReportQueryTests::CompleteGpuWork(const char *failure_message) const {
   return terminal_completed_;
 }
 
+bool ReportQueryTests::WaitForPublishedRecord(
+    volatile ReportRecord &record) const {
+  LARGE_INTEGER start;
+  QueryPerformanceCounter(&start);
+  while (record.timestamp == kTimestampSentinel ||
+         record.value == kValueSentinel || record.done == kDoneSentinel) {
+    if (host_.GetMicrosecondsSince(start) >= kReportTimeoutUs) {
+      return false;
+    }
+    Sleep(0);
+  }
+  return true;
+}
+
+bool ReportQueryTests::WaitForEitherPublishedRecord(
+    volatile ReportRecord &first, volatile ReportRecord &second) const {
+  LARGE_INTEGER start;
+  QueryPerformanceCounter(&start);
+  while (!((first.timestamp != kTimestampSentinel &&
+            first.value != kValueSentinel && first.done != kDoneSentinel) ||
+           (second.timestamp != kTimestampSentinel &&
+            second.value != kValueSentinel && second.done != kDoneSentinel))) {
+    if (host_.GetMicrosecondsSince(start) >= kReportTimeoutUs) {
+      return false;
+    }
+    Sleep(0);
+  }
+  return true;
+}
+
 bool ReportQueryTests::ValidatePublishedRecord(
     volatile ReportRecord &record, XemuPerfAssertion assertion,
     const char *failure_prefix) const {
@@ -425,6 +455,7 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
             "zero-query terminal semaphore did not complete after GET_REPORT")) {
       return;
     }
+    WaitForPublishedRecord(a0);
     if (!ValidatePublishedRecord(
             a0, XemuPerfAssertion::REPORT_ZERO_VALUE,
             "zero-query report must publish timestamp, value, and done=0")) {
@@ -446,6 +477,7 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
             "descriptor positive-control semaphore did not complete")) {
       return;
     }
+    WaitForPublishedRecord(a0);
     if (!ValidatePublishedRecord(
             a0, XemuPerfAssertion::REPORT_DMA_DESCRIPTOR_SNAPSHOT,
             "descriptor positive control did not publish complete A0 record")) {
@@ -522,6 +554,14 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
         return;
       }
 
+      // Vulkan currently publishes synchronously at GET_REPORT. OpenGL may
+      // retire its host query immediately after the ordered GPU semaphore is
+      // visible. Wait for either the correct A1 destination or the forbidden
+      // B1 redirection, then for the post-rewrite B0 control. This closes the
+      // host-publication race without weakening the ownership oracle.
+      WaitForEitherPublishedRecord(a1, b1);
+      WaitForPublishedRecord(b0);
+
       const bool b1_unchanged =
           b1.timestamp == kTimestampSentinel && b1.value == kValueSentinel &&
           b1.done == kDoneSentinel;
@@ -582,6 +622,7 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
       BindReportContext(report_context_a_);
       return;
     }
+    WaitForPublishedRecord(a0);
     if (!ValidatePublishedRecord(
             a0, XemuPerfAssertion::REPORT_DMA_RANGE_GUARD,
             "range-guard valid offset 0 must publish a complete record")) {
@@ -597,9 +638,21 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
     SetZpassEnabled(false);
     ClearReportValue();
     QueueReport(sizeof(ReportRecord));
+
+    // A valid report on a separate target is the publication fence for the
+    // invalid report. The OpenGL renderer may drain its pending report queue
+    // just after the terminal GPU semaphore becomes visible, so the semaphore
+    // alone cannot prove that the invalid record was already rejected.
+    ResetRecord(b0);
+    BindReportContext(report_context_b_);
+    QueueReport(0);
     const bool completed = CompleteGpuWork(
         "range-guard invalid-offset terminal semaphore did not complete");
     if (completed) {
+      WaitForPublishedRecord(b0);
+      ValidatePublishedRecord(
+          b0, XemuPerfAssertion::REPORT_DMA_RANGE_GUARD,
+          "range-guard publication fence must produce a complete B0 record");
       range_canaries_intact_ = RangeCanariesIntact();
       AssertXemuPerfEqual(
           1, range_canaries_intact_,
@@ -624,6 +677,7 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
             "single-boundary terminal semaphore did not complete")) {
       return;
     }
+    WaitForPublishedRecord(a0);
     if (!ValidatePublishedRecord(
             a0, XemuPerfAssertion::REPORT_NONZERO_VALUE,
             "single-boundary report must publish timestamp, value, and done=0")) {
@@ -646,6 +700,8 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
             "DMA-target terminal semaphore did not complete")) {
       return;
     }
+    WaitForPublishedRecord(a0);
+    WaitForPublishedRecord(b0);
     if (!ValidatePublishedRecord(
             a0, XemuPerfAssertion::REPORT_TIMEOUT_A,
             "first DMA-target report must publish complete A0 record")) {
@@ -674,6 +730,8 @@ void ReportQueryTests::RunScenario(Scenario scenario) {
   if (!CompleteGpuWork("ordered-report terminal semaphore did not complete")) {
     return;
   }
+  WaitForPublishedRecord(a0);
+  WaitForPublishedRecord(a1);
   if (!ValidatePublishedRecord(
           a0, XemuPerfAssertion::REPORT_TIMEOUT_A,
           "first ordered report must publish timestamp, value, and done=0")) {

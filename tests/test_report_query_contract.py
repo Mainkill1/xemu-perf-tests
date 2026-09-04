@@ -72,6 +72,8 @@ class ReportQueryContractTests(unittest.TestCase):
             "kDoneSentinel",
             "QueueTerminalSemaphore",
             "WaitForTerminalSemaphore",
+            "WaitForPublishedRecord",
+            "WaitForEitherPublishedRecord",
             "NV097_BACK_END_WRITE_SEMAPHORE_RELEASE",
             "AssertXemuPerfEqual(a0.value, a1.value",
             "AssertXemuPerfEqual(a0.value * 2, a1.value",
@@ -96,7 +98,7 @@ class ReportQueryContractTests(unittest.TestCase):
             self.assertIn(token, SOURCE)
         self.assertIn("static_assert(sizeof(ReportRecord) == 16", HEADER)
         self.assertNotIn("kDescriptorRewriteDelayMs", SOURCE)
-        self.assertNotIn("WaitForReport", SOURCE)
+        self.assertNotIn("bool ReportQueryTests::WaitForReport(", SOURCE)
         for phrase in (
             "report memory directly",
             "DMA-target ownership",
@@ -106,6 +108,7 @@ class ReportQueryContractTests(unittest.TestCase):
             "A0/A1/B0/B1",
             "correctness-only, xemu-only",
             "terminal GPU semaphore",
+            "deferred host report publication",
         ):
             self.assertIn(phrase, DOC)
 

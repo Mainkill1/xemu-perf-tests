@@ -305,9 +305,9 @@ def failure_diagnosis(test):
         "pipeline_texture_switch.sampler_only_identity":
             "An identical sampler write changed output or caused an invalid reuse decision. Check sampler identity keys, compare-before-dirty logic, descriptor cache lifetime, and texture-stage normalization.",
         "report_query.zero_query":
-            "A disabled-ZPASS report did not publish a complete zero-valued record before the terminal semaphore. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores.",
+            "A disabled-ZPASS report did not publish a complete zero-valued record after ordered GPU and host-report completion. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores.",
         "report_query.single_boundary":
-            "A single counted draw did not publish a complete nonzero report before the terminal semaphore. Check query begin/end, GET_REPORT ordering, and timestamp/value/done stores.",
+            "A single counted draw did not publish a complete nonzero report after ordered GPU and host-report completion. Check query begin/end, GET_REPORT ordering, and timestamp/value/done stores.",
         "report_query.clear_boundary":
             "Equal counted draws separated by CLEAR_REPORT_VALUE did not produce equal complete records. Check clear ordering, cumulative query state, and report publication.",
         "report_query.multiple_boundaries":

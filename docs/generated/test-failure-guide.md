@@ -61,8 +61,8 @@ Generated from catalog `sha256:c5059152ee5e253a7ab66156f50ae7218e821b021f7620318
 
 | Stable ID | Kind | Likely failure cause and first checks |
 | --- | --- | --- |
-| `report_query.zero_query` | leaf | A disabled-ZPASS report did not publish a complete zero-valued record before the terminal semaphore. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores. |
-| `report_query.single_boundary` | leaf | A single counted draw did not publish a complete nonzero report before the terminal semaphore. Check query begin/end, GET_REPORT ordering, and timestamp/value/done stores. |
+| `report_query.zero_query` | leaf | A disabled-ZPASS report did not publish a complete zero-valued record after ordered GPU and host-report completion. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores. |
+| `report_query.single_boundary` | leaf | A single counted draw did not publish a complete nonzero report after ordered GPU and host-report completion. Check query begin/end, GET_REPORT ordering, and timestamp/value/done stores. |
 | `report_query.clear_boundary` | leaf | Equal counted draws separated by CLEAR_REPORT_VALUE did not produce equal complete records. Check clear ordering, cumulative query state, and report publication. |
 | `report_query.multiple_boundaries` | leaf | Two equal counted draws did not produce the expected cumulative 1x/2x complete records. Check query boundary ordering and cumulative report state. |
 | `report_query.dma_target_switch` | leaf | Reports queued around SET_CONTEXT_DMA_REPORT did not reach complete A0/B0 records with equal counts. Check report-context ownership and pending-report ordering. |

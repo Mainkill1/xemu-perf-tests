@@ -4,7 +4,11 @@
 completion. It validates report memory directly. Every leaf establishes its
 own ZPASS and report-DMA state, writes sentinels into dedicated uncached DMA
 targets, queues a terminal GPU semaphore after its last report, and validates
-timestamp, value, and done only after that semaphore completes.
+timestamp, value, and done only after that semaphore completes. Because a host
+renderer may drain its pending report queue just after the guest-visible GPU
+semaphore is written, the suite then uses a bounded wait for deferred host report publication
+before reading each expected record. This is an ordering fence, not a timing
+assumption.
 
 The suite covers report ordering and DMA-target ownership through:
 
@@ -62,7 +66,10 @@ intentionally short inclusive DMA limit. A valid report at offset 0 is the
 positive control. The invalid report begins at offset 16: its starting byte is
 within the limit, but its complete 16-byte record is not. Eight bytes before,
 the full target record, and eight bytes after are filled with canaries and must
-all remain unchanged after terminal completion.
+all remain unchanged after terminal completion. A valid report to the separate
+B target follows the invalid report and acts as its publication fence, proving
+that the renderer drained the ordered report queue before the canaries are
+checked.
 
 This is also a correctness-only, xemu-only fault oracle pending physical
 hardware characterization. It executes once per selected run and is excluded

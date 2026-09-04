@@ -56,6 +56,9 @@ class ReportQueryTests : public TestSuite {
   void ResetRecord(volatile ReportRecord &record) const;
   bool WaitForTerminalSemaphore() const;
   bool CompleteGpuWork(const char *failure_message) const;
+  bool WaitForPublishedRecord(volatile ReportRecord &record) const;
+  bool WaitForEitherPublishedRecord(volatile ReportRecord &first,
+                                    volatile ReportRecord &second) const;
   bool ValidatePublishedRecord(volatile ReportRecord &record,
                                XemuPerfAssertion assertion,
                                const char *failure_prefix) const;
