@@ -57,6 +57,17 @@ def entries():
            ("array_element32", "pfifo.array-element32"),
            ("array_element_pgr2", "pfifo.array-element-pgr2")],
            ("pfifo", "gpu", "performance", "hardware-safe"))
+    for stable, legacy in (
+        ("array_element16_overflow", "pfifo.boundary-array-element16"),
+        ("array_element32_overflow", "pfifo.boundary-array-element32"),
+        ("inline_array_overflow", "pfifo.boundary-inline-array"),
+        ("incrementing_inline_fallback", "pfifo.incrementing-inline-fallback"),
+    ):
+        out.append(leaf(
+            f"pfifo_packet_boundary.{stable}", "pfifo_packet_boundary",
+            "PFIFOPacketBoundary", legacy,
+            "Exercises xemu's controlled PFIFO/PGRAPH packet boundary path.",
+            ("pfifo", "gpu", "correctness", "xemu-only")))
     simple("cpu_floating_point", "CpuFloatingPoint", [("sse_scalar", "SSEScalar"),
            ("x87_scalar", "X87Scalar")], ("cpu", "performance", "hardware-safe"))
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
@@ -224,7 +235,8 @@ def catalog(items):
              "kind": item.kind, "legacy_ids": [item.legacy_id],
              "suite_id": item.suite_id, "display_name": item.legacy_result, "description": item.description,
              "tags": list(item.tags), "supported_targets": ["xemu"] if "xemu-only" in item.tags else ["xemu", "xbox"],
-             "isolation": "same_process", "timeout_ms": 120000 if "stress" in item.id else 30000,
+             "isolation": "same_process", "timeout_ms": 300000 if item.suite_id == "pfifo_packet_boundary" else
+                                                      (120000 if "stress" in item.id else 30000),
              "measurement_class": "correctness" if "performance" not in item.tags else
                                   ("scenario" if {"scenario", "memory-pressure"} & set(item.tags) else "micro")}
         if item.kind == "group":
@@ -352,6 +364,9 @@ def failure_diagnosis(test):
         width = "16-bit" if "16" in test_id else "32-bit"
         shape = "the PGR2-shaped mixed packet stream" if test_id.endswith("pgr2") else f"the {width} element stream"
         return f"{shape.capitalize()} produced wrong indices, vertices, or pixels. Check non-incrementing method packet length, endian unpacking, index expansion, bounds growth, and bulk PFIFO dispatch."
+
+    if test_id.startswith("pfifo_packet_boundary."):
+        return "xemu aborted, consumed the wrong word count, partially applied an oversized packet, or failed to resume after controlled rejection. Check preflight capacity arithmetic, scalar/bulk mode selection, PFIFO method-count updates, and destination-state mutation order."
 
     if test_id.startswith("high_vertex_count."):
         mode = test_id.rsplit(".", 1)[-1].replace("_", " ")
@@ -539,11 +554,24 @@ def render():
         "enable_autorun_immediately": True, "warmup_iterations": 750,
         "measurement_iterations_multiplier": 375, "gpu_completion_mode": "batch_complete",
         "output_directory_path": "e:/xemu_perf_tests"}, pfifo_ids)
+    pfifo_boundary_ids = [
+        "pfifo_packet_boundary.array_element16_overflow",
+        "pfifo_packet_boundary.array_element32_overflow",
+        "pfifo_packet_boundary.inline_array_overflow",
+        "pfifo_packet_boundary.incrementing_inline_fallback",
+    ]
+    pfifo_boundary = resolved_plan(doc, {
+        "enable_autorun_immediately": True, "warmup_iterations": 0,
+        "measurement_iterations_multiplier": 1,
+        "gpu_completion_mode": "per_iteration",
+        "output_directory_path": "e:/xemu_perf_tests"},
+        pfifo_boundary_ids)
     output = {ROOT / "resources/catalog.json": catalog_json(doc),
             ROOT / "resources/plans/smoke.json": smoke_plan,
             ROOT / "resources/pfifo-array-elements-fast-smoke.json": pfifo_smoke,
             ROOT / "resources/pfifo-array-elements-quick.json": pfifo_quick,
             ROOT / "resources/pfifo-array-elements-sustained.json": pfifo_sustained,
+            ROOT / "resources/pfifo-packet-boundary.json": pfifo_boundary,
             ROOT / "docs/generated/test-catalog.md": markdown(doc),
             ROOT / "docs/generated/test-failure-guide.md": failure_guide_markdown(doc),
             ROOT / "src/generated/test_catalog.inc": cpp(items, doc["catalog_id"])}

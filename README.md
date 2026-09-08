@@ -247,8 +247,8 @@ uses these public entries:
 7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
-The full unfiltered image exposes 144 leaf tests, five structural groups, and
-149 full-suite records. A catalog stage belonging to a grouped execution
+The full unfiltered source exposes 148 leaf tests, five structural groups, and
+153 full-suite records. A catalog stage belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.
@@ -657,6 +657,13 @@ configs are in `resources/pfifo-array-elements-*.json`. Duration claims require
 baseline calibration and an identical fixed multiplier for both builds; short
 runs are correctness/path checks only. See
 [`docs/pfifo-array-element-workloads.md`](docs/pfifo-array-element-workloads.md).
+
+`PFIFOPacketBoundary` adds four xemu-only hardening leaves for atomic rejection
+of oversized `ARRAY_ELEMENT16`, `ARRAY_ELEMENT32`, and `INLINE_ARRAY` batches,
+plus the incrementing inline fallback. They intentionally reach xemu's private
+batch limit, are not performance benchmarks, and must not run on physical Xbox
+hardware. Use `resources/pfifo-packet-boundary.json`; see
+[`docs/pfifo-packet-boundary.md`](docs/pfifo-packet-boundary.md).
 
 The tile oracle is nonfatal. Every cell records `oracle_status`, failure count,
 failure mask, reason, provenance, and compatibility key before the suite moves

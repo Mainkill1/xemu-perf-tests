@@ -107,6 +107,8 @@ add_library(
         tests/high_vertex_count_tests.h
         tests/pfifo_array_element_tests.cpp
         tests/pfifo_array_element_tests.h
+        tests/pfifo_packet_boundary_tests.cpp
+        tests/pfifo_packet_boundary_tests.h
         tests/pipeline_texture_switch_tests.cpp
         tests/pipeline_texture_switch_tests.h
         tests/primitive_type_tests.cpp
