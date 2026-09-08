@@ -1,0 +1,98 @@
+{
+  "status": "PASSED",
+  "backend": "opengl",
+  "validator_sha256": "14203872ec1c4fe81faa4152dcd2c7c2cbb028c196b3ed91d6a432ad12ad1f33",
+  "guest_image_sha256": "10ca07f227ae4e1d03510fcc1d3237304ff4291741d4c552ab33991e71de1738",
+  "inputs_unchanged": true,
+  "inputs": [
+    {
+      "report_id": "0e85ed6fd09e44a93ff775bd0b560060bcfe0efd54145ee7c4e286b430ba6b11",
+      "file_sha256": "e237f20d717435d8f0bb7524337520c195425d0cb2400014abaa8b16d42ab232",
+      "record_count": 149,
+      "exclusions": [
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 14,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        },
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 0,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        }
+      ]
+    },
+    {
+      "report_id": "716d0a1ea796f1942585173215927ccc9e080af7d1d5fbf273005119db0ef229",
+      "file_sha256": "13308e2a140da092aac73ffc9d18f8f9c56bfd82f366bb2733895c9227331ce4",
+      "record_count": 149,
+      "exclusions": [
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 13,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        },
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 0,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        }
+      ]
+    },
+    {
+      "report_id": "399873c935b1e200b2c339e3fce6058095c41bad095ab7c50193cb3dd2754383",
+      "file_sha256": "23f46bd282df06209ada4afd6ed7c5eb379c8f72ee53ecfd489897a668b3f917",
+      "record_count": 149,
+      "exclusions": [
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 13,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        },
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 0,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        }
+      ]
+    },
+    {
+      "report_id": "ceba761504c04b77071c84d474bb8c78b9f86357de4c7cd6ad8523fd050bb733",
+      "file_sha256": "e516aed7df9fc9fa31d430badd54b757a706830231b70ae3b0cb062550a53314",
+      "record_count": 149,
+      "exclusions": [
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 15,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        },
+        {
+          "test_id": "GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued",
+          "comparison_only_exclusion": "internal_oracle.failure_count",
+          "retained_raw_value": 0,
+          "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+        }
+      ]
+    }
+  ],
+  "candidates": [
+    {
+      "status": "PASSED",
+      "oracle_id": "af0fbeb805e29759dd5b354154e2555eb3643004312ef6f4152dc23d9f902706",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    },
+    {
+      "status": "PASSED",
+      "oracle_id": "af0fbeb805e29759dd5b354154e2555eb3643004312ef6f4152dc23d9f902706",
+      "oracle_provenance": "REGRESSION_CONSENSUS"
+    }
+  ],
+  "scope": "Offline output comparison only; no new runtime/performance qualification."
+}

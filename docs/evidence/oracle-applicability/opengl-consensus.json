@@ -1,0 +1,2363 @@
+{
+  "schema_version": 1,
+  "kind": "xemu_functional_hash_oracle",
+  "oracle_provenance": "REGRESSION_CONSENSUS",
+  "source_backend": "opengl",
+  "guest_image_sha256": "10ca07f227ae4e1d03510fcc1d3237304ff4291741d4c552ab33991e71de1738",
+  "job_sha256": "e26b7f303b70cc474b6291b4131d5662c8812a8db62b0b5c60423a8d76de6cf6",
+  "records": [
+    {
+      "test_id": "BusyPfifo::PFIFOSaturation",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "1508607624bb8506"
+      }
+    },
+    {
+      "test_id": "BusyPfifo::PgraphPatternPolling",
+      "contract": {
+        "iterations": 1,
+        "sample_count": 1,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "386d0f085e98c325"
+      }
+    },
+    {
+      "test_id": "CpuFloatingPoint::SSEScalar",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "6962077c244da325"
+      }
+    },
+    {
+      "test_id": "CpuFloatingPoint::X87Scalar",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "6962077c244da325"
+      }
+    },
+    {
+      "test_id": "CpuTranslationBlocks::DirectLoop",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "bd1fc9bf0c318325"
+      }
+    },
+    {
+      "test_id": "CpuTranslationBlocks::IndirectDispatch",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c0426cf669a02325"
+      }
+    },
+    {
+      "test_id": "CpuTranslationBlocks::IndirectDispatchStress",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "fbd507cb0c622325"
+      }
+    },
+    {
+      "test_id": "FillRate::FillRate-Solid",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "08b0f60773aac775"
+      }
+    },
+    {
+      "test_id": "FillRate::FillRate-Textured",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "99b433323df1684d"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene",
+      "contract": {
+        "iterations": 0,
+        "sample_count": 0,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-01-CPU",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-02-PFIFO",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-03-AlphaOverdraw",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-04-StreamingSurfaceReuse",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-05-Combined",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::08-LongUnlockedScene-06-FullSystem",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4efd9244c4ad2325",
+        "kats": {
+          "actual_final_state": 336397949,
+          "expected_final_state": 336397949
+        }
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath",
+      "contract": {
+        "iterations": 0,
+        "sample_count": 0,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e30500792076e325"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-01-QueuedVertexCpuWrites",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "ea21c900993ea325",
+        "work_checksum": "3a3942a9",
+        "result_checksum": "a3b81650"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-02-Pgr2SmallDraws",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "151015a16ca46325",
+        "work_checksum": "d1b5efa4",
+        "result_checksum": "88b66250"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-03-TextureUpdateReuse",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "44fcd2c900a5a325",
+        "work_checksum": "a9cbd615",
+        "result_checksum": "d8a91f30"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-04-SurfaceReuse",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "37f87c4938cd6325",
+        "work_checksum": "6ce92e2d",
+        "result_checksum": "ae3077c8"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-05-PipelineStateChurn",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4f8b2eab497ca325",
+        "work_checksum": "e9647a58",
+        "result_checksum": "fbbaffc0"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-06-BlendConstantReuse",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "58e80f99c5a56325",
+        "work_checksum": "378947da",
+        "result_checksum": "091e70b0"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-07-TextureBindingReuse",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "6b9bae4b9c97a325",
+        "work_checksum": "3ce9d484",
+        "result_checksum": "bac77728"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-08-Pgr2LagspotInlineElements",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "2b9db92162606325",
+        "work_checksum": "868f44b5",
+        "result_checksum": "7f7fc560"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-09-ScaledSurfacePressure",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "32a69ec6dce52325",
+        "work_checksum": "72dbb004",
+        "result_checksum": "5a368b38"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-10-S3tcStreamingFencedDraws",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "1a65246e1a0ea325",
+        "work_checksum": "55c15f49",
+        "result_checksum": "04d59828"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::09-CrossTitleHotpath-11-GpuWaitControl",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e30500792076e325",
+        "work_checksum": "85593b01",
+        "result_checksum": "47bded80"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor",
+      "contract": {
+        "iterations": 0,
+        "sample_count": 0,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-01-Dxt1SameAddressWait",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "03211c25",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "0ea3ddc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "work_checksum": "65c0b7e5",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "0ea3ddc5"
+        }
+      },
+      "comparison_policy": {
+        "excluded_observations": [
+          "framebuffer_fnv1a64",
+          "kats.tile_center_kat"
+        ],
+        "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 14
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-03-Dxt1RingPayloadGenerations",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "192050b5",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "0ea3ddc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-04-Dxt1DirtyOnceRedraw",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "428c04bbb0a62725",
+        "work_checksum": "f0976e48",
+        "result_checksum": "fede69d6",
+        "kats": {
+          "source_kat": "0ea3ddc5",
+          "tile_center_kat": "7981b305"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-05-Rgba8SameAddressWait",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3403675459d4d3d5",
+        "work_checksum": "9d65db99",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "9b909dc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "work_checksum": "634f13d9",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "9b909dc5"
+        }
+      },
+      "comparison_policy": {
+        "excluded_observations": [
+          "framebuffer_fnv1a64",
+          "kats.tile_center_kat"
+        ],
+        "reason": "unsynchronized same-address writes have no defined per-draw source generation"
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-07-Rgba8RingPayloadGenerations",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3403675459d4d3d5",
+        "work_checksum": "5d4991a5",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "9b909dc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-08-Rgba8DirtyOnceRedraw",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "428c04bbb0a62725",
+        "work_checksum": "011baa8a",
+        "result_checksum": "fede69d6",
+        "kats": {
+          "source_kat": "9b909dc5",
+          "tile_center_kat": "7981b305"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-09-Bc2NativeEligible",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "1e198d6b",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "0330ddc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-10-Bc2BorderedFallback",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "c26d451c",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "896d9dc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-11-Bc3NativeEligible",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "c9593b92",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "10e7ddc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::10-S3tcSyncFactor-12-Bc3BorderedFallback",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db28300321744de5",
+        "work_checksum": "eb7bb5a9",
+        "result_checksum": "1a4ff923",
+        "kats": {
+          "source_kat": "c0499dc5",
+          "tile_center_kat": "acc7c6b0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "provenance": "regression_only",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::12-RepeatedDisplay",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e758dbbf4edc2325"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::12-RepeatedDisplay-Boosted",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "60315b1c33b6a325"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-01-CPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c9ffff20249e2325",
+        "work_checksum": "4b928f1a",
+        "result_checksum": "25b93629"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-02-PFIFOOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "db52eb2ea2ee6325",
+        "work_checksum": "6a065c78",
+        "result_checksum": "75030000"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-03-GPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "fbd6d6be7f982325",
+        "work_checksum": "d753072c",
+        "result_checksum": "93dc97b3"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-04-StreamingOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f94303d175056325",
+        "work_checksum": "01d92faf",
+        "result_checksum": "4a366374"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-05-CPUPFIFOGPU",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "04157941d1aa6325",
+        "work_checksum": "0229c20d",
+        "result_checksum": "a36829b1"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-06-CPUPFIFOGPUStreaming",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e6d7900d809f6325",
+        "work_checksum": "56538cf4",
+        "result_checksum": "230c4c8c"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuRepresentative-07-FullSystem",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3ebb8ee340a52325",
+        "work_checksum": "f08c6961",
+        "result_checksum": "a8eb8e77"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-01-CPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "312802588e58a325",
+        "work_checksum": "187023bd",
+        "result_checksum": "9b668f06"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-02-PFIFOOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "6251472ce3a6e325",
+        "work_checksum": "b81d8d39",
+        "result_checksum": "be7a9d63"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-03-GPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "30126b41ecb96325",
+        "work_checksum": "758b6c12",
+        "result_checksum": "b53d4d00"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-04-StreamingOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "5b922e3ee1312325",
+        "work_checksum": "50246e19",
+        "result_checksum": "9cc098ca"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-05-CPUPFIFOGPU",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c94959246d55a325",
+        "work_checksum": "7864be61",
+        "result_checksum": "6932ee9a"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-06-CPUPFIFOGPUStreaming",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "5dbf320b91a86325",
+        "work_checksum": "24b21af5",
+        "result_checksum": "441dc573"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::DoaxMenuStress-07-FullSystem",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "545f7965debce325",
+        "work_checksum": "966106c0",
+        "result_checksum": "03538db8"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-01-CPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e086b0a920c42325",
+        "work_checksum": "eabfda06",
+        "result_checksum": "a49f0bc1"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-02-PFIFOOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "5bc1b07714da2325",
+        "work_checksum": "7fc54d75",
+        "result_checksum": "4b051b93"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-03-GPUOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f8348ac6eeaaa325",
+        "work_checksum": "5346feb8",
+        "result_checksum": "c8649bd0"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-04-StreamingOnly",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f43007e31b972325",
+        "work_checksum": "998a44e5",
+        "result_checksum": "0d851e63"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-05-CPUPFIFOGPU",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "48c0585f003ea325",
+        "work_checksum": "02af5580",
+        "result_checksum": "986ff5c9"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-06-CPUPFIFOGPUStreaming",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e0430415b6dbe325",
+        "work_checksum": "b4910679",
+        "result_checksum": "1fd68950"
+      }
+    },
+    {
+      "test_id": "GameLoadComposite::Pgr2AiBackup-07-FullSystem",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "cb91c33db5046325",
+        "work_checksum": "6a911aa2",
+        "result_checksum": "79d09f77"
+      }
+    },
+    {
+      "test_id": "High vertex count::HighVtxCount-arrays",
+      "contract": {
+        "iterations": 100,
+        "sample_count": 100,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      }
+    },
+    {
+      "test_id": "High vertex count::HighVtxCount-inlinearrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      }
+    },
+    {
+      "test_id": "High vertex count::HighVtxCount-inlinebuffers",
+      "contract": {
+        "iterations": 5,
+        "sample_count": 5,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      }
+    },
+    {
+      "test_id": "High vertex count::HighVtxCount-inlineelements",
+      "contract": {
+        "iterations": 50,
+        "sample_count": 50,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      }
+    },
+    {
+      "test_id": "PFIFOArrayElements::pfifo.array-element-pgr2",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "bbc8b0702ffd0325",
+        "kats": {
+          "actual_final_state": 97908247,
+          "expected_final_state": 97908247,
+          "input_kat": {
+            "index_actual": 870833140,
+            "index_expected": 870833140,
+            "payload_actual": 1432210492,
+            "payload_expected": 1432210492,
+            "vertex_actual": 1466932320,
+            "vertex_expected": 1466932320
+          },
+          "rendered_pixel_kat": {
+            "actual": 416320404,
+            "expected": 416320404
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PFIFOArrayElements::pfifo.array-element16",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "9c884de2a5d32325",
+        "kats": {
+          "actual_final_state": 3486533672,
+          "expected_final_state": 3486533672,
+          "input_kat": {
+            "index_actual": 558546181,
+            "index_expected": 558546181,
+            "payload_actual": 944780341,
+            "payload_expected": 944780341,
+            "vertex_actual": 1466932320,
+            "vertex_expected": 1466932320
+          },
+          "rendered_pixel_kat": {
+            "actual": 2406069190,
+            "expected": 2406069190
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PFIFOArrayElements::pfifo.array-element32",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e079f0cf1a994325",
+        "kats": {
+          "actual_final_state": 140384092,
+          "expected_final_state": 140384092,
+          "input_kat": {
+            "index_actual": 558546181,
+            "index_expected": 558546181,
+            "payload_actual": 558546181,
+            "payload_expected": 558546181,
+            "vertex_actual": 1466932320,
+            "vertex_expected": 1466932320
+          },
+          "rendered_pixel_kat": {
+            "actual": 2406069190,
+            "expected": 2406069190
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PipelineTextureSwitch::pipeline.clear-texture-normal",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "22ba4f1405cda325",
+        "kats": {
+          "actual_final_state": 1099851396,
+          "backing_kat": {
+            "a_actual": 3187228101,
+            "a_expected": 3187228101,
+            "b_actual": 3289038277,
+            "b_expected": 3289038277
+          },
+          "expected_final_state": 1099851396,
+          "input_kat": {
+            "actual": 440421443,
+            "expected": 440421443
+          },
+          "rendered_pixel_kat": {
+            "actual": 1354761885,
+            "expected": 1354761885
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PipelineTextureSwitch::pipeline.sampler-only-identity",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "0b8438c8404da325",
+        "kats": {
+          "actual_final_state": 3177800355,
+          "backing_kat": {
+            "a_actual": 3453343653,
+            "a_expected": 3453343653,
+            "b_actual": 3289038277,
+            "b_expected": 3289038277
+          },
+          "expected_final_state": 3177800355,
+          "input_kat": {
+            "actual": 672910674,
+            "expected": 672910674
+          },
+          "rendered_pixel_kat": {
+            "actual": 3138308333,
+            "expected": 3138308333
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PipelineTextureSwitch::pipeline.shader-negative-control",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f110c8bd6338c325",
+        "kats": {
+          "actual_final_state": 2188296853,
+          "backing_kat": {
+            "a_actual": 3187228101,
+            "a_expected": 3187228101,
+            "b_actual": 3289038277,
+            "b_expected": 3289038277
+          },
+          "expected_final_state": 2188296853,
+          "input_kat": {
+            "actual": 2848616773,
+            "expected": 2848616773
+          },
+          "rendered_pixel_kat": {
+            "actual": 147187873,
+            "expected": 147187873
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PipelineTextureSwitch::pipeline.texture-switch",
+      "contract": {
+        "iterations": 8,
+        "sample_count": 8,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "8ae05d31fb00c325",
+        "kats": {
+          "actual_final_state": 2847289206,
+          "backing_kat": {
+            "a_actual": 3187228101,
+            "a_expected": 3187228101,
+            "b_actual": 3289038277,
+            "b_expected": 3289038277
+          },
+          "expected_final_state": 2847289206,
+          "input_kat": {
+            "actual": 2848616773,
+            "expected": 2848616773
+          },
+          "rendered_pixel_kat": {
+            "actual": 3138308333,
+            "expected": 3138308333
+          }
+        }
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-LLoop",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e029a36a3b91c6cc"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-LLoop-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e029a36a3b91c6cc"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-LStrip",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "05e55de77521d31a"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-LStrip-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "05e55de77521d31a"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Lines",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e1c19d5c7e7898ab"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Lines-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "e1c19d5c7e7898ab"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Points",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "5b296619f665c070"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Points-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "5b296619f665c070"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Poly",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "2c4beaa06aba1000"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Poly-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "2c4beaa06aba1000"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-QuadStrip",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f64b4495347cec73"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-QuadStrip-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "f64b4495347cec73"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Quads",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "114a1419338256e5"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Quads-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "114a1419338256e5"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-TriFan",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "36644f0fd11db166"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-TriFan-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "36644f0fd11db166"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-TriStrip",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "d7b289579fdaa1ab"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-TriStrip-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "d7b289579fdaa1ab"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Tris",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "72f05baf369ceb60"
+      }
+    },
+    {
+      "test_id": "PrimitiveType::PrimitiveType-Tris-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "72f05baf369ceb60"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.clear-boundary",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "b5eb7c4b9c8da325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.dma-descriptor-rewrite",
+      "contract": {
+        "iterations": 1,
+        "sample_count": 1,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c0c0fdbececda325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.dma-range-guard",
+      "contract": {
+        "iterations": 1,
+        "sample_count": 1,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3f648ce11a4da325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.dma-target-switch",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4c4bd8cd440da325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.fifo-producer-ordering",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "0d907c24a88da325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.multiple-boundaries",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "0c966fc9ba4da325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.single-boundary",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "60e674c9fecda325"
+      }
+    },
+    {
+      "test_id": "ReportQuery::report.zero-query",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "23875dfeb40da325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::SurfaceRendering",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "0f44c0df337b52bc"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuCpuReadAfterGpuWrite",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "76ea18af98322325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuCpuReadCleanSurface",
+      "contract": {
+        "iterations": 100,
+        "sample_count": 100,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "d3267b427820a325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuFramebufferWorkingSet002",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "9f3b0609a42777d5"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuFramebufferWorkingSet008",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "64cbf95dec8f59e5"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuFramebufferWorkingSet032",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a6116feb11a28c25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuFramebufferWorkingSet064",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "a6116feb11a28c25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuFullClearElisionGuard",
+      "contract": {
+        "iterations": 100,
+        "sample_count": 100,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "4f05ccd43f43d495"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuOverlappingSurfaceChurnRepresentative",
+      "contract": {
+        "iterations": 100,
+        "sample_count": 100,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "caf66d4bf5691525"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuOverlappingSurfaceChurnStress",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "caf66d4bf5691525"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuPartialChannelClearGuard",
+      "contract": {
+        "iterations": 100,
+        "sample_count": 100,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "eb2cb498aa73af25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuSurfaceDownloadPath",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "2b0e8aac0f8838e8"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuSurfaceListLookup002",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "dce4c9394e7a3f35"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuSurfaceListLookup008",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "bf1fe5b8fe78a94d"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuSurfaceListLookup032",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c6275b91195a5325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuSurfaceListLookup128",
+      "contract": {
+        "iterations": 20,
+        "sample_count": 20,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c6275b91195a5325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative",
+      "contract": {
+        "iterations": 0,
+        "sample_count": 0,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "7e188dabb186cb25",
+        "kats": {
+          "oracle_expected_kat": "0d626fa0",
+          "oracle_observed_kat": "0d626fa0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative-alias_resize",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "0c26236493b4d325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative-growth",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "c1b304b452852b25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative-idle_retention",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3a8651789ea0fa25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative-plateau",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "730005d86af45b25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureRepresentative-reuse",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "3ba0d18066aacb25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress",
+      "contract": {
+        "iterations": 0,
+        "sample_count": 0,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "7e188dabb186cb25",
+        "kats": {
+          "oracle_expected_kat": "0d626fa0",
+          "oracle_observed_kat": "0d626fa0"
+        }
+      },
+      "internal_oracle": {
+        "status": "PASS",
+        "failure_count": 0
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress-alias_resize",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "84a8d75f1f9d1b25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress-growth",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "94cdb4bddb0e4b25"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress-idle_retention",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "430711a262877725"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress-plateau",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "196f33989be28325"
+      }
+    },
+    {
+      "test_id": "SurfaceRendering::XemuVulkanMemoryPressureStress-reuse",
+      "contract": {
+        "iterations": 4,
+        "sample_count": 4,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "fb2a6abd1cbfc725"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-arrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-arrays-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlinearrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlinearrays-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlinebuffers",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlinebuffers-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlineelements",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "TinyDraw::TinyDraw-inlineelements-vsh",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      }
+    },
+    {
+      "test_id": "UniformThrash::UniformThrash",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "09eb5907ef624c25"
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::MixedVtxAlloc-arrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "e3d10075",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::MixedVtxAlloc-inlinearrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "56626e4f",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::MixedVtxAlloc-inlinebuffers",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "2021e638",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::MixedVtxAlloc-inlineelements",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "1008c2f2",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::TinyAlloc-arrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "4380bb3f",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "e4d10535",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::TinyAlloc-inlinebuffers",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "e4f91de2",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::TinyAlloc-inlineelements",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "377e6c029807f325",
+        "work_checksum": "9ae68ad8",
+        "result_checksum": "f36e0ec5",
+        "kats": {
+          "tile_center_kat": "f36e0ec5"
+        }
+      }
+    },
+    {
+      "test_id": "Vertex buffer allocation::XemuVertexRamDisjointSamePage",
+      "contract": {
+        "iterations": 10,
+        "sample_count": 10,
+        "measurement_iterations_multiplier": 1,
+        "warmup_iterations": 0,
+        "gpu_completion_mode": "per_iteration"
+      },
+      "hashes": {
+        "framebuffer_fnv1a64": "fdcd25a37910bb25"
+      }
+    }
+  ],
+  "consensus_report_count": 2,
+  "consensus_report_ids": [
+    "0e85ed6fd09e44a93ff775bd0b560060bcfe0efd54145ee7c4e286b430ba6b11",
+    "716d0a1ea796f1942585173215927ccc9e080af7d1d5fbf273005119db0ef229"
+  ],
+  "oracle_id": "af0fbeb805e29759dd5b354154e2555eb3643004312ef6f4152dc23d9f902706"
+}
