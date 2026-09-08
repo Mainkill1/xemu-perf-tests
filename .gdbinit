@@ -19,7 +19,7 @@ set osabi none
 
 # CLion: Handled by CLion
 # Connect to the XQEMU GDB server
-# target remote 127.0.0.1:1234
+# target remote <debug-host>:1234
 
 # Stop execution at the beginning of the `main` function
 # b main

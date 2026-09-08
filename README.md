@@ -27,9 +27,9 @@ Use `xemu-perf-tests-eng523-report-oracles-baf221e.iso`.
 | Catalog | 144 executable leaves + 5 structural groups = 149 full-suite records |
 | Release contract | [`releases/eng523-report-query-oracles-v2.json`](releases/eng523-report-query-oracles-v2.json) |
 
-Download published artifacts from the
-[`xemu-perf-tests` releases](https://github.com/Mainkill1/xemu-perf-tests/releases)
-and verify the digest.
+This contract identifies the existing qualification image; a rebuild from a
+new commit is a separate artifact. The older v1.0.0 release has 141 records
+and must not be substituted in a 149-record comparison.
 
 ## System flow
 
@@ -40,7 +40,7 @@ catalog + fixed workload + selected plan
              Xbox XISO
           /                 \
 manual persistent HDD       automated disposable HDD
-E:\xemu_perf_tests          C:\xemu-lab\suite\work\test.img
+E:\xemu_perf_tests          new per-run FATX image
 archives current result     reformatted before each internal run
           |                          |
           v                          v
@@ -50,31 +50,23 @@ byte-exact results/history   timestamped host run directory
            +-- correctness, then timing --+
 ```
 
-The XISO never formats a manual HDD. It manages only its configured output
-directory. The internal lab runner formats only its dedicated disposable
-`work\test.img`; its FATX history is temporary. Public-safe automation must
-create a new per-run image and refuse every existing or user-provided HDD.
+The XISO never formats an HDD. It manages only its configured output directory.
+Automation may format only a newly created, dedicated test image. Never point
+an automation tool at a game, save, or user-provided HDD image.
 
-## Automated xemu run
+## Run in xemu
 
-The verified lab runner is `C:\xemu-lab\suite\run-suite.py`. Run one xemu
-process. This exact command selects every current guest test:
+Configure xemu with legally obtained Xbox system files and a dedicated test
+HDD, then launch the release ISO:
 
-```bat
-C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
-  --mode perf --full-suite ^
-  --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng523-report-oracles-baf221e.iso ^
-  --catalog C:\path\to\catalog.json ^
-  --backend vulkan --scale 1 ^
-  --completion-mode per_iteration --expected-record-count 149
+```text
+xemu -dvd_path xemu-perf-tests-eng523-report-oracles-baf221e.iso
 ```
 
-Use `--backend opengl` for OpenGL. Add `--vulkan-validation` only to a Vulkan
-correctness run; diagnostic/validation timing is not performance evidence.
-Unmodified upstream xemu without lab live markers may add
-`--allow-missing-live-markers --host-telemetry off`. That waives timing
-attribution only; record count, checks, hashes, and validation remain required.
+The menu starts a full run after its countdown. Any controller input cancels
+the countdown. Use `Run Suite` for the full selection or `Individual Tests`
+for one stable test route. A normal interactive run returns to the menu;
+automation may request shutdown after completion through the guest config.
 
 ## Retrieve results
 
@@ -159,7 +151,7 @@ invalid record is never polled as if it were expected to publish.
 
 The exact v2 image completed two independent 149-record OpenGL 1x runs and two
 independent 149-record Vulkan 1x runs. All four returned `PASSED` and matched
-every eligible functional oracle; both Vulkan runs used validation and emitted
+the functional oracles recorded in that historical release contract; both Vulkan runs used validation and emitted
 zero VUIDs. Every run sampled process CPU/RAM, process
 GPU/dedicated/shared memory, and device GPU/VRAM usage.
 
@@ -181,27 +173,25 @@ Release v1 is retained as historical evidence, but it is superseded because
 its report-query tests could validate report memory before deferred OpenGL
 publication completed.
 
-### ENG473 final suite validation
+Later Windows-wait qualification found an inapplicable S3TC diagnostic count
+blocking OpenGL host consensus; see [xemu issue #26](https://github.com/Mainkill1/xemu/issues/26).
+The historical result above does not resolve that comparison-tool defect.
 
-The exact current XISO completed the 141-record OpenGL 1x full suite on the
-dedicated Windows rig with both the upstream baseline and PR #2-#9 release
-build. Both runs returned `PASSED` with no assertion, crash, hang, or device
-loss.
+### Historical v1.0.0 suite validation
+
+The release XISO completed its full selection through a plain xemu disc boot
+on two Windows systems. Autorun was not driven by a host-side suite runner.
 
 | Check | Result |
 | --- | ---: |
-| Baseline records | 141/141 |
-| PR #2-#9 records | 141/141 |
-| Comparable framebuffer/work/result hashes | 245/245 match |
-| Hash mismatches | 0 |
-| Missing or extra records | 0 |
+| Result records | 141/141 PASS |
+| Executable leaves | 136/136 PASS |
+| Structural groups | 5/5 PASS |
+| Oracle failures | 0 |
+| Autorun lifecycle | One run, then stable menu |
 
-Two same-address queued-texture framebuffer observations are excluded from
-pixel comparison because the guest overwrites unified texture memory without a
-GPU synchronization boundary. Their work and result hashes remain mandatory.
-Synchronized same-address and distinct-address ring routes remain strict pixel
-oracles. Exact identities and run paths are in
-[`releases/eng473-final-v1.json`](releases/eng473-final-v1.json).
+Exact artifact identities and known limitations are in
+[`releases/v1.0.0.json`](releases/v1.0.0.json).
 
 ### Prior complete performance campaign
 
@@ -222,28 +212,12 @@ candidate completed them. Seven stale pixel KAT expectations are exact,
 XISO-hash-bound limitations after both builds produced the same values and
 their independent framebuffer oracles passed.
 
-Strict evidence is in
-[`xemu-perf-lab` PR #5](http://10.0.4.4:3000/main/xemu-perf-lab/pulls/5).
-These numbers describe the wider candidate, not the narrower PR #2-#9 package.
-Matching release/diagnostic executables and identities are in
-[`xemu-pr-train` releases](http://10.0.4.4:3000/main/xemu-pr-train/releases)
-and [`releases/eng466-publication-v1.json`](releases/eng466-publication-v1.json).
+These figures describe the combined candidate tested at that time and must not
+be attributed to any one xemu change. Individual xemu pull requests should
+cite only their focused workload result plus the full-suite correctness gate.
 
-### ENG462 integration history
-
-ENG462 added PFIFO array elements, texture/sampler identity checks, Vulkan
-submission-lifetime plans, RUNNING status, soft-failure screens, and the
-141-record integration image. See
-[`releases/eng462-integration-v1.json`](releases/eng462-integration-v1.json) and
-[`releases/eng462-final-ab-20260830.md`](releases/eng462-final-ab-20260830.md).
-Older release data below remains history, not the current download.
-
-### Historical ENG458 texture validation
-
-The 12-route S3TC/BC lifetime matrix, exact KATs, historical image identity,
-and verified runner command moved to
-[`docs/s3tc-validation.md`](docs/s3tc-validation.md). It remains evidence, not
-the current download.
+The 12-route S3TC/BC lifetime matrix and expected values are documented in
+[`docs/s3tc-validation.md`](docs/s3tc-validation.md).
 
 # Usage
 
@@ -789,7 +763,7 @@ Under Settings > Build, Execution, Deployment > CMake
 1. Set the Target to the `<your project name>_xiso` target
 1. Set the Executable to the `<your project name>` binary (it should be the only thing in the dropdown)
 1. Set `Upload executable` to `Never`
-1. Set `'target remote' args` to `127.0.0.1:1234`
+1. Set `'target remote' args` to `<debug-host>:1234`
 1. Set `GDB Server` to the path to the xemu binary
 1. Set `GDB Server args` to
    `-s -S -dvd_path "$CMakeCurrentBuildDir$/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso"` (the `-S` is
@@ -807,7 +781,7 @@ Under Settings > Build, Execution, Deployment > CMake
 1. Set the Target to the `<your project name>_xiso` target
 1. Set the Executable to the `<your project name>` binary (it should be the only thing in the dropdown)
 1. Set `Upload executable` to `Never`
-1. Set `'target remote' args` to `127.0.0.1:1999`
+1. Set `'target remote' args` to `<debug-host>:1999`
 1. Set `GDB Server` to the path to the xbdm_gdb_bridge binary (e.g., `<some_path>/xbdm_gdb_bridge`)
 1. Set `GDB Server args` to `<your_xbox_ip> -v3 -s -- gdb :1999 e:\$CMakeCurrentTargetName$`
 1. Under `Advanced GDB Server Options`, set `Reset command` to `Never`

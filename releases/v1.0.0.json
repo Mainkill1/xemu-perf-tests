@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "version": "v1.0.0",
+  "artifact": {
+    "name": "xemu-perf-tests-v1.0.0.iso",
+    "sha256": "7b8eb7af66a87fad93bcea019208457e42aaff2bd81b1353df2b6c378db7707c",
+    "size_bytes": 42663936
+  },
+  "source": {
+    "guest_commit": "b3fbc8c965a1e247f471b780c90e07caabd559d6",
+    "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be"
+  },
+  "catalog": {
+    "leaf_records": 136,
+    "group_records": 5,
+    "full_suite_records": 141
+  },
+  "validation": {
+    "plain_disc_boot_systems": 2,
+    "records_passed": 141,
+    "records_failed": 0,
+    "oracle_failures": 0,
+    "autorun_behavior": "one full run followed by a stable menu"
+  },
+  "notes": [
+    "Interactive results remain appendable while the menu is open and are finalized when the menu exits.",
+    "Explicit unattended shutdown remains available through guest configuration.",
+    "Framebuffer hashes are regression oracles unless backed by original-hardware evidence."
+  ]
+}

@@ -24,8 +24,9 @@ timings are not performance evidence.
 
 ## Automated xemu
 
-The lab runner lives in `C:\xemu-lab\suite`; it is not part of this repository.
-Check its `--help` because installed profiles follow the lab release.
+Host automation should launch xemu with this ISO and a newly created,
+dedicated FATX test image. The host-side launcher is intentionally separate
+from the guest workload repository.
 
 Preflight:
 
@@ -33,62 +34,27 @@ Preflight:
 2. Verify XISO SHA-256 against the landing page or release manifest.
 3. Close every other xemu process.
 4. Fix renderer, scale, VSync, Xbox RAM, completion mode, and XISO.
-5. Confirm the internal lab target is its dedicated disposable
-   `C:\xemu-lab\suite\work\test.img`, never a game or user-provided HDD.
+5. Confirm the HDD target is a new disposable test image, never a game, save,
+   or user-provided HDD.
 6. For A/B, calibrate work on baseline only; reuse that multiplier unchanged.
 
-The current internal runner reformats that dedicated `work\test.img` before
-every run. Guest `history` therefore does not persist between automated runs;
-the extracted host run directory is the durable evidence. A public-safe runner
-must instead create a new per-run disposable image at a new path and refuse any
-pre-existing image. It must not accept, reuse, or format a user-provided HDD.
-
-Run the complete current selection from Windows Command Prompt:
+Launch the complete current selection from Windows Command Prompt:
 
 ```bat
-C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
-  --mode perf --full-suite ^
-  --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
-  --backend vulkan --scale 1 ^
-  --completion-mode per_iteration --expected-record-count 141
+<path-to-xemu>\xemu.exe ^
+  -config_path <path-to-test-config>\xemu.toml ^
+  -dvd_path <path-to-iso>\xemu-perf-tests-v1.0.0.iso
 ```
 
-For OpenGL, change only `--backend`. For another scale, change only `--scale`.
-Add `--vulkan-validation` to a Vulkan correctness run; do not use that run for
-timing.
+Renderer, scale, VSync, and HDD paths belong in the selected xemu config. A
+guest plan may be placed at
+`E:\xemu_perf_tests\xemu_perf_tests_config.json` before boot. Stable IDs and
+legacy mappings are in [`resources/catalog.json`](../resources/catalog.json).
 
-An unmodified upstream xemu may lack the lab live-marker transport. For that
-case only, add:
-
-```text
---allow-missing-live-markers --host-telemetry off
-```
-
-This narrowly waives live-marker attribution. It cannot be combined with host
-GDB samples. Record inventory, guest checks, functional hashes, and renderer
-validation remain mandatory, so correctness is not relaxed. Timing from the
-waived run is explicitly ineligible for a PR-grade performance claim.
-
-Reduce an S3TC failure to its exact grouped route:
-
-```bat
-C:\xemu-lab\suite\python313\python.exe C:\xemu-lab\suite\run-suite.py ^
-  --mode perf --test-id GameLoadComposite::10-S3tcSyncFactor ^
-  --xemu C:\path\to\xemu.exe ^
-  --guest-iso C:\path\to\xemu-perf-tests-eng473-final-1f5fb0d.iso ^
-  --backend vulkan --scale 1 --completion-mode per_iteration ^
-  --expected-record-count 13 --vulkan-validation
-```
-
-`--test-id` takes a legacy `Suite::Test` execution name. Stable IDs and legacy
-mappings are in [`resources/catalog.json`](../resources/catalog.json). Prefer a
-checked resolved plan when selecting independent composite children.
-
-The runner preserves byte-exact `results.txt` and normally adds
-`guest-config.json`, `normalized-results.json`, xemu/XISO identities, xemu log,
-backend, scale, completion mode, host identity, and validation evidence. Treat
-the run directory as one evidence unit. Never edit the guest result.
+Automation should preserve byte-exact `results.txt`, the guest config, xemu and
+XISO identities, backend, scale, completion mode, emulator log, and validation
+evidence. Treat the host run directory as one evidence unit. Never edit the
+guest result.
 
 ### Performance A/B
 

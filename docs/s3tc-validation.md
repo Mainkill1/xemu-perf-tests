@@ -50,7 +50,7 @@ Verified historical command for all 12 routes at Vulkan 1x:
 ```bat
 python313\python.exe run-suite.py --mode perf ^
   --test-id GameLoadComposite::10-S3tcSyncFactor ^
-  --guest-iso C:\xemu-lab\suite\assets\xemu-perf-tests-eng458-69a646a.iso ^
+  --guest-iso <path-to-historical-xiso> ^
   --backend vulkan --scale 1 --warmup-iterations 0 ^
   --completion-mode per_iteration --expected-record-count 13 ^
   --vulkan-validation
@@ -62,9 +62,8 @@ Repeat at 4x by changing only `--scale`. The runner injects config at
 `normalized-results.json`, `guest-config.json`, `xemu.log`, and validation
 evidence in the host run directory.
 
-The internal lab runner reformats only its dedicated disposable
-`C:\xemu-lab\suite\work\test.img`; its FATX history is temporary. Public-safe
-automation must create a new per-run image and refuse existing/user HDDs.
+Automation may format only its newly created disposable FATX image. It must
+refuse existing or user-provided HDD images.
 
 Interpretation:
 
