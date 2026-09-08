@@ -111,6 +111,8 @@ add_library(
         tests/pipeline_texture_switch_tests.h
         tests/primitive_type_tests.cpp
         tests/primitive_type_tests.h
+        tests/report_query_tests.cpp
+        tests/report_query_tests.h
         tests/surface_rendering_tests.cpp
         tests/surface_rendering_tests.h
         tests/test_suite.cpp

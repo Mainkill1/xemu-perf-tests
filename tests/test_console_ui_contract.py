@@ -123,6 +123,19 @@ class ConsoleUiContractTests(unittest.TestCase):
             self.assertNotIn("system_clock", draw)
         self.assertGreaterEqual(header.count("uint32_t start_tick{0};"), 2)
 
+    def test_root_header_keeps_only_the_suite_title_and_countdown(self):
+        constructor = self.menu_source.split("MenuItemRoot::MenuItemRoot", 1)[1].split(
+            "void MenuItemRoot::ActivateCurrentSuite", 1
+        )[0]
+        root_draw = self.menu_source.split("void MenuItemRoot::Draw()", 1)[1].split(
+            "void MenuItemRoot::Activate()", 1
+        )[0]
+        self.assertIn('header = "Mainkill1\'s Test Suite";', constructor)
+        self.assertIn('"%s | %lu ms"', root_draw)
+        self.assertNotIn("automatic run in", root_draw)
+        self.assertNotIn('header = "xemu perf tests | " + active_plan', constructor)
+        self.assertIn("kAutoTestAllTimeoutMilliseconds = 10000", self.menu_source)
+
     def test_left_stick_uses_dpad_routes_with_drift_hysteresis_and_repeat(self):
         for token in (
             "SDL_CONTROLLERAXISMOTION",

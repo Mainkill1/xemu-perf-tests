@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "version": "eng523-report-query-oracles-v1",
+  "release_notes": [
+    "Renames the root interface to Mainkill1's Test Suite.",
+    "Restores a ten-second no-input autorun countdown.",
+    "Adds eight ordered ZPASS report-query leaves with terminal-semaphore completion and structured report-memory evidence.",
+    "Hardens the DMA descriptor-rewrite, complete-record bounds, per-leaf state, teardown, and failure-description contracts."
+  ],
+  "breaking_changes": [],
+  "known_issues": [
+    "The DMA descriptor-rewrite and range-guard leaves are xemu-only pending physical Xbox characterization.",
+    "A synchronous renderer may report completed_before_rewrite instead of pending_cross; both modes require complete A1/B0 records and an untouched B1 sentinel."
+  ],
+  "source": {
+    "commit": "e767a4813d9d2621aa46ef8e70593ea6f862b158",
+    "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+    "contract_tests": "124/124 PASS"
+  },
+  "artifacts": [
+    {
+      "name": "xemu-perf-tests-eng523-report-oracles-e767a48.iso",
+      "size_bytes": 3604480,
+      "sha256": "34793a5ae8a142087fcc6dbf860283d8ec1999b271e6313dec1f8298bedffcec"
+    },
+    {
+      "name": "catalog.json",
+      "sha256": "a5c22393acfab742af570e9a7a7aba8cffae13eaf87ce4e6151d5ec3b9511e87",
+      "leaf_tests": 144,
+      "structural_groups": 5,
+      "full_suite_records": 149
+    }
+  ],
+  "validation": {
+    "backend": "vulkan",
+    "scale": 1,
+    "release_runs": "2/2 PASS",
+    "records_per_run": "149/149 PASS",
+    "functional_hashes": "PASS",
+    "vulkan_validation_active": true,
+    "vuid_count": 0,
+    "resource_telemetry": [
+      "process CPU and RAM",
+      "process GPU engine, dedicated memory, and shared memory",
+      "device GPU utilization and VRAM"
+    ]
+  }
+}

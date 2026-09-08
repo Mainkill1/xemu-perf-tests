@@ -18,19 +18,18 @@ prevent a faster result from silently hiding changed output.
 
 ## Current package
 
-Use `xemu-perf-tests-v1.0.0.iso`.
+Use `xemu-perf-tests-eng523-report-oracles-baf221e.iso`.
 
 | Identity | Value |
 | --- | --- |
-| XISO SHA-256 | `7b8eb7af66a87fad93bcea019208457e42aaff2bd81b1353df2b6c378db7707c` |
-| Guest source | `b3fbc8c965a1e247f471b780c90e07caabd559d6` |
-| Catalog | 136 executable leaves + 5 structural groups = 141 full-suite records |
-| Release contract | [`releases/v1.0.0.json`](releases/v1.0.0.json) |
+| XISO SHA-256 | `10ca07f227ae4e1d03510fcc1d3237304ff4291741d4c552ab33991e71de1738` |
+| Guest source | `baf221e339f40801fee9ddd3abf1e1a6d21a1f0a` |
+| Catalog | 144 executable leaves + 5 structural groups = 149 full-suite records |
+| Release contract | [`releases/eng523-report-query-oracles-v2.json`](releases/eng523-report-query-oracles-v2.json) |
 
-Download published artifacts from the
-[`xemu-perf-tests` releases](https://github.com/Mainkill1/xemu-perf-tests/releases)
-and verify the digest. The release notes identify the exact source commit and
-test inventory.
+This contract identifies the existing qualification image; a rebuild from a
+new commit is a separate artifact. The older v1.0.0 release has 141 records
+and must not be substituted in a 149-record comparison.
 
 ## System flow
 
@@ -61,7 +60,7 @@ Configure xemu with legally obtained Xbox system files and a dedicated test
 HDD, then launch the release ISO:
 
 ```text
-xemu -dvd_path xemu-perf-tests-v1.0.0.iso
+xemu -dvd_path xemu-perf-tests-eng523-report-oracles-baf221e.iso
 ```
 
 The menu starts a full run after its countdown. Any controller input cancels
@@ -137,7 +136,48 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 - [Machine-readable catalog](resources/catalog.json)
 - [Resolved smoke-plan example](resources/plans/smoke.json)
 
-### v1.0.0 suite validation
+### ENG523 report-oracle suite validation
+
+The current XISO adds eight ordered ZPASS report-query leaves, including
+xemu-only DMA descriptor-rewrite and complete-record bounds oracles. The root
+menu is titled `Mainkill1's Test Suite` and automatically starts the active
+selection after ten seconds without input.
+
+Release v2 waits for deferred report publication after the terminal semaphore.
+This preserves the report-memory oracle while avoiding false soft failures on
+OpenGL, where report publication may complete after PFIFO returns. It also uses
+a later valid report as the range-guard drain fence, so the intentionally
+invalid record is never polled as if it were expected to publish.
+
+The exact v2 image completed two independent 149-record OpenGL 1x runs and two
+independent 149-record Vulkan 1x runs. All four returned `PASSED` and matched
+the functional oracles recorded in that historical release contract; both Vulkan runs used validation and emitted
+zero VUIDs. Every run sampled process CPU/RAM, process
+GPU/dedicated/shared memory, and device GPU/VRAM usage.
+
+| Check | Result |
+| --- | ---: |
+| Source contract tests | 124/124 |
+| OpenGL Release runs | 2/2 |
+| Vulkan Release runs | 2/2 |
+| Records per run | 149/149 |
+| Functional hashes | PASS |
+| Vulkan VUIDs | 0 |
+
+The descriptor-rewrite record explicitly reports either `pending_cross` or
+`completed_before_rewrite`. The qualified Vulkan renderer reported
+`completed_before_rewrite`, proving its synchronous guest-visible boundary
+without falsely claiming an observed pending lifetime.
+
+Release v1 is retained as historical evidence, but it is superseded because
+its report-query tests could validate report memory before deferred OpenGL
+publication completed.
+
+Later Windows-wait qualification found an inapplicable S3TC diagnostic count
+blocking OpenGL host consensus; see [xemu issue #26](https://github.com/Mainkill1/xemu/issues/26).
+The historical result above does not resolve that comparison-tool defect.
+
+### Historical v1.0.0 suite validation
 
 The release XISO completed its full selection through a plain xemu disc boot
 on two Windows systems. Autorun was not driven by a host-side suite runner.
@@ -181,7 +221,7 @@ The 12-route S3TC/BC lifetime matrix and expected values are documented in
 
 # Usage
 
-Tests execute automatically after the source-defined three-second timeout when
+Tests execute automatically after the source-defined ten-second timeout when
 no gamepad input is received.
 
 Individual tests may be executed via the menu.
@@ -207,8 +247,8 @@ uses these public entries:
 7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
-The full unfiltered image exposes 136 leaf tests, five structural groups, and
-141 exact legacy aliases. A catalog stage belonging to a grouped execution
+The full unfiltered image exposes 144 leaf tests, five structural groups, and
+149 full-suite records. A catalog stage belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.

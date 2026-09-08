@@ -1,0 +1,62 @@
+{
+  "schema_version": 1,
+  "version": "eng523-report-query-oracles-v2",
+  "supersedes": "eng523-report-query-oracles-v1",
+  "release_notes": [
+    "Keeps the Mainkill1's Test Suite title and ten-second no-input autorun countdown.",
+    "Waits for deferred report publication after terminal-semaphore completion so the report-query oracles work on both OpenGL and Vulkan.",
+    "Uses a later valid report as the range-guard drain fence instead of waiting for the intentionally invalid report to publish.",
+    "Preserves all eight ordered ZPASS report-query leaves, structured report-memory evidence, and 149-record full-suite contract."
+  ],
+  "breaking_changes": [],
+  "known_issues": [
+    "The DMA descriptor-rewrite and range-guard leaves are xemu-only pending physical Xbox characterization.",
+    "A synchronous renderer may report completed_before_rewrite instead of pending_cross; both modes require complete A1/B0 records and an untouched B1 sentinel.",
+    "Whether BACK_END_WRITE_SEMAPHORE_RELEASE must itself make an earlier OpenGL report visible is a separate hardware-ordering question; v2 does not claim that uncharacterized rule."
+  ],
+  "source": {
+    "commit": "baf221e339f40801fee9ddd3abf1e1a6d21a1f0a",
+    "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+    "contract_tests": "124/124 PASS"
+  },
+  "artifacts": [
+    {
+      "name": "xemu-perf-tests-eng523-report-oracles-baf221e.iso",
+      "size_bytes": 3604480,
+      "sha256": "10ca07f227ae4e1d03510fcc1d3237304ff4291741d4c552ab33991e71de1738"
+    },
+    {
+      "name": "catalog.json",
+      "size_bytes": 112352,
+      "sha256": "a5c22393acfab742af570e9a7a7aba8cffae13eaf87ce4e6151d5ec3b9511e87",
+      "leaf_tests": 144,
+      "structural_groups": 5,
+      "full_suite_records": 149
+    }
+  ],
+  "validation": {
+    "scale": 1,
+    "release_only": true,
+    "records_per_run": "149/149 PASS",
+    "functional_hashes": "PASS",
+    "resource_telemetry": [
+      "process CPU and RAM",
+      "process GPU engine, dedicated memory, and shared memory",
+      "device GPU utilization and VRAM"
+    ],
+    "backends": {
+      "opengl": {
+        "release_runs": "2/2 PASS",
+        "average_host_wall_seconds": 179.7576923000015,
+        "vulkan_validation_active": false,
+        "vuid_count": 0
+      },
+      "vulkan": {
+        "release_runs": "2/2 PASS",
+        "average_host_wall_seconds": 199.76857395000116,
+        "vulkan_validation_active": true,
+        "vuid_count": 0
+      }
+    }
+  }
+}
