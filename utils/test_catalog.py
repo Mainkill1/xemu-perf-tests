@@ -570,6 +570,7 @@ def render():
     ]
     pfifo_boundary = resolved_plan(doc, {
         "enable_autorun_immediately": True, "warmup_iterations": 0,
+        "enable_xemu_only_tests": True,
         "measurement_iterations_multiplier": 1,
         "gpu_completion_mode": "per_iteration",
         "output_directory_path": "e:/xemu_perf_tests"},

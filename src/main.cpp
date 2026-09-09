@@ -306,7 +306,9 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(GameLoadCompositeTests)
   REG_TEST(HighVertexCountTests)
   REG_TEST(PfifoArrayElementTests)
-  REG_TEST(PfifoPacketBoundaryTests)
+  if (runtime_config.enable_xemu_only_tests()) {
+    REG_TEST(PfifoPacketBoundaryTests)
+  }
   REG_TEST(PipelineTextureSwitchTests)
   REG_TEST(PrimitiveTypeTests)
   REG_TEST(ReportQueryTests)

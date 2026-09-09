@@ -10,6 +10,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SOURCE = (ROOT / "src/tests/pfifo_packet_boundary_tests.cpp").read_text()
 MAIN = (ROOT / "src/main.cpp").read_text()
+RUNTIME_CONFIG = (ROOT / "src/runtime_config.cpp").read_text()
 CMAKE = (ROOT / "src/CMakeLists.txt").read_text()
 DOC = (ROOT / "docs/pfifo-packet-boundary.md").read_text()
 
@@ -41,7 +42,7 @@ class PfifoPacketBoundaryContractTests(unittest.TestCase):
         self.assertIn("tests/pfifo_packet_boundary_tests.cpp", CMAKE)
         self.assertIn("tests/pfifo_packet_boundary_tests.h", CMAKE)
 
-    def test_boundary_arithmetic_and_atomic_tail(self):
+    def test_boundary_arithmetic_and_recovery_sequence(self):
         capacity = 0x07FFFF
         self.assertEqual(((capacity - 1) // 2) * 2, capacity - 1)
         self.assertEqual((capacity - 1) + 2, capacity + 1)
@@ -93,6 +94,18 @@ class PfifoPacketBoundaryContractTests(unittest.TestCase):
         self.assertEqual(recipe["settings"]["warmup_iterations"], 0)
         self.assertEqual(recipe["settings"]["measurement_iterations_multiplier"], 1)
         self.assertEqual(recipe["settings"]["gpu_completion_mode"], "per_iteration")
+
+    def test_xemu_only_suite_requires_explicit_runtime_opt_in(self):
+        self.assertIn("enable_xemu_only_tests", RUNTIME_CONFIG)
+        self.assertIn("runtime_config.enable_xemu_only_tests()", MAIN)
+        recipe = json.loads(
+            (ROOT / "resources/pfifo-packet-boundary.json").read_text())
+        self.assertTrue(recipe["settings"]["enable_xemu_only_tests"])
+
+    def test_boundary_scope_is_liveness_not_unobservable_state(self):
+        self.assertIn('\\"verification_scope\\":\\"liveness_and_recovery\\"', SOURCE)
+        self.assertIn("The guest does not read xemu's", DOC)
+        self.assertIn("private destination state", DOC)
 
     def test_documentation_forbids_hardware_and_performance_claims(self):
         for phrase in (

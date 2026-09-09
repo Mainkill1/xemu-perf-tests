@@ -6,11 +6,13 @@ reaches xemu's private `NV2A_MAX_BATCH_LENGTH` limit and must not be run on phys
 The three boundary leaves cover `NV097_ARRAY_ELEMENT16`,
 `NV097_ARRAY_ELEMENT32`, and `NV097_INLINE_ARRAY`. Each leaf fills the relevant
 destination to one value below capacity, submits a batch that crosses the
-limit, then submits the exact-capacity tail and one further rejected word. An
-old-head negative control must terminate at the crossing batch. A repaired
-build must reject the whole crossing batch, accept the exact tail, reject the
-next word, clear the invalid primitive state, and produce its fixed framebuffer
-hash.
+limit, then submits the exact-capacity tail and one further word before
+resetting primitive state. An old-head negative control terminates at the
+crossing batch. A repaired build must remain usable, recover its primitive
+state, and produce its fixed framebuffer hash. The guest does not read xemu's
+private destination state, so these leaves do not establish whether a rejected
+packet was atomically discarded; that internal invariant needs an xemu-side
+unit test or trace probe.
 
 `pfifo.incrementing-inline-fallback` starts an incrementing command at
 `NV097_INLINE_ARRAY`. The inline handler must consume one word, allowing the

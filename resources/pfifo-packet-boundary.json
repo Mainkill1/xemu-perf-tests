@@ -2,6 +2,7 @@
   "settings": {
     "enable_autorun_immediately": true,
     "warmup_iterations": 0,
+    "enable_xemu_only_tests": true,
     "measurement_iterations_multiplier": 1,
     "gpu_completion_mode": "per_iteration",
     "output_directory_path": "e:/xemu_perf_tests"

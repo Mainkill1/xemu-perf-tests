@@ -107,11 +107,14 @@ void PfifoPacketBoundaryTests::RunBoundary(const BoundaryRecipe &recipe) {
   auto results = Profile(recipe.name, 1, [&]() {
     PushRepeated(recipe.method, recipe.fill_words, 0x01000000);
 
-    // This batch crosses the capacity and must be rejected atomically.
+    // This batch crosses the capacity. A repaired xemu must remain usable
+    // after this malformed submission.
     PushPacket(recipe.method, recipe.crossing_words, 0xA1000000);
 
-    // If the crossing batch did not mutate state, this word reaches the exact
-    // capacity. One further word must be rejected without terminating xemu.
+    // Exercise the exact-tail and one-word-beyond sequences before recovering
+    // the primitive state. The guest cannot inspect xemu's private destination
+    // buffers, so this capsule verifies liveness and recovery rather than
+    // asserting their internal contents.
     PushPacket(recipe.exact_tail_method, 1, 0xB2000000);
     PushPacket(recipe.exact_tail_method, 1, 0xC3000000);
     ResetInvalidPrimitiveState();
@@ -138,6 +141,7 @@ void PfifoPacketBoundaryTests::RunBoundary(const BoundaryRecipe &recipe) {
   metadata << "\"fill_words\":" << recipe.fill_words << ",";
   metadata << "\"crossing_words\":" << recipe.crossing_words << ",";
   metadata << "\"exact_tail_words\":1,\"beyond_capacity_words\":1,";
+  metadata << "\"verification_scope\":\"liveness_and_recovery\",";
   metadata << "\"expected_framebuffer_fnv1a64\":\"" << std::hex
            << recipe.final_hash << "\"}";
 

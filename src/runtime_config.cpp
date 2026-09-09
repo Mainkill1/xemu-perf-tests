@@ -519,6 +519,11 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     return false;
   }
 
+  if (!LoadBool(settings, "enable_xemu_only_tests", enable_xemu_only_tests_)) {
+    errors.emplace_back("settings[enable_xemu_only_tests] must be a boolean");
+    return false;
+  }
+
   if (!LoadString(settings, "output_directory_path", output_directory_path_)) {
     errors.emplace_back("settings[output_directory_path] must be a string");
     return false;

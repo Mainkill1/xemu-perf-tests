@@ -47,6 +47,7 @@ class RuntimeConfig {
   [[nodiscard]] bool enable_autorun_immediately() const { return enable_autorun_immediately_; }
   [[nodiscard]] bool enable_shutdown_on_completion() const { return enable_shutdown_on_completion_; }
   [[nodiscard]] bool skip_tests_by_default() const { return skip_tests_by_default_; }
+  [[nodiscard]] bool enable_xemu_only_tests() const { return enable_xemu_only_tests_; }
   [[nodiscard]] uint32_t reboot_or_shutdown_delay_ms() const { return reboot_or_shutdown_delay_ms_; }
   [[nodiscard]] uint32_t warmup_iterations() const { return warmup_iterations_; }
   [[nodiscard]] uint32_t measurement_iterations_multiplier() const {
@@ -68,6 +69,7 @@ class RuntimeConfig {
   bool enable_autorun_immediately_ = DEFAULT_AUTORUN_IMMEDIATELY;
   bool enable_shutdown_on_completion_ = DEFAULT_ENABLE_SHUTDOWN;
   bool skip_tests_by_default_ = DEFAULT_SKIP_TESTS_BY_DEFAULT;
+  bool enable_xemu_only_tests_{false};
   uint32_t reboot_or_shutdown_delay_ms_ = 10000;
   uint32_t warmup_iterations_ = 0;
   uint32_t measurement_iterations_multiplier_ = 1;
