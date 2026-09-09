@@ -11,16 +11,20 @@
     "binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
     "pr": "https://github.com/Mainkill1/xemu/pull/59"
   },
-  "status": "Build linked; native unit tests pass; emulator/performance qualification pending",
-  "measurement_scope": "Retained baseline context only; no candidate runtime or acceptance",
+  "status": "Native units and GL/VK Morrowind smoke pass; negative controls, real stream roundtrip and fixed-work qualification pending",
+  "measurement_scope": "One candidate cell per renderer compared with retained matching baseline records; not causal performance proof",
   "regression_rejection_threshold_percent": 2,
   "artifacts": {
-    "metrics.json": "f806f7a9bbccbe6bee8ef9e465971734501d256eb60891335c901b282f00d014",
-    "metrics.png": "ed3a3f4ee5e036633e1a42ce8393b9225dbb6776a84109520c33163b4de23f9e",
+    "metrics.json": "8c02013b8740a1453d26bcaa6cfa3274c09c2cffedb9222080a542d271647f0f",
+    "metrics.png": "214df7cc91466a84cda487799afad4e4c5627ef30a4f4f57f4157472e2897f91",
     "build.json": "a92408ee30f1f174df1d3a3a0861809d351dde94630dbbee71286e3caf02d992",
     "native-units/results.json": "5922decf8cf0b87f2c8a6b5a6c008c54c26809d602956392a96cb1c8d4027bbc",
     "native-units/test-xbox-nv2a-ptimer.exe.tap": "fed282e9b720c45b471c5ec7b77759737ac8a91546b096d349f3b03867661a9f",
-    "native-units/ptimer-test.exe.tap": "f7cb12fd7eb349b54b1a06a2b042fde1e4b28491bd00b458139ce59865439b48"
+    "native-units/ptimer-test.exe.tap": "f7cb12fd7eb349b54b1a06a2b042fde1e4b28491bd00b458139ce59865439b48",
+    "morrowind-comparison.json": "84f97cdaa205d65f1866442ad48398073af434831d9acca54a19efa31c8583a9",
+    "opengl-morrowind.json": "29cb42abf6a926064a86bba1a41c80149c856b3f33df89b1b84e9718824fc0c8",
+    "vulkan-morrowind.json": "d7ebde61dee606bba9e877b520f5fcc829dc008031f9be4f3073061e98e4b4a2",
+    "REPORT.md": "e09147d7de163cff04fb4a225f51ece2ce30cd86bdd6e7798669f5d0cffe4f20"
   },
   "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
   "build_options": {
