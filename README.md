@@ -885,3 +885,5 @@ which would be populated via
 [Main dispatcher/state diagnostic, September 9](docs/evidence/main-cause-state-20260909/REPORT.md): paired GL/VK counter captures and preserved source identities. Diagnostic counts, not performance acceptance.
 
 [Main returned-PC diagnostic, September 9](docs/evidence/main-cause-return-20260909/REPORT.md): interrupt-shadow polling-loop attribution and reproducible numeric samples.
+
+[STI shadow-entry candidate results](docs/evidence/sti-shadow-entry-20260909/REPORT.md): held after paired focused captures; Vulkan benefit and IRQ qualification remain unestablished.
