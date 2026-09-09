@@ -12,12 +12,15 @@ qualify clock accuracy, UTC precision, or cross-machine timing.
 
 `Resolve-CaptureLaunchArtifacts` is read-only. It accepts only a closed
 schema-version-1 control cell with exactly one launch and a `launch_dir` that
-resolves exactly to `cell/launch-1`. It returns paths only after `control.json`,
-the required cell files (`result.json`, `actions.jsonl`, `vulkan-perf.jsonl`), and
-the required launch files (`stderr.log`, `stdout.log`, `guest-flips.log`,
+resolves exactly to `cell/launch-1`. Its mandatory `-Renderer VULKAN` or
+`-Renderer OPENGL` parameter makes telemetry applicability explicit. Both
+renderers require `control.json`, `result.json`, `actions.jsonl`, and the
+required launch files (`stderr.log`, `stdout.log`, `guest-flips.log`,
 `measurement-start.capture.json`, `measurement-end.capture.json`, and
-`measurement-end.png`) exist. It never falls back to same-named files at the cell
-root.
+`measurement-end.png`) exist. Vulkan additionally requires cell-root
+`vulkan-perf.jsonl`; OpenGL does not require it and returns `telemetry = $null`
+with `telemetry_applicable = $false`. It never falls back to same-named files at
+the cell root.
 
 `Assert-CaptureProcessQueryIdle` normalizes a null, empty, or singleton process
 query result and throws when any non-null record remains. The caller supplies the

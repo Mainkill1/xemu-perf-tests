@@ -66,9 +66,9 @@ try {
     $launch = Join-Path $cell 'launch-1'
     New-Item -ItemType Directory -Path $launch -Force | Out-Null
     New-RequiredCaptureFiles -CellPath $cell -LaunchPath $launch
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'missing control file'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'missing control file'
     [System.IO.File]::WriteAllText((Join-Path $cell 'control.json'), 'not-json')
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'invalid control JSON'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'invalid control JSON'
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
         status = 'closed'
@@ -76,14 +76,25 @@ try {
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
 
-    $resolved = Resolve-CaptureLaunchArtifacts -CellPath $cell
+    $resolved = Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN
     Assert-True ($resolved.launch_dir -eq [System.IO.Path]::GetFullPath($launch)) 'canonical launch directory'
+    Assert-True ($resolved.telemetry_applicable) 'Vulkan telemetry is applicable'
     Assert-True ($resolved.telemetry -eq (Join-Path $cell 'vulkan-perf.jsonl')) 'cell artifact resolves from cell root'
     Assert-True ($resolved.stderr -eq (Join-Path $launch 'stderr.log')) 'stderr resolves from launch directory'
 
+    Remove-Item -LiteralPath (Join-Path $cell 'vulkan-perf.jsonl')
+    Assert-Throws {
+        Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN
+    } 'Vulkan cell without required telemetry'
+    $glResolved = Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer OPENGL
+    Assert-True ($glResolved.renderer -eq 'OPENGL') 'OpenGL renderer selection'
+    Assert-True (-not $glResolved.telemetry_applicable) 'OpenGL telemetry is not applicable'
+    Assert-True ($null -eq $glResolved.telemetry) 'OpenGL has no telemetry path'
+    [System.IO.File]::WriteAllText((Join-Path $cell 'vulkan-perf.jsonl'), 'synthetic telemetry')
+
     [System.IO.File]::WriteAllText((Join-Path $cell 'stderr.log'), 'stale cell stderr')
     Remove-Item -LiteralPath (Join-Path $launch 'stderr.log')
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'cell-root stderr must not mask missing launch stderr'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'cell-root stderr must not mask missing launch stderr'
     [System.IO.File]::WriteAllText((Join-Path $launch 'stderr.log'), 'synthetic stderr')
 
     Write-TestControl -CellPath $cell -Control @{
@@ -92,14 +103,14 @@ try {
         launches = 1
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'non-closed cell'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'non-closed cell'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
         launches = 1
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'missing cell status'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'missing cell status'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 2
@@ -107,7 +118,7 @@ try {
         launches = 1
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'wrong schema version'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'wrong schema version'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
@@ -115,7 +126,7 @@ try {
         launches = 2
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'multiple launches'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'multiple launches'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
@@ -123,7 +134,7 @@ try {
         launches = 0
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'zero launches'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'zero launches'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
@@ -131,14 +142,14 @@ try {
         launches = 1
         launch_dir = 'missing-launch'
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'wrong launch directory'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'wrong launch directory'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
         status = 'closed'
         launches = 1
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'missing launch directory'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'missing launch directory'
 
     Write-TestControl -CellPath $cell -Control @{
         schema_version = 1
@@ -146,7 +157,7 @@ try {
         launches = 1
         launch_dir = '../outside'
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'outside launch directory'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'outside launch directory'
 
     Remove-Item -LiteralPath (Join-Path $launch 'measurement-end.png')
     Write-TestControl -CellPath $cell -Control @{
@@ -155,7 +166,7 @@ try {
         launches = 1
         launch_dir = [System.IO.Path]::GetFullPath($launch)
     }
-    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell } 'missing required artifact'
+    Assert-Throws { Resolve-CaptureLaunchArtifacts -CellPath $cell -Renderer VULKAN } 'missing required artifact'
     [System.IO.File]::WriteAllText((Join-Path $launch 'measurement-end.png'), 'synthetic image')
 
     $anchorPath = Join-Path $root 'before-anchor.json'

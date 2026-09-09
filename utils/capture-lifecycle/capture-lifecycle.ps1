@@ -74,7 +74,11 @@ function Resolve-CaptureLaunchArtifacts {
     [CmdletBinding()]
     param(
         [Parameter(Mandatory)]
-        [string]$CellPath
+        [string]$CellPath,
+
+        [Parameter(Mandatory)]
+        [ValidateSet('VULKAN', 'OPENGL')]
+        [string]$Renderer
     )
 
     $cellRoot = [System.IO.Path]::GetFullPath($CellPath)
@@ -133,7 +137,6 @@ function Resolve-CaptureLaunchArtifacts {
     $requiredPaths = [ordered]@{
         result = Join-Path $cellRoot 'result.json'
         actions = Join-Path $cellRoot 'actions.jsonl'
-        telemetry = Join-Path $cellRoot 'vulkan-perf.jsonl'
         stderr = Join-Path $launchDirectory 'stderr.log'
         stdout = Join-Path $launchDirectory 'stdout.log'
         guest_flips = Join-Path $launchDirectory 'guest-flips.log'
@@ -146,12 +149,23 @@ function Resolve-CaptureLaunchArtifacts {
             throw "Capture required artifact is missing ($($entry.Key)): $($entry.Value)"
         }
     }
+    $rendererName = $Renderer.ToUpperInvariant()
+    $telemetryPath = $null
+    $telemetryApplicable = $rendererName -ceq 'VULKAN'
+    if ($telemetryApplicable) {
+        $telemetryPath = Join-Path $cellRoot 'vulkan-perf.jsonl'
+        if (-not (Test-Path -LiteralPath $telemetryPath -PathType Leaf)) {
+            throw "Capture required artifact is missing (telemetry): $telemetryPath"
+        }
+    }
 
     return [pscustomobject][ordered]@{
         control = $controlPath
         result = $requiredPaths.result
         actions = $requiredPaths.actions
-        telemetry = $requiredPaths.telemetry
+        renderer = $rendererName
+        telemetry_applicable = $telemetryApplicable
+        telemetry = $telemetryPath
         launch_dir = $launchDirectory
         stderr = $requiredPaths.stderr
         stdout = $requiredPaths.stdout
