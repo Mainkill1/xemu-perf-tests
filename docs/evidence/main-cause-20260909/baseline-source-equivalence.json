@@ -1,0 +1,17 @@
+{
+  "baseline_commit": "586de4f32c11001c0abe072c3530236f1571b372",
+  "baseline_tree": "8289487c766cdf7cb00f95c47ec454bfb62309c0",
+  "tested_behavior_commit": "390a00e694fe8f3fb35459c91dc87913d0973abd",
+  "all_changed_paths": [
+    "README.md",
+    "evidence/wiki-xiso-per-test/eng-2026-513-display-reuse.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-518-active-lru.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-523-half-refresh.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-523-ordered-staging.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-523-qpc-fastpath.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-523-texture-fastpath.csv",
+    "evidence/wiki-xiso-per-test/eng-2026-523-zeta-fix.csv"
+  ],
+  "application_and_build_files_identical": true,
+  "decision": "Reuse the existing behavior-equivalent binary and recorded measurements; do not rebuild baseline per experiment."
+}

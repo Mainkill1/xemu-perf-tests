@@ -129,6 +129,8 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 
 ## Documentation and release evidence
 
+- [Main-based Morrowind counters and retained baseline results](docs/evidence/main-cause-20260909/REPORT.md)
+- [Isolated APU snapshot-load repair results](docs/evidence/main-apu-load-20260909/REPORT.md)
 - [Test architecture and layout](docs/test-system.md)
 - [Operator workflows](docs/running-tests.md)
 - [Generated catalog](docs/generated/test-catalog.md)
