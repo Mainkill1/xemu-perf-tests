@@ -9,8 +9,8 @@
 | Current-main source inspection | Both defects remain in `bd1fecb9` |
 | Candidate extraction | `8da17c3e`, tree `20c4d0a4`; focused timer/state/test changes |
 | Independent source review | No concrete production blocker found; pre-expiry mask/unmask control added |
-| Production Xbox timer suite | 24 controls registered; execution pending |
-| Shared generic timer suite | Required because support stubs are shared; execution pending |
+| Production Xbox timer suite | 24/24 PASS natively, exit 0 |
+| Shared generic timer suite | 576/576 PASS natively, exit 0; shared stub regression check |
 | Exact current-main negative controls | Pending; old S-based reports do not qualify this baseline |
 | Native VMState and guest checks | Pending |
 | Fixed-work performance and resources | Pending; no 2% gate pass claimed |
@@ -20,3 +20,9 @@ The chart shows retained main Morrowind display-write cadence and interval tails
 The existing baseline executable is reused. Matching measurements may need collection where none exist; the baseline emulator will not be rebuilt for this experiment. Main can be updated only after the known defects are fixed and applicable correctness/performance gates pass. A measured regression above 2% rejects the candidate; missing or inconclusive evidence does not approve it.
 
 Historical [PR #48](https://github.com/Mainkill1/xemu/pull/48) controls and snapshot observations guide the test plan but are not exact-head qualification. Tests use the existing production translation-unit target, including PRAMDAC, and distinguish helper-state controls from actual VMState streams.
+
+## Verified candidate unit results
+
+The optimized candidate linked with all seven recorded build options matching the retained baseline. Native Windows execution passed **24/24 Xbox production-timer controls** and **576/576 generic timer controls**, exit 0, with no stderr. [Build identity/options](build.json) and [source-pinned native results](native-units/results.json) include both unit hashes. Complete TAP is published as UTF-8 with original byte hashes retained in the manifest.
+
+The copied build directory first required its configured mount paths, then Meson test dispatch failed on a stored API mismatch before running tests. Direct execution of the linked Windows units avoided a rebuild. The first native collector lost exit status; its complete passing TAP was insufficient for acceptance. One corrected unit-only collection recorded exit 0. These setup/collection failures remain explicit and do not count as candidate test failures or performance results.

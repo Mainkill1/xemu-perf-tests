@@ -1,0 +1,45 @@
+{
+  "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "os": "Windows 10 Pro 10.0.19045",
+  "shell": "Windows PowerShell 5.1.19041.6456",
+  "method": "Direct native executable invocation; immediate LASTEXITCODE capture",
+  "status": "PASS",
+  "results": [
+    {
+      "name": "test-xbox-nv2a-ptimer.exe",
+      "sha256": "91d10f6b4b424593b840f13531a762b87ae97d35728f0cdec21bfef015391907",
+      "started_utc": "2026-09-09T22:20:29.8830484+00:00",
+      "completed_utc": "2026-09-09T22:20:29.9924332+00:00",
+      "exit_code": 0,
+      "tap": "test-xbox-nv2a-ptimer.exe.tap",
+      "tap_planned_cases": 24,
+      "tap_ok_cases": 24,
+      "tap_not_ok_cases": 0,
+      "raw_tap_sha256": "eb64ae02f2a02ec0aa2523884f6d3f0cd95fdf2c986d96cb73d4b787f63df3a2",
+      "published_utf8_tap_sha256": "fed282e9b720c45b471c5ec7b77759737ac8a91546b096d349f3b03867661a9f",
+      "stderr_bytes": 0
+    },
+    {
+      "name": "ptimer-test.exe",
+      "sha256": "b3e591068d57676d9de5f98235b9516a333fa3bdafe006f4c2dc7187b513fee3",
+      "started_utc": "2026-09-09T22:20:30.0080587+00:00",
+      "completed_utc": "2026-09-09T22:20:30.0549229+00:00",
+      "exit_code": 0,
+      "tap": "ptimer-test.exe.tap",
+      "tap_planned_cases": 576,
+      "tap_ok_cases": 576,
+      "tap_not_ok_cases": 0,
+      "raw_tap_sha256": "f869a2362c2366cfef1c0805c1b49c011cf5bb04c746bde239024a1b328ac14c",
+      "published_utf8_tap_sha256": "f7cb12fd7eb349b54b1a06a2b042fde1e4b28491bd00b458139ce59865439b48",
+      "stderr_bytes": 0
+    }
+  ],
+  "prior_collection": {
+    "status": "INVALID_EXIT_RECEIPT",
+    "observed_tap": "24/24 Xbox and 576/576 generic",
+    "exit_code": null,
+    "cause": "Process exit status was not retained after the remote collector ended. Each unit was rerun once with direct exit capture; no emulator or game was rerun.",
+    "raw_receipt_sha256": "a0656ce3fec9527a3264737a306f3c3a65aa208007926ae50a832640d9fecead"
+  },
+  "raw_valid_receipt_sha256": "8aa1771d80c44d40850db23cc0ee0c3e186c1dc1a39c4679b429581d0872ad7d"
+}

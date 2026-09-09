@@ -1,0 +1,38 @@
+{
+  "status": "BUILD_LINK_PASS_UNIT_RUNNER_BLOCKED",
+  "kind": "current-main combined PTIMER #39/#40 candidate, O2/LTO comparability receipt",
+  "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "tree": "20c4d0a4551a878485370329e9856766dca7c752",
+  "options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "options_match_baseline": true,
+  "ninja_flags_observed": [
+    "-O2",
+    "-flto-incremental=/xemu-cache/lto"
+  ],
+  "sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+  "bytes": 44218957,
+  "unit_targets_linked": [
+    "test-xbox-nv2a-ptimer.exe",
+    "ptimer-test.exe"
+  ],
+  "units_not_run": [
+    "test-xbox-nv2a-ptimer",
+    "ptimer-test"
+  ],
+  "setup_failures": [
+    "Configured build was first mounted at a path other than /src; regeneration stopped before compilation because the copied build expects /src.",
+    "The /src retry omitted the configured /xemu-cache/lto mount; PTIMER translation units compiled but linking stopped before artifacts.",
+    "With both configured mounts, all requested artifacts linked; Meson test dispatch then stopped because copied build.dat references an older Meson API."
+  ],
+  "native_test": "Both unit executables exit0: Xbox24/24, generic576/576; emulator qualification pending",
+  "performance_acceptance": false,
+  "baseline_options_evidence": "../main-apu-load-20260909/REPORT.md"
+}

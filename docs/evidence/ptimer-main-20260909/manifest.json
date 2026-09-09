@@ -8,14 +8,28 @@
   "candidate": {
     "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
     "tree": "20c4d0a4551a878485370329e9856766dca7c752",
-    "binary_sha256": null,
+    "binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
     "pr": "https://github.com/Mainkill1/xemu/pull/59"
   },
-  "status": "Draft; candidate build and qualification pending",
+  "status": "Build linked; native unit tests pass; emulator/performance qualification pending",
   "measurement_scope": "Retained baseline context only; no candidate runtime or acceptance",
   "regression_rejection_threshold_percent": 2,
   "artifacts": {
     "metrics.json": "f806f7a9bbccbe6bee8ef9e465971734501d256eb60891335c901b282f00d014",
-    "metrics.png": "ed3a3f4ee5e036633e1a42ce8393b9225dbb6776a84109520c33163b4de23f9e"
+    "metrics.png": "ed3a3f4ee5e036633e1a42ce8393b9225dbb6776a84109520c33163b4de23f9e",
+    "build.json": "a92408ee30f1f174df1d3a3a0861809d351dde94630dbbee71286e3caf02d992",
+    "native-units/results.json": "5922decf8cf0b87f2c8a6b5a6c008c54c26809d602956392a96cb1c8d4027bbc",
+    "native-units/test-xbox-nv2a-ptimer.exe.tap": "fed282e9b720c45b471c5ec7b77759737ac8a91546b096d349f3b03867661a9f",
+    "native-units/ptimer-test.exe.tap": "f7cb12fd7eb349b54b1a06a2b042fde1e4b28491bd00b458139ce59865439b48"
+  },
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
   }
 }
