@@ -36,33 +36,38 @@ Assert-True ($source.Contains("'launch-artifacts'")) `
 Assert-True ($source.Contains('$process.Kill()')) `
     'post-launch failure attempts owned process cleanup'
 
-$script:GetProcessCalls = 0
-$script:ProcessQueryResult = [pscustomobject]@{
-    Id = 4242
-    ProcessName = 'xemu'
-}
-function Get-Process {
-    param(
-        [string]$Name,
-        [System.Management.Automation.ActionPreference]$ErrorAction
-    )
-    $script:GetProcessCalls++
-    return $script:ProcessQueryResult
-}
-
-$rejected = $false
-try {
-    & $launcher -Xemu 'synthetic-xemu.exe'
-} catch {
-    $rejected = $_.Exception.Message -like 'Refusing to launch while 1 xemu process*'
-}
-Assert-True $rejected 'foreign xemu process is rejected'
-Assert-True ($script:GetProcessCalls -eq 1) 'idle query executes exactly once'
-
 $root = Join-Path ([System.IO.Path]::GetTempPath()) (
     'retail-launcher-' + [guid]::NewGuid().ToString('N'))
+$syntheticProcess = $null
+try {
+    New-Item -ItemType Directory -Path $root | Out-Null
+    $syntheticXemu = Join-Path $root 'xemu.exe'
+    Copy-Item -LiteralPath $env:ComSpec -Destination $syntheticXemu
+    $syntheticProcess = Start-Process -FilePath $syntheticXemu `
+        -ArgumentList @('/d', '/c', 'ping -n 30 127.0.0.1 >nul') -PassThru
+    Start-Sleep -Milliseconds 250
+    Assert-True (-not $syntheticProcess.HasExited) `
+        'owned synthetic xemu conflict remains live'
+
+    $rejected = $false
+    $rejectionMessage = $null
+    try {
+        & $launcher -Xemu 'unused-synthetic-xemu.exe'
+    } catch {
+        $rejectionMessage = $_.Exception.Message
+        $rejected = $rejectionMessage -like `
+            'Refusing to launch while * xemu process(es) exist.'
+    }
+    Assert-True $rejected (
+        "foreign xemu process is rejected; actual='$rejectionMessage'")
+} finally {
+    if ($syntheticProcess -and -not $syntheticProcess.HasExited) {
+        $syntheticProcess.Kill()
+        [void]$syntheticProcess.WaitForExit(30000)
+    }
+}
+
 $config = Join-Path $root 'xemu.toml'
-$script:ProcessQueryResult = @()
 $script:FakeProcess = [pscustomobject]@{
     Id = 4343
     HasExited = $false
@@ -93,7 +98,6 @@ function Add-Type {
 }
 
 try {
-    New-Item -ItemType Directory -Path $root | Out-Null
     [System.IO.File]::WriteAllText(
         $config, "[input.bindings]`nport1 = 'keyboard'`n")
     $postLaunchRejected = $false
