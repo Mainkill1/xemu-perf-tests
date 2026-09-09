@@ -48,3 +48,9 @@ gzip -dc defined-text-symbols.tsv.gz |
 ```
 
 A nearest label alone cannot restore missing frames or distinguish this common submission function's copying, submission and fence-wait operations. Caller/callee frames and scheduling/GPU correlation are still required. [Manifest](manifest.json); [sanitized selected-device lines](device-selection.txt); [diagnostic tracking PR](https://github.com/Mainkill1/xemu/pull/54). The separate [STI candidate remains held](../sti-shadow-entry-20260909/REPORT.md).
+
+## Subsequent offline loader checks
+
+[Three failed offline exports](offline-loader-attempts.json) are preserved. Option placement and local XML construction were corrected, but the third attempt still exited-1 before any CSV. Its output contains both a missing per-user `MyPresets.wpaPresets` error and a generic profile-load failure. Their co-occurrence does not isolate the cause; the generated profile is not yet accepted by the exporter.
+
+A guarded, normal WPA startup/close did not create the presets file. The six existing settings-file hashes were preserved; only one tool-generated optimization file was added. The next step is a discriminating loader control or a supported UI-authored profile. PFIFO identity remains unproved, so the detailed scheduler/GPU pass has not run. These are tool failures against the saved ETL, with no additional gameplay or baseline change.

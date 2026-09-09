@@ -1,0 +1,47 @@
+{
+  "etl_sha256": "58a8bbeb4d837aeb5d6309f4ef884fc01d939d52c648706a63f642f79c6ac1c1",
+  "range_ns": [
+    21796061500,
+    41805107300
+  ],
+  "tool": "WPAExporter11.7.383.39833",
+  "purpose": "Offline loader checks only; no new gameplay",
+  "attempts": [
+    {
+      "id": "r1",
+      "profile_sha256": "ab92f5a44e7b199ee81cfb48e27ab8d8b57c8fafdd7734757601a219793bb0ba",
+      "exit_code": -1,
+      "csv_count": 0,
+      "observation": "Option order incorrectly left file-level symbol switches after the prefix. The initial derivative also had view-namespace and region-preset defects."
+    },
+    {
+      "id": "r2",
+      "profile_sha256": "87867ee81709b5c273265e35888665c4c19e0615f1c23960c6db4e3a85a771f8",
+      "exit_code": -1,
+      "csv_count": 0,
+      "observation": "File-option placement corrected; region-dependent preset and a view construction issue remained. Loader reported missing per-user MyPresets.wpaPresets and failed."
+    },
+    {
+      "id": "r3",
+      "profile_sha256": "83fc1d66682b2f7b09a1af44e169ae18e7a7fc2683a386e2b9e8a4ea3e48616d",
+      "exit_code": -1,
+      "csv_count": 0,
+      "observation": "Local XML gates passed after cloning installed Graphing view/session and Samples by Thread Name preset; one CPU graph, no external/region references. Loader again reported missing MyPresets.wpaPresets and generic profile-load failure. Zero CSVs does not qualify the filter or data headers."
+    }
+  ],
+  "pfifo_tid": null,
+  "pass_b_run": false,
+  "capture_repeated": false,
+  "loader_cause": "Unresolved; missing MyPresets is an observed error, not a discriminating causal control",
+  "next_gate": "Known-valid loader control or supported UI-authored minimal profile, then PID-only discovery",
+  "supported_initialization_attempt": {
+    "owned_wpa_normal_close_exit_code": 0,
+    "my_presets_created": false,
+    "pre_existing_settings_files": 6,
+    "pre_existing_settings_hashes_unchanged": true,
+    "created_tool_optimization_file_count": 1,
+    "existing_presets_overwritten": false,
+    "owned_processes_remaining": 0,
+    "etl_hash_unchanged": true
+  }
+}
