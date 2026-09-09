@@ -888,4 +888,4 @@ which would be populated via
 
 [STI shadow-entry candidate results](docs/evidence/sti-shadow-entry-20260909/REPORT.md): held after paired focused captures; Vulkan benefit and IRQ qualification remain unestablished.
 
-[Unchanged-main Vulkan trace](docs/evidence/main-vulkan-profile-20260909/REPORT.md): lossless capture and exact symbols; PFIFO/GPU attribution pending offline export.
+[Unchanged-main Vulkan trace](docs/evidence/main-vulkan-profile-20260909/REPORT.md): PFIFO timing, bounded leaf costs and process-GPU overlap; wait cause remains pending. [Reusable WPA analysis tools](utils/wpa-attribution/README.md).

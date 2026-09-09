@@ -1,8 +1,26 @@
-# Main Vulkan profile: capture passed, thread attribution pending
+# Main Vulkan profile: PFIFO timing established, wait causes pending
 
-One external CPU/scheduler/GPU capture of unchanged main completed with **zero lost events or buffers**. The saved trace is ready for further analysis. The first compact exports only provide process/module totals, so they do **not** establish PFIFO CPU time, ready delay, fence-wait time, GPU execution or a removable-copy bottleneck. No optimization or performance gain is claimed from this packet.
+The saved unchanged-main trace identifies PFIFO and supports a complete timing partition for its 20.0090458-second window. PFIFO ran for 4.4943294 s and was off-CPU for 15.5147164 s. The exported ready timestamps further separate waiting from scheduling delay with the disclosed rounding correction below. No fence cause, GPU utilization, FPS change or optimization gain is established.
 
 Main is `bd1fecb93353272dda2a810991e28945de35b665`, tree `6824a5aa4d9ca288ac96092dc9244684e995b08d`. The retained executable SHA256 is `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b`. No rebuild or source instrumentation was needed. Stored baseline statistics remain unchanged; this externally traced run is a diagnostic observation, not a replacement baseline or timing control. [Baseline identity and results](../main-apu-load-20260909/REPORT.md).
+
+## Bounded attribution
+
+| Observation | Value | Scope |
+| --- | ---: | --- |
+| PFIFO scheduled running | 4.4943294 s | 22.4615% of the selected window |
+| PFIFO waiting | 15.4398723 s |Clipped exported ready-time boundary, with stated rounding correction |
+| PFIFO ready for scheduling | 0.0748441 s |Clipped and corrected; not a wait-cause label |
+| Process GPU execution union | 7.5774547 s |Overlapping execution intervals counted once; not whole-device utilization |
+| Process GPU execution overlapping PFIFO waiting | 7.0244536 s |Temporal overlap only; no wait/submission dependency is proved |
+
+In 52 zero-Waits rows, exported Ready Time precedes Last Switch-Out by 0.1–1.1 µs, 13.9 µs total. The partition clamps those ready edges to Last Switch-Out. The uncorrected clipped ready sum is 0.0748580 s. The packet does not identify whether WPA observed or synthesized each ready edge. `Old Wait Reason` describes the other outgoing thread at PFIFO switch-in and is excluded from PFIFO cause attribution.
+
+The clean export contains 4,183 PFIFO sampled rows, 19,133 PFIFO scheduling rows and 9,652 process-GPU rows. [Compact data and hash bridge](attribution/manifest.json), [reproducible totals](attribution/summary.json), [PFIFO identity proof](attribution/identity.json) and [validation](attribution/validation.json) are included. [Portable export, minimization and analysis tools](../../../utils/wpa-attribution/README.md) recreate the accepted profile and reproduce the compact results. Complete-record checks cannot prove absence of a silently omitted valid block; retain the source hashes, target/range, counts and partition checks together.
+
+The sampled weights total 4,179.0205 ms, separate from precise scheduled time. The leading named xemu leaf is `tlb_reset_dirty_range_all`: 407.9830 ms, 9.7626% of PFIFO sample weight. `create_pipeline` contributes 102.9708 ms, 2.4640%. Names are assigned only through an exact executable `.pdata` extent whose beginning matches a defined text label. [All leaf groups](attribution/sampled-leaf-summary.csv) retain external modules and unknowns separately. Unresolved deeper frames prevent caller attribution; module names do not identify a Vulkan operation.
+
+The next measurement is [diagnostic draft #57](https://github.com/Mainkill1/xemu/pull/57), which reuses existing Vulkan submit/fence counters with deferred output and optional full timing. Source review and the candidate build passed; native checks are pending. Dirty-TLB rearming remains a CPU investigation route. Neither observation justifies removing synchronization or bypassing dirty tracking.
 
 ## What completed
 
@@ -27,7 +45,7 @@ The first recorder admission failed with `Invalid temporary trace directory` (`0
 
 `xperf -a profile -detail` exports process/module totals; its Usage% denominator includes all 16 CPUs. `xperf -a cswitch` in the initial form exports system-wide CPU occupancy. Neither identifies the PFIFO thread or its wait/ready intervals. This version rejects `xperf -a gpu` as an unsupported action; that error does not show that GPU events were absent. The GPU profile was enabled, but usable per-process GPU activity remains to be established from the saved trace.
 
-The installed WPAExporter supports profile/config-driven offline extraction. A filtered export of sampled CPU, precise scheduling and GPU activity is the next step, using the existing ETL and exact PID/window. No second gameplay run is needed. Large system-wide process maps, raw logs and the ETL remain private; they contain unrelated host data. This public packet includes sanitized identities/results and the exact executable's text-symbol map, with no game assets, guest bytes or private configuration.
+The installed WPAExporter subsequently completed the filtered three-table export above using the same ETL and exact PID/window. No second gameplay run occurred. Large system-wide process maps, raw logs and the ETL remain private; they contain unrelated host data. This public packet includes compact target IDs/timestamps, xemu RVAs, external module basenames, GPU intervals and the exact executable's text-symbol map, with no game assets, guest bytes, unrelated process names or private configuration.
 
 ## Reproduce the symbol map
 
@@ -47,7 +65,7 @@ gzip -dc defined-text-symbols.tsv.gz |
 # pgraph_vk_finish
 ```
 
-A nearest label alone cannot restore missing frames or distinguish this common submission function's copying, submission and fence-wait operations. Caller/callee frames and scheduling/GPU correlation are still required. [Manifest](manifest.json); [sanitized selected-device lines](device-selection.txt); [diagnostic tracking PR](https://github.com/Mainkill1/xemu/pull/54). The separate [STI candidate remains held](../sti-shadow-entry-20260909/REPORT.md).
+A nearest label alone cannot restore missing frames or distinguish this common submission function's copying, submission and fence-wait operations. The scheduling/GPU overlap above does not replace the missing caller/callee evidence needed to explain the wait. [Manifest](manifest.json); [sanitized selected-device lines](device-selection.txt); [diagnostic tracking PR](https://github.com/Mainkill1/xemu/pull/54). The separate [STI candidate remains held](../sti-shadow-entry-20260909/REPORT.md).
 
 ## Offline exporter diagnosis
 
@@ -55,8 +73,8 @@ A nearest label alone cannot restore missing frames or distinguish this common s
 
 An [installed-profile control](loader-control.json) succeeded with the same missing-file warning and produced an [80-byte header-only CSV](loader-control-header.csv). A stronger [single-variable control](loader-guid-control.json) then changed only r3's `AnalysisView.Name` from `main-vk-0` to a valid GUID. With the same symbol options, ETL and measurement window, this profile exited 0. **The invalid view identifier caused r3's loader failure; the missing presets file was unnecessary.**
 
-The successful profile initially exported a collapsed 302-byte CPU table. This is loader evidence only: it cannot identify PFIFO or establish CPU, wait or GPU costs. Thread-level extraction and coverage checks are continuing against the sealed ETL. No additional gameplay or baseline change occurred.
+The successful profile initially exported a collapsed 302-byte CPU table. This is loader evidence only: it cannot identify PFIFO or establish CPU, wait or GPU costs. The later narrow export resolved thread-level extraction as described above. No additional gameplay or baseline change occurred.
 
 The earlier guarded WPA startup/close preserved all six existing settings-file hashes and added one tool-generated optimization file. No preset was fabricated or overwritten. That initialization did not resolve the fault; the profile correction did.
 
-A subsequent [raw-row export](raw-export-failure.json) returned exit code 0 but logged an export error and stopped mid-row after 7,804 complete records. Its totals are excluded. Export validation must inspect stderr and CSV completeness as well as the process exit code; intact records are being reviewed separately for thread identity.
+A subsequent [raw-row export](raw-export-failure.json) returned exit code 0 but logged an export error and stopped mid-row after 7,804 complete records. Its totals are excluded. Export validation must inspect stderr and CSV completeness as well as the process exit code; one intact source-exclusive record established thread identity, while all r6 totals remain excluded. The clean narrow export supplies the quantitative results.

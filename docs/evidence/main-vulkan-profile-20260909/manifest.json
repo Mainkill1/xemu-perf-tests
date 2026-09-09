@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "status": "CAPTURE_PASS_LOADER_RESOLVED_ATTRIBUTION_PENDING",
+  "status": "BOUNDED_ATTRIBUTION_PASS_WAIT_CAUSE_PENDING",
   "purpose": "External CPU/scheduler/GPU attribution on unchanged main; not a performance comparison",
   "source": "bd1fecb93353272dda2a810991e28945de35b665",
   "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
@@ -69,7 +69,7 @@
     "preferred_image_base": "0x140000000",
     "image_size": "0x0200e000",
     "runtime_image_base": "0x7ff73ffe0000",
-    "attribution_status": "Map verified; no sampled PFIFO instruction pointers recovered yet"
+    "attribution_status": "Exact .pdata-bounded leaf names admitted for clean PFIFO samples; deeper caller frames unresolved"
   },
   "selected_vulkan_device": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
   "selected_ui_gl_renderer": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
@@ -77,5 +77,21 @@
   "offline_loader_attempts": "offline-loader-attempts.json",
   "loader_control": "loader-control.json",
   "loader_guid_control": "loader-guid-control.json",
-  "raw_export_failure": "raw-export-failure.json"
+  "raw_export_failure": "raw-export-failure.json",
+  "attribution": {
+    "summary": "attribution/summary.json",
+    "identity": "attribution/identity.json",
+    "hash_bridge": "attribution/manifest.json",
+    "validation": "attribution/validation.json",
+    "clean_profile_sha256": "27f529417d60bc7d5ffa487306c367f49c573e077e92bc67791905e3bb6e980d",
+    "exporter_sha256": "2b0271d58b3bddd9bb0409671a62636a6cf7650a644c3a19d6475f6152fa7ffb",
+    "exported_rows": {
+      "sampled": 4183,
+      "precise": 19133,
+      "gpu": 9652
+    },
+    "total_private_export_bytes": 27149375,
+    "wait_cause_established": false,
+    "new_workload_launched": false
+  }
 }
