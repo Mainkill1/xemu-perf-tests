@@ -14,6 +14,8 @@ static constexpr char kTinyAllocationTest[] = "TinyAlloc";
 static constexpr char kMixedVertexCountTest[] = "MixedVtxAlloc";
 static constexpr char kDisjointSamePageTest[] =
     "XemuVertexRamDisjointSamePage";
+static constexpr char kRisingTransientGrowthTest[] =
+    "XemuRisingTransientBufferGrowth";
 static constexpr uint32_t kGeometrySeed = 0x5642414CU;
 static constexpr uint32_t kOracleBackground = 0xFF182028U;
 static constexpr uint32_t kOracleTileCount = 16;
@@ -23,6 +25,28 @@ static constexpr uint32_t kOracleTileHeight = 48;
 static constexpr uint32_t kOracleTileGap = 16;
 static constexpr uint32_t kOracleTileMarginX = 64;
 static constexpr uint32_t kOracleTileMarginY = 48;
+
+// PR #8 starts the paired Vulkan inline-vertex buffers at 8 MiB. Position and
+// diffuse consume eight dwords per vertex. Four maximum quad-aligned batches
+// plus sixteen vertices therefore fill 8 MiB exactly. A four-vertex draw is a
+// 128-byte increment, which distinguishes below-capacity, exact-capacity,
+// repeated-small-growth, and large-growth behavior.
+static constexpr uint32_t kTransientInitialCapacityBytes =
+    8U * 1024U * 1024U;
+static constexpr uint32_t kGrowthVertexStrideDwords = 8;
+static constexpr uint32_t kGrowthLargeVertexCount = 65532;
+static constexpr uint32_t kGrowthRemainderVertexCount = 16;
+static constexpr uint32_t kGrowthSmallVertexCount = 4;
+static constexpr uint32_t kGrowthLargeDrawBytes =
+    kGrowthLargeVertexCount * kGrowthVertexStrideDwords * sizeof(uint32_t);
+static constexpr uint32_t kGrowthRemainderDrawBytes =
+    kGrowthRemainderVertexCount * kGrowthVertexStrideDwords * sizeof(uint32_t);
+static constexpr uint32_t kGrowthSmallDrawBytes =
+    kGrowthSmallVertexCount * kGrowthVertexStrideDwords * sizeof(uint32_t);
+static constexpr uint32_t kGrowthExactFillBytes =
+    4U * kGrowthLargeDrawBytes + kGrowthRemainderDrawBytes;
+static_assert(kGrowthExactFillBytes == kTransientInitialCapacityBytes);
+static_assert(kGrowthLargeDrawBytes < kTransientInitialCapacityBytes);
 
 // Binary channel values make the guest-visible oracle exact on NV2A and host
 // renderers without accepting rounding tolerances. The reverse-order second
@@ -176,6 +200,8 @@ VertexBufferAllocationTests::VertexBufferAllocationTests(TestHost &host, std::st
   }
   tests_[kDisjointSamePageTest] =
       [this]() { TestDisjointSamePageVertexUpdates(); };
+  tests_[kRisingTransientGrowthTest] =
+      [this]() { TestRisingTransientBufferGrowth(); };
 }
 
 static uint32_t PackField(uint32_t mask, uint32_t value) {
@@ -512,6 +538,123 @@ void VertexBufferAllocationTests::TestTinyAllocations(const std::string &name, D
   FinishProfileWithOracle(name, draw_mode, results, work_checksum,
                           embedded_completion_wait_us,
                           embedded_completion_wait_calls);
+}
+
+static std::shared_ptr<VertexBuffer> CreateTransientGrowthGeometry(
+    TestHost &host, uint32_t vertex_count, uint32_t seed) {
+  ASSERT(vertex_count && vertex_count % 4 == 0);
+  auto vertex_buffer = host.AllocateVertexBuffer(vertex_count);
+  vertex_buffer->SetPositionIncludesW(true);
+  auto vertex = vertex_buffer->Lock();
+  SpecifiedGenerator generator(seed);
+
+  for (uint32_t index = 0; index < vertex_count; index += 4) {
+    const uint32_t quad = index / 4;
+    const float left = static_cast<float>(16 + (quad % 60) * 10);
+    const float top = static_cast<float>(32 + ((quad / 60) % 40) * 10);
+    const float red = static_cast<float>(generator.Next() & 0xFF) / 255.0f;
+    const float green =
+        static_cast<float>(generator.Next() & 0xFF) / 255.0f;
+    const float blue = static_cast<float>(generator.Next() & 0xFF) / 255.0f;
+    const float positions[4][2] = {
+        {left, top},
+        {left + 6.0f, top},
+        {left + 6.0f, top + 6.0f},
+        {left, top + 6.0f},
+    };
+    for (uint32_t corner = 0; corner < 4; ++corner) {
+      vertex->SetPosition(positions[corner][0], positions[corner][1], 0.0f);
+      vertex->SetDiffuse(red, green, blue, 1.0f);
+      ++vertex;
+    }
+  }
+  vertex_buffer->Unlock();
+  return vertex_buffer;
+}
+
+static void DrawTransientGrowthInlineArray(
+    TestHost &host, const std::shared_ptr<VertexBuffer> &vertex_buffer) {
+  static constexpr uint32_t kGrowthVertexAttributes =
+      TestHost::POSITION | TestHost::DIFFUSE;
+  host.SetVertexBuffer(vertex_buffer);
+  host.DrawInlineArray(kGrowthVertexAttributes, TestHost::PRIMITIVE_QUADS);
+}
+
+static void SubmitTransientGrowthPhase(
+    TestHost &host, const char *label,
+    const std::shared_ptr<VertexBuffer> &large,
+    const std::shared_ptr<VertexBuffer> &remainder,
+    const std::shared_ptr<VertexBuffer> &small,
+    uint32_t small_fill_draws, bool large_jump) {
+  PrintMsg("TRANSIENT_GROWTH_PHASE label=%s small_fill_draws=%lu "
+           "trigger_bytes=%lu\n",
+           label, small_fill_draws,
+           large_jump ? kGrowthLargeDrawBytes : kGrowthSmallDrawBytes);
+  for (uint32_t draw = 0; draw < 4; ++draw) {
+    DrawTransientGrowthInlineArray(host, large);
+  }
+  DrawTransientGrowthInlineArray(host, remainder);
+  for (uint32_t draw = 0; draw < small_fill_draws; ++draw) {
+    DrawTransientGrowthInlineArray(host, small);
+  }
+  DrawTransientGrowthInlineArray(host, large_jump ? large : small);
+}
+
+void VertexBufferAllocationTests::TestRisingTransientBufferGrowth() {
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
+  auto shader = std::make_shared<PassthroughVertexShader>();
+  host_.SetVertexShaderProgram(shader);
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+  host_.PrepareDraw(kOracleBackground);
+
+  auto large = CreateTransientGrowthGeometry(
+      host_, kGrowthLargeVertexCount, kGeometrySeed ^ 0x10000000U);
+  auto remainder = CreateTransientGrowthGeometry(
+      host_, kGrowthRemainderVertexCount, kGeometrySeed ^ 0x20000000U);
+  auto small = CreateTransientGrowthGeometry(
+      host_, kGrowthSmallVertexCount, kGeometrySeed ^ 0x30000000U);
+
+  uint64_t embedded_completion_wait_us = 0;
+  uint32_t embedded_completion_wait_calls = 0;
+  const auto results = Profile(
+      kRisingTransientGrowthTest, 1,
+      [this, large, remainder, small, &embedded_completion_wait_us,
+       &embedded_completion_wait_calls] {
+        // Phase 1 reaches just below and exactly 8 MiB, then exceeds it by
+        // 128 bytes. Later phases fill the current exact capacity before
+        // another 128-byte increase. Each growth finishes the preceding
+        // command buffer. The final phase requests a roughly 2 MiB jump.
+        SubmitTransientGrowthPhase(host_, "initial_small", large, remainder,
+                                   small, 0, false);
+        SubmitTransientGrowthPhase(host_, "repeat_small_1", large, remainder,
+                                   small, 0, false);
+        SubmitTransientGrowthPhase(host_, "repeat_small_2", large, remainder,
+                                   small, 1, false);
+        SubmitTransientGrowthPhase(host_, "large_jump", large, remainder,
+                                   small, 2, true);
+
+        LARGE_INTEGER wait_start;
+        QueryPerformanceCounter(&wait_start);
+        host_.WaitForGpu();
+        embedded_completion_wait_us += host_.GetMicrosecondsSince(wait_start);
+        ++embedded_completion_wait_calls;
+      });
+
+  uint32_t work_checksum = HashUint32(2166136261U, kGeometrySeed);
+  work_checksum = HashUint32(work_checksum, kTransientInitialCapacityBytes);
+  work_checksum = HashUint32(work_checksum, kGrowthLargeDrawBytes);
+  work_checksum = HashUint32(work_checksum, kGrowthRemainderDrawBytes);
+  work_checksum = HashUint32(work_checksum, kGrowthSmallDrawBytes);
+  FinishProfileWithOracle(kRisingTransientGrowthTest,
+                          DrawMode::DRAW_INLINE_ARRAYS, results,
+                          work_checksum, embedded_completion_wait_us,
+                          embedded_completion_wait_calls);
+  large.reset();
+  remainder.reset();
+  small.reset();
 }
 
 static std::shared_ptr<VertexBuffer> CreateVertexAllocationOracleGeometry(

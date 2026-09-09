@@ -247,8 +247,8 @@ uses these public entries:
 7. `About/Controls`: starts with `Mainkill1's Test Suite`, then shows catalog
    identity, result path, and controller actions.
 
-The full unfiltered source exposes 148 leaf tests, five structural groups, and
-153 full-suite records. A catalog stage belonging to a grouped execution
+The full unfiltered source exposes 149 leaf tests, five structural groups, and
+154 full-suite records. A catalog stage belonging to a grouped execution
 route is still discoverable by its stable ID. Running that route can emit its
 sibling stages because those stages share initialization and lifetime state;
 use a resolved plan when an independently selectable stage mask is required.

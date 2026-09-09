@@ -153,6 +153,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.tiny.inline_buffers", 1, "vertex_buffer_allocation", "TinyAlloc-inlinebuffers", "Runs the TinyAlloc-inlinebuffers workload and records its deterministic result.", "Vertex buffer allocation", "TinyAlloc-inlinebuffers", "TinyAlloc-inlinebuffers", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.tiny.inline_elements", 1, "vertex_buffer_allocation", "TinyAlloc-inlineelements", "Runs the TinyAlloc-inlineelements workload and records its deterministic result.", "Vertex buffer allocation", "TinyAlloc-inlineelements", "TinyAlloc-inlineelements", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "XemuVertexRamDisjointSamePage", "Runs the XemuVertexRamDisjointSamePage workload and records its deterministic result.", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
+  {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:e10fa731d28e1753d7888729392bbc144b9a3b1f0be53216affe6b390e678f5c";
+static constexpr const char *kTestCatalogId = "sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a";
