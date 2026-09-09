@@ -887,3 +887,5 @@ which would be populated via
 [Main returned-PC diagnostic, September 9](docs/evidence/main-cause-return-20260909/REPORT.md): interrupt-shadow polling-loop attribution and reproducible numeric samples.
 
 [STI shadow-entry candidate results](docs/evidence/sti-shadow-entry-20260909/REPORT.md): held after paired focused captures; Vulkan benefit and IRQ qualification remain unestablished.
+
+[Unchanged-main Vulkan trace](docs/evidence/main-vulkan-profile-20260909/REPORT.md): lossless capture and exact symbols; PFIFO/GPU attribution pending offline export.

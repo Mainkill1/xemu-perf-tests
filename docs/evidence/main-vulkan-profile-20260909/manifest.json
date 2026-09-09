@@ -1,0 +1,77 @@
+{
+  "schema_version": 1,
+  "status": "CAPTURE_PASS_OFFLINE_ATTRIBUTION_PENDING",
+  "purpose": "External CPU/scheduler/GPU attribution on unchanged main; not a performance comparison",
+  "source": "bd1fecb93353272dda2a810991e28945de35b665",
+  "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+  "existing_binary_reused": true,
+  "baseline_rebuilt": false,
+  "baseline_replaced": false,
+  "application_instrumentation_added": false,
+  "renderer": "VULKAN",
+  "workload": "Morrowind vm-20260905015459; fixed Start/B sequence then20-second measurement",
+  "surface_scale": 1,
+  "present_interval": 1,
+  "present_interval_explicit": false,
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "hardware_manifest": "../main-cause-20260909/manifest.json",
+  "build_manifest": "../main-apu-load-20260909/manifest.json",
+  "profiler": {
+    "tool": "Windows Performance Recorder",
+    "version": "10.0.26100",
+    "profiles": [
+      "GeneralProfile.Verbose.File",
+      "GPU.Verbose.File"
+    ],
+    "mode": "file",
+    "application_launch_count": 1
+  },
+  "etl": {
+    "sha256": "58a8bbeb4d837aeb5d6309f4ef884fc01d939d52c648706a63f642f79c6ac1c1",
+    "bytes": 1804599296,
+    "lost_events": 0,
+    "lost_buffers": 0,
+    "epoch_utc": "2026-09-09T12:06:17.2135900Z",
+    "end_utc": "2026-09-09T12:07:38.6532755Z",
+    "storage": "Retained privately; system-wide ETL is not part of public evidence"
+  },
+  "measurement": {
+    "start_utc": "2026-09-09T12:06:39.0096515Z",
+    "end_utc": "2026-09-09T12:06:59.0186973Z",
+    "elapsed_seconds": 20.0090458,
+    "relative_start_us": "21796061.5",
+    "relative_end_us": "41805107.3"
+  },
+  "cleanup": {
+    "wpr_stop_exit_code": 0,
+    "remaining_owned_process_count": 0,
+    "remaining_private_disk_count": 0,
+    "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad"
+  },
+  "initial_setup_failure": {
+    "stage": "WPR start before workload launch",
+    "error": "Invalid temporary trace directory",
+    "code": "0xc5586004",
+    "recorder_started": false,
+    "workload_launched": false,
+    "resolution": "Created a fresh owned temporary trace directory and rechecked idle admission before the one workload launch"
+  },
+  "performance_acceptance": false,
+  "guest_suite_changed": false,
+  "xiso_changed": false,
+  "visual_inspection": "Expected outdoor bridge/waterfront/buildings and crosshair; no menu overlay. Separate from automated nonblack check; not an independent pixel oracle.",
+  "symbol_map": {
+    "file": "defined-text-symbols.tsv.gz",
+    "sha256": "7f6a819281b06566664b15f4d64d381307edd9b3e76af2fedff8f7325b556ee1",
+    "defined_text_labels": 60273,
+    "preferred_image_base": "0x140000000",
+    "image_size": "0x0200e000",
+    "runtime_image_base": "0x7ff73ffe0000",
+    "attribution_status": "Map verified; no sampled PFIFO instruction pointers recovered yet"
+  },
+  "selected_vulkan_device": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+  "selected_ui_gl_renderer": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+  "device_selection_evidence": "device-selection.txt: selected device lines from the capture application log, rather than inference from loaded driver modules"
+}
