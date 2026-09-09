@@ -36,6 +36,12 @@ Run the focused synthetic controls with PowerShell 7:
 
 ```powershell
 pwsh -NoProfile -File ./utils/capture-lifecycle/test-capture-lifecycle.ps1
+pwsh -NoProfile -File ./utils/capture-lifecycle/test-start-retail-snapshot-guard.ps1
 ```
 
 The controls create and remove only their own uniquely named temporary directory.
+
+`start-retail-snapshot.ps1` is the lifecycle-safe replacement for the existing
+retail capture launcher. It preserves the Snapshot and FreshBoot arguments, but
+rejects a non-idle xemu process query instead of terminating every process named
+`xemu`. Its caller still owns the returned process and all later cleanup.
