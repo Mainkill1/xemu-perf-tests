@@ -195,6 +195,12 @@ def entries():
         ("tiny.inline_elements", "TinyAlloc-inlineelements"),
         ("disjoint_same_page", "XemuVertexRamDisjointSamePage")],
         ("vertex", "allocation", "performance", "hardware-safe"))
+    out.append(leaf(
+        "vertex_buffer_allocation.rising_transient_growth",
+        "vertex_buffer_allocation", "Vertex buffer allocation",
+        "XemuRisingTransientBufferGrowth",
+        "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.",
+        ("vertex", "allocation", "correctness", "xemu-only")))
     return out
 
 
@@ -344,6 +350,8 @@ def failure_diagnosis(test):
             "Rapid constant writes produced stale shader inputs or lost a real update. Check compare-before-dirty logic, dirty-row masks, uniform packing, descriptor staging, and shader constant indexing.",
         "vertex_buffer_allocation.disjoint_same_page":
             "Two disjoint vertex ranges sharing one guest page interfered. Check byte-range versus page dirty tracking, upload offsets, cache keys, and allocation aliasing.",
+        "vertex_buffer_allocation.rising_transient_growth":
+            "A just-below, exact-capacity, repeated-small-growth, or large-growth phase failed. Check required-size arithmetic, paired buffer capacities, mapping restoration, command-buffer completion, and post-growth draw offsets.",
     }
     if test_id in exact:
         return exact[test_id]
@@ -547,6 +555,16 @@ def render():
             ROOT / "docs/generated/test-catalog.md": markdown(doc),
             ROOT / "docs/generated/test-failure-guide.md": failure_guide_markdown(doc),
             ROOT / "src/generated/test_catalog.inc": cpp(items, doc["catalog_id"])}
+    growth_settings = {
+        "skip_tests_by_default": True,
+        "warmup_iterations": 0,
+        "measurement_iterations_multiplier": 1,
+        "gpu_completion_mode": "per_iteration",
+        "output_directory_path": "e:/xemu_perf_tests",
+    }
+    output[ROOT / "resources/transient-buffer-growth.json"] = resolved_plan(
+        doc, growth_settings,
+        ["vertex_buffer_allocation.rising_transient_growth"])
     base_settings = {
         "skip_tests_by_default": True,
         "output_directory_path": "e:/xemu_perf_tests",
