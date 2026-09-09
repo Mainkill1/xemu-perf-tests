@@ -13,6 +13,7 @@ MAIN = (ROOT / "src/main.cpp").read_text()
 RUNTIME_CONFIG = (ROOT / "src/runtime_config.cpp").read_text()
 CMAKE = (ROOT / "src/CMakeLists.txt").read_text()
 DOC = (ROOT / "docs/pfifo-packet-boundary.md").read_text()
+README = (ROOT / "README.md").read_text()
 
 LEGACY_IDS = (
     "pfifo.boundary-array-element16",
@@ -98,6 +99,7 @@ class PfifoPacketBoundaryContractTests(unittest.TestCase):
     def test_xemu_only_suite_requires_explicit_runtime_opt_in(self):
         self.assertIn("enable_xemu_only_tests", RUNTIME_CONFIG)
         self.assertIn("runtime_config.enable_xemu_only_tests()", MAIN)
+        self.assertIn("xemu-only resolved plan requires enable_xemu_only_tests", RUNTIME_CONFIG)
         recipe = json.loads(
             (ROOT / "resources/pfifo-packet-boundary.json").read_text())
         self.assertTrue(recipe["settings"]["enable_xemu_only_tests"])
@@ -106,6 +108,8 @@ class PfifoPacketBoundaryContractTests(unittest.TestCase):
         self.assertIn('\\"verification_scope\\":\\"liveness_and_recovery\\"', SOURCE)
         self.assertIn("The guest does not read xemu's", DOC)
         self.assertIn("private destination state", DOC)
+        self.assertIn("liveness and recovery", README)
+        self.assertNotIn("hardening leaves for atomic rejection", README)
 
     def test_documentation_forbids_hardware_and_performance_claims(self):
         for phrase in (

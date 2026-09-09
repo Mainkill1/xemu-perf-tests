@@ -658,11 +658,13 @@ baseline calibration and an identical fixed multiplier for both builds; short
 runs are correctness/path checks only. See
 [`docs/pfifo-array-element-workloads.md`](docs/pfifo-array-element-workloads.md).
 
-`PFIFOPacketBoundary` adds four xemu-only hardening leaves for atomic rejection
-of oversized `ARRAY_ELEMENT16`, `ARRAY_ELEMENT32`, and `INLINE_ARRAY` batches,
-plus the incrementing inline fallback. They intentionally reach xemu's private
-batch limit, are not performance benchmarks, and must not run on physical Xbox
-hardware. Use `resources/pfifo-packet-boundary.json`; see
+`PFIFOPacketBoundary` adds four xemu-only hardening leaves that exercise
+oversized `ARRAY_ELEMENT16`, `ARRAY_ELEMENT32`, and `INLINE_ARRAY` batches,
+plus the incrementing inline fallback. They verify liveness and recovery after
+the malformed submissions; atomic rejection needs an xemu-side test or trace
+probe. They intentionally reach xemu's private batch limit, are not performance
+benchmarks, and must not run on physical Xbox hardware. Use
+`resources/pfifo-packet-boundary.json`; see
 [`docs/pfifo-packet-boundary.md`](docs/pfifo-packet-boundary.md).
 
 The tile oracle is nonfatal. Every cell records `oracle_status`, failure count,
