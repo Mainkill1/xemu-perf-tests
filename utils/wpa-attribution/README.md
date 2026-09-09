@@ -115,3 +115,25 @@ duration arithmetic, applies the disclosed Ready-Time rounding clamp, closes
 running + wait + ready to the selected window, and verifies GPU intervals.
 Its wait/GPU intersection is temporal overlap only. It does not establish a
 fence, copy, wait source, utilization, FPS, or performance change.
+
+## Close helpers as well as trace tools
+
+Record owned launcher/helper process identities (PID, creation time, parent
+and originating command), and check them after successful exports, failures
+and timeouts. A disconnected or timed-out remote client does not establish
+that its server-side work stopped. Prefer bounded direct-path status queries;
+avoid recursive directory scans through large trees or reparse points.
+
+At completion, verify WPR state, owned ETW sessions, exporters, analysis
+processes and helpers, then record available/committed host memory. Stop only
+processes and sessions whose ownership is established. Preserve the shared GUI
+server, unrelated system/vendor sessions and saved evidence. Process-exit
+checks alone are insufficient if an untracked helper still retains memory.
+
+The exporter wrapper above supports Windows PowerShell 5. Custom named-pipe
+GUI dispatch requires PowerShell 7: invoke `pwsh.exe` explicitly and use
+`NamedPipeConnectionInfo::new($PipeName, 5000)` for a bounded open. The
+PID/app-domain constructor is a different API and must not be substituted for
+a custom pipe name. Dispose the client PowerShell and runspace objects in a
+`finally` block; this does not terminate the shared GUI host. See the
+[official constructor definitions](https://learn.microsoft.com/en-us/dotnet/api/system.management.automation.runspaces.namedpipeconnectioninfo.-ctor?view=powershellsdk-7.4.0).

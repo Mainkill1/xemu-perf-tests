@@ -41,3 +41,5 @@ repair the diagnostic at a safe deferred-output boundary, review it, then
 qualify the new source. This failed source remains part of the record. The
 existing [main ETL attribution](../main-vulkan-profile-20260909/REPORT.md)
 remains valid within its published limits; it does not identify a fence cause.
+
+[Follow-up diagnosis, reviewed source repair and host cleanup](FOLLOWUP.md).
