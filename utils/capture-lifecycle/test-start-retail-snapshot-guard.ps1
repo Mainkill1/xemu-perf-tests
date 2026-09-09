@@ -68,21 +68,23 @@ try {
 }
 
 $config = Join-Path $root 'xemu.toml'
-$script:FakeProcess = [pscustomobject]@{
-    Id = 4343
-    HasExited = $false
-    Killed = $false
+$testState = [pscustomobject]@{
+    FakeProcess = [pscustomobject]@{
+        Id = 4343
+        HasExited = $false
+        Killed = $false
+    }
 }
-$script:FakeProcess | Add-Member -MemberType ScriptMethod -Name Kill -Value {
+$testState.FakeProcess | Add-Member -MemberType ScriptMethod -Name Kill -Value {
     $this.Killed = $true
     $this.HasExited = $true
 }
-$script:FakeProcess | Add-Member -MemberType ScriptMethod -Name WaitForExit -Value {
+$testState.FakeProcess | Add-Member -MemberType ScriptMethod -Name WaitForExit -Value {
     param([int]$Milliseconds)
     return $true
 }
-$script:FakeProcess | Add-Member -MemberType ScriptMethod -Name Refresh -Value { }
-function Start-Process {
+$testState.FakeProcess | Add-Member -MemberType ScriptMethod -Name Refresh -Value { }
+$startProcessMock = {
     param(
         [string]$FilePath,
         [object[]]$ArgumentList,
@@ -90,30 +92,39 @@ function Start-Process {
         [string]$RedirectStandardError,
         [switch]$PassThru
     )
-    return $script:FakeProcess
-}
-function Add-Type {
+    return $testState.FakeProcess
+}.GetNewClosure()
+$addTypeMock = {
     param([string]$AssemblyName)
     throw 'injected post-launch failure'
-}
+}.GetNewClosure()
+Set-Item -LiteralPath Function:\global:Start-Process -Value $startProcessMock
+Set-Item -LiteralPath Function:\global:Add-Type -Value $addTypeMock
 
 try {
     [System.IO.File]::WriteAllText(
         $config, "[input.bindings]`nport1 = 'keyboard'`n")
     $postLaunchRejected = $false
+    $postLaunchMessage = $null
     try {
         & $launcher -Xemu 'synthetic-xemu.exe' -ConfigPath $config
     } catch {
-        $postLaunchRejected = $_.Exception.Message -eq `
+        $postLaunchMessage = $_.Exception.Message
+        $postLaunchRejected = $postLaunchMessage -eq `
             'injected post-launch failure'
     }
-    Assert-True $postLaunchRejected 'post-launch failure remains observable'
-    Assert-True $script:FakeProcess.Killed `
+    Assert-True $postLaunchRejected (
+        "post-launch failure remains observable; actual='$postLaunchMessage'")
+    Assert-True $testState.FakeProcess.Killed `
         'post-launch failure cleans owned process'
     Assert-True ((Test-Path -LiteralPath (
                 Join-Path $root 'launch-artifacts') -PathType Container)) `
         'launcher writes logs under the run-local config directory'
 } finally {
+    Remove-Item -LiteralPath Function:\global:Start-Process -Force `
+        -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath Function:\global:Add-Type -Force `
+        -ErrorAction SilentlyContinue
     if (Test-Path -LiteralPath $root) {
         Remove-Item -LiteralPath $root -Recurse -Force
     }
