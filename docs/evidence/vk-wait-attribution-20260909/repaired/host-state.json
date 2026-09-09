@@ -1,0 +1,22 @@
+{
+  "before": {
+    "utc": "2026-09-09T19:34:19.2150583+00:00",
+    "available_physical_bytes": 12044165120,
+    "total_physical_bytes": 16361480192,
+    "committed_bytes": 7619268608,
+    "commit_limit_bytes": 18777399296,
+    "commit_fraction": 0.4057680452917179,
+    "owned_workload_recorder_exporter_analysis_processes": 0,
+    "wpr_recording": false
+  },
+  "after": {
+    "utc": "2026-09-09T19:35:13.5485060+00:00",
+    "available_physical_bytes": 11917041664,
+    "total_physical_bytes": 16361480192,
+    "committed_bytes": 7701065728,
+    "commit_limit_bytes": 18777399296,
+    "commit_fraction": 0.41012419273847456,
+    "owned_workload_recorder_exporter_analysis_processes": 0,
+    "wpr_recording": false
+  }
+}

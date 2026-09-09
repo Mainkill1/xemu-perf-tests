@@ -1,0 +1,358 @@
+{
+  "schema_version": 1,
+  "analysis": "bounded deferred Vulkan telemetry over its own QPC span",
+  "input_basename": "vulkan-perf.jsonl",
+  "input_sha256": "4abffea5aa8c017e553d888eb3149e2c77e84389ed571ece6ad6b83b3aafb3da",
+  "source_commit": "f16292b472e6bf5aa9d4448cbbf352bc13131b06",
+  "source_tree": "f5cac543ac34e50f4b48f6f4b9799dfbd3bd5e8f",
+  "validation": {
+    "final_newline": true,
+    "schema_records": 1,
+    "frame_records": 650,
+    "terminal_records": 1,
+    "full_timing": true,
+    "dropped_frames": 0,
+    "overflow": false,
+    "incomplete": false,
+    "strict_contiguous_frames_and_monotonic_timestamps": true
+  },
+  "boundary": {
+    "excluded_frame_record": 1,
+    "excluded_reason": "unknown prefix from telemetry initialization to first frame capture",
+    "included_frame_records_first": 2,
+    "included_frame_records_last": 650,
+    "included_frame_records": 649,
+    "qpc_start_timestamp_us": 621489515105,
+    "qpc_end_timestamp_us": 621516544816,
+    "qpc_span_us": 27029711,
+    "aligned_intervals": 649,
+    "setup_inclusive": true,
+    "utc_qpc_anchors_available": false,
+    "runner_measurement_window_alignment": "unavailable"
+  },
+  "frame_interval_us": {
+    "count": 649,
+    "sum": 27029711,
+    "mean": 41648.24499229584,
+    "min": 26177,
+    "p50_nearest_rank": 41045,
+    "p95_nearest_rank": 49953,
+    "p99_nearest_rank": 57897,
+    "max": 153045
+  },
+  "tracked_wait_per_frame_us": {
+    "count": 649,
+    "sum": 9205893,
+    "mean": 14184.73497688752,
+    "min": 10054,
+    "p50_nearest_rank": 13809,
+    "p95_nearest_rank": 20053,
+    "p99_nearest_rank": 22919,
+    "max": 39100
+  },
+  "finish_reasons": [
+    {
+      "name": "vertex_buffer_dirty",
+      "finish_calls": 0,
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_wait_for_fences_calls": 0,
+      "vk_wait_for_fences_us": 0
+    },
+    {
+      "name": "surface_create",
+      "finish_calls": 11,
+      "vk_queue_submit_calls": 10,
+      "timed_submit_calls": 10,
+      "submit_cpu_us": 214,
+      "vk_wait_for_fences_calls": 10,
+      "vk_wait_for_fences_us": 1772
+    },
+    {
+      "name": "surface_down",
+      "finish_calls": 520,
+      "vk_queue_submit_calls": 519,
+      "timed_submit_calls": 519,
+      "submit_cpu_us": 17712,
+      "vk_wait_for_fences_calls": 519,
+      "vk_wait_for_fences_us": 553831
+    },
+    {
+      "name": "need_buffer_space",
+      "finish_calls": 650,
+      "vk_queue_submit_calls": 650,
+      "timed_submit_calls": 650,
+      "submit_cpu_us": 32831,
+      "vk_wait_for_fences_calls": 650,
+      "vk_wait_for_fences_us": 6491212
+    },
+    {
+      "name": "framebuffer_dirty",
+      "finish_calls": 0,
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_wait_for_fences_calls": 0,
+      "vk_wait_for_fences_us": 0
+    },
+    {
+      "name": "presenting",
+      "finish_calls": 0,
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_wait_for_fences_calls": 0,
+      "vk_wait_for_fences_us": 0
+    },
+    {
+      "name": "flip_stall",
+      "finish_calls": 649,
+      "vk_queue_submit_calls": 648,
+      "timed_submit_calls": 648,
+      "submit_cpu_us": 20688,
+      "vk_wait_for_fences_calls": 648,
+      "vk_wait_for_fences_us": 438779
+    },
+    {
+      "name": "flush",
+      "finish_calls": 0,
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_wait_for_fences_calls": 0,
+      "vk_wait_for_fences_us": 0
+    },
+    {
+      "name": "stalled",
+      "finish_calls": 649,
+      "vk_queue_submit_calls": 649,
+      "timed_submit_calls": 649,
+      "submit_cpu_us": 25234,
+      "vk_wait_for_fences_calls": 649,
+      "vk_wait_for_fences_us": 1000323
+    },
+    {
+      "name": "texture_dirty",
+      "finish_calls": 0,
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_wait_for_fences_calls": 0,
+      "vk_wait_for_fences_us": 0
+    }
+  ],
+  "single_time_callers": [
+    {
+      "name": "pvideo_upload",
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_queue_wait_idle_calls": 0,
+      "vk_queue_wait_idle_us": 0
+    },
+    {
+      "name": "display_render",
+      "vk_queue_submit_calls": 1036,
+      "timed_submit_calls": 1036,
+      "submit_cpu_us": 24254,
+      "vk_queue_wait_idle_calls": 1036,
+      "vk_queue_wait_idle_us": 492395
+    },
+    {
+      "name": "surface_download",
+      "vk_queue_submit_calls": 519,
+      "timed_submit_calls": 519,
+      "submit_cpu_us": 10578,
+      "vk_queue_wait_idle_calls": 519,
+      "vk_queue_wait_idle_us": 218965
+    },
+    {
+      "name": "surface_create",
+      "vk_queue_submit_calls": 11,
+      "timed_submit_calls": 11,
+      "submit_cpu_us": 440,
+      "vk_queue_wait_idle_calls": 11,
+      "vk_queue_wait_idle_us": 5423
+    },
+    {
+      "name": "surface_upload",
+      "vk_queue_submit_calls": 11,
+      "timed_submit_calls": 11,
+      "submit_cpu_us": 234,
+      "vk_queue_wait_idle_calls": 11,
+      "vk_queue_wait_idle_us": 3193
+    },
+    {
+      "name": "texture_upload",
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_queue_wait_idle_calls": 0,
+      "vk_queue_wait_idle_us": 0
+    },
+    {
+      "name": "dummy_texture_create",
+      "vk_queue_submit_calls": 0,
+      "timed_submit_calls": 0,
+      "submit_cpu_us": 0,
+      "vk_queue_wait_idle_calls": 0,
+      "vk_queue_wait_idle_us": 0
+    }
+  ],
+  "api_totals": {
+    "vk_queue_submit_calls": 4053,
+    "vk_queue_submit_cpu_us": 132185,
+    "vk_submit_infos": 6529,
+    "command_buffers": 6529,
+    "vk_wait_for_fences_calls": 2476,
+    "vk_wait_for_fences_us": 8485917,
+    "vk_queue_wait_idle_calls": 1577,
+    "vk_queue_wait_idle_us": 719976,
+    "tracked_wait_us": 9205893
+  },
+  "copy_and_upload_totals": {
+    "staged_bytes": 4571768216,
+    "vertex_staged_bytes": 1937465344,
+    "vertex_staging_copies": 220885,
+    "vertex_staging_capacity_growths": 0,
+    "vertex_staging_fallback_finishes": 0,
+    "native_bc_uploads": 17,
+    "native_bc_source_bytes": 360336,
+    "native_bc_staged_bytes": 360336,
+    "native_bc_prepare_cpu_us": 37,
+    "decoded_bc_uploads": 0,
+    "decoded_bc_source_bytes": 0,
+    "decoded_bc_staged_bytes": 0,
+    "decoded_bc_prepare_cpu_us": 0,
+    "mean_vertex_staged_bytes_per_copy": 8771.37580188786
+  },
+  "cpu_regions_nonexclusive": [
+    {
+      "name": "draw_begin_surface_update",
+      "calls": 748235,
+      "cpu_us": 92887,
+      "mean_us_per_call": 0.12414147961536148,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 92887,
+        "mean": 143.12326656394453,
+        "min": 76,
+        "p50_nearest_rank": 131,
+        "p95_nearest_rank": 154,
+        "p99_nearest_rank": 163,
+        "max": 7846
+      }
+    },
+    {
+      "name": "draw_flush",
+      "calls": 748235,
+      "cpu_us": 11120007,
+      "mean_us_per_call": 14.861650417315415,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 11120007,
+        "mean": 17134.06317411402,
+        "min": 12313,
+        "p50_nearest_rank": 16851,
+        "p95_nearest_rank": 22085,
+        "p99_nearest_rank": 24821,
+        "max": 54871
+      }
+    },
+    {
+      "name": "pipeline_prepare",
+      "calls": 748235,
+      "cpu_us": 1506400,
+      "mean_us_per_call": 2.0132712316317734,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 1506400,
+        "mean": 2321.1093990755007,
+        "min": 1813,
+        "p50_nearest_rank": 2221,
+        "p95_nearest_rank": 2375,
+        "p99_nearest_rank": 2542,
+        "max": 37880
+      }
+    },
+    {
+      "name": "bind_textures",
+      "calls": 748235,
+      "cpu_us": 415268,
+      "mean_us_per_call": 0.5549967590396065,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 415268,
+        "mean": 639.8582434514637,
+        "min": 396,
+        "p50_nearest_rank": 658,
+        "p95_nearest_rank": 735,
+        "p99_nearest_rank": 770,
+        "max": 1295
+      }
+    },
+    {
+      "name": "texture_upload",
+      "calls": 23,
+      "cpu_us": 184,
+      "mean_us_per_call": 8.0,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 184,
+        "mean": 0.2835130970724191,
+        "min": 0,
+        "p50_nearest_rank": 0,
+        "p95_nearest_rank": 0,
+        "p99_nearest_rank": 0,
+        "max": 109
+      }
+    },
+    {
+      "name": "update_descriptor_sets",
+      "calls": 748235,
+      "cpu_us": 6879830,
+      "mean_us_per_call": 9.194744966487802,
+      "per_frame_cpu_us": {
+        "count": 649,
+        "sum": 6879830,
+        "mean": 10600.662557781201,
+        "min": 7732,
+        "p50_nearest_rank": 10255,
+        "p95_nearest_rank": 15334,
+        "p99_nearest_rank": 17322,
+        "max": 28879
+      }
+    }
+  ],
+  "need_buffer_localization": {
+    "status": "strongly localized to the update_descriptor_sets region; exact descriptor-set versus UBO-capacity trigger remains unresolved",
+    "records": 649,
+    "need_buffer_submit_count_frequency": {
+      "1": 648,
+      "2": 1
+    },
+    "need_buffer_wait_us": 6491212,
+    "update_descriptor_sets_region_us": 6879830,
+    "need_wait_fraction_of_descriptor_region": 0.9435134298376558,
+    "all_descriptor_region_us_ge_need_wait_us_per_record": true,
+    "descriptor_region_minus_need_wait_us": {
+      "count": 649,
+      "sum": 388618,
+      "mean": 598.7950693374422,
+      "min": 528,
+      "p50_nearest_rank": 594,
+      "p95_nearest_rank": 649,
+      "p99_nearest_rank": 711,
+      "max": 1172
+    },
+    "pearson_correlation_per_record": 0.9998214226587774
+  },
+  "limitations": [
+    "The interval is setup-inclusive and is not the runner's 20-second window.",
+    "Missing UTC/QPC anchors prohibit alignment with the runner or ETL.",
+    "No OpenGL or baseline comparison is made.",
+    "CPU regions are individually measured and nested; their durations must not be summed as exclusive CPU time.",
+    "Counts and durations are observed totals only; no extrapolation is performed."
+  ]
+}
