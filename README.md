@@ -881,3 +881,5 @@ which would be populated via
 ```c++
   shader->shader->SetUniformF(0, -1.f, 1.5f, 0.f, 1.f);
 ```
+
+[Main dispatcher/state diagnostic, September 9](docs/evidence/main-cause-state-20260909/REPORT.md): paired GL/VK counter captures and preserved source identities. Diagnostic counts, not performance acceptance.

@@ -47,5 +47,14 @@
     "remaining_processes": [],
     "private_disks": [],
     "completed_utc": "2026-09-09T09:21:15.6145862+00:00"
+  },
+  "integration": {
+    "main": "bd1fecb93353272dda2a810991e28945de35b665",
+    "tree_identical_to_tested_candidate": true,
+    "merged_pr": "https://github.com/Mainkill1/xemu/pull/53",
+    "ci_source_run": "https://github.com/Mainkill1/xemu/actions/runs/34340240452",
+    "ci_source_matrix": "success",
+    "baseline_rebuilt": false,
+    "existing_executable_reused": true
   }
 }

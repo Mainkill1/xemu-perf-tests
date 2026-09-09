@@ -1,6 +1,6 @@
 # APU snapshot-load repair against main
 
-**The isolated repair passed the Morrowind snapshot cell on both renderers.**
+**Merged as [xemu #53](https://github.com/Mainkill1/xemu/pull/53); the isolated repair passed the Morrowind snapshot cell on both renderers.**
 The retained main-equivalent baseline reproduced the OpenGL DSP assertion;
 the candidate changes only `mcpx_apu_pre_load()` in `hw/xbox/mcpx/apu/apu.c`.
 No baseline was rebuilt and no baseline performance campaign was repeated.
@@ -48,3 +48,7 @@ injected load failures were not executed as part of these two focused cells.
 No game assets, snapshot disk, BIOS files or private system configuration are
 included. The repair already has aggregate coverage in xemu #38/#51/#52; this
 is new isolated-main qualification, not a claim of previously unknown code.
+
+## Verified integration and baseline reuse
+
+Main `bd1fecb93353272dda2a810991e28945de35b665` has exactly the tested candidate tree `6824a5aa4d9ca288ac96092dc9244684e995b08d`. The complete exact-source push CI build matrix [passed](https://github.com/Mainkill1/xemu/actions/runs/34340240452). Independent source review and the two native cells above informed the merge. The existing executable and these GL/VK measurements become the new main baseline without rebuilding. Previous main XISO summaries remain historical under their original identities. Neither the broader S release proposal nor new-main full-suite/PGR2 qualification is implied.
