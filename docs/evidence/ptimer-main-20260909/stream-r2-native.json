@@ -1,0 +1,54 @@
+{
+  "schema": 1,
+  "kind": "Corrected r2 native v4/v5/v4 stream control",
+  "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+  "renderer": "Vulkan",
+  "status": "FAIL_FINAL_GUEST_PROGRESSION",
+  "attempt_scope": "One corrected r2 launch. The separate detached-dispatch setup failure made no launch, input, capture, or disk mutation; stream-attempt-1.json remains preserved separately.",
+  "snapshot_route": {
+    "normal_running_save": true,
+    "paused_save_repair_exercised": false,
+    "ui_reconnect_attempted": false
+  },
+  "observations": [
+    {
+      "label": "old-initial",
+      "display_write_events": 243,
+      "image_sha256": "290b556bc4e874db8992e1f13af58370c2134c15916ccb45f3a003fcac6aad9c"
+    },
+    {
+      "label": "v5-roundtrip",
+      "display_write_events": 244,
+      "image_sha256": "fdd137a636cfd1b0c5c2ede86cbb36c04387d7fd92b8f855d92dd6af27bdc402"
+    },
+    {
+      "label": "old-v4-reloaded",
+      "display_write_events": 0,
+      "image_sha256": "b3cccf81638fc7c649de997631a7cb692b77b8b68f408b846bcaf4486614c484",
+      "gate": "FAIL",
+      "terminal_visual": "Morrowind controller-reconnect overlay; no PGRAPH display-write events during the ten-second observation."
+    }
+  ],
+  "serialized_field_observations": [
+    {
+      "vmstate_version": 5,
+      "ptimer_alarm_armed_exists": true
+    },
+    {
+      "vmstate_version": 4,
+      "ptimer_alarm_armed_exists": false
+    }
+  ],
+  "cleanup": {
+    "control_status": "closed",
+    "launch_count": 1,
+    "private_hdd_deleted": true,
+    "remaining_xemu_pids": [],
+    "host_quarantined": false,
+    "shared_gui_server_retained": true
+  },
+  "private_receipt_sha256": "d0007f63b529f3f85e2855953776f1b1aac4d81eb9b5c5950dba186c503dd243",
+  "private_control_sha256": "7fae3d307345593185d64975d9d3f29f4d763afbc756282a6b95c4cecd8beed4",
+  "scope": "The versioned field observations do not override the terminal guest-progression failure. This record makes no performance or snapshot-compatibility pass claim."
+}

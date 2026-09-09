@@ -1,0 +1,66 @@
+{
+  "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+  "renderer": "Vulkan",
+  "status": "FAIL_INPUT_RECIPE",
+  "error": "Keyboard reconnection did not replace gamepad",
+  "normal_save_route": true,
+  "paused_save_repair_exercised": false,
+  "hmp_commands": [
+    {
+      "command": "savevm ptimer-main-v5-private",
+      "output": "",
+      "utc": "2026-09-09T22:32:32.5601406+00:00"
+    },
+    {
+      "command": "loadvm ptimer-main-v5-private",
+      "output": "",
+      "utc": "2026-09-09T22:32:39.2824594+00:00"
+    },
+    {
+      "command": "loadvm vm-20260905015459",
+      "output": "",
+      "utc": "2026-09-09T22:32:50.9420094+00:00"
+    }
+  ],
+  "completed_observations": [
+    {
+      "label": "old-initial",
+      "start_utc": "2026-09-09T22:32:21.1275549+00:00",
+      "end_utc": "2026-09-09T22:32:31.1422467+00:00",
+      "image_sha256": "25038faec2bfc34dfc594e4158b14e312c60c9272cdc7876b3f8bfc3a65acc5e",
+      "display_write_events": 243
+    },
+    {
+      "label": "new-roundtrip",
+      "start_utc": "2026-09-09T22:32:39.4278347+00:00",
+      "end_utc": "2026-09-09T22:32:49.4387849+00:00",
+      "image_sha256": "91037ea7c4f82bbf629a74dae8e70b5aa508ad1577286a4c29333d35308a0181",
+      "display_write_events": 241
+    }
+  ],
+  "stream_trace_slice": [
+    "2026-09-09T22:32:39.395095Z vmstate_load_state nv2a v5",
+    "2026-09-09T22:32:39.407125Z vmstate_load_state_field nv2a:ptimer.alarm_armed exists=1",
+    "2026-09-09T22:32:51.047475Z vmstate_load_state nv2a v4",
+    "2026-09-09T22:32:51.059506Z vmstate_load_state_field nv2a:ptimer.alarm_armed exists=0"
+  ],
+  "keyboard_reconnect": {
+    "after_ids": [
+      "gamepad_0"
+    ],
+    "before_ids": [
+      "gamepad_0"
+    ],
+    "utc": "2026-09-09T22:33:04.0013609+00:00"
+  },
+  "offline_diagnosis": "The screenshot after open-input-device shows the dropdown still closed; the subsequent selection click had no observed menu item. No evidence establishes that a rebind was necessary before attempting the standard resume route.",
+  "cleanup": {
+    "controller_status": "closed",
+    "private_hdd_deleted": true,
+    "remaining_xemu_pids": [],
+    "host_quarantined": false
+  },
+  "raw_receipt_sha256": "aad703fc23ebc13a7d0ea0495b99d476fac6bdcfcbca9ee5666e88f3c61a0ee8",
+  "scope": "Real v5 and v4 stream loads and first two activity observations completed. Final old-v4 resume was not qualified; no performance claim."
+}

@@ -1,0 +1,71 @@
+{
+  "kind": "Native production-TU baseline negative controls",
+  "base": "bd1fecb93353272dda2a810991e28945de35b665",
+  "fixture_overlay": "012a47f6ae74d8a4f874718b565daf1dcae07c53",
+  "binary_sha256": "4c86dba42881c8c0d17fe729e0a60e1a78927d1a91e769f6f210d196bb3ea4f8",
+  "status": "5/5 intended failures reproduced",
+  "raw_receipt_sha256": "a46478b03b51cae2e6c6d5c2468e7ceab65be5b83110eec16336090d658dab28",
+  "collector_caveat": "Original text matcher expected simplified inequality text and numbered not-ok lines. Raw GLib assertions and exit 3 were preserved; offline validation corrected the classification without rerunning controls.",
+  "results": [
+    {
+      "name": "ratio-1-1",
+      "path": "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-1",
+      "started_utc": "2026-09-09T22:38:43.5874923+00:00",
+      "completed_utc": "2026-09-09T22:38:44.0921942+00:00",
+      "exit_code": 3,
+      "raw_log": "ratio-1-1.raw.txt",
+      "verified_assertion": "(4 == 5)",
+      "outcome": "EXPECTED_BASELINE_FAILURE",
+      "raw_log_sha256": "2929dcec069f90af99c0dbd09b144fa76db5313495de7c67998ec0e754e40771",
+      "published_log_sha256": "a0af24b458cc17274c2fa3ea2ee6cfd47261d6c1a436e584d08b91778fdb1f99"
+    },
+    {
+      "name": "ratio-1-2",
+      "path": "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-2",
+      "started_utc": "2026-09-09T22:38:44.1071759+00:00",
+      "completed_utc": "2026-09-09T22:38:44.4118915+00:00",
+      "exit_code": 3,
+      "raw_log": "ratio-1-2.raw.txt",
+      "verified_assertion": "(0 == 5)",
+      "outcome": "EXPECTED_BASELINE_FAILURE",
+      "raw_log_sha256": "10fe2637a621b31cf83abd9f12b03339a36dc64cda4717d23a073eda190830f3",
+      "published_log_sha256": "17ae083052fe5248c27036036ae322724d9c31a58cfd327b2cf8577098ed555f"
+    },
+    {
+      "name": "deadline-phase",
+      "path": "/xbox/nv2a/ptimer/deadline-phase",
+      "started_utc": "2026-09-09T22:38:44.4192855+00:00",
+      "completed_utc": "2026-09-09T22:38:44.7207026+00:00",
+      "exit_code": 3,
+      "raw_log": "deadline-phase.raw.txt",
+      "verified_assertion": "(19 == 10)",
+      "outcome": "EXPECTED_BASELINE_FAILURE",
+      "raw_log_sha256": "51b0bcafa31cde0af96e40702fd45f526a69e376357f7b3080a0f5b4f32cea19",
+      "published_log_sha256": "d7fa409d06ba03a0deafd9cdcae8a78fd9fdde809bea79064b01f60fdc6ca68e"
+    },
+    {
+      "name": "deadline-range",
+      "path": "/xbox/nv2a/ptimer/deadline-range",
+      "started_utc": "2026-09-09T22:38:44.7278814+00:00",
+      "completed_utc": "2026-09-09T22:38:45.0333019+00:00",
+      "exit_code": 3,
+      "raw_log": "deadline-range.raw.txt",
+      "verified_assertion": "(0 == 9223372036854775807)",
+      "outcome": "EXPECTED_BASELINE_FAILURE",
+      "raw_log_sha256": "d2086ff2eb9956b32e0f2a27a7cf35354cefbbb51b80a422244ca563396cb35f",
+      "published_log_sha256": "3bbd1382c2f1816260b2a713a51204d1a792d9b16cbab825891c88673f16fe52"
+    },
+    {
+      "name": "masked-no-callback",
+      "path": "/xbox/nv2a/ptimer/masked-no-callback",
+      "started_utc": "2026-09-09T22:38:45.0433664+00:00",
+      "completed_utc": "2026-09-09T22:38:45.3468702+00:00",
+      "exit_code": 3,
+      "raw_log": "masked-no-callback.raw.txt",
+      "verified_assertion": "'timer_pending(&d.ptimer.timer)' should be FALSE",
+      "outcome": "EXPECTED_BASELINE_FAILURE",
+      "raw_log_sha256": "072bff9863d5dd1f263fe2f5bc71db6baa94a6cefe61807e7df5d5b79a344178",
+      "published_log_sha256": "9dda8487b177b4401834420198ef1f6b5a7bf743450c1e83c2cab737ea3854e4"
+    }
+  ]
+}

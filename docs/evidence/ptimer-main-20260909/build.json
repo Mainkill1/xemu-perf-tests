@@ -32,7 +32,7 @@
     "The /src retry omitted the configured /xemu-cache/lto mount; PTIMER translation units compiled but linking stopped before artifacts.",
     "With both configured mounts, all requested artifacts linked; Meson test dispatch then stopped because copied build.dat references an older Meson API."
   ],
-  "native_test": "Both unit executables exit0: Xbox24/24, generic576/576; emulator qualification pending",
+  "native_test": "Both unit executables exit 0: Xbox 24/24, generic 576/576; emulator qualification pending",
   "performance_acceptance": false,
   "baseline_options_evidence": "../main-apu-load-20260909/REPORT.md"
 }

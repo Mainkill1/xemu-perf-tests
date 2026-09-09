@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S6733857ea743f432034ab1d1d2d645c2
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+**
+ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:294:test_deadline_preserves_clock_phase: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == 10): (19 == 10)
+not ok /xbox/nv2a/ptimer/deadline-phase - ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:294:test_deadline_preserves_clock_phase: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == 10): (19 == 10)
+Bail out!
