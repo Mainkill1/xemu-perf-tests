@@ -1,0 +1,50 @@
+{
+  "source": "3db2bbfecd5153bb6841599d66bb24de731e12b7",
+  "tree": "e76e9879fedb81973b0eb0b93b99b9d8331669c7",
+  "binary_sha256": "a18ae99f2e1274cefff5c1e73d9068e606445b0a171e3c498ad4d7a8d26f99b6",
+  "binary_bytes": 44216216,
+  "source_pr": "https://github.com/Mainkill1/xemu/pull/57",
+  "build": {
+    "status": "PASS",
+    "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+    "command": "ninja -C build -j12 qemu-system-i386w.exe",
+    "optimization": "2",
+    "lto": true,
+    "debug": true,
+    "strip": false,
+    "x86_version": "3",
+    "errors": 0,
+    "warnings": 2,
+    "warning_scope": "Existing blit.c local-variable shadowing, outside changed files",
+    "owned_container_helpers_closed": true
+  },
+  "workload_launches": {
+    "OPENGL": 1,
+    "VULKAN": 0
+  },
+  "baseline_rebuilt": false,
+  "wpr_capture": false,
+  "suite_changed": false,
+  "automatic_guards": {
+    "before": "PASS",
+    "finally_after": "PASS",
+    "environment_restoration": "PASS",
+    "process_disk_recorder_cleanup": "PASS",
+    "supplemental_manual_host_audit": false
+  },
+  "failed_pre_run_controls": "Environment-restoration/telemetry-null handling corrected before final exact-script approval; no workloads launched by controls",
+  "unused_supplemental_validator": "Later parser error occurred before reading result or changing host; not repaired/rerun; durable launcher receipt remains acceptance evidence",
+  "private_artifact_hashes": {
+    "receipt-final.json": "7100cf04d36f746f647cb34895e56b23e32b16d3dcda20bdcf0f807855ef6453",
+    "dispatcher-lifecycle.json": "dfceab952c6aaea930645a67a0e4aadf0cdc316c0c26b5d4ba861df032f71137",
+    "result.json": "f98cd1d1eea89d2cd79b10b3afa291bb41ab63880323d248c63d43e5cb081f2d",
+    "control.json": "251d46504e5b66fe391d7cdd4d81820922f6f11a7dd34e15ceb4c063369382f7",
+    "launch-1/measurement-end.png": "ec6f43b68816074d24fce3b0b440dda60c28d4d142703cc6f24d02adeee4a5a9"
+  },
+  "file_hashes": {
+    "REPORT.md": "e9f268478fa62d194d72e93dc3b3e5d4765ff85c399a550ad2096d7da66e55d0",
+    "opengl-run.json": "50b6cac95f9b7197db5c2777562c510d60e172dcc7bbaf787a88d8886cad0492",
+    "test_validate_capacity_schema6.py": "9a72da0a0fdfc53bef1665c36ae157e9bb8e1d0dd80ded6138f874a8fe43c027",
+    "validate_capacity_schema6.py": "d129cdff074304d8ac6af66eac4bf20aeb75d5ec919aeee721da43b8eab9a686"
+  }
+}
