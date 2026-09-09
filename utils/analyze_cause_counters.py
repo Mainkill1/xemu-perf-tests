@@ -28,6 +28,8 @@ def analyze(rows, start_utc_us, end_utc_us):
         raise ValueError("measurement window must advance")
     grouped = defaultdict(list)
     for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("each counter record must be a JSON object")
         if not IDENTITY <= row.keys():
             raise ValueError("missing timestamp/thread identity")
         if not all(type(value) is int and value >= 0 for value in row.values()):

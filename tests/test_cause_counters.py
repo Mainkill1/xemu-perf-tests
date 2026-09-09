@@ -1,4 +1,7 @@
 import importlib.util
+import subprocess
+import sys
+import tempfile
 import unittest
 from pathlib import Path
 
@@ -23,6 +26,23 @@ def row(tid, time, count):
 
 
 class CauseCounterTests(unittest.TestCase):
+    def test_cli_rejects_non_object_records_without_traceback(self):
+        with tempfile.TemporaryDirectory() as directory:
+            source = Path(directory) / "records.jsonl"
+            output = Path(directory) / "summary.json"
+            for value in ("[]", "0", "null", '"text"'):
+                with self.subTest(value=value):
+                    source.write_text(value + "\n", encoding="utf-8")
+                    result = subprocess.run(
+                        [sys.executable, str(PATH), str(source),
+                         "--start-utc-us", "1", "--end-utc-us", "2",
+                         "--output", str(output)],
+                        capture_output=True, text=True)
+                    self.assertEqual(result.returncode, 1)
+                    self.assertNotIn("Traceback", result.stderr)
+                    self.assertIn("must be a JSON object", result.stderr)
+                    self.assertFalse(output.exists())
+
     def test_window_excludes_warmup_and_keeps_thread_deltas_separate(self):
         rows = [row(1, 0, 0), row(1, 1_000_000, 10),
                 row(2, 1_000_000, 100), row(1, 3_000_000, 30),

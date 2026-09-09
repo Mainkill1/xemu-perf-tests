@@ -19,7 +19,7 @@ retained, uninstrumented baseline executable. No baseline was rebuilt.
 | OpenGL | Failed before snapshot readiness; no gameplay measurement |
 | Baseline control | One OpenGL readiness attempt reproduced the same DSP assertion |
 | Cleanup | No remaining owned emulator or private HDD; snapshot seed unchanged |
-| Offline analysis | Six analyzer tests passed; regenerated deltas match the original analysis |
+| Offline analysis | Seven analyzer tests passed; regenerated deltas match the original analysis |
 
 The [manifest](manifest.json) pins toolchain, hardware, settings, input recipe,
 snapshot hash, source and binary identities. Hardware was Windows 10 Pro,
