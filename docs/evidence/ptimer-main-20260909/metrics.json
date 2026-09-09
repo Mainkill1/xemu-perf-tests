@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 59,
+  "headline": "Priority PTIMER baseline repair: candidate measurements pending",
+  "scope": "Main bd1fecb9 / retained executable 3489fdcc versus candidate 8da17c3e. Display-write cadence is not rendered FPS. Old PR48 evidence does not qualify this head. No 2% gate pass is claimed.",
+  "rows": [
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 23.723115829141207,
+      "candidate": null,
+      "baseline_display": "23.723116",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 47.99,
+      "candidate": null,
+      "baseline_display": "47.990000",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 57.134,
+      "candidate": null,
+      "baseline_display": "57.134000",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 32.798426877284314,
+      "candidate": null,
+      "baseline_display": "32.798427",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 38.098,
+      "candidate": null,
+      "baseline_display": "38.098000",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 42.848,
+      "candidate": null,
+      "baseline_display": "42.848000",
+      "candidate_display": "Not measured",
+      "note": "Retained baseline context; no paired result or acceptance"
+    }
+  ],
+  "missing": [
+    "Candidate correctness and native VMState checks pending.",
+    "Matching fixed-work performance and resource comparisons pending.",
+    "Baseline remains unchanged; other optimization tests paused."
+  ],
+  "evidence": [
+    {
+      "label": "Candidate draft",
+      "url": "https://github.com/Mainkill1/xemu/pull/59"
+    }
+  ]
+}

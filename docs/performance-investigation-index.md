@@ -41,3 +41,5 @@ continues to own the broader release gates. Updating this index is not a merge
 or release-qualification decision.
 
 Priority: qualify [PTIMER issue #40](https://github.com/Mainkill1/xemu/issues/40) against current main before further optimization tests. A measured regression above 2% is a rejection gate for the proposed baseline repair. Update baseline only after the repair fixes the known issue and passes its acceptance tests.
+
+Priority PTIMER correction now has [current-main draft #59](https://github.com/Mainkill1/xemu/pull/59) and [source-pinned evidence](evidence/ptimer-main-20260909/REPORT.md). The known-defect and 2% regression gates remain pending; main is unchanged.
