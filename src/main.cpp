@@ -30,6 +30,7 @@
 #include "tests/game_load_composite_tests.h"
 #include "tests/high_vertex_count_tests.h"
 #include "tests/pfifo_array_element_tests.h"
+#include "tests/pfifo_packet_boundary_tests.h"
 #include "tests/pipeline_texture_switch_tests.h"
 #include "tests/primitive_type_tests.h"
 #include "tests/report_query_tests.h"
@@ -305,6 +306,9 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(GameLoadCompositeTests)
   REG_TEST(HighVertexCountTests)
   REG_TEST(PfifoArrayElementTests)
+  if (runtime_config.enable_xemu_only_tests()) {
+    REG_TEST(PfifoPacketBoundaryTests)
+  }
   REG_TEST(PipelineTextureSwitchTests)
   REG_TEST(PrimitiveTypeTests)
   REG_TEST(ReportQueryTests)

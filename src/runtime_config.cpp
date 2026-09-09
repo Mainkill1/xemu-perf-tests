@@ -519,6 +519,23 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
     return false;
   }
 
+  if (!LoadBool(settings, "enable_xemu_only_tests", enable_xemu_only_tests_)) {
+    errors.emplace_back("settings[enable_xemu_only_tests] must be a boolean");
+    return false;
+  }
+
+  if (has_resolved_plan_ && !enable_xemu_only_tests_) {
+    for (const auto &id : selected_test_ids_) {
+      const auto *descriptor = FindTestDescriptorById(id);
+      ASSERT(descriptor);
+      if (std::string(descriptor->legacy_suite) == "PFIFOPacketBoundary") {
+        errors.emplace_back(
+            "xemu-only resolved plan requires enable_xemu_only_tests");
+        return false;
+      }
+    }
+  }
+
   if (!LoadString(settings, "output_directory_path", output_directory_path_)) {
     errors.emplace_back("settings[output_directory_path] must be a string");
     return false;

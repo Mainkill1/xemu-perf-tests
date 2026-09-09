@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:20f7c5e5797c3c4ac33117ac0bc793d86c064305b9a7404226484b765ed9178c` contains 145 leaves and 5 groups.
+Catalog `sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a` contains 149 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -9,6 +9,10 @@ Catalog `sha256:20f7c5e5797c3c4ac33117ac0bc793d86c064305b9a7404226484b765ed9178c
 | `pfifo_array_elements.array_element16` | leaf | `PFIFOArrayElements::pfifo.array-element16` |
 | `pfifo_array_elements.array_element32` | leaf | `PFIFOArrayElements::pfifo.array-element32` |
 | `pfifo_array_elements.array_element_pgr2` | leaf | `PFIFOArrayElements::pfifo.array-element-pgr2` |
+| `pfifo_packet_boundary.array_element16_overflow` | leaf | `PFIFOPacketBoundary::pfifo.boundary-array-element16` |
+| `pfifo_packet_boundary.array_element32_overflow` | leaf | `PFIFOPacketBoundary::pfifo.boundary-array-element32` |
+| `pfifo_packet_boundary.inline_array_overflow` | leaf | `PFIFOPacketBoundary::pfifo.boundary-inline-array` |
+| `pfifo_packet_boundary.incrementing_inline_fallback` | leaf | `PFIFOPacketBoundary::pfifo.incrementing-inline-fallback` |
 | `cpu_floating_point.sse_scalar` | leaf | `CpuFloatingPoint::SSEScalar` |
 | `cpu_floating_point.x87_scalar` | leaf | `CpuFloatingPoint::X87Scalar` |
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
