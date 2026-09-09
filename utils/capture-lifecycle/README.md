@@ -37,6 +37,7 @@ Run the focused synthetic controls with PowerShell 7:
 ```powershell
 pwsh -NoProfile -File ./utils/capture-lifecycle/test-capture-lifecycle.ps1
 pwsh -NoProfile -File ./utils/capture-lifecycle/test-start-retail-snapshot-guard.ps1
+pwsh -NoProfile -File ./utils/capture-lifecycle/test-pgr2-fresh-start.ps1
 ```
 
 The controls create and remove only their own uniquely named temporary directory.
@@ -45,3 +46,9 @@ The controls create and remove only their own uniquely named temporary directory
 retail capture launcher. It preserves the Snapshot and FreshBoot arguments, but
 rejects a non-idle xemu process query instead of terminating every process named
 `xemu`. Its caller still owns the returned process and all later cleanup.
+
+`run-pgr2-fresh-start.ps1` is a narrow adapter for the existing PGR2 capture
+runner's `FreshBoot` mode. It validates the executable, disc, HDD seed, renderer
+config, capture runner, and sibling launcher before the call, retains the
+existing input/capture flow, and writes the tested source identity beside the
+run-local result. It does not implement a second capture framework.
