@@ -20,7 +20,7 @@
   },
   "workload_launches": {
     "OPENGL": 1,
-    "VULKAN": 0
+    "VULKAN": 1
   },
   "baseline_rebuilt": false,
   "wpr_capture": false,
@@ -42,9 +42,34 @@
     "launch-1/measurement-end.png": "ec6f43b68816074d24fce3b0b440dda60c28d4d142703cc6f24d02adeee4a5a9"
   },
   "file_hashes": {
-    "REPORT.md": "e9f268478fa62d194d72e93dc3b3e5d4765ff85c399a550ad2096d7da66e55d0",
+    "REPORT.md": "3a0cf70fead6dea5d5c35e1926d747502825de850f899a1a1dc324a1647664a0",
+    "after-clock-anchor.json": "bf9522093c93cf92c33b1d2e2d2d810b619330a6981e9a63860c41de9fe9976d",
+    "before-clock-anchor.json": "9de1cf4e4ee2962ce141da7ba0bed6082a0346d5bfa358efb7d52bb105a30b05",
     "opengl-run.json": "50b6cac95f9b7197db5c2777562c510d60e172dcc7bbaf787a88d8886cad0492",
+    "schema6-summary.json": "158a4aa39691224fb96b86ac61e564195a7a51b65ffb14f9759c323a01bd39e4",
     "test_validate_capacity_schema6.py": "9a72da0a0fdfc53bef1665c36ae157e9bb8e1d0dd80ded6138f874a8fe43c027",
-    "validate_capacity_schema6.py": "d129cdff074304d8ac6af66eac4bf20aeb75d5ec919aeee721da43b8eab9a686"
+    "validate_capacity_schema6.py": "d129cdff074304d8ac6af66eac4bf20aeb75d5ec919aeee721da43b8eab9a686",
+    "vulkan-perf.jsonl": "d9d793f8969e6b24993681e05f3f7b93850a51cd9c3d381a33efeecf2e6e1449",
+    "vulkan-run.json": "92550f058b754957d4efcedea09695dd66f235ca51fe7ab2d0aebcbef31ad031"
+  },
+  "vulkan_capture": {
+    "status": "PASS",
+    "selected_records": 664,
+    "qpc_span_us": 27007765,
+    "descriptor_only": 665,
+    "ubo_staging_only": 0,
+    "both": 0,
+    "all_producer_capacity_calls": 665,
+    "unresolved_difference": 0,
+    "raw_sha256": "d9d793f8969e6b24993681e05f3f7b93850a51cd9c3d381a33efeecf2e6e1449",
+    "offline_summary_reproduced": true,
+    "clock_anchors": "Both saved; raw clock observations, UTC-window alignment not qualified",
+    "automatic_guards": "PASS; no supplemental manual host audit",
+    "private_artifact_hashes": {
+      "receipt-final.json": "dbeadfac03da430150ef679c0521ce9be8ce70d98fffa050e4dfcc01623cd3d5",
+      "result.json": "4c2914b5984c2874820f0b021aea46643ba940f9a282b21a89caefad3c95c969",
+      "control.json": "53b8da30af3eb5977f1535854f67a94dfaa2776f6afe078be8bb3c7652d5cbbf",
+      "dispatcher-lifecycle.json": "5a5481b5da18b66ae39f05ef68129d17b7a97710559ff36b6ac4667bce9778e2"
+    }
   }
 }
