@@ -32,8 +32,8 @@
   "pfifo_tid": null,
   "pass_b_run": false,
   "capture_repeated": false,
-  "loader_cause": "Unresolved; missing MyPresets is an observed error, not a discriminating causal control",
-  "next_gate": "Known-valid loader control or supported UI-authored minimal profile, then PID-only discovery",
+  "loader_cause": "r3 non-GUID AnalysisView.Name; single-attribute r4 correction with identical command options succeeds while MyPresets remains absent",
+  "next_gate": "Admit raw sample coverage and unique PFIFO identity before scheduler/GPU attribution",
   "supported_initialization_attempt": {
     "owned_wpa_normal_close_exit_code": 0,
     "my_presets_created": false,
@@ -43,5 +43,7 @@
     "existing_presets_overwritten": false,
     "owned_processes_remaining": 0,
     "etl_hash_unchanged": true
-  }
+  },
+  "discriminating_control": "loader-control.json",
+  "single_variable_control": "loader-guid-control.json"
 }
