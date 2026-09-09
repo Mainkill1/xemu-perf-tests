@@ -1,0 +1,9 @@
+{
+  "schema": 1,
+  "status": "INCOMPLETE_NOT_ACCEPTED",
+  "artifacts": {
+    "REPORT.md": "b09982806318afde54242d5febb15f98f5ef6ab88867752fa446a28797e8fb57",
+    "attempt-1.json": "0575b6a80038220be6311c3ebacefa4d250381bc3eded8a55e48aab29c17025f",
+    "attempt-2.json": "9fc7cc1819fe182fa0b18a5b8e439245a87ed93473a240b87f304f4ec1c558a7"
+  }
+}
