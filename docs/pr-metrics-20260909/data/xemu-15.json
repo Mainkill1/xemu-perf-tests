@@ -1,0 +1,22 @@
+{
+  "repo": "xemu",
+  "number": 15,
+  "headline": "Integrate: Vulkan bordered-cubemap mip copies use valid extents, replacing the parent VUID/device-loss path.",
+  "scope": "The timing table measures exact PR #15 head cb89434e45a5191eda85abba25812192fe1c9b21 against exact PR #14 head eb338262714ef0b1e23fd60a2c168300443377ac. PGR2 uses two 60-second ABBA runs per build and renderer; Morrowind uses one 10-second snapshot per build and renderer. All cadence values are NV2A display-write rates, not rendered FPS.",
+  "rows": [
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"OpenGL","baseline":30.010,"candidate":30.004,"baseline_display":"30.010","candidate_display":"30.004","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"OpenGL","baseline":40.165,"candidate":39.884,"baseline_display":"40.165","candidate_display":"39.884","note":"Lower is favorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"OpenGL","baseline":42.752,"candidate":42.704,"baseline_display":"42.752","candidate_display":"42.704","note":"Lower is favorable."},
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"Vulkan","baseline":29.999,"candidate":29.999,"baseline_display":"29.999","candidate_display":"29.999","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"Vulkan","baseline":39.248,"candidate":40.033,"baseline_display":"39.248","candidate_display":"40.033","note":"Higher is unfavorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":41.323,"candidate":41.962,"baseline_display":"41.323","candidate_display":"41.962","note":"Higher is unfavorable."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"Vulkan","baseline":27.987,"candidate":27.410,"baseline_display":"27.987","candidate_display":"27.410","note":"One 10-second snapshot pair; NV2A display-write rate, not rendered FPS."},
+    {"metric":"Morrowind p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":46.989,"candidate":51.634,"baseline_display":"46.989","candidate_display":"51.634","note":"One 10-second snapshot pair; higher is unfavorable."}
+  ],
+  "missing": ["CPU, GPU, and RAM measurements were not reported."],
+  "evidence": [
+    {"label":"qualification report","url":"https://github.com/Mainkill1/xemu/blob/4b5ebe231a9d9264403048ae674c4941cd807406/evidence/eng-2026-523-pr15-cubemap/qualification-cb89434e/REPORT.md"},
+    {"label":"qualification summary","url":"https://github.com/Mainkill1/xemu/blob/4b5ebe231a9d9264403048ae674c4941cd807406/evidence/eng-2026-523-pr15-cubemap/qualification-cb89434e/QUALIFICATION-SUMMARY.json"}
+  ],
+  "diagram": "flowchart LR\n A[Bordered mip copy uses invalid extent] --> B[Extent follows bordered mip geometry]\n B --> C[Valid Vulkan copy replaces VUID and device loss]"
+}

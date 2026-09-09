@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 57,
+  "headline": "Diagnostic: all observed capacity drains were descriptor-only",
+  "scope": "Diagnostic 3db2bbfe, 664 selected blocks over 27.007765s setup-inclusive QPC span; not the20s runner window. No removable-wait or speedup estimate.",
+  "rows": [
+    {
+      "metric": "Descriptor-only capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 665,
+      "baseline_display": "Not measured",
+      "candidate_display": "665",
+      "note": ""
+    },
+    {
+      "metric": "Uniform-only capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    },
+    {
+      "metric": "Simultaneous capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    },
+    {
+      "metric": "Unresolved other capacity producers",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    },
+    {
+      "metric": "Capacity-labelled finish wait",
+      "unit": "s",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 6.52997,
+      "baseline_display": "Not measured",
+      "candidate_display": "6.52997",
+      "note": ""
+    },
+    {
+      "metric": "All instrumented waits",
+      "unit": "s",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 9.071841,
+      "baseline_display": "Not measured",
+      "candidate_display": "9.071841",
+      "note": ""
+    }
+  ],
+  "diagram": "flowchart LR\n A[Existing capacity check] --> B[Record descriptor versus uniform trigger]\n B --> C[Deferred shutdown telemetry]\n C --> D[Separate production experiment PR58]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/vk-capacity-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "Instrumentation overhead and production resource impact not qualified.",
+    "Instrumented timing cannot substitute for production comparison."
+  ]
+}

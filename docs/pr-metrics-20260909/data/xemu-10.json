@@ -1,0 +1,89 @@
+{
+  "repo": "xemu",
+  "number": 10,
+  "headline": "Ready for review: bulk valid inline packets and exact-head malformed-packet hardening; current hardening is correctness evidence, not a new speed measurement.",
+  "scope": "Current head c4a57d4 contains code repair fa95400 and bookkeeping reconnect. Historical valid-packet performance is baseline 0fdf1f9 versus old candidate 52e806a; it applies only because accepted-packet loops are unchanged.",
+  "rows": [
+    {
+      "metric": "Current-head production validation",
+      "unit": "cells",
+      "renderer": "Both",
+      "baseline": null,
+      "candidate": 14,
+      "baseline_display": "Not measured",
+      "candidate_display": "14/14 passed",
+      "note": "current hardening coverage: Vulkan/OpenGL bulk, Vulkan scalar trace, PGR2 representative"
+    },
+    {
+      "metric": "Current-head state-transition probe",
+      "unit": "cells",
+      "renderer": "Test-only",
+      "baseline": null,
+      "candidate": 3,
+      "baseline_display": "Not measured",
+      "candidate_display": "3/3 passed",
+      "note": "test-only control"
+    },
+    {
+      "metric": "Focused inline arrays average",
+      "unit": "us",
+      "renderer": "Vulkan",
+      "baseline": 74899,
+      "candidate": 73503,
+      "baseline_display": "74,899",
+      "candidate_display": "73,503",
+      "note": "historical old-candidate valid-packet comparison; not current-head timing"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 29.808,
+      "candidate": 29.86,
+      "baseline_display": "29.808",
+      "candidate_display": "29.860",
+      "note": "historical old-candidate comparison; guest metric, not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 42.731,
+      "candidate": 41.956,
+      "baseline_display": "42.731",
+      "candidate_display": "41.956",
+      "note": "historical old-candidate comparison"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.209,
+      "candidate": 18.644,
+      "baseline_display": "18.209",
+      "candidate_display": "18.644",
+      "note": "historical old-candidate comparison; guest metric, not rendered FPS"
+    },
+    {
+      "metric": "Old malformed-packet negative control",
+      "unit": "status",
+      "renderer": "Both",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Assertion abort",
+      "candidate_display": "Controlled rejection",
+      "note": "old head 52e806a versus repaired current head; correctness status"
+    }
+  ],
+  "missing": [
+    "No exact-head isolated full-XISO qualification.",
+    "First focused script used candidate executable for every role and is excluded; corrected immutable run supplies historical values."
+  ],
+  "evidence": [
+    {
+      "label": "exact-head hardening report",
+      "url": "https://github.com/Mainkill1/xemu/blob/13cb6d7384b26490cdec2ccf08fc1d607efc426a/evidence/eng-2026-433-pr10-pfifo-hardening/REPORT.md"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Consecutive inline packet] --> B[Preflight complete bounds]\n B -->|Valid| C[Bulk semantic loop]\n B -->|Malformed| D[Controlled consumption before mutation]"
+}

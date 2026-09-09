@@ -1,0 +1,14 @@
+{
+  "status": "REJECTED_SETUP_ATTEMPT",
+  "source_commit": "3a56adfac81a804e974078024cb31bd132315cb6",
+  "executable_sha256": "9a4232229ada84d91422b66bca38dcf441fc77568b367c8bcf73f889434edbfe",
+  "renderer": "VULKAN",
+  "original_result_sha256": "063527696e7ed8706a8262b56ca29a42426b9b17b7d6331dfb600cf2ceb1e75e",
+  "reported_error": "Snapshot did not reach QMP running state within 60 seconds",
+  "root_cause": "Candidate staged under a renamed executable. Controller requires process name xemu; Owned() failed before QMP readiness or Start/B input. Runner suppressed the specific status errors and emitted a generic readiness timeout.",
+  "measurement_started": false,
+  "initial_cleanup": "Failed because the same name-based ownership check rejected the process; private HDD remained locked.",
+  "recovery": "Exact PID/start/executable identity guarded. Normal close request failed; owned process terminated and exact private HDD deleted. The original failed result remains unchanged.",
+  "excluded_from_performance": true,
+  "unpause_input_lag": "User observed a paused game; this attempt never reached the input sequence, so input lag was not established as its cause."
+}

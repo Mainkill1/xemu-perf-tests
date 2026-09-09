@@ -14,7 +14,8 @@ and stored results are reused. No baseline rebuild per experiment.
 | [APU prerequisite #53](https://github.com/Mainkill1/xemu/pull/53) | Make the snapshot-load test path reliable | Merged; current baseline tree includes the tested load-quiescence repair; GL/VK snapshot checks passed | Preserve baseline identity; broader performance campaign remains separate |
 | [research/main-cause-counters #54](https://github.com/Mainkill1/xemu/pull/54) | Attribute repeated vCPU return/lookup work | Diagnostic draft; GL/VK counters identify frequent kernel STI/shadow polling returns; no performance gain claimed | Preserve required interrupt recognition; use measured evidence for targeted candidates |
 | [research/sti-shadow-entry #55](https://github.com/Mainkill1/xemu/pull/55) | Reduce one STI-entry dispatcher return | Held: one GL/VK comparison gave no clear Vulkan benefit and mixed tails; favorable GL direction was noninterleaved/inconclusive | [IRQ/NMI/debug/fault qualification #56](https://github.com/Mainkill1/xemu/issues/56) remains open; do not promote from the small timing movement |
-| [research/vk-wait-attribution #57](https://github.com/Mainkill1/xemu/pull/57) | Attribute submit/fence waits and capacity drains | Diagnostic draft; f16292b4 shutdown/raw telemetry passed for one Vulkan cell; wrapper lost clock anchors. QPC-only setup-inclusive analysis finds 6.491212s capacity-labelled wait of 9.205893s tracked wait. Current3db2bbfe GL smoke passed once | Current3db2bbfe Vulkan passed:665descriptor-only,0UBO/both/other over27.007765s QPC. Test a separate main-based2048descriptor batch; no resource policy changed in this diagnostic |
+| [research/vk-wait-attribution #57](https://github.com/Mainkill1/xemu/pull/57) | Identify submit/fence waits and capacity triggers | Diagnostic 3db2bbfe: GL/VK checks passed; all 665 capacity events were descriptor-only over 27.007765s setup-inclusive QPC | Diagnostic evidence supports #58; no speedup or removable-wait estimate |
+| [research/vk-descriptor-capacity #58](https://github.com/Mainkill1/xemu/pull/58) | Test whether 2,048 graphics descriptors reduce premature finishes | Exact main-based 3a56adfa: one measured GL/VK Morrowind cell passed; Vulkan cadence +2.303%, p95 +0.790%, p99 -0.361% versus retained baseline; single-pair inconclusive | Paused for issue40/PTIMER baseline qualification; initial renamed-file setup failure retained |
 | [research/capture-lifecycle, perf-tests #9](https://github.com/Mainkill1/xemu-perf-tests/pull/9) | Avoid losing diagnostic anchors/artifact identity and leaving helpers behind | Stacked tooling draft8baac6af; standalone PowerShell7.6.5 controls passed once, no workloads or traces | Integrate only applicable helpers into separately reviewed launchers; caller lifecycle gates remain in [issue8](https://github.com/Mainkill1/xemu-perf-tests/issues/8) |
 
 Evidence lives in [perf-tests draft #7](https://github.com/Mainkill1/xemu-perf-tests/pull/7):
@@ -23,7 +24,9 @@ Evidence lives in [perf-tests draft #7](https://github.com/Mainkill1/xemu-perf-t
 - [Initial failed deferred capture](evidence/vk-wait-attribution-20260909/REPORT.md).
 - [Repaired capture and retained wrapper failure](evidence/vk-wait-attribution-20260909/repaired/REPORT.md).
 - [Bounded QPC-only analysis and reproducible full records](evidence/vk-wait-attribution-20260909/repaired/QPC-ANALYSIS.md).
-- [Current capacity diagnostic build and OpenGL smoke](evidence/vk-capacity-20260909/REPORT.md).
+- [Current capacity diagnostic and GL/VK checks](evidence/vk-capacity-20260909/REPORT.md).
+- [Production descriptor candidate comparison](evidence/vk-descriptor-capacity-20260909/REPORT.md).
+- [Per-PR charts and metric datasets](pr-metrics-20260909/README.md).
 - [PowerShell helper controls and memory recurrence cleanup](evidence/capture-lifecycle-20260909/REPORT.md).
 
 The current runner reports NV2A display-write cadence and interval tails, not
@@ -36,3 +39,5 @@ is required for a completed optimization; it has not been claimed here.
 [Release integration issue #38](https://github.com/Mainkill1/xemu/issues/38)
 continues to own the broader release gates. Updating this index is not a merge
 or release-qualification decision.
+
+Priority: qualify [PTIMER issue #40](https://github.com/Mainkill1/xemu/issues/40) against current main before further optimization tests. A measured regression above 2% is a rejection gate for the proposed baseline repair. Update baseline only after the repair fixes the known issue and passes its acceptance tests.

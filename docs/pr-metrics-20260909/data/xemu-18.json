@@ -1,0 +1,22 @@
+{
+  "repo": "xemu",
+  "number": 18,
+  "headline": "Ready for review: consuming texture paths validate linear source spans before use; the disclosed OpenGL Morrowind result remains a performance flag.",
+  "scope": "Candidate 2e801ab07c4a8d0a87defd2ba70ddad3b3e1041c is measured against parent 37823ccf18263764c82ceb6698201330a22a6c65. PGR2 values are means of two 60-second ABBA runs per build and renderer. Morrowind values are means of two matched 10-second snapshot runs per build and renderer; all cadence values are NV2A display-write rates, not rendered FPS. Direction changed between Morrowind pairs; the body calls Vulkan neutral and retains the OpenGL cadence reduction as a flag without attributing it to the patch.",
+  "rows": [
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"Vulkan","baseline":30.004,"candidate":30.006,"baseline_display":"30.004","candidate_display":"30.006","note":"Mean of two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95","unit":"ms","renderer":"Vulkan","baseline":39.526,"candidate":39.404,"baseline_display":"39.526","candidate_display":"39.404","note":"Lower is favorable."},
+    {"metric":"PGR2 p99","unit":"ms","renderer":"Vulkan","baseline":41.678,"candidate":41.734,"baseline_display":"41.678","candidate_display":"41.734","note":"Higher is unfavorable."},
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"OpenGL","baseline":30.008,"candidate":29.996,"baseline_display":"30.008","candidate_display":"29.996","note":"Mean of two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95","unit":"ms","renderer":"OpenGL","baseline":39.894,"candidate":40.341,"baseline_display":"39.894","candidate_display":"40.341","note":"Higher is unfavorable."},
+    {"metric":"PGR2 p99","unit":"ms","renderer":"OpenGL","baseline":42.572,"candidate":42.978,"baseline_display":"42.572","candidate_display":"42.978","note":"Higher is unfavorable."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"Vulkan","baseline":27.445,"candidate":27.575,"baseline_display":"27.445","candidate_display":"27.575","note":"Mean of two matched 10-second snapshots; NV2A display-write rate, not rendered FPS; direction changed between pairs and the report calls the mean neutral."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"OpenGL","baseline":38.139,"candidate":37.216,"baseline_display":"38.139","candidate_display":"37.216","note":"Mean of two matched 10-second snapshots; NV2A display-write rate, not rendered FPS; -2.42% is retained as a visible performance flag."}
+  ],
+  "missing": ["CPU, GPU, and RAM measurements were not reported."],
+  "evidence": [
+    {"label":"exact-head qualification report","url":"https://github.com/Mainkill1/xemu/blob/b4fd8f58a66cf125c8e1f1700d26112192cd2d4d/evidence/eng-2026-523-pr18-linear-span-2e801ab0/REPORT.md"},
+    {"label":"PGR2 run and resource rows","url":"https://github.com/Mainkill1/xemu/blob/b4fd8f58a66cf125c8e1f1700d26112192cd2d4d/evidence/eng-2026-523-pr18-linear-span-2e801ab0/pgr2-runs-and-resources.csv"}
+  ],
+  "diagram": "flowchart LR\n A[Linear source span reaches consuming path] --> B[Bounds and padding span validated]\n B --> C[Valid source consumed or invalid span rejected]"
+}

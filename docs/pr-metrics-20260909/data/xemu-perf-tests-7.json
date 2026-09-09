@@ -1,0 +1,59 @@
+{
+  "repo": "xemu-perf-tests",
+  "number": 7,
+  "headline": "Evidence: descriptor capacity identified; STI remains held",
+  "scope": "These are observed diagnostic counts from3db2bbfe, not an optimization comparison. Other source-specific measurements remain in linked reports.",
+  "rows": [
+    {
+      "metric": "Descriptor-only capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 665,
+      "baseline_display": "Not measured",
+      "candidate_display": "665",
+      "note": ""
+    },
+    {
+      "metric": "Uniform-only capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    },
+    {
+      "metric": "Simultaneous capacity drains",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    },
+    {
+      "metric": "Unresolved other capacity producers",
+      "unit": "calls",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not measured",
+      "candidate_display": "0",
+      "note": ""
+    }
+  ],
+  "diagram": "flowchart LR\n A[Reuse pinned main baseline] --> B[TCG return attribution]\n B --> C[Main PFIFO wait profiling]\n C --> D[Descriptor capacity attribution]\n D --> E[Separate production candidate PR58]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/vk-capacity-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "No accepted production performance gain.",
+    "Production descriptor candidate completed one GL/VK cell; benefit remains unproven and broader qualification pending."
+  ]
+}
