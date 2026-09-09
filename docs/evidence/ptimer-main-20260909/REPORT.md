@@ -63,3 +63,18 @@ The corrected r2 control used the existing Start/B route, did not attempt a UI r
 | old v4 reloaded | 0 | **FAIL**; controller-reconnect overlay; `ptimer.alarm_armed` absent in v4 trace |
 
 These stream controls do not establish snapshot compatibility or a PTIMER performance result. The fixed-work 2% gate remains pending.
+
+## Baseline control separates the final-resume failure
+
+One retained-baseline v4/v4/v4 control repeated the same normal-save and old-snapshot reload sequence, using the same seed, renderer, controller and Start/B input route. It reproduced the final controller-reconnect overlay. The baseline and candidate final captures have identical SHA-256 `b3cccf81638fc7c649de997631a7cb692b77b8b68f408b846bcaf4486614c484`. This failure is therefore not specific to the PTIMER candidate. Its input/device cause remains to be diagnosed; it is not converted into a compatibility pass.
+
+| Observation | Retained baseline | PTIMER candidate |
+| --- | ---: | ---: |
+| Initial old snapshot, display writes | 242 | 243 |
+| Newly saved snapshot roundtrip | 246 | 244 |
+| Final old snapshot reload | 0; controller overlay | 0; same controller overlay |
+| Observed reload versions | 4, 4 | 5, 4 |
+| Armed-field trace | No field exists in baseline descriptor | Present in v5, absent in v4 |
+| Owned process / private HDD cleanup | Complete | Complete |
+
+[Source-pinned baseline control](stream-baseline-v4-control.json). This was a correctness control, not another baseline performance measurement. No emulator rebuild or benchmark comparison was performed.

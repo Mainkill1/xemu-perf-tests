@@ -41,3 +41,13 @@ PGR2 fresh-start and snapshot routes share an old launcher that unconditionally 
 | Configuration | OpenGL, scale 1, 64 MiB guest RAM, no warmup, multiplier 1, per-iteration completion, telemetry off, timeout 900 s |
 
 The system Python initially lacked the suite dependency and failed before launching xemu. Both real attempts used the installed suite Python. Failed setup attempts are not counted as guest executions. PR #59 remains separate and unaccepted; this campaign report concerns the retained baseline.
+
+## Tracked follow-ups
+
+| Finding | Tracker |
+| --- | --- |
+| Shared 16-byte report-write bounds | [xemu #60](https://github.com/Mainkill1/xemu/issues/60) |
+| Four required PFIFO leaves not enabled by runner | [perf-tests #10](https://github.com/Mainkill1/xemu-perf-tests/issues/10) |
+| Strict production-build full-suite transport and contract | [perf-tests #11](https://github.com/Mainkill1/xemu-perf-tests/issues/11) |
+
+These findings remain separate. This campaign does not weaken the complete suite or convert correctness-only timings into performance evidence.

@@ -11,7 +11,7 @@
     "binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
     "pr": "https://github.com/Mainkill1/xemu/pull/59"
   },
-  "status": "Native negative and repaired unit controls validated; GL/VK smoke passed; corrected r2 final old-v4 progression failed; fixed-work gate pending",
+  "status": "Native timer controls and baseline failures verified; final-resume overlay reproduced on both baseline and candidate; performance acceptance incomplete",
   "measurement_scope": "One candidate cell per renderer compared with retained matching baseline records; not causal performance proof",
   "regression_rejection_threshold_percent": 2,
   "artifacts": {
@@ -24,7 +24,7 @@
     "morrowind-comparison.json": "84f97cdaa205d65f1866442ad48398073af434831d9acca54a19efa31c8583a9",
     "opengl-morrowind.json": "29cb42abf6a926064a86bba1a41c80149c856b3f33df89b1b84e9718824fc0c8",
     "vulkan-morrowind.json": "d7ebde61dee606bba9e877b520f5fcc829dc008031f9be4f3073061e98e4b4a2",
-    "REPORT.md": "69365a7d591479c39a36193121bcb6f192fd2c425065536e9e218446c889fadd",
+    "REPORT.md": "7a0e83c874ad839c9aabd06714ebb9902c4fec8421ef30c87a817421e63febf7",
     "stream-attempt-1.json": "b24795a0e3d2600327d5fab865dd3b8460c567081db192a4602016c002c1d816",
     "stream-r2-native.json": "161745f5f1a4d6c70c1e2156f555250bcca3740f78ba433eaad0ddbd0fb73d10",
     "negative-controls/manifest.json": "fef78523a500c5c3c4a79a14485f62f97d6cff0a92639392ff8c034a6ab84059",
@@ -35,7 +35,8 @@
     "negative-controls/results.json": "218b48502db738abcf6758c1d9a8ebaa238e3fc9b71804dbfc4ab1e6d2e6bc75",
     "negative-controls/ratio-1-2.raw.txt": "17ae083052fe5248c27036036ae322724d9c31a58cfd327b2cf8577098ed555f",
     "negative-controls/fixture.patch": "8ffef2c2af6e35da01b3464d97a6a2e2f19185d3f141b2443ddef0fec833962b",
-    "negative-controls/masked-no-callback.raw.txt": "9dda8487b177b4401834420198ef1f6b5a7bf743450c1e83c2cab737ea3854e4"
+    "negative-controls/masked-no-callback.raw.txt": "9dda8487b177b4401834420198ef1f6b5a7bf743450c1e83c2cab737ea3854e4",
+    "stream-baseline-v4-control.json": "30097b4eb12aebf9769484aff66272d70bdea6b1b8e240c6ee711b69afb9b743"
   },
   "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
   "build_options": {
