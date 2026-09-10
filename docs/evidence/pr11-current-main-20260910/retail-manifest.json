@@ -1,0 +1,31 @@
+{
+  "schema_version": 1,
+  "pgr2": {
+    "disc_sha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd",
+    "snapshot_seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "fresh_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+    "vulkan_config_sha256": "ee47218c846e75c7dbcc9e88fddb09053f96b73dd606e3b516a33fadb07b167e",
+    "opengl_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656",
+    "snapshot_runner_sha256": "e5d1964384da8605794d1058052338b205b92225046af553c8c6667594b540c8",
+    "fresh_runner_sha256": "f598318d989dcd87e4a23e685ce2dbb90d470d7b2e4fc741ebf5cda6520233f0",
+    "capture_runner_sha256": "c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38",
+    "launcher_sha256": "d1938ccbdb9235f668e873a306442540093cda86883c67ddf2835d034b580279",
+    "duration_seconds": 60,
+    "snapshot_warmup_seconds": 3,
+    "fresh_warmup_seconds": 30
+  },
+  "morrowind": {
+    "disc_sha256": "d719c4d89eb7145b5aa8230b27598254b0ae95a73b36a9d51bd84edfdc1941bd",
+    "seed_sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+    "snapshot": "vm-20260905015459",
+    "vulkan_config_sha256": "da01fd8a6aa2b5c2703005afeb1e0c49bc428d81bb5649d0d8224f7cef9c474a",
+    "opengl_config_sha256": "8a64aab830882a8939f57bc981e3c1e6f970f4c0cad5eae8373c97ff2fe0946c",
+    "runner_sha256": "7c75e8b7a76b6ac03f6b58d5c344a99be06e531c5b6482286cb9b5d7508ce49e",
+    "base_runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+    "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+    "send_key_sha256": "eab682af9b58f75ff5ed88b5a160c983bf022649e7b2c71dab0764e62b8d392d",
+    "capture_sha256": "392598ea0da16780d3a72993c335ebfc5c390ea39b08a92b25cefaa7d27da777",
+    "duration_seconds": 20,
+    "input_fix": "AppActivate/capture owned window before Start and before B; final scene manually admitted."
+  }
+}

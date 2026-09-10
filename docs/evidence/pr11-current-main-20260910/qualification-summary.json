@@ -46,9 +46,21 @@
     "draw_suppression_direct_isolation": "-0.392% PASS",
     "full_xiso_opengl": "156 records; 155 PASS + known xemu#60",
     "full_xiso_vulkan": "156 records; 155 PASS + known xemu#60; 0 VUIDs",
-    "full_xiso_functional_hashes": "PASS both renderers"
+    "full_xiso_functional_hashes": "PASS both renderers",
+    "pgr2_full_start_vulkan": "PASS; two-run candidate median within 2% vs previous main and fixed baseline",
+    "pgr2_full_start_opengl": "PASS renderer control",
+    "pgr2_snapshot_vulkan": "PASS; same-session immutable-baseline control within 2%",
+    "pgr2_snapshot_opengl": "PASS; same-session immutable-baseline and previous-main controls within 2%",
+    "morrowind_vulkan": "PASS; active gameplay; cadence/p95/p99 within 2% vs previous main",
+    "morrowind_opengl": "PASS; active gameplay; cadence/p95/p99 within 2% vs previous main",
+    "retail_process_cleanup": "PASS; no xemu, PresentMon, or WPR processes remain"
   },
   "pending_validation": {},
-  "performance_gate": "PASS_DIRECT_ISOLATION_AND_SURFACE; CROSS_BASELINE_PALETTE_NOISY",
-  "decision": "QUALIFIED_FOR_INTEGRATION; KNOWN_BASELINE_FAILURE_XEMU_ISSUE_60"
+  "performance_gate": "PASS; RETAIL PERFORMANCE-NEUTRAL WITH SAME-SESSION HOST-DRIFT CONTROLS; CROSS-BASELINE PALETTE NOISY",
+  "decision": "QUALIFIED_FOR_INTEGRATION; NO RETAIL SPEEDUP CLAIM; KNOWN BASELINE FAILURE XEMU ISSUE 60",
+  "retail_evidence": {
+    "summary": "retail-summary.json",
+    "manifest": "retail-manifest.json",
+    "results": "retail-results.csv"
+  }
 }
