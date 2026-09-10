@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "verdict": "no_reproducible_pr11_tail_attribution",
+  "claim_limit": "bounded offline attribution; no speed claim",
+  "candidate_commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+  "parent_commit": "c5a598a0ea42f96ea3c460321d31bdb8916328ed",
+  "baseline_behavior_source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+  "exact_binary_sha256": {
+    "candidate": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+    "parent": "7be97adf32b0e9e56f80a00c17f82f211b46a908098ff8b81e55b6df8eebcd27",
+    "baseline": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "pgr2_guest_p99_ms": {
+    "fresh_candidate_r1": 35.339,
+    "fresh_candidate_r2": 34.406,
+    "fresh_parent_r1": 34.757,
+    "fresh_baseline_r1": 34.497,
+    "snapshot_candidate_r2": 45.841,
+    "snapshot_parent_r1": 49.262,
+    "snapshot_baseline_r1": 46.044
+  },
+  "worst_frame_changed_direct_leaf_ms": {
+    "fresh_candidate_r1": 0.0,
+    "fresh_candidate_r2": 0.0,
+    "fresh_parent_r1": 0.0,
+    "snapshot_candidate_r2": 3.0,
+    "snapshot_parent_r1": 0.0
+  },
+  "candidate_direct_leaf_absence": [
+    "texture upload extent containing texture_layout_free cleanup",
+    "upload_texture_image/create_texture/pgraph_vk_bind_textures",
+    "Vulkan surface_access_callback",
+    "download_surface_to_buffer and surface-download wait"
+  ],
+  "morrowind_status": "no retained matched CpuScheduler ETL",
+  "missing_causal_evidence": "resolvable PFIFO switch-out full stack or frame-correlated backend wait events/counters"
+}

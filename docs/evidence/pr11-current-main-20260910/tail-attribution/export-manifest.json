@@ -1,0 +1,132 @@
+{
+  "schema_version": 1,
+  "scope": "offline WPA exports from existing CpuScheduler ETLs; no new trace capture",
+  "files": [
+    {
+      "path": "exports/cand-fresh-vk-r1-16p5-17p5/cand-fresh-vk-r1_CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 62720730,
+      "sha256": "7db5ca7b0e572333bcf9bdaaa53c9d2041836ac7089f6b20cad10d5af4184f20",
+      "data_rows": 53111,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cand-fresh-vk-r1-16p5-17p5/cand-fresh-vk-r1_CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 1985534,
+      "sha256": "ed4f76c5e8a2c9c176354d9b6ba616e6311fff0034085dd894f6d12b44f3a33f",
+      "data_rows": 3839,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-base-fresh-vk-r1-16p5-17p5/base-fresh-vk-r1CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 63454538,
+      "sha256": "8957c9656c4c696267f2628858d96f9cacb4e4de476079d0019095467c76fdc2",
+      "data_rows": 53556,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-base-fresh-vk-r1-16p5-17p5/base-fresh-vk-r1CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 1964216,
+      "sha256": "8cbbf7c0271667d86d9d6606ae2a02fc71c6dad6da3eda356f844d68ab668fc8",
+      "data_rows": 3753,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-base-snap-vk-r1-5p0-6p4/base-snap-vk-r1CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 87447609,
+      "sha256": "bea4fe0f8465a659c722d28097f5021892105938a07821ea0d8e0db3405ffbcc",
+      "data_rows": 74260,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-base-snap-vk-r1-5p0-6p4/base-snap-vk-r1CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 2856227,
+      "sha256": "725438dc308f12086fcafeb49ffeb1e7fa17c2cdbed079cdab206bce6ee17605",
+      "data_rows": 5360,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-cand-fresh-vk-r2-16p5-17p5/cand-fresh-vk-r2CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 63409821,
+      "sha256": "3c75b64b801b9815b87270738dc681c5a991238d6c3f8bcf0c0a900b78d20ff4",
+      "data_rows": 53566,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-cand-fresh-vk-r2-16p5-17p5/cand-fresh-vk-r2CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 1984658,
+      "sha256": "8a71de069a2753cc021373ff37d9d0ce21054fc3acaa1207eaf4686477a2a82b",
+      "data_rows": 3781,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-cand-snap-vk-r2-5p0-6p4/cand-snap-vk-r2CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 87820316,
+      "sha256": "3de29a0ad04ce2985302844b6798e1689da7f612ae1983aa501e7f7a133f1435",
+      "data_rows": 74548,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-cand-snap-vk-r2-5p0-6p4/cand-snap-vk-r2CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 2842739,
+      "sha256": "b10062d376bbdf87b43645d9f27dc413fab47c981cf7000df340cb64cb111530",
+      "data_rows": 5332,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-parent-fresh-vk-r1-16p5-17p5/parent-fresh-vk-r1CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 63373218,
+      "sha256": "bd3c603c3bb5d095ad1967981eb51d72cfa3fa8fbf31826aaa397f55b272d9ca",
+      "data_rows": 53454,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-parent-fresh-vk-r1-16p5-17p5/parent-fresh-vk-r1CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 1985337,
+      "sha256": "e68c9bf79187a20f0539d958a6d3f43197481ef3233780fa4b5ccbf45c08d2ef",
+      "data_rows": 3795,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-parent-snap-vk-r1-5p0-6p4/parent-snap-vk-r1CPU_Usage_(Precise)_Thread_Delays.csv",
+      "bytes": 87725109,
+      "sha256": "1785db1f55c4f49dc5d5ce913d8cf4c3ac14c122362dd873e69ec9342a51ac2e",
+      "data_rows": 74505,
+      "columns": 30,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    },
+    {
+      "path": "exports/cpu-parent-snap-vk-r1-5p0-6p4/parent-snap-vk-r1CPU_Usage_(Sampled)_Samples_by_Thread_Name.csv",
+      "bytes": 2892542,
+      "sha256": "a39b66511240331ef49ce1ba1c97b4e05fe9563c38fa03a5144817693d1fe111",
+      "data_rows": 5385,
+      "columns": 16,
+      "malformed_rows": 0,
+      "terminal_newline": true
+    }
+  ]
+}
