@@ -1,0 +1,8 @@
+{
+  "source_commit": "a1645a8612b6222437e2da17915258412a9beee0",
+  "source_tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+  "unit_sha256": "491c6ac1f30c9abb452cff16793da1b0d4f96581b9b2aaf8a34263ea840cae4b",
+  "exit_code": 0,
+  "stdout": "TAP version 14\r\n# random seed: R02Se305e03c73fdda6c9793beae30f9fae9\r\n1..6\r\n# Start of xbox tests\r\n# Start of nv2a tests\r\n# Start of texture-layout tests\r\nok 1 /xbox/nv2a/texture-layout/bordered-mip-crop\r\nok 2 /xbox/nv2a/texture-layout/bordered-subblock-crop\r\nok 3 /xbox/nv2a/texture-layout/subblock-face-stride\r\nok 4 /xbox/nv2a/texture-layout/other-formats\r\nok 5 /xbox/nv2a/texture-layout/storage-level-stride\r\nok 6 /xbox/nv2a/texture-layout/invalid-shapes\r\n# End of texture-layout tests\r\n# End of nv2a tests\r\n# End of xbox tests\r\n",
+  "stderr": ""
+}

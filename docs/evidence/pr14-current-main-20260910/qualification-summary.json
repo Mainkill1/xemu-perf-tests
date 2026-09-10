@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "candidate_commit": "a1645a8612b6222437e2da17915258412a9beee0",
+  "candidate_tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+  "previous_main_commit": "f738796284d374f1cf22b05a6f5f643268fc8ab0",
+  "test_source_commit": "61012b4e702fbb46a02d813e71f2159a109a1c29",
+  "test_source_tree": "f5499b106caba6edf79ab3f7445a46503708121c",
+  "catalog_id": "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e",
+  "cells": [
+    {
+      "build": "previous-main",
+      "renderer": "opengl",
+      "expected": "FAIL negative control",
+      "observed": "FAIL",
+      "failure_count": 10,
+      "failure_mask": 4030,
+      "vuid_count": 0,
+      "record_count": 157,
+      "other_non_pass": "report_query.dma_range_guard",
+      "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a"
+    },
+    {
+      "build": "candidate",
+      "renderer": "opengl",
+      "expected": "PASS",
+      "observed": "PASS",
+      "failure_count": 0,
+      "failure_mask": 0,
+      "vuid_count": 0,
+      "record_count": 157,
+      "other_non_pass": "report_query.dma_range_guard",
+      "xemu_sha256": "51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe"
+    },
+    {
+      "build": "previous-main",
+      "renderer": "vulkan",
+      "expected": "PASS",
+      "observed": "PASS",
+      "failure_count": 0,
+      "failure_mask": 0,
+      "vuid_count": 0,
+      "record_count": 157,
+      "other_non_pass": "report_query.dma_range_guard",
+      "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a"
+    },
+    {
+      "build": "candidate",
+      "renderer": "vulkan",
+      "expected": "PASS",
+      "observed": "PASS",
+      "failure_count": 0,
+      "failure_mask": 0,
+      "vuid_count": 0,
+      "record_count": 157,
+      "other_non_pass": "report_query.dma_range_guard",
+      "xemu_sha256": "51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe"
+    }
+  ],
+  "final_cleanup": {
+    "scope": "final",
+    "terminated_pids": [],
+    "remaining_owned_pids": [],
+    "terminated_trace_pids": [],
+    "remaining_new_trace_pids": [],
+    "private_hdd_path": "C:\\xemu-lab\\suite\\work\\test.img",
+    "private_hdd_owned": true,
+    "private_hdd_removed": false,
+    "private_hdd_absent": true,
+    "status": "passed",
+    "errors": []
+  },
+  "timing_qualification": "correctness context only; ordinary Release lacks live markers"
+}

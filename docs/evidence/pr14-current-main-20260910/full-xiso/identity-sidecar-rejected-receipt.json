@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "status": "failed",
+  "purpose": "PR14 exact-head versus previous-main restored-oracle full XISO correctness on OpenGL and Vulkan with Vulkan validation",
+  "previous_main_commit": "f738796284d374f1cf22b05a6f5f643268fc8ab0",
+  "previous_main_build_source_commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+  "previous_main_tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+  "candidate_commit": "a1645a8612b6222437e2da17915258412a9beee0",
+  "candidate_tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+  "test_source_commit": "61012b4e702fbb46a02d813e71f2159a109a1c29",
+  "test_source_tree": "f5499b106caba6edf79ab3f7445a46503708121c",
+  "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+  "catalog_id": "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e",
+  "session_id": 1,
+  "user_interactive": true,
+  "started_utc": "2026-09-10T12:36:32.9972871+00:00",
+  "timing_qualification": "correctness context only; ordinary Release lacks live markers",
+  "cells": [
+    {
+      "label": "previous-main-opengl-full",
+      "status": "passed",
+      "build_role": "previous-main",
+      "logical_commit": "f738796284d374f1cf22b05a6f5f643268fc8ab0",
+      "build_source_commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+      "build_tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+      "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+      "evidence_path": "<TEST_ROOT>\\runs\\suite\\2026-09-10-053633-perf-full-suite-19944268d97e",
+      "runner_exit_code": 1,
+      "record_count": 157,
+      "non_pass_records": [
+        "report_query.dma_range_guard",
+        "texture_cubemap_fallback.unbordered_subblock_dxt1"
+      ],
+      "functional_hash_validation": "PASSED",
+      "cubemap_oracle": {
+        "id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "expected_pass": false,
+        "outcome": "FAIL",
+        "framebuffer_fnv1a64": "0a68f0aa371576a5",
+        "oracle_status": "FAIL",
+        "failure_count": 10,
+        "failure_mask": 4030,
+        "logical_extents": [
+          1,
+          2
+        ],
+        "observed_rgb565": [
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488,
+          63488
+        ],
+        "observed_alpha": [
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255,
+          255
+        ]
+      },
+      "marker_waiver": true,
+      "timing_qualification": "context only",
+      "validation_enabled": false,
+      "validation_active": null,
+      "unique_vuid_count": 0,
+      "duration_table": {
+        "row_count": 152,
+        "csv_path": "<TEST_ROOT>\\runs\\pr14-a1645a86-full-xiso-restored-oracle-r2\\previous-main-opengl-leaf-durations.csv",
+        "csv_sha256": "e875a2ec3373d907c923d23c643cc0e70874f162e7321583e1d64da55a8872a7",
+        "markdown_path": "<TEST_ROOT>\\runs\\pr14-a1645a86-full-xiso-restored-oracle-r2\\previous-main-opengl-leaf-durations.md",
+        "markdown_sha256": "7ce0d18299612522a27177d437bf320c2aca22f1ef2b3902a61d0e2e325c6b93",
+        "timing_use": "Context only: live-marker waiver; no PR-grade performance claim"
+      },
+      "cleanup": {
+        "scope": "previous-main-opengl-full",
+        "terminated_pids": [],
+        "remaining_owned_pids": [],
+        "terminated_trace_pids": [],
+        "remaining_new_trace_pids": [],
+        "private_hdd_path": "<TEST_ROOT>\\suite\\work\\test.img",
+        "private_hdd_owned": true,
+        "private_hdd_removed": true,
+        "private_hdd_absent": true,
+        "status": "passed",
+        "errors": []
+      }
+    }
+  ],
+  "oracle_matrix": null,
+  "final_cleanup": {
+    "scope": "final",
+    "terminated_pids": [],
+    "remaining_owned_pids": [],
+    "terminated_trace_pids": [],
+    "remaining_new_trace_pids": [],
+    "private_hdd_path": "<TEST_ROOT>\\suite\\work\\test.img",
+    "private_hdd_owned": true,
+    "private_hdd_removed": false,
+    "private_hdd_absent": true,
+    "status": "passed",
+    "errors": []
+  },
+  "error": "candidate-opengl-full exact build identity mismatch",
+  "completed_utc": "2026-09-10T12:40:58.3115449+00:00"
+}
