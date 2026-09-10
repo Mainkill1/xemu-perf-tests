@@ -1,6 +1,6 @@
 # Baseline benchmark campaign
 
-The retained legacy comparison binary is [published with diagnostic symbols and source](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909). Its executable is reused; no baseline rebuild or main change occurred. It is not yet the selected normalized-cycle baseline. The [current XISO release](https://github.com/Mainkill1/xemu-perf-tests/releases/tag/suite-442ec11-20260909) has 149 leaf tests and five groups.
+The retained legacy comparison binary is [published with diagnostic symbols and source](https://github.com/Mainkill1/xemu/releases/tag/baseline-bd1fecb9-20260909). Its executable is reused; no baseline rebuild or main change occurred. The owner subsequently [selected this exact existing main as the stable cycle 01 baseline](https://github.com/Mainkill1/xemu/issues/38#issuecomment-5610949330). The observations and failures below retain their original outcomes; selection does not turn incomplete tests into passes. The [current XISO release](https://github.com/Mainkill1/xemu-perf-tests/releases/tag/suite-442ec11-20260909) has 149 leaf tests and five groups.
 
 ## Coverage and current decision
 
