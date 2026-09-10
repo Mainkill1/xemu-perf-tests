@@ -1,0 +1,330 @@
+--- run-pair.py
++++ run-pair.py
+@@ -1056,6 +1056,42 @@
+     return "INCONCLUSIVE"
+ 
+ 
++def calculate_improvement_percent(
++    baseline: float, candidate: float, raw_positive_is: str
++) -> float | None:
++    if raw_positive_is not in ("+good", "+bad", "N/A"):
++        raise ValueError(f"invalid raw-positive marker: {raw_positive_is}")
++    if raw_positive_is == "N/A" or baseline == 0:
++        return None
++    raw_change = (candidate / baseline) - 1.0
++    improvement = raw_change if raw_positive_is == "+good" else -raw_change
++    return improvement * 100.0
++
++
++def improvement_interval_from_ratio(
++    ratio_lower: float, ratio_upper: float, raw_positive_is: str
++) -> dict[str, float] | None:
++    if raw_positive_is not in ("+good", "+bad", "N/A"):
++        raise ValueError(f"invalid raw-positive marker: {raw_positive_is}")
++    if raw_positive_is == "N/A":
++        return None
++    if raw_positive_is == "+good":
++        lower = (ratio_lower - 1.0) * 100.0
++        upper = (ratio_upper - 1.0) * 100.0
++    else:
++        lower = (1.0 - ratio_upper) * 100.0
++        upper = (1.0 - ratio_lower) * 100.0
++    return {"lower": lower, "upper": upper}
++
++
++def format_improvement(value: float | None) -> str:
++    if value is None:
++        return "N/A"
++    if abs(value) < 0.005:
++        return "0.00%"
++    return f"{value:+.2f}%"
++
++
+ def summarize_metric(
+     baseline_values: list[float],
+     candidate_values: list[float],
+@@ -1080,9 +1116,17 @@
+         "baseline_raw_p95": percentile(baseline_values, 0.95),
+         "candidate_raw_p50": percentile(candidate_values, 0.50),
+         "candidate_raw_p95": percentile(candidate_values, 0.95),
++        "metric_direction": "lower_is_better",
++        "raw_positive_is": "+bad",
+         "median_candidate_over_baseline_ratio": median_ratio,
+         "median_change_percent": (median_ratio - 1.0) * 100.0,
++        "median_improvement_percent": calculate_improvement_percent(
++            1.0, median_ratio, "+bad"
++        ),
+         "bootstrap_95_ci": ci,
++        "improvement_95_ci": improvement_interval_from_ratio(
++            ci["lower"], ci["upper"], "+bad"
++        ),
+         "classification": (
+             "INSUFFICIENT_SAMPLES"
+             if len(ratios) < 15
+@@ -1092,19 +1136,37 @@
+ 
+ 
+ def summarize_nonnegative_metric(
+-    baseline_values: list[float], candidate_values: list[float], unit: str
++    baseline_values: list[float],
++    candidate_values: list[float],
++    unit: str,
++    raw_positive_is: str,
+ ) -> dict[str, Any]:
+     if len(baseline_values) != len(candidate_values) or not baseline_values:
+         raise PairRunError(f"invalid paired nonnegative samples for {unit}")
+     if any(value < 0 for value in baseline_values + candidate_values):
+         raise PairRunError(f"negative sample in nonnegative metric {unit}")
++    if raw_positive_is not in ("+good", "+bad", "N/A"):
++        raise ValueError(f"invalid raw-positive marker: {raw_positive_is}")
++    has_zero_baseline = any(value == 0 for value in baseline_values)
+     ratios = [
+         candidate / baseline
+         for baseline, candidate in zip(baseline_values, candidate_values)
+         if baseline > 0
+     ]
++    median_ratio = statistics.median(ratios) if ratios else None
++    improvement = (
++        calculate_improvement_percent(1.0, median_ratio, raw_positive_is)
++        if median_ratio is not None and not has_zero_baseline
++        else None
++    )
+     return {
+         "unit": unit,
++        "raw_positive_is": raw_positive_is,
++        "metric_direction": {
++            "+good": "higher_is_better",
++            "+bad": "lower_is_better",
++            "N/A": "context_only",
++        }.get(raw_positive_is),
+         "sample_count": len(baseline_values),
+         "baseline_raw": baseline_values,
+         "candidate_raw": candidate_values,
+@@ -1116,8 +1178,12 @@
+             candidate - baseline
+             for baseline, candidate in zip(baseline_values, candidate_values)
+         ),
+-        "median_candidate_over_baseline_ratio": (
+-            statistics.median(ratios) if ratios else None
++        "median_candidate_over_baseline_ratio": median_ratio,
++        "median_improvement_percent": improvement,
++        "improvement_unavailable_reason": (
++            "contextual metric"
++            if raw_positive_is == "N/A"
++            else "zero baseline" if has_zero_baseline else None
+         ),
+     }
+ 
+@@ -1168,7 +1234,7 @@
+         # Zero is a meaningful path assertion (for example FINISH_FLUSH == 0).
+         # Preserve it instead of dropping the counter from paired evidence.
+         output["counter_totals"][name] = summarize_nonnegative_metric(
+-            baseline_values, candidate_values, "events"
++            baseline_values, candidate_values, "events", "N/A"
+         )
+ 
+     byte_names = sorted(
+@@ -1190,7 +1256,10 @@
+             ]
+             if any(baseline_values + candidate_values):
+                 dimensions[dimension] = summarize_nonnegative_metric(
+-                    baseline_values, candidate_values, "bytes"
++                    baseline_values,
++                    candidate_values,
++                    "bytes",
++                    "N/A" if dimension == "logical" else "+bad",
+                 )
+         if dimensions:
+             output["byte_totals"][name] = dimensions
+@@ -1228,13 +1297,16 @@
+                 "unknown",
+             ),
+             "count": summarize_nonnegative_metric(
+-                baseline_counts, candidate_counts, "events"
++                baseline_counts, candidate_counts, "events", "N/A"
+             ),
+             "total_ns": summarize_nonnegative_metric(
+-                baseline_totals, candidate_totals, "nanoseconds"
++                baseline_totals, candidate_totals, "nanoseconds", "+bad"
+             ),
+             "unit_ns": summarize_nonnegative_metric(
+-                baseline_units, candidate_units, "nanoseconds_per_event"
++                baseline_units,
++                candidate_units,
++                "nanoseconds_per_event",
++                "+bad",
+             ),
+         }
+     return output
+@@ -2227,6 +2299,14 @@
+     def ratio_text(value: float | None) -> str:
+         return f"{value:.4f}" if value is not None else "n/a"
+ 
++    def improvement_ci_text(interval: dict[str, float] | None) -> str:
++        if interval is None:
++            return "N/A"
++        return (
++            f"[{format_improvement(interval['lower'])}, "
++            f"{format_improvement(interval['upper'])}]"
++        )
++
+     workload = payload["configuration"].get(
+         "workload_label", payload["configuration"]["profile"]
+     )
+@@ -2302,27 +2382,28 @@
+                 "",
+                 "Each raw sample is the guest median from a separate xemu process. "
+                 "The whole-process wall comparison is reported separately below.",
++                "All timing metrics are lower-is-better. Improvement % is "
++                "direction-normalized: positive is good and negative is bad.",
+                 "",
+                 "| Test | Baseline p50/p95 (us) | Candidate p50/p95 (us) | "
+-                "Median C/B | Bootstrap 95% CI | Correctness | Classification |",
++                "Improvement % (+ good / - bad) | Improvement 95% CI | "
++                "Correctness | Classification |",
+                 "|---|---:|---:|---:|---:|---|---|",
+             ]
+         )
+         for name in sorted(tests):
+             item = tests[name]
+-            ci = item["bootstrap_95_ci"]
+             lines.append(
+                 f"| `{name}` | {item['baseline_raw_p50']:.3f} / "
+                 f"{item['baseline_raw_p95']:.3f} | {item['candidate_raw_p50']:.3f} / "
+                 f"{item['candidate_raw_p95']:.3f} | "
+-                f"{item['median_candidate_over_baseline_ratio']:.4f} | "
+-                f"[{ci['lower']:.4f}, {ci['upper']:.4f}] | "
++                f"{format_improvement(item['median_improvement_percent'])} | "
++                f"{improvement_ci_text(item['improvement_95_ci'])} | "
+                 f"{item['correctness_status']} | "
+                 f"**{item['classification']}** |"
+             )
+     aggregate = results.get("long_scene_aggregate")
+     if aggregate:
+-        ci = aggregate["bootstrap_95_ci"]
+         lines.extend(
+             [
+                 "",
+@@ -2331,9 +2412,10 @@
+                 f"- Ordered stages: `{aggregate['stage_order']}`",
+                 f"- Baseline/Candidate p50: `{aggregate['baseline_raw_p50']:.3f} / "
+                 f"{aggregate['candidate_raw_p50']:.3f} us`",
+-                f"- Median candidate/baseline ratio: "
+-                f"`{aggregate['median_candidate_over_baseline_ratio']:.4f}`",
+-                f"- Bootstrap 95% CI: `[{ci['lower']:.4f}, {ci['upper']:.4f}]`",
++                "- Raw direction: `+bad` (lower timing is better)",
++                f"- Improvement: `{format_improvement(aggregate['median_improvement_percent'])}`",
++                f"- Improvement 95% CI: "
++                f"`{improvement_ci_text(aggregate['improvement_95_ci'])}`",
+                 f"- Deterministic aggregate correctness: "
+                 f"**{aggregate['correctness_status']}**",
+                 f"- Baseline final-state/hash tokens: "
+@@ -2344,7 +2426,6 @@
+         )
+     wall = results.get("process_wall")
+     if wall:
+-        ci = wall["bootstrap_95_ci"]
+         lines.extend(
+             [
+                 "",
+@@ -2354,9 +2435,10 @@
+                 f"{wall['baseline_raw_p95']:.3f} s`",
+                 f"- Candidate p50/p95: `{wall['candidate_raw_p50']:.3f} / "
+                 f"{wall['candidate_raw_p95']:.3f} s`",
+-                f"- Median candidate/baseline ratio: "
+-                f"`{wall['median_candidate_over_baseline_ratio']:.4f}`",
+-                f"- Bootstrap 95% CI: `[{ci['lower']:.4f}, {ci['upper']:.4f}]`",
++                "- Raw direction: `+bad` (lower timing is better)",
++                f"- Improvement: `{format_improvement(wall['median_improvement_percent'])}`",
++                f"- Improvement 95% CI: "
++                f"`{improvement_ci_text(wall['improvement_95_ci'])}`",
+                 f"- Classification: **{wall['classification']}**",
+             ]
+         )
+@@ -2369,9 +2451,10 @@
+                 "",
+                 "These values come from Windows `GetProcessTimes` on xemu's retained "
+                 "process handle and exclude the Python runner.",
++                "All CPU-time metrics are lower-is-better. Positive Improvement % is good.",
+                 "",
+                 "| Metric | Baseline p50/p95 (s) | Candidate p50/p95 (s) | "
+-                "Median C/B | Bootstrap 95% CI | Classification |",
++                "Improvement % (+ good / - bad) | Improvement 95% CI | Classification |",
+                 "|---|---:|---:|---:|---:|---|",
+             ]
+         )
+@@ -2379,14 +2462,13 @@
+             item = process_cpu.get(name)
+             if not item:
+                 continue
+-            ci = item["bootstrap_95_ci"]
+             lines.append(
+                 f"| `{name}` | {item['baseline_raw_p50']:.3f} / "
+                 f"{item['baseline_raw_p95']:.3f} | "
+                 f"{item['candidate_raw_p50']:.3f} / "
+                 f"{item['candidate_raw_p95']:.3f} | "
+-                f"{item['median_candidate_over_baseline_ratio']:.4f} | "
+-                f"[{ci['lower']:.4f}, {ci['upper']:.4f}] | "
++                f"{format_improvement(item['median_improvement_percent'])} | "
++                f"{improvement_ci_text(item['improvement_95_ci'])} | "
+                 f"**{item['classification']}** |"
+             )
+     host_telemetry = results.get("host_telemetry")
+@@ -2401,9 +2483,10 @@
+                     [
+                         "Scopes are ordered by baseline median total time. Parent and child "
+                         "scopes may nest and must not be summed.",
++                        "Total and unit cost are lower-is-better. Count is contextual.",
+                         "",
+                         "| Scope | Kind | Baseline total (ms) | Candidate total (ms) | "
+-                        "Total C/B | Count C/B | Unit-cost C/B |",
++                        "Total improvement | Count C/B | Unit-cost improvement |",
+                         "|---|---|---:|---:|---:|---:|---:|",
+                     ]
+                 )
+@@ -2420,9 +2503,9 @@
+                         f"| `{name}` | {item['kind']} | "
+                         f"{total['baseline_raw_p50'] / 1_000_000:.3f} | "
+                         f"{total['candidate_raw_p50'] / 1_000_000:.3f} | "
+-                        f"{ratio_text(total['median_candidate_over_baseline_ratio'])} | "
++                        f"{format_improvement(total['median_improvement_percent'])} | "
+                         f"{ratio_text(count['median_candidate_over_baseline_ratio'])} | "
+-                        f"{ratio_text(unit['median_candidate_over_baseline_ratio'])} |"
++                        f"{format_improvement(unit['median_improvement_percent'])} |"
+                     )
+             counters = host_telemetry.get("counter_totals") or {}
+             if counters:
+@@ -2680,6 +2763,17 @@
+ 
+     payload: dict[str, Any] = {
+         "schema_version": 2 if gpu_clock_sampling_enabled(args) else 1,
++        "comparison_semantics": {
++            "version": 1,
++            "reader_field": "median_improvement_percent",
++            "positive_means": "favorable",
++            "negative_means": "unfavorable",
++            "raw_positive_markers": {
++                "+good": "a larger raw value is favorable",
++                "+bad": "a larger raw value is unfavorable",
++                "N/A": "the metric has no declared improvement direction",
++            },
++        },
+         "status": "RUNNING",
+         "started_utc": utc_now(),
+         "completed_utc": None,
+@@ -2973,11 +3067,15 @@
+             test_results[name]["correctness_status"] = correctness_status
+             test_results[name]["correctness_verified"] = correctness_status == "VERIFIED"
+             ci = test_results[name]["bootstrap_95_ci"]
++            improvement_ci = test_results[name]["improvement_95_ci"]
+             ratio = test_results[name]["median_candidate_over_baseline_ratio"]
++            improvement = test_results[name]["median_improvement_percent"]
+             test_results[name]["representative_10_percent_gate"] = {
+                 "minimum_measured_pairs": 15,
+                 "point_estimate_at_least_10_percent_faster": ratio <= 0.90,
+                 "confidence_interval_excludes_zero_improvement": ci["upper"] < 1.0,
++                "point_estimate_at_least_10_percent_improvement": improvement >= 10.0,
++                "improvement_interval_excludes_zero": improvement_ci["lower"] > 0.0,
+                 "correctness_hash_verified": correctness_status == "VERIFIED",
+                 "passed": (
+                     timing_claim_eligible
