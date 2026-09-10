@@ -7,8 +7,8 @@ The candidate and reference executables have SHA-256
 `51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe`
 and `13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a`.
 
-The result is **HOLD**. The complete retail matrix now covers PGR2 fresh start,
-PGR2 snapshot, and Morrowind snapshot on Vulkan and OpenGL. Vulkan PGR2
+The result is **HOLD**. The completed retail coverage includes PGR2 fresh start, PGR2 snapshot,
+and Morrowind snapshot on Vulkan and OpenGL. Vulkan PGR2
 snapshot maximum interval regressed in both interleaved run orders: 12.59% in
 the primary order and 10.23% in the reverse repeat. OpenGL Morrowind snapshot
 maximum interval also regressed in both orders: 2.34% and 5.46%. No run
@@ -192,7 +192,7 @@ lookup and pipeline-layout creation remain below 1.1 ms combined. This is a
 separate, pre-existing performance opportunity and does not clear PR #14. See
 `pipeline-prepare/REPORT.md`.
 
-The complete retail matrix does not clear PR #14. OpenGL PGR2 snapshot stayed
+The completed retail coverage does not clear PR #14. OpenGL PGR2 snapshot stayed
 inside the 2% gate, and Vulkan Morrowind snapshot did too. OpenGL Morrowind
 snapshot reproduced a worse maximum interval in both run orders. A matched
 symbolized trace is therefore required for that renderer in addition to the

@@ -41,8 +41,7 @@ within the 2% gate. Vulkan PGR2 snapshot maximum interval regressed 12.59% and
 regressed 2.34% and 5.46% in opposite run orders. OpenGL PGR2 snapshot and
 Vulkan Morrowind snapshot remained within the gate. Every Morrowind cell passed
 QMP, Start/B, image-transition, display-write progress, and final-image
-admission. PR #14 remains held; the complete retail matrix and attribution
-status are published in `retail/REPORT.md`.
+admission. PR #14 remains held; the expanded retail coverage and attribution status are published in `retail/REPORT.md`.
 
 ## Preserved rejected attempt
 
