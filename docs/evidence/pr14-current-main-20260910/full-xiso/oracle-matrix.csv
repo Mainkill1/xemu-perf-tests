@@ -1,0 +1,5 @@
+build,renderer,expected,observed,failure_count,failure_mask,vuid_count,record_count,other_non_pass,xemu_sha256
+previous-main,opengl,FAIL negative control,FAIL,10,4030,0,157,report_query.dma_range_guard,13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a
+candidate,opengl,PASS,PASS,0,0,0,157,report_query.dma_range_guard,51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe
+previous-main,vulkan,PASS,PASS,0,0,0,157,report_query.dma_range_guard,13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a
+candidate,vulkan,PASS,PASS,0,0,0,157,report_query.dma_range_guard,51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe

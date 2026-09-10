@@ -1,0 +1,25 @@
+{
+  "status": "BUILD_PASS",
+  "candidate_commit": "a1645a8612b6222437e2da17915258412a9beee0",
+  "candidate_tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+  "kind": "official Windows O2/full-LTO x86-v3 build with debug information and assertions",
+  "options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "artifacts": {
+    "xemu.exe": {
+      "sha256": "51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe",
+      "bytes": 44217615
+    },
+    "test-xbox-pgraph-texture-layout.exe": {
+      "sha256": "491c6ac1f30c9abb452cff16793da1b0d4f96581b9b2aaf8a34263ea840cae4b",
+      "bytes": 4124929
+    }
+  }
+}

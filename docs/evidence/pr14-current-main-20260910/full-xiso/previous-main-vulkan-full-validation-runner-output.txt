@@ -1,0 +1,177 @@
+Evidence: <TEST_ROOT>\runs\suite\2026-09-10-054842-perf-full-suite-19944268d97e
+2026-09-10 05:48:42,728 INFO Creating empty disk image at <TEST_ROOT>\suite\work\test.img...
+File <TEST_ROOT>\suite\work\test.img is created
+2026-09-10 05:48:42,736 INFO Formatting...
+2026-09-10 05:50:48,133 ERROR Test failed with exception
+Traceback (most recent call last):
+  File "<TEST_ROOT>\suite\python313\Lib\site-packages\xemutest\test_base.py", line 65, in run
+    self.analyze_results()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "<TEST_ROOT>\suite\run-suite.py", line 2185, in analyze_results
+    require_passing_guest_outcomes(self.parsed_results)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^
+  File "<TEST_ROOT>\suite\run-suite.py", line 2090, in require_passing_guest_outcomes
+    raise RuntimeError(
+        "guest emitted non-PASS benchmark outcomes: " + ", ".join(failures)
+    )
+RuntimeError: guest emitted non-PASS benchmark outcomes: report_query.dma_range_guard='FAIL'
+Status: FAILED
+Evidence: <TEST_ROOT>\runs\suite\2026-09-10-054842-perf-full-suite-19944268d97e
+guest measured total=1.126 s; median=112629.000 us/iteration; average=112588.000 us/iteration; test=BusyPfifo::PFIFOSaturation
+guest measured total=4.930 s; median=4930185.000 us/iteration; average=4930185.000 us/iteration; test=BusyPfifo::PgraphPatternPolling
+guest measured total=5.067 s; median=505798.500 us/iteration; average=506674.000 us/iteration; test=CpuFloatingPoint::SSEScalar
+guest measured total=7.911 s; median=791351.000 us/iteration; average=791077.000 us/iteration; test=CpuFloatingPoint::X87Scalar
+guest measured total=0.099 s; median=9861.000 us/iteration; average=9868.000 us/iteration; test=CpuTranslationBlocks::DirectLoop
+guest measured total=0.398 s; median=39858.000 us/iteration; average=39816.000 us/iteration; test=CpuTranslationBlocks::IndirectDispatch
+guest measured total=7.990 s; median=798454.500 us/iteration; average=798964.000 us/iteration; test=CpuTranslationBlocks::IndirectDispatchStress
+guest measured total=0.020 s; median=1278.500 us/iteration; average=1992.000 us/iteration; test=FillRate::FillRate-Solid
+guest measured total=0.021 s; median=1310.500 us/iteration; average=2110.000 us/iteration; test=FillRate::FillRate-Textured
+guest measured total=0.194 s; median=24085.500 us/iteration; average=24239.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-01-CPU
+guest measured total=0.041 s; median=5065.000 us/iteration; average=5155.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-02-PFIFO
+guest measured total=0.283 s; median=35451.000 us/iteration; average=35375.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-03-AlphaOverdraw
+guest measured total=0.098 s; median=11606.000 us/iteration; average=12227.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-04-StreamingSurfaceReuse
+guest measured total=0.611 s; median=76256.500 us/iteration; average=76366.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-05-Combined
+guest measured total=0.609 s; median=76064.500 us/iteration; average=76170.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene-06-FullSystem
+guest measured total=0.000 s; median=n/a; average=0.000 us/iteration; test=GameLoadComposite::08-LongUnlockedScene
+guest measured total=0.747 s; median=98217.500 us/iteration; average=93351.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-01-QueuedVertexCpuWrites
+guest measured total=0.920 s; median=115033.000 us/iteration; average=114947.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-02-Pgr2SmallDraws
+guest measured total=0.025 s; median=3034.000 us/iteration; average=3107.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-03-TextureUpdateReuse
+guest measured total=0.073 s; median=8835.500 us/iteration; average=9138.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-04-SurfaceReuse
+guest measured total=0.536 s; median=67398.500 us/iteration; average=66976.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-05-PipelineStateChurn
+guest measured total=1.363 s; median=167550.000 us/iteration; average=170428.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-06-BlendConstantReuse
+guest measured total=1.762 s; median=219347.500 us/iteration; average=220296.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-07-TextureBindingReuse
+guest measured total=1.037 s; median=128978.000 us/iteration; average=129687.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-08-Pgr2LagspotInlineElements
+guest measured total=5.218 s; median=654933.000 us/iteration; average=652270.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-09-ScaledSurfacePressure
+guest measured total=9.947 s; median=1240044.000 us/iteration; average=1243437.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-10-S3tcStreamingFencedDraws
+guest measured total=0.011 s; median=1290.500 us/iteration; average=1339.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath-11-GpuWaitControl
+guest measured total=0.000 s; median=n/a; average=0.000 us/iteration; test=GameLoadComposite::09-CrossTitleHotpath
+guest measured total=0.141 s; median=16541.000 us/iteration; average=17564.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-01-Dxt1SameAddressWait
+guest measured total=0.137 s; median=16677.500 us/iteration; average=17072.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-02-Dxt1SameAddressQueued
+guest measured total=0.127 s; median=16598.000 us/iteration; average=15829.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-03-Dxt1RingPayloadGenerations
+guest measured total=0.126 s; median=16700.000 us/iteration; average=15793.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-04-Dxt1DirtyOnceRedraw
+guest measured total=0.400 s; median=49836.500 us/iteration; average=49955.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-05-Rgba8SameAddressWait
+guest measured total=0.389 s; median=49753.000 us/iteration; average=48654.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-06-Rgba8SameAddressQueued
+guest measured total=0.393 s; median=49824.000 us/iteration; average=49118.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-07-Rgba8RingPayloadGenerations
+guest measured total=0.131 s; median=16500.000 us/iteration; average=16405.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-08-Rgba8DirtyOnceRedraw
+guest measured total=0.132 s; median=16650.000 us/iteration; average=16491.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-09-Bc2NativeEligible
+guest measured total=0.388 s; median=49788.500 us/iteration; average=48496.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-10-Bc2BorderedFallback
+guest measured total=0.132 s; median=16581.500 us/iteration; average=16554.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-11-Bc3NativeEligible
+guest measured total=0.388 s; median=49818.500 us/iteration; average=48494.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor-12-Bc3BorderedFallback
+guest measured total=0.000 s; median=n/a; average=0.000 us/iteration; test=GameLoadComposite::10-S3tcSyncFactor
+guest measured total=0.132 s; median=16625.500 us/iteration; average=16542.000 us/iteration; test=GameLoadComposite::12-RepeatedDisplay
+guest measured total=0.400 s; median=49991.500 us/iteration; average=49957.000 us/iteration; test=GameLoadComposite::12-RepeatedDisplay-Boosted
+guest measured total=0.109 s; median=13519.500 us/iteration; average=13685.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-01-CPUOnly
+guest measured total=0.021 s; median=2545.500 us/iteration; average=2567.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-02-PFIFOOnly
+guest measured total=0.143 s; median=17753.000 us/iteration; average=17827.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-03-GPUOnly
+guest measured total=0.052 s; median=6189.000 us/iteration; average=6504.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-04-StreamingOnly
+guest measured total=0.275 s; median=34401.000 us/iteration; average=34372.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-05-CPUPFIFOGPU
+guest measured total=0.310 s; median=38704.500 us/iteration; average=38765.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-06-CPUPFIFOGPUStreaming
+guest measured total=0.315 s; median=39331.500 us/iteration; average=39421.000 us/iteration; test=GameLoadComposite::DoaxMenuRepresentative-07-FullSystem
+guest measured total=0.216 s; median=27107.500 us/iteration; average=27006.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-01-CPUOnly
+guest measured total=0.041 s; median=5147.000 us/iteration; average=5130.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-02-PFIFOOnly
+guest measured total=0.288 s; median=36069.500 us/iteration; average=36050.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-03-GPUOnly
+guest measured total=0.090 s; median=11164.500 us/iteration; average=11242.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-04-StreamingOnly
+guest measured total=0.543 s; median=67765.500 us/iteration; average=67883.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-05-CPUPFIFOGPU
+guest measured total=0.613 s; median=76865.000 us/iteration; average=76671.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-06-CPUPFIFOGPUStreaming
+guest measured total=0.645 s; median=79155.500 us/iteration; average=80671.000 us/iteration; test=GameLoadComposite::DoaxMenuStress-07-FullSystem
+guest measured total=0.342 s; median=42722.000 us/iteration; average=42719.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-01-CPUOnly
+guest measured total=0.135 s; median=16899.500 us/iteration; average=16896.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-02-PFIFOOnly
+guest measured total=0.738 s; median=92238.000 us/iteration; average=92245.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-03-GPUOnly
+guest measured total=0.030 s; median=3806.500 us/iteration; average=3805.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-04-StreamingOnly
+guest measured total=1.211 s; median=150986.500 us/iteration; average=151351.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-05-CPUPFIFOGPU
+guest measured total=1.250 s; median=155694.000 us/iteration; average=156211.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-06-CPUPFIFOGPUStreaming
+guest measured total=1.250 s; median=156165.000 us/iteration; average=156295.000 us/iteration; test=GameLoadComposite::Pgr2AiBackup-07-FullSystem
+guest measured total=0.017 s; median=88.000 us/iteration; average=166.000 us/iteration; test=High vertex count::HighVtxCount-arrays
+guest measured total=0.495 s; median=49339.500 us/iteration; average=49535.000 us/iteration; test=High vertex count::HighVtxCount-inlinearrays
+guest measured total=1.261 s; median=252674.000 us/iteration; average=252248.000 us/iteration; test=High vertex count::HighVtxCount-inlinebuffers
+guest measured total=0.202 s; median=4035.000 us/iteration; average=4041.000 us/iteration; test=High vertex count::HighVtxCount-inlineelements
+guest measured total=0.011 s; median=493.000 us/iteration; average=1352.000 us/iteration; test=PFIFOArrayElements::pfifo.array-element-pgr2
+guest measured total=0.005 s; median=619.000 us/iteration; average=646.000 us/iteration; test=PFIFOArrayElements::pfifo.array-element16
+guest measured total=0.008 s; median=1039.500 us/iteration; average=1051.000 us/iteration; test=PFIFOArrayElements::pfifo.array-element32
+guest measured total=0.017 s; median=17055.000 us/iteration; average=17055.000 us/iteration; test=PFIFOPacketBoundary::pfifo.boundary-array-element16
+guest measured total=0.033 s; median=32967.000 us/iteration; average=32967.000 us/iteration; test=PFIFOPacketBoundary::pfifo.boundary-array-element32
+guest measured total=0.033 s; median=33236.000 us/iteration; average=33236.000 us/iteration; test=PFIFOPacketBoundary::pfifo.boundary-inline-array
+guest measured total=0.000 s; median=112.000 us/iteration; average=112.000 us/iteration; test=PFIFOPacketBoundary::pfifo.incrementing-inline-fallback
+guest measured total=0.122 s; median=16638.000 us/iteration; average=15288.000 us/iteration; test=TextureCubemapFallback::UnborderedSubblockDxt1
+guest measured total=0.226 s; median=28802.500 us/iteration; average=28236.000 us/iteration; test=PipelineTextureSwitch::pipeline.clear-texture-normal
+guest measured total=0.026 s; median=25760.000 us/iteration; average=25760.000 us/iteration; test=PipelineTextureSwitch::pipeline.palette-only-update
+guest measured total=0.183 s; median=23408.500 us/iteration; average=22876.000 us/iteration; test=PipelineTextureSwitch::pipeline.sampler-only-identity
+guest measured total=0.168 s; median=20505.000 us/iteration; average=20939.000 us/iteration; test=PipelineTextureSwitch::pipeline.shader-negative-control
+guest measured total=0.021 s; median=20655.000 us/iteration; average=20655.000 us/iteration; test=PipelineTextureSwitch::pipeline.shared-page-overlap
+guest measured total=0.158 s; median=19568.000 us/iteration; average=19786.000 us/iteration; test=PipelineTextureSwitch::pipeline.texture-switch
+guest measured total=0.010 s; median=639.000 us/iteration; average=1039.000 us/iteration; test=PrimitiveType::PrimitiveType-LLoop
+guest measured total=0.007 s; median=620.500 us/iteration; average=712.000 us/iteration; test=PrimitiveType::PrimitiveType-LLoop-vsh
+guest measured total=0.009 s; median=642.500 us/iteration; average=870.000 us/iteration; test=PrimitiveType::PrimitiveType-LStrip
+guest measured total=0.007 s; median=638.500 us/iteration; average=679.000 us/iteration; test=PrimitiveType::PrimitiveType-LStrip-vsh
+guest measured total=0.015 s; median=1241.500 us/iteration; average=1462.000 us/iteration; test=PrimitiveType::PrimitiveType-Lines
+guest measured total=0.013 s; median=1216.500 us/iteration; average=1296.000 us/iteration; test=PrimitiveType::PrimitiveType-Lines-vsh
+guest measured total=0.012 s; median=633.000 us/iteration; average=1202.000 us/iteration; test=PrimitiveType::PrimitiveType-Points
+guest measured total=0.013 s; median=641.500 us/iteration; average=1282.000 us/iteration; test=PrimitiveType::PrimitiveType-Points-vsh
+guest measured total=0.009 s; median=637.500 us/iteration; average=922.000 us/iteration; test=PrimitiveType::PrimitiveType-Poly
+guest measured total=0.007 s; median=635.000 us/iteration; average=681.000 us/iteration; test=PrimitiveType::PrimitiveType-Poly-vsh
+guest measured total=0.019 s; median=1217.500 us/iteration; average=1922.000 us/iteration; test=PrimitiveType::PrimitiveType-QuadStrip
+guest measured total=0.014 s; median=1235.500 us/iteration; average=1403.000 us/iteration; test=PrimitiveType::PrimitiveType-QuadStrip-vsh
+guest measured total=0.024 s; median=2359.000 us/iteration; average=2427.000 us/iteration; test=PrimitiveType::PrimitiveType-Quads
+guest measured total=0.024 s; median=2353.000 us/iteration; average=2395.000 us/iteration; test=PrimitiveType::PrimitiveType-Quads-vsh
+guest measured total=0.009 s; median=636.000 us/iteration; average=888.000 us/iteration; test=PrimitiveType::PrimitiveType-TriFan
+guest measured total=0.007 s; median=633.000 us/iteration; average=667.000 us/iteration; test=PrimitiveType::PrimitiveType-TriFan-vsh
+guest measured total=0.007 s; median=633.000 us/iteration; average=668.000 us/iteration; test=PrimitiveType::PrimitiveType-TriStrip
+guest measured total=0.007 s; median=640.500 us/iteration; average=683.000 us/iteration; test=PrimitiveType::PrimitiveType-TriStrip-vsh
+guest measured total=0.021 s; median=1796.000 us/iteration; average=2075.000 us/iteration; test=PrimitiveType::PrimitiveType-Tris
+guest measured total=0.018 s; median=1792.500 us/iteration; average=1826.000 us/iteration; test=PrimitiveType::PrimitiveType-Tris-vsh
+guest measured total=0.007 s; median=1456.500 us/iteration; average=1836.000 us/iteration; test=ReportQuery::report.clear-boundary
+guest measured total=0.006 s; median=5842.000 us/iteration; average=5842.000 us/iteration; test=ReportQuery::report.dma-descriptor-rewrite
+guest measured total=12.028 s; median=12028073.000 us/iteration; average=12028073.000 us/iteration; test=ReportQuery::report.dma-range-guard
+guest measured total=0.009 s; median=1999.500 us/iteration; average=2334.000 us/iteration; test=ReportQuery::report.dma-target-switch
+guest measured total=0.011 s; median=2745.000 us/iteration; average=2722.000 us/iteration; test=ReportQuery::report.fifo-producer-ordering
+guest measured total=0.006 s; median=1324.500 us/iteration; average=1497.000 us/iteration; test=ReportQuery::report.multiple-boundaries
+guest measured total=0.007 s; median=1325.500 us/iteration; average=1642.000 us/iteration; test=ReportQuery::report.single-boundary
+guest measured total=0.006 s; median=1246.000 us/iteration; average=1438.000 us/iteration; test=ReportQuery::report.zero-query
+guest measured total=0.422 s; median=37870.500 us/iteration; average=42210.000 us/iteration; test=SurfaceRendering::SurfaceRendering
+guest measured total=0.039 s; median=1879.000 us/iteration; average=1962.000 us/iteration; test=SurfaceRendering::XemuCpuReadAfterGpuWrite
+guest measured total=0.006 s; median=57.000 us/iteration; average=61.000 us/iteration; test=SurfaceRendering::XemuCpuReadCleanSurface
+guest measured total=0.046 s; median=1923.000 us/iteration; average=2291.000 us/iteration; test=SurfaceRendering::XemuFramebufferWorkingSet002
+guest measured total=0.046 s; median=1943.000 us/iteration; average=2286.000 us/iteration; test=SurfaceRendering::XemuFramebufferWorkingSet008
+guest measured total=0.048 s; median=2162.000 us/iteration; average=2421.000 us/iteration; test=SurfaceRendering::XemuFramebufferWorkingSet032
+guest measured total=0.050 s; median=2197.000 us/iteration; average=2515.000 us/iteration; test=SurfaceRendering::XemuFramebufferWorkingSet064
+guest measured total=0.292 s; median=3005.000 us/iteration; average=2918.000 us/iteration; test=SurfaceRendering::XemuFullClearElisionGuard
+guest measured total=0.292 s; median=2897.000 us/iteration; average=2916.000 us/iteration; test=SurfaceRendering::XemuOverlappingSurfaceChurnRepresentative
+guest measured total=0.445 s; median=44593.000 us/iteration; average=44542.000 us/iteration; test=SurfaceRendering::XemuOverlappingSurfaceChurnStress
+guest measured total=0.189 s; median=1863.000 us/iteration; average=1890.000 us/iteration; test=SurfaceRendering::XemuPartialChannelClearGuard
+guest measured total=0.330 s; median=32134.000 us/iteration; average=33034.000 us/iteration; test=SurfaceRendering::XemuSurfaceDownloadPath
+guest measured total=0.035 s; median=1545.000 us/iteration; average=1770.000 us/iteration; test=SurfaceRendering::XemuSurfaceListLookup002
+guest measured total=0.037 s; median=1649.500 us/iteration; average=1836.000 us/iteration; test=SurfaceRendering::XemuSurfaceListLookup008
+guest measured total=0.036 s; median=1645.500 us/iteration; average=1781.000 us/iteration; test=SurfaceRendering::XemuSurfaceListLookup032
+guest measured total=0.039 s; median=1788.000 us/iteration; average=1936.000 us/iteration; test=SurfaceRendering::XemuSurfaceListLookup128
+guest measured total=0.127 s; median=27184.000 us/iteration; average=31719.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative-growth
+guest measured total=0.114 s; median=28734.500 us/iteration; average=28624.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative-plateau
+guest measured total=0.128 s; median=29840.000 us/iteration; average=31879.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative-alias_resize
+guest measured total=0.126 s; median=29229.500 us/iteration; average=31424.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative-reuse
+guest measured total=0.003 s; median=657.000 us/iteration; average=759.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative-idle_retention
+guest measured total=0.000 s; median=n/a; average=0.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureRepresentative
+guest measured total=0.517 s; median=118005.000 us/iteration; average=129203.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress-growth
+guest measured total=0.484 s; median=121000.500 us/iteration; average=120979.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress-plateau
+guest measured total=0.545 s; median=130261.000 us/iteration; average=136214.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress-alias_resize
+guest measured total=0.550 s; median=133294.000 us/iteration; average=137413.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress-reuse
+guest measured total=0.005 s; median=1171.000 us/iteration; average=1185.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress-idle_retention
+guest measured total=0.000 s; median=n/a; average=0.000 us/iteration; test=SurfaceRendering::XemuVulkanMemoryPressureStress
+guest measured total=0.232 s; median=23284.500 us/iteration; average=23241.000 us/iteration; test=TinyDraw::TinyDraw-arrays
+guest measured total=0.232 s; median=23112.500 us/iteration; average=23194.000 us/iteration; test=TinyDraw::TinyDraw-arrays-vsh
+guest measured total=0.355 s; median=35951.500 us/iteration; average=35498.000 us/iteration; test=TinyDraw::TinyDraw-inlinearrays
+guest measured total=0.346 s; median=34674.500 us/iteration; average=34611.000 us/iteration; test=TinyDraw::TinyDraw-inlinearrays-vsh
+guest measured total=0.401 s; median=40755.000 us/iteration; average=40120.000 us/iteration; test=TinyDraw::TinyDraw-inlinebuffers
+guest measured total=0.411 s; median=40418.500 us/iteration; average=41125.000 us/iteration; test=TinyDraw::TinyDraw-inlinebuffers-vsh
+guest measured total=0.224 s; median=22098.000 us/iteration; average=22402.000 us/iteration; test=TinyDraw::TinyDraw-inlineelements
+guest measured total=0.230 s; median=23136.000 us/iteration; average=23017.000 us/iteration; test=TinyDraw::TinyDraw-inlineelements-vsh
+guest measured total=0.026 s; median=1778.500 us/iteration; average=2612.000 us/iteration; test=UniformThrash::UniformThrash
+guest measured total=0.232 s; median=22895.500 us/iteration; average=23239.000 us/iteration; test=Vertex buffer allocation::MixedVtxAlloc-arrays
+guest measured total=1.397 s; median=140023.000 us/iteration; average=139746.000 us/iteration; test=Vertex buffer allocation::MixedVtxAlloc-inlinearrays
+guest measured total=6.377 s; median=636339.500 us/iteration; average=637682.000 us/iteration; test=Vertex buffer allocation::MixedVtxAlloc-inlinebuffers
+guest measured total=0.355 s; median=35182.500 us/iteration; average=35521.000 us/iteration; test=Vertex buffer allocation::MixedVtxAlloc-inlineelements
+guest measured total=0.863 s; median=87574.000 us/iteration; average=86325.000 us/iteration; test=Vertex buffer allocation::TinyAlloc-arrays
+guest measured total=0.482 s; median=49940.500 us/iteration; average=48188.000 us/iteration; test=Vertex buffer allocation::TinyAlloc-inlinearrays
+guest measured total=0.412 s; median=39579.500 us/iteration; average=41250.000 us/iteration; test=Vertex buffer allocation::TinyAlloc-inlinebuffers
+guest measured total=0.568 s; median=53475.500 us/iteration; average=56828.000 us/iteration; test=Vertex buffer allocation::TinyAlloc-inlineelements
+guest measured total=0.678 s; median=678498.000 us/iteration; average=678498.000 us/iteration; test=Vertex buffer allocation::XemuRisingTransientBufferGrowth
+guest measured total=0.400 s; median=40488.500 us/iteration; average=40043.000 us/iteration; test=Vertex buffer allocation::XemuVertexRamDisjointSamePage
+Message: guest emitted non-PASS benchmark outcomes: report_query.dma_range_guard='FAIL'
