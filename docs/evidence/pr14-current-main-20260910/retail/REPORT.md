@@ -52,6 +52,29 @@ Primary order was previous, candidate, candidate, previous. Reverse repeat was
 candidate, previous, previous, candidate. The adverse maximum therefore
 survived an order reversal.
 
+The raw uninstrumented frame logs also place the repeated peak in the same
+snapshot phase. Within measured-frame indices 150-160, every candidate run was
+slower than every previous-main run:
+
+| Order | Run | Build | Phase-peak index | Guest frame | Phase peak (ms) |
+| --- | ---: | --- | ---: | ---: | ---: |
+| Primary | 1 | Previous main | 155 | 675 | 61.398 |
+| Primary | 2 | Candidate | 155 | 679 | 70.766 |
+| Primary | 3 | Candidate | 157 | 676 | 71.629 |
+| Primary | 4 | Previous main | 156 | 676 | 65.073 |
+| Reverse | 1 | Candidate | 155 | 674 | 59.115 |
+| Reverse | 2 | Previous main | 154 | 672 | 54.354 |
+| Reverse | 3 | Previous main | 154 | 678 | 56.503 |
+| Reverse | 4 | Candidate | 154 | 662 | 73.542 |
+
+| Metric | Raw + | Previous main | Candidate | Improvement % | Gate |
+| --- | --- | ---: | ---: | ---: | --- |
+| Median phase peak | `+bad` | 58.951 ms | 71.198 ms | **-20.78%** | **FAIL** |
+
+This phase-aligned result is the lag-spike gate. Two previous-main global
+maxima occurred outside the phase window; using the common phase avoids hiding
+the deterministic candidate cost behind unrelated isolated maxima.
+
 ## Candidate versus fixed cycle baseline
 
 The fixed baseline evidence is reused; it was not rebuilt. Its source is
@@ -114,6 +137,8 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
   scheduler result and its explicit attribution limit.
 - `telemetry/REPORT.md` and `telemetry/telemetry-summary.json` contain the
   no-ETL diagnostic reversal and affected-phase counters.
+- `phase-peak-summary.json` records the uninstrumented phase-window values and
+  the exact median calculation.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.

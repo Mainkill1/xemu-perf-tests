@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "status": "fail",
+  "workload": "PGR2 snapshot",
+  "renderer": "Vulkan",
+  "telemetry": "disabled",
+  "trace": "disabled",
+  "phase_window": {
+    "first_measured_frame_index": 150,
+    "last_measured_frame_index": 160
+  },
+  "runs": [
+    {"order": "primary", "run": 1, "role": "previous_main", "phase_peak_index": 155, "guest_frame": 675, "phase_peak_ms": 61.398},
+    {"order": "primary", "run": 2, "role": "candidate", "phase_peak_index": 155, "guest_frame": 679, "phase_peak_ms": 70.766},
+    {"order": "primary", "run": 3, "role": "candidate", "phase_peak_index": 157, "guest_frame": 676, "phase_peak_ms": 71.629},
+    {"order": "primary", "run": 4, "role": "previous_main", "phase_peak_index": 156, "guest_frame": 676, "phase_peak_ms": 65.073},
+    {"order": "reverse", "run": 1, "role": "candidate", "phase_peak_index": 155, "guest_frame": 674, "phase_peak_ms": 59.115},
+    {"order": "reverse", "run": 2, "role": "previous_main", "phase_peak_index": 154, "guest_frame": 672, "phase_peak_ms": 54.354},
+    {"order": "reverse", "run": 3, "role": "previous_main", "phase_peak_index": 154, "guest_frame": 678, "phase_peak_ms": 56.503},
+    {"order": "reverse", "run": 4, "role": "candidate", "phase_peak_index": 154, "guest_frame": 662, "phase_peak_ms": 73.542}
+  ],
+  "summary": {
+    "previous_main_phase_peak_median_ms": 58.9505,
+    "candidate_phase_peak_median_ms": 71.1975,
+    "candidate_improvement_percent": -20.775057039380496,
+    "raw_direction": "+bad",
+    "gate": "FAIL"
+  },
+  "interpretation": "Every candidate phase peak exceeded every previous-main phase peak. Lower averages and percentiles do not waive this lag-spike failure."
+}
