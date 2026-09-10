@@ -1,0 +1,4 @@
+campaign,run,role,renderer,launch_mode,cache_phase,fps,average_ms,p95_ms,p99_ms,max_ms,stalls,guest_frames,cache_hits,cache_misses,cache_records,cache_loaded_bytes,cache_queued_bytes,cache_write,normal_close,hdd_deleted
+morrowind-candidate-60s,01-candidate-opengl,candidate,OPENGL,snapshot,n/a,33.618726934315625,29.745326227069953,36.461,41.635,47.183,0,2017,,,,,,,True,True
+morrowind-candidate-60s,02-candidate-vulkan-cold,candidate,VULKAN,snapshot,cold,24.35256414736444,41.06343767123289,47.94,54.05,61.224,0,1460,1,48,48,0,1306039,published,True,True
+morrowind-candidate-60s,03-candidate-vulkan-warm,candidate,VULKAN,snapshot,warm,24.16842532241596,41.37629931034482,47.762,53.696,61.169,0,1450,49,0,48,1307654,0,clean,True,True

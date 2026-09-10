@@ -1,0 +1,55 @@
+scope,metric,direction,reference,candidate,improvement_percent_positive_good,within_2_percent,reference_identity,qualification
+PGR2 FreshBoot Vulkan cold two-run median,fps,+good,30.00000045431925,29.92766617811305,-0.2411142503692349,True,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,frame_average_ms,+bad,33.33333934517207,33.40769852438241,-0.22307749739784236,True,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,p95_ms,+bad,33.430499999999995,34.2435,-2.43191097949478,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,p99_ms,+bad,34.211,38.122,-11.431995556984601,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,max_ms,+bad,36.347,42.575500000000005,-17.13621481827937,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,stalls,+bad,0,0,,,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,fps,+good,30.00000045431925,29.86387064540701,-0.4537660228356359,True,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,frame_average_ms,+bad,33.33333934517207,33.47331527637747,-0.41992771788006467,True,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,p95_ms,+bad,33.430499999999995,35.3805,-5.832996814286365,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,p99_ms,+bad,34.211,39.083,-14.241033585688815,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,max_ms,+bad,36.347,43.16,-18.74432552892947,False,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan warm two-run median,stalls,+bad,0,0,,,same-session previous-main B3/B4,qualification
+PGR2 FreshBoot Vulkan cold two-run median,fps,+good,29.99998168078507,29.92766617811305,-0.2410518227694025,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan cold two-run median,frame_average_ms,+bad,33.333300943919966,33.40769852438241,-0.22319295826000604,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan cold two-run median,p95_ms,+bad,33.412,34.2435,-2.488626840656047,False,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan cold two-run median,p99_ms,+bad,34.497,38.122,-10.508160129866365,False,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan cold two-run median,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan warm two-run median,fps,+good,29.99998168078507,29.86387064540701,-0.453703728310062,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan warm two-run median,frame_average_ms,+bad,33.333300943919966,33.47331527637747,-0.420043405521297,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan warm two-run median,p95_ms,+bad,33.412,35.3805,-5.891595833832152,False,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan warm two-run median,p99_ms,+bad,34.497,39.083,-13.293909615328865,False,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot Vulkan warm two-run median,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan cold,fps,+good,28.904504220281932,28.888665867504024,-0.054795448685797235,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,frame_average_ms,+bad,34.62741792491553,34.58821416234892,0.1132159569379829,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,p95_ms,+bad,41.668000000000006,41.358,0.743976192761854,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,p99_ms,+bad,46.253,45.182,2.315525479428357,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,max_ms,+bad,68.522,69.208,-1.0011383205393782,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,stalls,+bad,0,0,,,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan cold,fps,+good,29.012075,28.888665867504024,-0.42537161680429836,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan cold,frame_average_ms,+bad,34.483841379310306,34.58821416234892,-0.30267156692477715,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan cold,p95_ms,+bad,40.91,41.358,-1.0950867758494267,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan cold,p99_ms,+bad,45.186,45.182,0.008852299384760287,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan cold,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan warm,fps,+good,28.904504220281932,28.90364785056709,-0.0029627552450513317,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,frame_average_ms,+bad,34.62741792491553,34.591492219020225,0.10374930632483656,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,p95_ms,+bad,41.668000000000006,41.361,0.7367764231544812,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,p99_ms,+bad,46.253,47.149,-1.937171642920461,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,max_ms,+bad,68.522,58.829,14.145821779866328,True,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,stalls,+bad,0,0,,,same-session previous-main B1/B2,qualification
+PGR2 snapshot Vulkan warm,fps,+good,29.012075,28.90364785056709,-0.3737311082813257,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan warm,frame_average_ms,+bad,34.483841379310306,34.591492219020225,-0.312177632781096,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan warm,p95_ms,+bad,40.91,41.361,-1.1024199462234188,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan warm,p99_ms,+bad,45.186,47.149,-4.34426592307352,False,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot Vulkan warm,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot OpenGL,fps,+good,29.990947,29.999998369565304,0.03018033930474364,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot OpenGL,frame_average_ms,+bad,33.34260111111114,33.33334128745845,0.02777174948599109,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot OpenGL,p95_ms,+bad,33.822,33.381,1.3038850452368353,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot OpenGL,p99_ms,+bad,36.059,34.316,4.833744696192338,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 FreshBoot OpenGL,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot OpenGL,fps,+good,28.519344,28.481219333689026,-0.1336800254275632,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot OpenGL,frame_average_ms,+bad,35.12222423887584,35.11683557636035,0.015342600396934462,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot OpenGL,p95_ms,+bad,42.308,42.686,-0.8934480476505628,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot OpenGL,p99_ms,+bad,46.086,46.169,-0.18009807750726559,True,reused fixed baseline,historical fixed-baseline comparison
+PGR2 snapshot OpenGL,stalls,+bad,0,0,,,reused fixed baseline,historical fixed-baseline comparison
