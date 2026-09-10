@@ -1,0 +1,37 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "raw_material": "retained privately and excluded from this portable package",
+  "files": [
+    {
+      "name": "REPORT.md",
+      "sha256": "e234c575bf1fb2c465f8ae3999e4ea5c1ed48eb85379dbc308546a692918d7cc",
+      "bytes": 3750
+    },
+    {
+      "name": "frame-stage-attribution.csv",
+      "sha256": "f871ea32cad25b81afaa33825a5e7a7b97289f28e98713de90b6c5b5c24e6032",
+      "bytes": 1746
+    },
+    {
+      "name": "run-summary.json",
+      "sha256": "81532380588ed74dd67152bce078dea953b8cce41632201bfae81c2b36a51702",
+      "bytes": 6302
+    },
+    {
+      "name": "shader-identity-summary.csv",
+      "sha256": "2e1dd0c6fca2502051ae3a1f7662dc8d8f0c554cf7258526712c2972196e4ce1",
+      "bytes": 2038
+    },
+    {
+      "name": "shader-identity-summary.json",
+      "sha256": "942581d41cb3d31dbba1e00c77646bef307f1a4ee0ed5594fda8c00cf4d299d8",
+      "bytes": 17388
+    },
+    {
+      "name": "shader-identity-summary.md",
+      "sha256": "9fc14bc29e04377dbcbf5defe4540ecf5eb9d61dc66f2bc08139f3352cdf1f17",
+      "bytes": 3282
+    }
+  ]
+}
