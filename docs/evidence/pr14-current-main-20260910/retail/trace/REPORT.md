@@ -51,12 +51,12 @@ as the cause.
 PR #14 remains draft and held. It cannot be described as faster or performance
 neutral while this repeated maximum regression remains unresolved.
 
-The next admitted test uses the existing opt-in per-frame Vulkan telemetry on
-the same unchanged executables and route. It compares pipeline preparation,
-texture binding/upload, queue submissions, and fence waits without collecting
-another ETL. If that result still cannot tie the frame to a changed path, the
-shared storage-level accounting and the renderer repairs must be instrumented
-or built as separate one-change candidates and tested independently.
+The existing opt-in per-frame Vulkan telemetry was then run on the same
+unchanged executables and route. It reversed the maximum result and did not
+identify enough changed-path work to explain the no-telemetry failure. See
+`../telemetry/REPORT.md`. Research PR #67 now owns the missing clamped-cubemap
+span, surface, dirty, and hash counters. A behavioral one-change candidate is
+allowed only if those counters first attribute enough time to the path.
 
 The multi-gigabyte ETLs remain outside Git history. Their SHA-256 identities,
 sizes, zero-loss status, exact build identities, and compact attribution result

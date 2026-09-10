@@ -89,11 +89,17 @@ or a GPU fence wait. The trace did not sample a changed PR #14 texture function,
 and previous main spent more sampled time hashing than the candidate. See
 `trace/REPORT.md` for the exact attribution limits.
 
-The next test is a matched opt-in Vulkan telemetry pair using the unchanged
-executables and route. If per-frame pipeline, texture, submission, and fence
-metrics still cannot attribute the delay, the three focused changes in PR #14
-will be instrumented or built as separate candidates and measured one at a
-time.
+The matched opt-in Vulkan telemetry pair then reversed the maximum result:
+66.080 ms for the candidate versus 68.576 ms for previous main. The affected
+phase had identical bind/upload call counts and identical 961,312-byte native
+BC source/staging totals. Candidate pipeline preparation, draw flush, Vulkan
+wait, and descriptor time were lower; texture binding was only 0.303 ms higher.
+These telemetry-enabled times are diagnostic and do not waive the no-telemetry
+failure.
+
+Research PR #67 owns the missing counters for clamped cubemap span, surface,
+dirty, and hash work. A behavioral one-change build is permitted only if that
+instrumentation attributes enough time to a changed path.
 
 Morrowind and the remaining renderer/workload cells are pending; their absence
 does not waive the reproduced snapshot failure. PR #14 remains draft and held.
@@ -106,6 +112,8 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
   the ten worst intervals per run.
 - `trace/REPORT.md` and `trace/attribution-summary.json` contain the matched
   scheduler result and its explicit attribution limit.
+- `telemetry/REPORT.md` and `telemetry/telemetry-summary.json` contain the
+  no-ETL diagnostic reversal and affected-phase counters.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.
