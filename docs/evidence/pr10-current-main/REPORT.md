@@ -1,6 +1,6 @@
 # PR #10 current-main qualification
 
-Atomic oversized-packet handling passes its focused correctness, scalar/bulk equivalence, validation, and accepted-packet performance gates. The full 154-record suite reaches every record on both renderers and fails only the pre-existing `report_query.dma_range_guard` defect tracked by Mainkill1/xemu#60.
+Atomic oversized-packet handling passes its focused correctness, scalar/bulk equivalence, validation, and accepted-packet performance gates. The full 154-record suite reaches every record on both renderers. OpenGL's only failure reproduces the range corruption tracked by Mainkill1/xemu#60. Vulkan's only failure is the same test ID, but its canaries remain intact and its separate publication-fence B0 positive control fails; it does not reproduce the OpenGL overwrite.
 
 ## Accepted-packet performance
 
@@ -24,6 +24,6 @@ Positive Improvement % is favorable; `+bad` means a lower raw time is better.
 | Focused bulk boundaries | 4/4 PASS | 4/4 PASS |
 | Scalar fallback boundaries | N/A | 4/4 PASS; invariants identical to bulk |
 | Validation | N/A | Active; 0 unique VUIDs in bulk and scalar cells |
-| Full XISO | 154 records; only issue #60 fails | 154 records; only issue #60 fails; 0 VUIDs |
+| Full XISO | 154 records; only `dma_range_guard` fails; canaries changed (#60) | 154 records; only `dma_range_guard` fails; canaries intact, B0 publication fence fails; 0 VUIDs |
 
 Boundary timings are correctness-only. The accepted-packet rows use two runs per role in B1-C1-C2-B2 order and enforce at least 15 seconds of measured work plus 5 seconds of warmup per cell.
