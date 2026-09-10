@@ -3,6 +3,7 @@
 #include <pbkit/nv_regs.h>
 #include <pbkit/pbkit.h>
 
+#include <array>
 #include <cstddef>
 #include <sstream>
 
@@ -22,6 +23,9 @@ static constexpr char kClearTextureNormalName[] =
     "pipeline.clear-texture-normal";
 static constexpr char kSamplerOnlyIdentityName[] =
     "pipeline.sampler-only-identity";
+static constexpr char kPaletteOnlyUpdateName[] = "pipeline.palette-only-update";
+static constexpr char kSharedPageOverlapName[] =
+    "pipeline.shared-page-overlap";
 
 static constexpr uint32_t kSeed = 0x50545357;  // "PTSW"
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
@@ -29,6 +33,15 @@ static constexpr uint32_t kFnvPrime = 16777619U;
 static constexpr uint32_t kTextureWidth = 64;
 static constexpr uint32_t kTextureHeight = 64;
 static constexpr uint32_t kTexturePixels = kTextureWidth * kTextureHeight;
+static constexpr uint32_t kLinearTextureBytes =
+    kTexturePixels * sizeof(uint32_t);
+static constexpr uint32_t kPaletteEntries = 256;
+static constexpr uint32_t kPaletteIndexWords = kTexturePixels / sizeof(uint32_t);
+static constexpr uint32_t kSharedBindingOffset = 256;
+static constexpr uint32_t kSharedBindingOffsetWords =
+    kSharedBindingOffset / sizeof(uint32_t);
+static constexpr uint32_t kSharedRegionWords =
+    kTexturePixels + kSharedBindingOffsetWords;
 static constexpr uint32_t kSamplerMipLevels = 5;
 static constexpr uint32_t kSamplerTextureWords = 5456;
 static constexpr uint32_t kProfileSamples = 8;
@@ -70,6 +83,15 @@ static constexpr uint32_t kSamplerBackingKat = 0xCDD5D7A5;
 static constexpr uint32_t kSamplerInputKat = 0x281BCD52;
 // Regression oracle captured identically on upstream d73326b and the candidate.
 static constexpr uint32_t kSamplerOnlyPixelKat = 0xBB0EC8ED;
+static constexpr uint32_t kPaletteIndexKat = 0x76EFDDC5;
+static constexpr uint32_t kPaletteInitialKat = 0xFEBA67C5;
+static constexpr uint32_t kPaletteChangedKat = 0xD2A80FED;
+static constexpr uint32_t kPaletteOnlyInputKat = 0xE9635B33;
+static constexpr uint32_t kSharedInitialKat = 0x2D306945;
+static constexpr uint32_t kSharedChangedKat = 0xE941E945;
+static constexpr uint32_t kSharedBindingBKat = 0xB721F1C5;
+static constexpr uint32_t kSharedPageInputKat = 0x5F016545;
+static constexpr uint32_t kMutationPixelKat = 0x0ABCCA3D;
 
 static constexpr uint32_t kTextureSwitchFinalColor = 0xFF18405A;
 static constexpr uint32_t kShaderNegativeFinalColor = 0xFF4A2038;
@@ -83,6 +105,12 @@ static constexpr uint64_t kClearTextureNormalFinalFrameHash =
 static constexpr uint32_t kSamplerOnlyFinalColor = 0xFF405020;
 static constexpr uint64_t kSamplerOnlyFinalFrameHash =
     0x0B8438C8404DA325ULL;
+static constexpr uint32_t kPaletteOnlyFinalColor = 0xFF604020;
+static constexpr uint64_t kPaletteOnlyFinalFrameHash =
+    0x467AAB2F95CDA325ULL;
+static constexpr uint32_t kSharedPageFinalColor = 0xFF206040;
+static constexpr uint64_t kSharedPageFinalFrameHash =
+    0x83BB59A8648DA325ULL;
 
 struct Quad {
   float left;
@@ -187,6 +215,8 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
   tests_[kClearTextureNormalName] = [this]() { RunClearTextureNormal(); };
   tests_[kSamplerOnlyIdentityName] =
       [this]() { Run(kSamplerOnlyIdentity); };
+  tests_[kPaletteOnlyUpdateName] = [this]() { RunPaletteOnlyUpdate(); };
+  tests_[kSharedPageOverlapName] = [this]() { RunSharedPageOverlap(); };
 }
 
 void PipelineTextureSwitchTests::Initialize() {
@@ -650,6 +680,365 @@ void PipelineTextureSwitchTests::RunClearTextureNormal() {
   ClearXemuPerfEventContext();
 }
 
+void PipelineTextureSwitchTests::RunPaletteOnlyUpdate() {
+  static constexpr uint32_t kPhase = 0x1505;
+  std::array<uint32_t, kPaletteEntries> initial_palette{};
+  initial_palette.fill(kTextureAColor);
+  std::array<uint32_t, kPaletteEntries> changed_palette = initial_palette;
+  changed_palette[0] = kTextureBColor;
+
+  uint32_t input_kat = kFnvOffsetBasis;
+  // The texture is reset to all-zero indices inside every invocation. Use its
+  // independently calculated KAT here rather than reading prior suite state.
+  const uint32_t canonical_input_words[]{
+      kSeed, kTextureWidth, kTextureHeight, kTexturePixels, kPaletteEntries,
+      kPaletteIndexKat, kPaletteInitialKat, kPaletteChangedKat,
+      kOperationsPerIteration,
+  };
+  for (uint32_t value : canonical_input_words) {
+    input_kat = Fnv1aAddWord(input_kat, value);
+  }
+  AssertXemuPerfEqual(kPaletteOnlyInputKat, input_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_only_input == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(kPaletteInitialKat,
+                      HashWords(initial_palette.data(), initial_palette.size()),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "initial_palette_kat == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(kPaletteChangedKat,
+                      HashWords(changed_palette.data(), changed_palette.size()),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "changed_palette_kat == expected", __FILE__, __LINE__);
+
+  const uint32_t measured_iterations =
+      host_.GetSaveResults() ? host_.GetMeasurementIterationsMultiplier() : 1;
+  const uint32_t warmup_iterations =
+      host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  const uint32_t expected_final =
+      ExpectedFinalState(kPhase, input_kat, kMutationPixelKat,
+                         measured_iterations);
+  uint32_t actual_final = kSeed ^ kPhase;
+  uint32_t invocation = 0;
+
+  SetXemuPerfEventContext(kPhase, expected_final);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0,
+                    host_.GetMeasurementIterationsMultiplier(),
+                    warmup_iterations);
+  ConfigurePalettePipeline();
+  host_.PrepareDraw(kBackgroundColor);
+
+  auto results = Profile(kPaletteOnlyUpdateName, 1, [&]() {
+    auto *indices = host_.GetTextureMemoryForStage(0);
+    memset(indices, 0, kTexturePixels);
+    const int palette_result =
+        host_.SetPalette(initial_palette.data(), TestHost::PALETTE_256, 0);
+    AssertXemuPerfEqual(0, static_cast<uint32_t>(palette_result),
+                        XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                        "palette_setup_succeeds", __FILE__, __LINE__);
+
+    for (const auto &quad : kQuads) {
+      host_.DrawTexturedScreenQuadEx(
+          quad.left, quad.top, quad.right, quad.bottom, 1.f, 0.f, 0.f,
+          static_cast<float>(kTextureWidth), 0.f,
+          static_cast<float>(kTextureWidth),
+          static_cast<float>(kTextureHeight), 0.f,
+          static_cast<float>(kTextureHeight));
+    }
+    SynchronizeCorrectness(host_);
+
+    // Change only palette memory. The index image and every texture method
+    // remain untouched, so the next draw must be recovered by palette dirtiness.
+    host_.GetPaletteMemoryForStage(0)[0] = kTextureBColor;
+    const Quad &first = kQuads[0];
+    host_.DrawTexturedScreenQuadEx(
+        first.left, first.top, first.right, first.bottom, 1.f, 0.f, 0.f,
+        static_cast<float>(kTextureWidth), 0.f,
+        static_cast<float>(kTextureWidth),
+        static_cast<float>(kTextureHeight), 0.f,
+        static_cast<float>(kTextureHeight));
+    SynchronizeCorrectness(host_);
+
+    // These draws perform no writes or state changes. Host counters correlated
+    // with F0/F1 can verify that validation retired after the palette update.
+    for (uint32_t operation = 0; operation < kOperationsPerIteration;
+         ++operation) {
+      const Quad &quad = kQuads[operation & 3];
+      host_.DrawTexturedScreenQuadEx(
+          quad.left, quad.top, quad.right, quad.bottom, 1.f, 0.f, 0.f,
+          static_cast<float>(kTextureWidth), 0.f,
+          static_cast<float>(kTextureWidth),
+          static_cast<float>(kTextureHeight), 0.f,
+          static_cast<float>(kTextureHeight));
+    }
+
+    if (invocation >= warmup_iterations) {
+      actual_final = FoldKnownOutput(actual_final, input_kat);
+      actual_final = FoldKnownOutput(actual_final, kPhase);
+      actual_final = FoldKnownOutput(actual_final, kOperationsPerIteration);
+      actual_final = FoldKnownOutput(actual_final, kMutationPixelKat);
+    }
+    ++invocation;
+  });
+
+  SynchronizeCorrectness(host_);
+  const uint32_t actual_index_kat = HashWords(
+      reinterpret_cast<volatile const uint32_t *>(
+          host_.GetTextureMemoryForStage(0)),
+      kPaletteIndexWords);
+  const uint32_t actual_palette_kat = HashWords(
+      host_.GetPaletteMemoryForStage(0), kPaletteEntries);
+  AssertXemuPerfEqual(kPaletteIndexKat, actual_index_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "palette_only_indices_unchanged", __FILE__, __LINE__);
+  AssertXemuPerfEqual(kPaletteChangedKat, actual_palette_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "palette_only_palette_changed", __FILE__, __LINE__);
+  const uint32_t actual_pixel_kat =
+      ValidateSolidTilePixels(kTextureBColor, "palette_only_tile_is_blue");
+  AssertXemuPerfEqual(kMutationPixelKat, actual_pixel_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                      "palette_only_pixel_kat == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(expected_final, actual_final,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
+                      "palette_only_final_state == expected", __FILE__,
+                      __LINE__);
+
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetupTextureStages();
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.SetBlend(false);
+  host_.PrepareDraw(kPaletteOnlyFinalColor);
+  SynchronizeCorrectness(host_);
+  const uint64_t actual_frame_hash = HashBackBuffer();
+  AssertXemuPerfEqual(
+      static_cast<uint32_t>(kPaletteOnlyFinalFrameHash >> 32),
+      static_cast<uint32_t>(actual_frame_hash >> 32),
+      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+      "palette_only_framebuffer_hash_hi == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(static_cast<uint32_t>(kPaletteOnlyFinalFrameHash),
+                      static_cast<uint32_t>(actual_frame_hash),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+                      "palette_only_framebuffer_hash_lo == expected", __FILE__,
+                      __LINE__);
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,";
+  metadata << "\"kind\":\"palette_only_texture_revalidation\",";
+  metadata << "\"test_id\":\"" << kPaletteOnlyUpdateName << "\",";
+  metadata << "\"oracle_provenance\":\"SPEC_DERIVED\",";
+  metadata << "\"texture_bytes_changed\":0,";
+  metadata << "\"palette_entries_changed\":1,";
+  metadata << "\"validation_draws\":" << results.iterations << ",";
+  metadata << "\"steady_redraws\":"
+           << static_cast<uint64_t>(kOperationsPerIteration) * results.iterations
+           << ",";
+  metadata << "\"index_kat\":{\"expected\":" << kPaletteIndexKat
+           << ",\"actual\":" << actual_index_kat << "},";
+  metadata << "\"palette_kat\":{\"expected\":" << kPaletteChangedKat
+           << ",\"actual\":" << actual_palette_kat << "},";
+  metadata << "\"rendered_pixel_kat\":{\"expected\":"
+           << kMutationPixelKat << ",\"actual\":" << actual_pixel_kat
+           << "},";
+  metadata << "\"expected_final_state\":" << expected_final << ",";
+  metadata << "\"actual_final_state\":" << actual_final << ",";
+  metadata << "\"counter_contract\":{\"palette_uploads_per_iteration\":2,"
+              "\"unchanged_redraw_uploads\":0},";
+  metadata << "\"terminal_fence\":\"F2 after F1\"}";
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_final, actual_final);
+  host_.FinishDraw(suite_name_, kPaletteOnlyUpdateName, results,
+                   metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void PipelineTextureSwitchTests::RunSharedPageOverlap() {
+  static constexpr uint32_t kPhase = 0x1506;
+  uint32_t input_kat = kFnvOffsetBasis;
+  const uint32_t input_words[]{
+      kSeed, kTextureWidth, kTextureHeight, kSharedBindingOffset,
+      kLinearTextureBytes, kSharedInitialKat, kSharedChangedKat,
+      kSharedBindingBKat, kOperationsPerIteration,
+  };
+  for (uint32_t value : input_words) {
+    input_kat = Fnv1aAddWord(input_kat, value);
+  }
+  AssertXemuPerfEqual(kSharedPageInputKat, input_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "shared_page_input == expected", __FILE__, __LINE__);
+
+  const uint32_t measured_iterations =
+      host_.GetSaveResults() ? host_.GetMeasurementIterationsMultiplier() : 1;
+  const uint32_t warmup_iterations =
+      host_.GetSaveResults() ? host_.GetWarmupIterations() : 0;
+  const uint32_t expected_final =
+      ExpectedFinalState(kPhase, input_kat, kMutationPixelKat,
+                         measured_iterations);
+  uint32_t actual_final = kSeed ^ kPhase;
+  uint32_t invocation = 0;
+  const uint32_t binding_a =
+      reinterpret_cast<uint32_t>(host_.GetTextureMemoryForStage(2)) &
+      0x03FFFFFF;
+  const uint32_t binding_b = binding_a + kSharedBindingOffset;
+
+  SetXemuPerfEventContext(kPhase, expected_final);
+  EmitXemuPerfEvent(XemuPerfEventType::CONTEXT, 0,
+                    host_.GetMeasurementIterationsMultiplier(),
+                    warmup_iterations);
+  ConfigureTexturePipeline();
+  host_.PrepareDraw(kBackgroundColor);
+
+  auto results = Profile(kSharedPageOverlapName, 1, [&]() {
+    auto *shared = reinterpret_cast<uint32_t *>(
+        host_.GetTextureMemoryForStage(2));
+    for (uint32_t word = 0; word < kSharedRegionWords; ++word) {
+      shared[word] = kTextureAColor;
+    }
+
+    // Populate two distinct cache bindings whose 16 KiB source ranges overlap
+    // by all but 256 bytes and therefore share the four pages dirtied below.
+    for (uint32_t address : {binding_a, binding_b}) {
+      Pushbuffer::Begin();
+      Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, address);
+      Pushbuffer::End();
+      for (const auto &quad : kQuads) {
+        host_.DrawTexturedScreenQuadEx(
+            quad.left, quad.top, quad.right, quad.bottom, 1.f, 0.f, 0.f,
+            static_cast<float>(kTextureWidth), 0.f,
+            static_cast<float>(kTextureWidth),
+            static_cast<float>(kTextureHeight), 0.f,
+            static_cast<float>(kTextureHeight));
+      }
+      SynchronizeCorrectness(host_);
+    }
+
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, binding_a);
+    Pushbuffer::End();
+    for (uint32_t word = 0; word < kTexturePixels; ++word) {
+      shared[word] = kTextureBColor;
+    }
+
+    // Validate binding A and complete it before selecting B. Clearing the page
+    // dirty bit here must not retire B's per-binding validation hint.
+    const Quad &first = kQuads[0];
+    host_.DrawTexturedScreenQuadEx(
+        first.left, first.top, first.right, first.bottom, 1.f, 0.f, 0.f,
+        static_cast<float>(kTextureWidth), 0.f,
+        static_cast<float>(kTextureWidth),
+        static_cast<float>(kTextureHeight), 0.f,
+        static_cast<float>(kTextureHeight));
+    SynchronizeCorrectness(host_);
+
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, binding_b);
+    Pushbuffer::End();
+    host_.DrawTexturedScreenQuadEx(
+        first.left, first.top, first.right, first.bottom, 1.f, 0.f, 0.f,
+        static_cast<float>(kTextureWidth), 0.f,
+        static_cast<float>(kTextureWidth),
+        static_cast<float>(kTextureHeight), 0.f,
+        static_cast<float>(kTextureHeight));
+    SynchronizeCorrectness(host_);
+
+    for (uint32_t operation = 0; operation < kOperationsPerIteration;
+         ++operation) {
+      const Quad &quad = kQuads[operation & 3];
+      host_.DrawTexturedScreenQuadEx(
+          quad.left, quad.top, quad.right, quad.bottom, 1.f, 0.f, 0.f,
+          static_cast<float>(kTextureWidth), 0.f,
+          static_cast<float>(kTextureWidth),
+          static_cast<float>(kTextureHeight), 0.f,
+          static_cast<float>(kTextureHeight));
+    }
+
+    if (invocation >= warmup_iterations) {
+      actual_final = FoldKnownOutput(actual_final, input_kat);
+      actual_final = FoldKnownOutput(actual_final, kPhase);
+      actual_final = FoldKnownOutput(actual_final, kOperationsPerIteration);
+      actual_final = FoldKnownOutput(actual_final, kMutationPixelKat);
+    }
+    ++invocation;
+  });
+
+  SynchronizeCorrectness(host_);
+  const auto *shared = reinterpret_cast<volatile const uint32_t *>(
+      host_.GetTextureMemoryForStage(2));
+  const uint32_t actual_region_kat = HashWords(shared, kSharedRegionWords);
+  const uint32_t actual_binding_b_kat =
+      HashWords(shared + kSharedBindingOffsetWords, kTexturePixels);
+  AssertXemuPerfEqual(kSharedChangedKat, actual_region_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "shared_page_region_changed", __FILE__, __LINE__);
+  AssertXemuPerfEqual(kSharedBindingBKat, actual_binding_b_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_BACKING,
+                      "shared_page_binding_b_source", __FILE__, __LINE__);
+  const uint32_t actual_pixel_kat = ValidateSolidTilePixels(
+      kTextureBColor, "shared_page_binding_b_tile_is_blue");
+  AssertXemuPerfEqual(kMutationPixelKat, actual_pixel_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                      "shared_page_pixel_kat == expected", __FILE__, __LINE__);
+  AssertXemuPerfEqual(expected_final, actual_final,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
+                      "shared_page_final_state == expected", __FILE__,
+                      __LINE__);
+
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetupTextureStages();
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_DIFFUSE, true);
+  host_.SetBlend(false);
+  host_.PrepareDraw(kSharedPageFinalColor);
+  SynchronizeCorrectness(host_);
+  const uint64_t actual_frame_hash = HashBackBuffer();
+  AssertXemuPerfEqual(static_cast<uint32_t>(kSharedPageFinalFrameHash >> 32),
+                      static_cast<uint32_t>(actual_frame_hash >> 32),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+                      "shared_page_framebuffer_hash_hi == expected", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(static_cast<uint32_t>(kSharedPageFinalFrameHash),
+                      static_cast<uint32_t>(actual_frame_hash),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FRAMEBUFFER,
+                      "shared_page_framebuffer_hash_lo == expected", __FILE__,
+                      __LINE__);
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,";
+  metadata << "\"kind\":\"shared_page_texture_revalidation\",";
+  metadata << "\"test_id\":\"" << kSharedPageOverlapName << "\",";
+  metadata << "\"oracle_provenance\":\"SPEC_DERIVED\",";
+  metadata << "\"cached_bindings\":2,";
+  metadata << "\"binding_offset_bytes\":" << kSharedBindingOffset << ",";
+  metadata << "\"binding_length_bytes\":" << kLinearTextureBytes << ",";
+  metadata << "\"shared_dirty_pages\":4,";
+  metadata << "\"validated_before_second_binding\":1,";
+  metadata << "\"second_binding_validation_draws\":" << results.iterations
+           << ",";
+  metadata << "\"steady_redraws\":"
+           << static_cast<uint64_t>(kOperationsPerIteration) * results.iterations
+           << ",";
+  metadata << "\"region_kat\":{\"expected\":" << kSharedChangedKat
+           << ",\"actual\":" << actual_region_kat << "},";
+  metadata << "\"binding_b_kat\":{\"expected\":" << kSharedBindingBKat
+           << ",\"actual\":" << actual_binding_b_kat << "},";
+  metadata << "\"rendered_pixel_kat\":{\"expected\":"
+           << kMutationPixelKat << ",\"actual\":" << actual_pixel_kat
+           << "},";
+  metadata << "\"expected_final_state\":" << expected_final << ",";
+  metadata << "\"actual_final_state\":" << actual_final << ",";
+  metadata << "\"counter_contract\":{\"binding_uploads_per_iteration\":4,"
+              "\"post_mutation_binding_a_uploads\":1,"
+              "\"post_mutation_binding_b_uploads\":1,"
+              "\"unchanged_redraw_uploads\":0},";
+  metadata << "\"terminal_fence\":\"F2 after F1\"}";
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_final, actual_final);
+  host_.FinishDraw(suite_name_, kSharedPageOverlapName, results,
+                   metadata.str());
+  ClearXemuPerfEventContext();
+}
+
 void PipelineTextureSwitchTests::ConfigureTexturePipeline() const {
   host_.SetVertexShaderProgram(nullptr);
   host_.SetupFixedFunctionPassthrough();
@@ -671,6 +1060,33 @@ void PipelineTextureSwitchTests::ConfigureTexturePipeline() const {
   host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
   host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
   host_.SetDiffuse(0.f, 1.f, 0.f, 1.f);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::End();
+}
+
+void PipelineTextureSwitchTests::ConfigurePalettePipeline() const {
+  host_.SetVertexShaderProgram(nullptr);
+  host_.SetupFixedFunctionPassthrough();
+  auto &texture_stage = host_.GetTextureStage(0);
+  texture_stage.SetFormat(GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8));
+  texture_stage.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetImageDimensions(kTextureWidth, kTextureHeight);
+  texture_stage.SetMipMapLevels(1);
+  texture_stage.SetLODClamp(0, 0);
+  texture_stage.SetUWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  texture_stage.SetVWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  texture_stage.SetPWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  texture_stage.SetFilter();
+  texture_stage.SetEnabled(true);
+  host_.SetPaletteSize(TestHost::PALETTE_256, 0);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetupTextureStages();
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_TEX0);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
   Pushbuffer::Begin();
   Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
   Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
@@ -866,6 +1282,28 @@ uint32_t PipelineTextureSwitchTests::ValidateClearTextureNormalPixels() const {
     AssertXemuPerfEqual(kTextureAColor, actual,
                         XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
                         "clear_texture_normal_tile_pixel == texture_a",
+                        __FILE__, __LINE__);
+    kat = Fnv1aAddWord(kat, actual);
+  }
+  return kat;
+}
+
+uint32_t PipelineTextureSwitchTests::ValidateSolidTilePixels(
+    uint32_t expected, const char *message) const {
+  const auto *base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  uint32_t kat = kFnvOffsetBasis;
+  for (const auto &quad : kQuads) {
+    const uint32_t x =
+        static_cast<uint32_t>((quad.left + quad.right) * 0.5f);
+    const uint32_t y =
+        static_cast<uint32_t>((quad.top + quad.bottom) * 0.5f);
+    const auto *row =
+        reinterpret_cast<volatile const uint32_t *>(base + y * pitch);
+    const uint32_t actual = row[x];
+    AssertXemuPerfEqual(expected, actual,
+                        XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE, message,
                         __FILE__, __LINE__);
     kat = Fnv1aAddWord(kat, actual);
   }

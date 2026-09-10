@@ -81,6 +81,18 @@ def entries():
         ("clear_texture_normal", "pipeline.clear-texture-normal"),
         ("sampler_only_identity", "pipeline.sampler-only-identity")],
         ("texture", "gpu", "performance", "hardware-safe"))
+    out.append(leaf(
+        "pipeline_texture_switch.palette_only_update",
+        "pipeline_texture_switch", "PipelineTextureSwitch",
+        "pipeline.palette-only-update",
+        "Changes one indexed-texture palette entry without changing image bytes, then verifies the new color and unchanged-draw steady state.",
+        ("texture", "gpu", "correctness", "hardware-safe")))
+    out.append(leaf(
+        "pipeline_texture_switch.shared_page_overlap",
+        "pipeline_texture_switch", "PipelineTextureSwitch",
+        "pipeline.shared-page-overlap",
+        "Validates two overlapping cached texture bindings in sequence after one shared-page write, then verifies unchanged-draw steady state.",
+        ("texture", "gpu", "correctness", "hardware-safe")))
     simple("report_query", "ReportQuery", [
         ("zero_query", "report.zero-query"),
         ("single_boundary", "report.single-boundary"),
@@ -322,6 +334,10 @@ def failure_diagnosis(test):
             "State leaked across clear, texture-only, and normal-draw boundaries. Check clear-pipeline lifetime, descriptor dirtiness, render-pass transitions, and post-clear state restoration.",
         "pipeline_texture_switch.sampler_only_identity":
             "An identical sampler write changed output or caused an invalid reuse decision. Check sampler identity keys, compare-before-dirty logic, descriptor cache lifetime, and texture-stage normalization.",
+        "pipeline_texture_switch.palette_only_update":
+            "A palette-only write did not update the indexed texture or caused repeated uploads on unchanged redraws. Check palette dirty-page tracking, combined content hashes, retry state, and dirty-hint retirement.",
+        "pipeline_texture_switch.shared_page_overlap":
+            "Validating the first overlapping cached texture lost the second binding's dirty state or unchanged redraws kept revalidating. Check per-binding overlap marking, page dirty-bit clearing, content hashes, and dirty-hint retirement.",
         "report_query.zero_query":
             "A disabled-ZPASS report did not publish a complete zero-valued record after ordered GPU and host-report completion. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores.",
         "report_query.single_boundary":
@@ -630,6 +646,22 @@ def render():
                             gpu_completion_mode=completion)
             output[ROOT / f"resources/{prefix}-{profile}.json"] = \
                 resolved_plan(doc, settings, [stable_id])
+    dirty_revalidation_ids = [
+        "pipeline_texture_switch.palette_only_update",
+        "pipeline_texture_switch.shared_page_overlap",
+    ]
+    dirty_revalidation_profiles = {
+        "fast-smoke": (0, 1, "per_iteration"),
+        "quick": (1, 2, "per_iteration"),
+        "sustained": (4, 8, "per_iteration"),
+    }
+    for profile, (warmup, multiplier, completion) in \
+            dirty_revalidation_profiles.items():
+        settings = dict(base_settings, warmup_iterations=warmup,
+                        measurement_iterations_multiplier=multiplier,
+                        gpu_completion_mode=completion)
+        output[ROOT / f"resources/pipeline-texture-dirty-revalidation-{profile}.json"] = \
+            resolved_plan(doc, settings, dirty_revalidation_ids)
     report_ids = [
         "report_query.zero_query",
         "report_query.single_boundary",
