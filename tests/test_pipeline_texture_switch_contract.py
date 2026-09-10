@@ -39,6 +39,26 @@ def frame_kat(color):
 
 
 class PipelineTextureSwitchContractTests(unittest.TestCase):
+    def test_each_leaf_reinitializes_shared_texture_inputs(self):
+        header = (ROOT / "src/tests/pipeline_texture_switch_tests.h").read_text()
+        self.assertIn("void SetupTest() override;", header)
+
+        setup_start = SOURCE.index("void PipelineTextureSwitchTests::SetupTest()")
+        setup_end = SOURCE.index("\n}", setup_start)
+        setup = SOURCE[setup_start:setup_end]
+        self.assertIn("ResetCanonicalTextureBacking();", setup)
+
+        reset_start = SOURCE.index(
+            "void PipelineTextureSwitchTests::ResetCanonicalTextureBacking()"
+        )
+        reset_end = SOURCE.index("\n}", reset_start)
+        reset = SOURCE[reset_start:reset_end]
+        self.assertIn("GetTextureMemoryForStage(0)", reset)
+        self.assertIn("GetTextureMemoryForStage(1)", reset)
+        self.assertIn("texture_a[pixel] = kTextureAColor", reset)
+        self.assertIn("texture_b[pixel] = kTextureBColor", reset)
+        self.assertIn("texture_a[mip_offset + word] = kSamplerMipColors[level]", reset)
+
     def test_suite_registration_and_stable_catalog_ids(self):
         self.assertIn("REG_TEST(PipelineTextureSwitchTests)", MAIN)
         self.assertIn("tests/pipeline_texture_switch_tests.cpp", CMAKE)

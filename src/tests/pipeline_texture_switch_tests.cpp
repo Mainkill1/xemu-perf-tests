@@ -222,23 +222,12 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
 void PipelineTextureSwitchTests::Initialize() {
   TestSuite::Initialize();
 
-  auto *texture_a = reinterpret_cast<uint32_t *>(host_.GetTextureMemoryForStage(0));
-  auto *texture_b = reinterpret_cast<uint32_t *>(host_.GetTextureMemoryForStage(1));
-  for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
-    texture_a[pixel] = kTextureAColor;
-    texture_b[pixel] = kTextureBColor;
-  }
+  ResetCanonicalTextureBacking();
 
-  uint32_t mip_offset = 0;
-  uint32_t mip_dimension = kTextureWidth;
-  for (uint32_t level = 0; level < kSamplerMipLevels; ++level) {
-    const uint32_t level_words = mip_dimension * mip_dimension;
-    for (uint32_t word = 0; word < level_words; ++word) {
-      texture_a[mip_offset + word] = kSamplerMipColors[level];
-    }
-    mip_offset += level_words;
-    mip_dimension >>= 1;
-  }
+  auto *texture_a = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(0));
+  auto *texture_b = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(1));
 
   backing_a_kat_ = HashWords(texture_a, kTexturePixels);
   backing_b_kat_ = HashWords(texture_b, kTexturePixels);
@@ -281,6 +270,35 @@ void PipelineTextureSwitchTests::Initialize() {
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "sampler_identity_input_kat == expected", __FILE__,
                       __LINE__);
+}
+
+void PipelineTextureSwitchTests::SetupTest() {
+  // All leaves share TestHost's texture-stage allocations. Rebuild the
+  // canonical source bytes before each leaf so a mutation workload cannot
+  // make a later leaf depend on suite execution order.
+  ResetCanonicalTextureBacking();
+}
+
+void PipelineTextureSwitchTests::ResetCanonicalTextureBacking() const {
+  auto *texture_a = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(0));
+  auto *texture_b = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(1));
+  for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
+    texture_a[pixel] = kTextureAColor;
+    texture_b[pixel] = kTextureBColor;
+  }
+
+  uint32_t mip_offset = 0;
+  uint32_t mip_dimension = kTextureWidth;
+  for (uint32_t level = 0; level < kSamplerMipLevels; ++level) {
+    const uint32_t level_words = mip_dimension * mip_dimension;
+    for (uint32_t word = 0; word < level_words; ++word) {
+      texture_a[mip_offset + word] = kSamplerMipColors[level];
+    }
+    mip_offset += level_words;
+    mip_dimension >>= 1;
+  }
 }
 
 void PipelineTextureSwitchTests::Run(const Recipe &recipe) {

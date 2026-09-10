@@ -15,6 +15,7 @@ class PipelineTextureSwitchTests : public TestSuite {
                              const Config &config);
 
   void Initialize() override;
+  void SetupTest() override;
 
  private:
   struct Recipe {
@@ -31,6 +32,7 @@ class PipelineTextureSwitchTests : public TestSuite {
   void RunClearTextureNormal();
   void RunPaletteOnlyUpdate();
   void RunSharedPageOverlap();
+  void ResetCanonicalTextureBacking() const;
   void ConfigureTexturePipeline() const;
   void ConfigurePalettePipeline() const;
   void ConfigureSamplerIdentityPipeline() const;
