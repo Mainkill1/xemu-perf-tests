@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "status": "PASS_WITH_HOST_DRIFT_CONTROL",
+  "product_runtime_note": "xemu-perf-tests PR #19 is test-suite-only and has no xemu runtime performance delta.",
+  "candidate": {
+    "commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+    "tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+    "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a"
+  },
+  "previous_main": {
+    "commit": "c5a598a0ea42f96ea3c460321d31bdb8916328ed",
+    "tree": "7ad94cc9b66c58b38c06771e50368fecb367e4ba",
+    "xemu_sha256": "7be97adf32b0e9e56f80a00c17f82f211b46a908098ff8b81e55b6df8eebcd27"
+  },
+  "fixed_baseline": {
+    "ref_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "compiled_source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "pgr2": {
+    "published_baseline": {
+      "fresh-vulkan": [
+        33.333301,
+        33.412,
+        34.497,
+        1801
+      ],
+      "fresh-opengl": [
+        33.342601,
+        33.822,
+        36.059,
+        1800
+      ],
+      "snapshot-vulkan": [
+        34.483841,
+        40.91,
+        45.186,
+        1740
+      ],
+      "snapshot-opengl": [
+        35.122224,
+        42.308,
+        46.086,
+        1708
+      ]
+    },
+    "runs": {
+      "fresh-vulkan-candidate-r1": [
+        33.33334536368683,
+        34.006,
+        35.339,
+        1801
+      ],
+      "fresh-vulkan-candidate-r2": [
+        33.33332593003888,
+        33.716,
+        34.406,
+        1801
+      ],
+      "fresh-vulkan-parent-r1": [
+        33.34258800666299,
+        33.8,
+        34.757,
+        1801
+      ],
+      "fresh-opengl-candidate-r1": [
+        33.33331520532741,
+        33.541,
+        34.638,
+        1802
+      ],
+      "snapshot-vulkan-candidate-r1": [
+        34.383639541547275,
+        41.371,
+        45.906,
+        1745
+      ],
+      "snapshot-vulkan-candidate-r2": [
+        35.01699474605959,
+        42.139,
+        45.841,
+        1713
+      ],
+      "snapshot-vulkan-parent-r1": [
+        36.77743995098044,
+        43.54,
+        49.262,
+        1632
+      ],
+      "snapshot-vulkan-baseline-host-r1": [
+        34.93705649388462,
+        41.772,
+        46.044,
+        1717
+      ],
+      "snapshot-opengl-candidate-r1": [
+        35.242312573443016,
+        42.446,
+        48.455,
+        1702
+      ],
+      "snapshot-opengl-candidate-r2": [
+        35.44965839243495,
+        42.958,
+        46.896,
+        1692
+      ],
+      "snapshot-opengl-parent-r1": [
+        34.80744721577724,
+        41.789,
+        45.77,
+        1724
+      ],
+      "snapshot-opengl-parent-r2": [
+        35.16139777387231,
+        42.559,
+        48.71,
+        1707
+      ],
+      "snapshot-opengl-baseline-host-r1": [
+        35.4529143026005,
+        42.724,
+        47.81,
+        1692
+      ]
+    },
+    "all_cells": "complete; active race; zero focus/ETW loss; clean HDD/process cleanup"
+  },
+  "morrowind": {
+    "measurements": {
+      "vulkan-baseline": [
+        23.7231158291,
+        47.99,
+        57.134
+      ],
+      "vulkan-parent": [
+        24.185609803019748,
+        47.606,
+        53.097
+      ],
+      "vulkan-candidate": [
+        24.123598687234885,
+        48.111,
+        53.964
+      ],
+      "opengl-baseline": [
+        32.7984268773,
+        38.098,
+        42.848
+      ],
+      "opengl-parent": [
+        33.8876373043721,
+        36.683,
+        40.629
+      ],
+      "opengl-candidate": [
+        34.24314979305423,
+        36.099,
+        41.051
+      ]
+    },
+    "all_cells": "complete; active outdoor scene with crosshair; no pause/reconnect overlay; private HDD deleted"
+  },
+  "host_drift": {
+    "vulkan_snapshot_same_binary_vs_published_improvement_percent": [
+      -1.314283678215024,
+      -2.1070642874602834,
+      -1.8988182180321271
+    ],
+    "opengl_snapshot_same_binary_vs_published_improvement_percent": [
+      -0.9415414655988031,
+      -0.983265576250347,
+      -3.7408323568979815
+    ],
+    "conclusion": "Same immutable binary regressed in current session, so isolated historical tail failures are host/session variance. Same-session candidate controls pass the 2% gate."
+  },
+  "evidence_locations": {
+    "compact_results": "retail-results.csv",
+    "raw_evidence": "Retained on the authorized test host; compact sanitized results are published here.",
+    "pgr2_run_ids": [
+      "pr11-19944268-pgr2-snapshot-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-vulkan-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-vulkan-r1-20260910",
+      "pr11-baseline-c17591d5-pgr2-snapshot-vulkan-host-control-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-opengl-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-opengl-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-opengl-r1-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-opengl-r2-20260910",
+      "pr11-baseline-c17591d5-pgr2-snapshot-opengl-host-control-r1-20260910",
+      "pr11-19944268-pgr2-fresh-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-fresh-vulkan-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-fresh-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-fresh-opengl-r1-20260910"
+    ],
+    "morrowind_run_ids": [
+      "pr11-19944268-morrowind-vulkan-r6",
+      "pr11-parent-c5a598a0-morrowind-vulkan-r1",
+      "pr11-19944268-morrowind-opengl-r2",
+      "pr11-parent-c5a598a0-morrowind-opengl-r1"
+    ]
+  }
+}

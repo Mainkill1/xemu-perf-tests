@@ -1,6 +1,6 @@
 # PR #11 current-main qualification
 
-**Status:** Qualified for integration. Exact-head build, 17/17 units, 10/10 focused renderer checks, five production-path injections, and the complete 156-record OpenGL/Vulkan suites are complete. Each full suite has 155 PASS records plus only the fixed-baseline defect tracked by Mainkill1/xemu#60; Vulkan validation reports 0 VUIDs.
+**Status:** Qualified for integration. Exact-head build, 17/17 units, 10/10 focused renderer checks, five production-path injections, complete 156-record OpenGL/Vulkan suites, PGR2 full-start/snapshot runs, and Morrowind snapshot runs are complete. Each full suite has 155 PASS records plus only the fixed-baseline defect tracked by Mainkill1/xemu#60; Vulkan validation reports 0 VUIDs. Retail timing is performance-neutral within the 2% gate after same-session controls exposed Windows host/run variance.
 
 ## Exact identities
 
@@ -25,6 +25,10 @@
 | XISO SHA-256 | `3b37e64231c7b1a0ce672a2c8922cd9bbf3f071f6bbda1722fb8f8d0f4c2a796` |
 | Catalog identity | `sha256:d228f056ce8db56b3d80c02693cda2132c84cb5a737fbc3f7ff09629128fc143` |
 | Runner SHA-256 | `169ec960a057dc66dfe38bf5dea814894e2d8677fc903a3c8db49283086087c7` |
+
+PR #19 changes the test suite only. It has no xemu product-code path and no
+xemu runtime performance delta. The PGR2 and Morrowind measurements below
+qualify PR #11's xemu executable.
 
 The ordinary candidate is the official Windows Release profile: optimization
 level 2, full LTO, x86-64-v3, assertions and debug information enabled, and
@@ -142,6 +146,69 @@ The cross-baseline palette campaigns moved in opposite directions depending on t
 
 The first campaign's candidate outlier and the later baseline swing are retained in `performance-results.csv`. They are treated as Windows scheduling/run variance because the direct code-isolation comparison is within the 2% gate.
 
+## Retail performance qualification
+
+All percentages use the Improvement convention above. PGR2 frame intervals are
+lower-is-better. Morrowind cadence is higher-is-better; its display-write cadence
+is a guest-progress proxy, not rendered FPS. Candidate observations with an
+unfavorable tail above 2% were retained and repeated rather than discarded.
+
+### PGR2 full start
+
+| Renderer | Comparison | Candidate statistic | Average Improvement | p95 Improvement | p99 Improvement | Gate |
+| --- | --- | --- | ---: | ---: | ---: | --- |
+| Vulkan | Candidate vs previous main | Median of two candidate runs | +0.028% | -0.180% | -0.332% | PASS |
+| Vulkan | Candidate vs fixed published baseline | Median of two candidate runs | -0.000% | -1.344% | -1.089% | PASS |
+| OpenGL | Candidate vs fixed published baseline | One renderer-control run | +0.028% | +0.831% | +3.941% | PASS |
+
+The first Vulkan candidate p99 was 35.339 ms and exceeded 2% against the
+historical baseline. The repeat was 34.406 ms. The two-run median passes both
+the previous-main and fixed-baseline gates, so the isolated spike is retained
+as run variance and is not described as an improvement.
+
+### PGR2 snapshot and host-drift control
+
+| Renderer | Comparison | Average Improvement | p95 Improvement | p99 Improvement | Gate |
+| --- | --- | ---: | ---: | ---: | --- |
+| Vulkan | Candidate r2 vs same-session immutable baseline | -0.229% | -0.879% | +0.441% | PASS |
+| OpenGL | Candidate r2 vs same-session immutable baseline | +0.009% | -0.548% | +1.912% | PASS |
+| OpenGL | Candidate median vs previous-main median | -1.033% | -1.252% | -0.922% | PASS |
+
+The historical snapshot comparison alone was not accepted because its tails
+moved beyond 2%. Running the exact immutable baseline executable in the same
+session reproduced the shift:
+
+| Renderer | Same baseline binary vs its published result | Average Improvement | p95 Improvement | p99 Improvement |
+| --- | --- | ---: | ---: | ---: |
+| Vulkan | Current host-control run | -1.314% | -2.107% | -1.899% |
+| OpenGL | Current host-control run | -0.942% | -0.983% | -3.741% |
+
+The candidate then matched the same-session baseline within 0.88% on Vulkan and
+1.92% on OpenGL. Previous main also moved substantially between adjacent
+OpenGL runs, and the Vulkan previous-main run was slower than PR #11. This
+isolates the large tail movement to Windows host/session variance rather than
+PR #11. PR #11 is therefore recorded as performance-neutral; no speedup claim
+is made from these retail cells.
+
+### Morrowind snapshot
+
+| Renderer | Comparison | Cadence Improvement | p95 Improvement | p99 Improvement | Gate |
+| --- | --- | ---: | ---: | ---: | --- |
+| Vulkan | Candidate vs previous main | -0.256% | -1.061% | -1.633% | PASS |
+| Vulkan | Candidate vs fixed published baseline | +1.688% | -0.252% | +5.548% | PASS |
+| OpenGL | Candidate vs previous main | +1.049% | +1.592% | -1.039% | PASS |
+| OpenGL | Candidate vs fixed published baseline | +4.405% | +5.247% | +4.194% | PASS |
+
+The focused runner activated the owned xemu window before Start and B. All four
+candidate/parent measurement captures show the expected outdoor scene and
+crosshair with no pause, reconnect, or menu overlay. Every private HDD was
+deleted and no xemu, PresentMon, or WPR process remained.
+
+Compact per-metric rows are in `retail-results.csv`; exact runner, game, seed,
+configuration, and helper identities are in `retail-manifest.json`. Raw PGR2
+ETLs remain on the test host; sanitized run IDs and retention status are recorded
+in `retail-summary.json`.
+
 ## Validation status
 
 | Gate | OpenGL | Vulkan |
@@ -151,8 +218,9 @@ The first campaign's candidate outlier and the later baseline swing are retained
 | Targeted ordinary correctness | PASS — 5/5 | PASS — 5/5, 0 VUIDs |
 | Matched normal-path performance | N/A — focused changed paths are Vulkan-only | PASS — surface and direct code-isolation gates within 2% |
 | Representative/partial XISO | Not run — focused matrix is the first gate | Not run — focused matrix is the first gate |
-| Morrowind snapshot | Not run — expand only if focused results warrant it | Not run — expand only if focused results warrant it |
-| PGR2 fresh-start | Not run — expand only if focused results warrant it | Not run — expand only if focused results warrant it |
+| Morrowind snapshot | PASS — active-scene control; all metrics within 2% vs previous main | PASS — active-scene control; all metrics within 2% vs previous main |
+| PGR2 fresh-start | PASS — renderer control vs fixed baseline | PASS — two-run median within 2% vs previous main and fixed baseline |
+| PGR2 snapshot | PASS — same-session baseline and ABBA controls within 2% | PASS — same-session baseline control within 2% |
 | Full XISO | 156/156 collected; 155 PASS + known #60 | 156/156 collected; 155 PASS + known #60; 0 VUIDs |
 | Final visual validation | PASS — full-suite frame/hash oracles | PASS — full-suite frame/hash oracles |
 
@@ -167,5 +235,4 @@ The first complete run exposed and then drove a fix for PR #19 order contaminati
 
 ## Decision
 
-**Qualified for integration.** The exact final head passes its build, units, production-path failure injection, focused correctness, direct performance-isolation, surface performance, and complete-suite gates. PR #6 coverage is absorbed without transplanting its historical branch.
-
+**Qualified for integration.** The exact final head passes its build, units, production-path failure injection, focused correctness, direct performance isolation, PGR2 and Morrowind retail qualification, surface performance, and complete-suite gates. Retail results are performance-neutral within the 2% gate after identical-binary controls attributed the larger tail swings to the Windows host/session. PR #6 coverage is absorbed without transplanting its historical branch.
