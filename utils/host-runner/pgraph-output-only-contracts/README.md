@@ -21,15 +21,15 @@ Apply both digest-pinned patches only to their stated inputs:
 - `run-suite-output-only-null-metadata.patch` targets child SHA-256
   `c478e3a38865de180f3751b88904bf18b152dd05208e773326979e3d7b65b64d`;
   its patch SHA-256 is
-  `1b6486e7a8d93b4c3e86fe35adb37728c16cad771fdcf0e8821cb38589f931b5`
+  `fa75c44647f4db7c0b5c507e7fb30237c788e3205f19453ade896895ad7b705a`
   and its result SHA-256 is
-  `7bc444093728671ccc6e5cbca1111ff8fef2f673b4a6b8e6a2e335ccb1287340`.
+  `fa6f714ee31a89eaabc44719f2b1057b9c75869c2264e5acaf78f81e74b4b608`.
 - `run-pair-output-only-forwarding.patch` targets pair SHA-256
   `e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a`;
   its patch SHA-256 is
-  `f1c2b17f31de7cf1903f6a8ef9871e9b7103b7276085591dfc76484df36a46d0`
+  `ab66875bca3f0232b31024cd1cda05749511e29f9b31ce2bdc57f29ccd691966`
   and its result SHA-256 is
-  `ac61d8d75dcbffbdce712a60e293a39eded955d1ddcb8986df94037451e59e99`.
+  `058320b60d0ff235b2666222609c2a3cc5975226070c3cd4d6873effa61a6dbb`.
 
 The pair forwards `--guest-evidence-mode` and the contract path to every
 sequential child. In output-only mode it rejects marker compatibility,
@@ -38,6 +38,9 @@ telemetry, missing child output validation, and a child contract digest that
 does not equal the requested recipe's digest. The pair receipt records the
 mode and contract path/digest.
 
-The recipes provide source/artifact identity and strict post-run correctness
-rules. They are not a baseline calibration, a native execution receipt, a
+The child requires the identity object, verifies its own patched digest, and
+then verifies the selected guest ISO and discovered catalog digest/ID before
+launch. The pair requires the same identity, verifies its own patched digest
+before children start, and rejects child receipts without matching validated
+identity. They are not a baseline calibration, a native execution receipt, a
 live-marker substitute, a full-XISO result, or a performance comparison.

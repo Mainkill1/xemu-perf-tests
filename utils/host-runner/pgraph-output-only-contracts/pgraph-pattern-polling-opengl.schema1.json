@@ -7,11 +7,15 @@
     "guest_iso_sha256": "3896df77a75fc35a6212f30b46cfd836fe65f86dbfc2004bd756c5fd7f1aacbe",
     "catalog_sha256": "55c5db836784736aa3370866ab3e2b16b3d0806fc1b6986befe0dfc8e60130fc",
     "catalog_id": "sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a",
-    "child_runner_sha256": "c478e3a38865de180f3751b88904bf18b152dd05208e773326979e3d7b65b64d",
-    "pair_runner_sha256": "e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a"
+    "child_runner_source_sha256": "c478e3a38865de180f3751b88904bf18b152dd05208e773326979e3d7b65b64d",
+    "child_runner_patched_sha256": "fa6f714ee31a89eaabc44719f2b1057b9c75869c2264e5acaf78f81e74b4b608",
+    "child_patch_sha256": "fa75c44647f4db7c0b5c507e7fb30237c788e3205f19453ade896895ad7b705a",
+    "pair_runner_source_sha256": "e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a",
+    "pair_runner_patched_sha256": "058320b60d0ff235b2666222609c2a3cc5975226070c3cd4d6873effa61a6dbb",
+    "pair_patch_sha256": "ab66875bca3f0232b31024cd1cda05749511e29f9b31ce2bdc57f29ccd691966"
   },
   "workload": {
-    "test_id": "BusyPfifo::PgraphPatternPolling",
+    "test_id": null,
     "backend": "opengl",
     "surface_scale": 1,
     "memory_megabytes": 64,

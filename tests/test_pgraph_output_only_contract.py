@@ -45,6 +45,20 @@ def extract_functions(path, names, namespace):
 
 
 class PgraphOutputOnlyContractTests(unittest.TestCase):
+    @staticmethod
+    def artifact_identity(child, pair, guest_iso_sha256, catalog_sha256):
+        return {
+            "guest_iso_sha256": guest_iso_sha256,
+            "catalog_sha256": catalog_sha256,
+            "catalog_id": "sha256:catalog",
+            "child_runner_source_sha256": CHILD_SHA256,
+            "child_runner_patched_sha256": source_sha256(child),
+            "child_patch_sha256": source_sha256(CHILD_PATCH),
+            "pair_runner_source_sha256": PAIR_SHA256,
+            "pair_runner_patched_sha256": source_sha256(pair),
+            "pair_patch_sha256": source_sha256(PAIR_PATCH),
+        }
+
     def patched_sources(self):
         fixture_name = os.environ.get(FIXTURE_ENV)
         if fixture_name is None:
@@ -159,8 +173,11 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 contract_path = Path(temporary) / "contract.json"
                 manifest = {
                     "schema_version": 1,
+                    "artifact_identity": self.artifact_identity(
+                        child, _pair, "0" * 64, "1" * 64
+                    ),
                     "workload": {
-                        "test_id": "BusyPfifo::PgraphPatternPolling",
+                        "test_id": None,
                         "backend": "opengl",
                         "surface_scale": 1,
                         "memory_megabytes": 64,
@@ -188,7 +205,9 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                         "Path": Path,
                         "argparse": argparse,
                         "json": json,
-                        "sha256": lambda path: "pinned-contract",
+                        "sha256": source_sha256,
+                        "re": __import__("re"),
+                        "__file__": str(child),
                         "GUEST_EVIDENCE_OUTPUT_ONLY": "output-only",
                         "GUEST_EVIDENCE_CAPABILITIES": {
                             "output-only": "post-run-output-oracles-v1"
@@ -196,7 +215,8 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                     },
                 )
                 args = SimpleNamespace(
-                    test_id="BusyPfifo::PgraphPatternPolling",
+                    test_id=None,
+                    profile="pgraph-pattern-poll",
                     backend="opengl",
                     scale=1,
                     memory_megabytes=64,
@@ -207,6 +227,20 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 )
                 loaded = namespace["load_output_only_contract"](contract_path, args)
                 self.assertIsNone(loaded["records"][0]["metadata"])
+                manifest.pop("artifact_identity")
+                contract_path.write_text(json.dumps(manifest), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "artifact_identity"):
+                    namespace["load_output_only_contract"](contract_path, args)
+                manifest["artifact_identity"] = self.artifact_identity(
+                    child, _pair, "0" * 64, "1" * 64
+                )
+                manifest["artifact_identity"]["child_runner_patched_sha256"] = "2" * 64
+                contract_path.write_text(json.dumps(manifest), encoding="utf-8")
+                with self.assertRaisesRegex(ValueError, "child runner digest"):
+                    namespace["load_output_only_contract"](contract_path, args)
+                manifest["artifact_identity"] = self.artifact_identity(
+                    child, _pair, "0" * 64, "1" * 64
+                )
                 manifest["result_contract"]["pgraph"]["metadata"] = []
                 contract_path.write_text(json.dumps(manifest), encoding="utf-8")
                 with self.assertRaisesRegex(ValueError, "null or an object"):
@@ -220,8 +254,10 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 {
                     "Path": Path,
                     "argparse": argparse,
-                    "json": json,
-                    "sha256": lambda path: source_sha256(path),
+                        "json": json,
+                        "sha256": source_sha256,
+                        "re": __import__("re"),
+                        "__file__": str(child),
                     "GUEST_EVIDENCE_OUTPUT_ONLY": "output-only",
                     "GUEST_EVIDENCE_CAPABILITIES": {
                         "output-only": "post-run-output-oracles-v1"
@@ -234,7 +270,8 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                         f"pgraph-pattern-polling-{backend}.schema1.json"
                     )
                     args = SimpleNamespace(
-                        test_id="BusyPfifo::PgraphPatternPolling",
+                        test_id=None,
+                        profile="pgraph-pattern-poll",
                         backend=backend,
                         scale=1,
                         memory_megabytes=64,
@@ -247,6 +284,47 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                     self.assertEqual(loaded["suite_id"], f"pgraph-output-only-{backend}-v1")
                     self.assertEqual(len(loaded["records"]), 1)
                     self.assertIsNone(loaded["records"][0]["metadata"])
+                    wrong_selector = SimpleNamespace(**vars(args))
+                    wrong_selector.test_id = "BusyPfifo::PgraphPatternPolling"
+                    with self.assertRaisesRegex(ValueError, "workload.test_id mismatch"):
+                        namespace["load_output_only_contract"](recipe, wrong_selector)
+
+    def test_child_identity_rejects_wrong_guest_or_catalog_before_records(self):
+        for child, pair in self.patched_sources():
+            with tempfile.TemporaryDirectory() as temporary:
+                directory = Path(temporary)
+                guest = directory / "guest.iso"
+                catalog = directory / "catalog.json"
+                guest.write_bytes(b"guest")
+                catalog.write_text("{}", encoding="utf-8")
+                identity = self.artifact_identity(
+                    child, pair, source_sha256(guest), source_sha256(catalog)
+                )
+                namespace = extract_functions(
+                    child,
+                    ("validate_output_only_artifact_identity",),
+                    {"Path": Path, "sha256": source_sha256},
+                )
+                contract = {"artifact_identity": identity}
+                record_contract = {
+                    "catalog_sha256": source_sha256(catalog),
+                    "catalog_id": "sha256:catalog",
+                }
+                accepted = namespace["validate_output_only_artifact_identity"](
+                    contract, guest, record_contract
+                )
+                self.assertEqual(accepted["status"], "PASSED")
+                guest.write_bytes(b"wrong-guest")
+                with self.assertRaisesRegex(RuntimeError, "guest ISO"):
+                    namespace["validate_output_only_artifact_identity"](
+                        contract, guest, record_contract
+                    )
+                guest.write_bytes(b"guest")
+                record_contract["catalog_sha256"] = "wrong"
+                with self.assertRaisesRegex(RuntimeError, "catalog"):
+                    namespace["validate_output_only_artifact_identity"](
+                        contract, guest, record_contract
+                    )
 
     def test_pair_forwards_contract_and_rejects_unvalidated_children(self):
         for _child, pair in self.patched_sources():
@@ -276,8 +354,8 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 warmup_iterations=2,
                 measurement_iterations_multiplier=4,
                 completion_mode="per_iteration",
-                test_id="BusyPfifo::PgraphPatternPolling",
-                profile="surface-download",
+                test_id=None,
+                profile="pgraph-pattern-poll",
                 guest_iso=None,
                 game_load_config_json=None,
                 experiment_config=None,
@@ -291,6 +369,7 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 guest_evidence_mode="output-only",
                 guest_output_contract_json=contract_path,
                 host_telemetry="off",
+                output_contract_identity={"guest_iso_sha256": "guest"},
             )
             namespace["validate_output_only_pair_request"](args)
             command = namespace["child_command"](
@@ -313,6 +392,10 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                         "status": "PASSED",
                         "contract_sha256": "pinned-contract",
                     },
+                    "identity_validation": {
+                        "status": "PASSED",
+                        "artifact_identity": {"guest_iso_sha256": "guest"},
+                    },
                 }
             }
             namespace["validate_output_only_child_evidence"](summary, args)
@@ -320,12 +403,55 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
             with self.assertRaisesRegex(PairRunError, "contract digest"):
                 namespace["validate_output_only_child_evidence"](summary, args)
             summary["guest_evidence"]["output_contract"]["sha256"] = "pinned-contract"
+            summary["guest_evidence"]["identity_validation"]["artifact_identity"] = {}
+            with self.assertRaisesRegex(PairRunError, "identity"):
+                namespace["validate_output_only_child_evidence"](summary, args)
+            summary["guest_evidence"]["identity_validation"]["artifact_identity"] = {
+                "guest_iso_sha256": "guest"
+            }
             summary["guest_evidence"]["output_validation"]["status"] = "FAILED"
             with self.assertRaisesRegex(PairRunError, "output_validation"):
                 namespace["validate_output_only_child_evidence"](summary, args)
             args.compatibility_allowance = [Path("allowance.json")]
             with self.assertRaisesRegex(PairRunError, "compatibility"):
                 namespace["validate_output_only_pair_request"](args)
+
+    def test_pair_identity_rejects_missing_or_wrong_patched_runner(self):
+        for child, pair in self.patched_sources():
+            with tempfile.TemporaryDirectory() as temporary:
+                contract_path = Path(temporary) / "contract.json"
+                identity = self.artifact_identity(child, pair, "0" * 64, "1" * 64)
+                contract_path.write_text(
+                    json.dumps({"schema_version": 1, "artifact_identity": identity}),
+                    encoding="utf-8",
+                )
+                namespace = extract_functions(
+                    pair,
+                    ("load_output_only_pair_identity",),
+                    {
+                        "Path": Path,
+                        "argparse": argparse,
+                        "json": json,
+                        "re": __import__("re"),
+                        "sha256": source_sha256,
+                        "PairRunError": PairRunError,
+                        "__file__": str(pair),
+                    },
+                )
+                args = SimpleNamespace(
+                    guest_evidence_mode="output-only",
+                    guest_output_contract_json=contract_path,
+                )
+                self.assertEqual(
+                    namespace["load_output_only_pair_identity"](args), identity
+                )
+                identity["pair_runner_patched_sha256"] = "2" * 64
+                contract_path.write_text(
+                    json.dumps({"schema_version": 1, "artifact_identity": identity}),
+                    encoding="utf-8",
+                )
+                with self.assertRaisesRegex(PairRunError, "runner digest"):
+                    namespace["load_output_only_pair_identity"](args)
 
     def test_validate_summary_calls_output_only_child_gate_before_timing(self):
         for _child, pair in self.patched_sources():

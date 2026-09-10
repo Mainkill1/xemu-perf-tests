@@ -1,12 +1,56 @@
 --- run-suite.py
 +++ run-suite.py
-@@ -3398,0 +3399,5 @@
+@@ -3378,0 +3379,18 @@
++    identity = manifest.get("artifact_identity")
++    if not isinstance(identity, dict):
++        raise ValueError("guest output contract artifact_identity must be an object")
++    hash_fields = (
++        "guest_iso_sha256", "catalog_sha256", "child_runner_source_sha256",
++        "child_runner_patched_sha256", "child_patch_sha256",
++        "pair_runner_source_sha256", "pair_runner_patched_sha256", "pair_patch_sha256",
++    )
++    for field in hash_fields:
++        value = identity.get(field)
++        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
++            raise ValueError(f"guest output contract artifact_identity.{field} is invalid")
++    catalog_id = identity.get("catalog_id")
++    if not isinstance(catalog_id, str) or not catalog_id:
++        raise ValueError("guest output contract artifact_identity.catalog_id is invalid")
++    actual_child_sha256 = sha256(Path(__file__).resolve())
++    if actual_child_sha256 != identity["child_runner_patched_sha256"]:
++        raise ValueError("guest output contract child runner digest mismatch")
+@@ -3398,0 +3417,5 @@
 +        metadata = expected["metadata"]
 +        if metadata is not None and not isinstance(metadata, dict):
 +            raise ValueError(
 +                f"guest output contract {name}.metadata must be null or an object"
 +            )
-@@ -3461,5 +3466,3 @@
+@@ -3403,0 +3427 @@
++        "artifact_identity": identity,
+@@ -3405,0 +3430,22 @@
++    }
++
++
++def validate_output_only_artifact_identity(
++    contract: dict, guest_iso: Path, record_contract: dict | None
++) -> dict:
++    identity = contract["artifact_identity"]
++    guest_iso_sha256 = sha256(guest_iso)
++    if guest_iso_sha256 != identity["guest_iso_sha256"]:
++        raise RuntimeError("output-only artifact identity guest ISO digest mismatch")
++    if not isinstance(record_contract, dict):
++        raise RuntimeError("output-only artifact identity requires a discovered catalog")
++    for field in ("catalog_sha256", "catalog_id"):
++        if record_contract.get(field) != identity[field]:
++            raise RuntimeError(f"output-only artifact identity {field} mismatch")
++    return {
++        "status": "PASSED",
++        "artifact_identity": identity,
++        "guest_iso_sha256": guest_iso_sha256,
++        "catalog_sha256": record_contract["catalog_sha256"],
++        "catalog_id": record_contract["catalog_id"],
++        "child_runner_patched_sha256": identity["child_runner_patched_sha256"],
+@@ -3461,5 +3507,3 @@
 -        metadata = actual.get("metadata")
 -        if not isinstance(metadata, dict):
 -            raise RuntimeError(f"output-only oracle {name}.metadata is missing")
@@ -15,13 +59,12 @@
 +        expected_metadata = expected["metadata"]
 +        if expected_metadata is None:
 +            if "metadata" in actual:
-@@ -3467,3 +3470,13 @@
+@@ -3467,2 +3511,2 @@
 -                    f"output-only oracle mismatch for {name}.metadata.{field}: "
 -                    f"expected {expected_value!r}, got {metadata.get(field)!r}"
--                )
 +                    f"output-only oracle mismatch for {name}.metadata: "
 +                    "expected the member to be absent"
-+                )
+@@ -3469,0 +3514,10 @@
 +        else:
 +            metadata = actual.get("metadata")
 +            if not isinstance(metadata, dict):
@@ -32,3 +75,12 @@
 +                        f"output-only oracle mismatch for {name}.metadata.{field}: "
 +                        f"expected {expected_value!r}, got {metadata.get(field)!r}"
 +                    )
+@@ -4100,0 +4155 @@
++                "artifact_identity": output_contract["artifact_identity"],
+@@ -4105,0 +4161 @@
++        "identity_validation": None,
+@@ -4204,0 +4261,4 @@
++    if output_contract is not None:
++        guest_evidence["identity_validation"] = validate_output_only_artifact_identity(
++            output_contract, guest_iso, record_contract
++        )
