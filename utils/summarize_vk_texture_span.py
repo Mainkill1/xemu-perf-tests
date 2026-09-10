@@ -68,6 +68,31 @@ TEXTURE_CPU_FIELDS = (
     "cubemap_layout_cpu_us",
     "cubemap_upload_cpu_us",
 )
+PIPELINE_FIELD_NAMES = (
+    "pipeline_shader_binds",
+    "pipeline_shader_bind_cpu_us",
+    "pipeline_key_inits",
+    "pipeline_key_init_cpu_us",
+    "pipeline_key_hashes",
+    "pipeline_key_hash_cpu_us",
+    "pipeline_cache_lookups",
+    "pipeline_cache_lookup_cpu_us",
+    "pipeline_cache_hits",
+    "pipeline_cache_misses",
+    "pipeline_layout_creates",
+    "pipeline_layout_create_cpu_us",
+    "graphics_pipeline_creates",
+    "graphics_pipeline_create_cpu_us",
+)
+PIPELINE_FIELDS = tuple(f"{name}{SUFFIX}" for name in PIPELINE_FIELD_NAMES)
+PIPELINE_CPU_FIELDS = (
+    "pipeline_shader_bind_cpu_us",
+    "pipeline_key_init_cpu_us",
+    "pipeline_key_hash_cpu_us",
+    "pipeline_cache_lookup_cpu_us",
+    "pipeline_layout_create_cpu_us",
+    "graphics_pipeline_create_cpu_us",
+)
 
 
 def read_records(path: Path) -> tuple[dict, list[dict]]:
@@ -189,6 +214,39 @@ def summarize(schema: dict, frames: list[dict]) -> dict:
                 texture_frames, key=lambda frame: frame["cpu_us"]
             ),
             "frames": texture_frames,
+        }
+    if int(schema["schema_version"]) >= 8:
+        pipeline_totals = {name: 0 for name in PIPELINE_FIELD_NAMES}
+        pipeline_frames = []
+        for frame_index, frame in enumerate(frames):
+            missing = [field for field in PIPELINE_FIELDS if field not in frame]
+            if missing:
+                raise SystemExit(
+                    f"frame {frame_index} lacks pipeline-work field {missing[0]}"
+                )
+            values = {
+                name: int(frame[f"{name}{SUFFIX}"])
+                for name in PIPELINE_FIELD_NAMES
+            }
+            for name, value in values.items():
+                pipeline_totals[name] += value
+            cpu_us = sum(values[name] for name in PIPELINE_CPU_FIELDS)
+            pipeline_frames.append({
+                "frame_index": frame_index,
+                "guest_frame": int(frame["guest_frame"]),
+                "cpu_us": cpu_us,
+                **values,
+            })
+        result["pipeline_work"] = {
+            "source_field_contract": {
+                "suffix": SUFFIX,
+                "required_fields": list(PIPELINE_FIELD_NAMES),
+            },
+            "totals": pipeline_totals,
+            "peak_cpu_frame": max(
+                pipeline_frames, key=lambda frame: frame["cpu_us"]
+            ),
+            "frames": pipeline_frames,
         }
     return result
 
