@@ -81,12 +81,18 @@ interleaved previous-main comparison above supplies that incremental gate.
 ## Decision and next test
 
 No PR #14 speed claim is supported. Ordinary retail expansion is paused while
-the repeated Vulkan snapshot spike is isolated. The next test is a matched
-previous-main/candidate CpuScheduler trace pair on the unchanged snapshot
-route. It will align the trace with the measured worst frame, preserve module
-identity, and examine the PR's changed cubemap layout/crop paths and host wait
-sites. If the trace cannot attribute the cost, the three focused changes in
-PR #14 will be split into separately built candidates and measured one at a
+the repeated Vulkan snapshot spike is isolated. A matched CpuScheduler pair
+reproduced the failure at guest frame 676: 63.563 ms for previous main and
+74.741 ms for the candidate, or -17.59% Improvement. PFIFO spent 10.675 ms more
+blocked waiting for CPU 0/TCG to produce work. It was not scheduler-ready delay
+or a GPU fence wait. The trace did not sample a changed PR #14 texture function,
+and previous main spent more sampled time hashing than the candidate. See
+`trace/REPORT.md` for the exact attribution limits.
+
+The next test is a matched opt-in Vulkan telemetry pair using the unchanged
+executables and route. If per-frame pipeline, texture, submission, and fence
+metrics still cannot attribute the delay, the three focused changes in PR #14
+will be instrumented or built as separate candidates and measured one at a
 time.
 
 Morrowind and the remaining renderer/workload cells are pending; their absence
@@ -98,8 +104,8 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
 - Each campaign directory contains its sanitized receipt and analyzer output.
 - Run receipts identify exact source, tree, executable, order, workload, and
   the ten worst intervals per run.
-- The paired scheduler trace and attribution report are pending and will be
-  added to this evidence set.
+- `trace/REPORT.md` and `trace/attribution-summary.json` contain the matched
+  scheduler result and its explicit attribution limit.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.
