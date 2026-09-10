@@ -35,7 +35,7 @@
     "failpoint_unit": "5/5 PASS",
     "texture_state_unit": "2/2 PASS",
     "combined_units": "17/17 PASS",
-    "perf_test_host_contracts": "128/128 PASS",
+    "perf_test_host_contracts": "155/155 PASS",
     "perf_test_catalog": "PASS",
     "perf_test_xiso_build": "PASS",
     "native_failure_injection": "5/5 expected outcomes; texture paths 0 VUIDs",
