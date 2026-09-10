@@ -17,6 +17,21 @@ Positive Improvement % is favorable; `+bad` means a lower raw time is better.
 | Vulkan | array_element32 | mean run average | `+bad` | 2,511.500 us | 2,434.500 us | +3.066% | PASS |
 | Vulkan | array_element32 | mean run p95 | `+bad` | 2,517.000 us | 2,437.500 us | +3.159% | PASS |
 
+## Accepted-packet performance versus cycle baseline
+
+The preserved cycle-baseline executable was reused without rebuilding. These cells use a separate B1-C1-C2-B2 run with the same fixed-work contracts.
+
+| Renderer | Workload | Metric | Raw + | Cycle baseline | Candidate | Improvement % | Gate |
+| --- | --- | --- | --- | ---: | ---: | ---: | --- |
+| Opengl | array_element16 | mean run average | `+bad` | 523.500 us | 523.000 us | +0.096% | PASS |
+| Opengl | array_element16 | mean run p95 | `+bad` | 527.000 us | 525.000 us | +0.380% | PASS |
+| Opengl | array_element32 | mean run average | `+bad` | 1,175.500 us | 1,155.000 us | +1.744% | PASS |
+| Opengl | array_element32 | mean run p95 | `+bad` | 1,184.500 us | 1,162.000 us | +1.900% | PASS |
+| Vulkan | array_element16 | mean run average | `+bad` | 1,742.000 us | 1,693.500 us | +2.784% | PASS |
+| Vulkan | array_element16 | mean run p95 | `+bad` | 1,764.000 us | 1,714.500 us | +2.806% | PASS |
+| Vulkan | array_element32 | mean run average | `+bad` | 2,515.500 us | 2,475.500 us | +1.590% | PASS |
+| Vulkan | array_element32 | mean run p95 | `+bad` | 2,522.500 us | 2,480.500 us | +1.665% | PASS |
+
 ## Correctness
 
 | Check | OpenGL | Vulkan |
