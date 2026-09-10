@@ -1,0 +1,4 @@
+cell,status,records,known_nonpass,hash_oracle,validation_active,unique_vuids,cache_hits,cache_misses,cache_records,cache_bytes,cache_sha256,cache_write
+candidate-opengl-na-full,passed,157,report_query.dma_range_guard;texture_cubemap_fallback.unbordered_subblock_dxt1,PASSED,,0,,,,,,
+candidate-vulkan-cold-full-validation,passed,157,report_query.dma_range_guard,PASSED,True,0,10,61,61,1146671,f922930aaa4c8dc8904fb8eff9d1128d5d89712952ca6053a42c0ae18574ff9a,published
+candidate-vulkan-warm-full-validation,passed,157,report_query.dma_range_guard,PASSED,True,0,71,0,61,1146671,f922930aaa4c8dc8904fb8eff9d1128d5d89712952ca6053a42c0ae18574ff9a,clean

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "attempts": [
+    {
+      "attempt": "r1",
+      "disposition": "rejected",
+      "reason": "Candidate cache resolved to shared global application-data path; isolation failed."
+    },
+    {
+      "attempt": "r2",
+      "disposition": "rejected",
+      "reason": "Remote environment inheritance did not change SDL/GLib known-folder resolution."
+    },
+    {
+      "attempt": "r3",
+      "disposition": "rejected",
+      "reason": "Start-Process environment override still did not select the isolated xemu base."
+    },
+    {
+      "attempt": "r4",
+      "disposition": "rejected",
+      "reason": "Known-folder override remained ineffective."
+    }
+  ],
+  "resolution": "r5 copied a sibling xemu.toml beside the exact executable; stderr confirmed the isolated portable base. Global attempt-owned caches were quarantined and removed."
+}
