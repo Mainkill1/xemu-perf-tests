@@ -41,7 +41,7 @@ that all 154 records pass.
 exact pair runner SHA-256
 `7e1a7ccc3fefc259775bffb5ba3198f05b3549b511ca4f342195b07716850e0e`.
 The improvement patch has SHA-256
-`8e2d0a5bd6704c3bb04cb9c073f259c247e967118d8ba5b1c99f1ddade87df7b`
+`e2ebd816d4e44ce999f659d777171f6dd34513b8527c3fd9bb8b83429ba543a4`
 and produces SHA-256
 `2cf2a14e58106ffbf6a784f8f5f1e62cca922ac8a1af4ffdf95700041eb98b38`.
 
