@@ -174,6 +174,10 @@ def entries():
                (f"{stable}.vertex_shader", f"PrimitiveType-{legacy}-vsh")],
                ("gpu", "primitive", "performance", "hardware-safe"))
 
+    simple("texture_cubemap_fallback", "TextureCubemapFallback",
+           [("unbordered_subblock_dxt1", "UnborderedSubblockDxt1")],
+           ("texture", "correctness", "performance", "xemu-only"))
+
     simple("surface", "SurfaceRendering", [("basic", "SurfaceRendering"),
            ("cpu_read_after_gpu_write", "XemuCpuReadAfterGpuWrite"),
            ("cpu_read_clean_surface", "XemuCpuReadCleanSurface"),

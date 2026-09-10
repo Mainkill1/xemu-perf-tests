@@ -117,6 +117,8 @@ add_library(
         tests/report_query_tests.h
         tests/surface_rendering_tests.cpp
         tests/surface_rendering_tests.h
+        tests/texture_cubemap_fallback_tests.cpp
+        tests/texture_cubemap_fallback_tests.h
         tests/test_suite.cpp
         tests/test_suite.h
         tests/tiny_draw_tests.cpp

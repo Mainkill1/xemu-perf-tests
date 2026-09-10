@@ -109,6 +109,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"primitive_type.triangle_strip.vertex_shader", 1, "primitive_type", "PrimitiveType-TriStrip-vsh", "Runs the PrimitiveType-TriStrip-vsh workload and records its deterministic result.", "PrimitiveType", "PrimitiveType-TriStrip-vsh", "PrimitiveType-TriStrip-vsh", TestKind::LEAF, 0, 0},
   {"primitive_type.triangles.fixed_function", 1, "primitive_type", "PrimitiveType-Tris", "Runs the PrimitiveType-Tris workload and records its deterministic result.", "PrimitiveType", "PrimitiveType-Tris", "PrimitiveType-Tris", TestKind::LEAF, 0, 0},
   {"primitive_type.triangles.vertex_shader", 1, "primitive_type", "PrimitiveType-Tris-vsh", "Runs the PrimitiveType-Tris-vsh workload and records its deterministic result.", "PrimitiveType", "PrimitiveType-Tris-vsh", "PrimitiveType-Tris-vsh", TestKind::LEAF, 0, 0},
+  {"texture_cubemap_fallback.unbordered_subblock_dxt1", 1, "texture_cubemap_fallback", "UnborderedSubblockDxt1", "Runs the UnborderedSubblockDxt1 workload and records its deterministic result.", "TextureCubemapFallback", "UnborderedSubblockDxt1", "UnborderedSubblockDxt1", TestKind::LEAF, 0, 0},
   {"surface.basic", 1, "surface", "SurfaceRendering", "Runs the SurfaceRendering workload and records its deterministic result.", "SurfaceRendering", "SurfaceRendering", "SurfaceRendering", TestKind::LEAF, 0, 0},
   {"surface.cpu_read_after_gpu_write", 1, "surface", "XemuCpuReadAfterGpuWrite", "Runs the XemuCpuReadAfterGpuWrite workload and records its deterministic result.", "SurfaceRendering", "XemuCpuReadAfterGpuWrite", "XemuCpuReadAfterGpuWrite", TestKind::LEAF, 0, 0},
   {"surface.cpu_read_clean_surface", 1, "surface", "XemuCpuReadCleanSurface", "Runs the XemuCpuReadCleanSurface workload and records its deterministic result.", "SurfaceRendering", "XemuCpuReadCleanSurface", "XemuCpuReadCleanSurface", TestKind::LEAF, 0, 0},
@@ -158,4 +159,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:d228f056ce8db56b3d80c02693cda2132c84cb5a737fbc3f7ff09629128fc143";
+static constexpr const char *kTestCatalogId = "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e";
