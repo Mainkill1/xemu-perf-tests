@@ -1,0 +1,23 @@
+{
+  "source": "b111a9612911c9c170d661974852a46f3ad336b8",
+  "tree": "ae2cf13138c75cb2a63d5357561ad2800db92670",
+  "executable_sha256": "e28c88fc44c5454f93d6af0a46010b562ba50dd2bb8ab77d8208514785d22ae6",
+  "runner": "Native Windows",
+  "results": [
+    {
+      "name": "test-xbox-vk-spirv-prewarm.exe",
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "name": "test-xbox-vk-uniform-layout.exe",
+      "exit_code": 0,
+      "stdout": "TAP version 14\r\n# random seed: R02S9a3aa15cfe0e68b2b2b5f9699d8bd8bc\r\n1..6\r\n# Start of xbox tests\r\n# Start of vk tests\r\n# Start of uniform-layout tests\r\nok 1 /xbox/vk/uniform-layout/empty\r\nok 2 /xbox/vk/uniform-layout/missing-metadata\r\nok 3 /xbox/vk/uniform-layout/missing-backing\r\nok 4 /xbox/vk/uniform-layout/partial-names\r\nok 5 /xbox/vk/uniform-layout/zero-members\r\nok 6 /xbox/vk/uniform-layout/complete-pair\r\n# End of uniform-layout tests\r\n# End of vk tests\r\n# End of xbox tests\r\n",
+      "stderr": ""
+    }
+  ],
+  "completed_utc": "2026-09-10T22:53:54.4428916Z",
+  "qualification": "Focused native units only; no GPU, game, cache-eviction or renderer-switch qualification.",
+  "excluded_attempt": "Initial controller attempt lost exit-code handles and was treated as inconclusive. A corrected process-handle capture reran both units; only the recorded zero-exit runs are accepted."
+}

@@ -9,6 +9,8 @@ The common cleanup now guards absent metadata, frees every owned name, frees the
 | Cache tests | 13 groups pass | Production cache implementation |
 | Structural rejection | 10 new cases + repaired existing source-limit case | Enclosing checksum valid; live preexisting entry retained after rejection |
 | Coverage | Deep rejection branches reached | Not merely rejection at the outer checksum |
+| Exact Windows build | PASS | O2, full LTO, x86-64-v3, assertions and matching DWARF |
+| Native Windows units | Both executables exit 0 | Cache groups and all six ownership cases |
 
 The malformed SPIR-V header case also carries the corrected record checksum. The independent fixture checksum has a literal known-value check and an untouched positive control. Functional cache records are storage fixtures, not executable GPU shaders.
 
@@ -30,4 +32,4 @@ clang -std=gnu11 -O1 -g -Wall -Wextra -Werror \
 review-checks/test-spirv-prewarm
 ```
 
-The maintained Meson targets are `test-xbox-vk-uniform-layout` and `test-xbox-vk-spirv-prewarm`. [Manifest](manifest.json) pins the source, toolchain, binaries, inputs and limits. Windows build, full-emulator failures/recovery, cache eviction, renderer lifecycle and paired gameplay qualification remain pending. Earlier b14 runtime results do not qualify this repair.
+The maintained Meson targets are `test-xbox-vk-uniform-layout` and `test-xbox-vk-spirv-prewarm`. [Manifest](manifest.json) pins the source, toolchain, binaries, inputs and limits. The [Windows build receipt](windows-build.json) and [native unit results](windows-native-units.json) identify the repaired executable. Full-emulator failures/recovery, cache eviction, renderer lifecycle and paired gameplay qualification remain pending. Earlier b14 runtime results do not qualify this repair.
