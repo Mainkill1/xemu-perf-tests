@@ -1,0 +1,92 @@
+--- run-pair.py
++++ run-pair.py
+@@ -391,0 +392,11 @@
++    parser.add_argument(
++        "--guest-evidence-mode",
++        choices=("live-markers", "output-only"),
++        default="live-markers",
++        help="Forward the child guest-evidence transport mode",
++    )
++    parser.add_argument(
++        "--guest-output-contract-json",
++        type=Path,
++        help="Schema-1 output-only contract forwarded unchanged to each child",
++    )
+@@ -1701,0 +1713,51 @@
++def validate_output_only_pair_request(args: argparse.Namespace) -> None:
++    if args.guest_evidence_mode != "output-only":
++        if args.guest_output_contract_json is not None:
++            raise PairRunError(
++                "--guest-output-contract-json requires --guest-evidence-mode output-only"
++            )
++        return
++    if args.guest_output_contract_json is None:
++        raise PairRunError(
++            "output-only pair evidence requires --guest-output-contract-json"
++        )
++    if args.allow_missing_live_markers:
++        raise PairRunError("output-only pair evidence rejects marker compatibility mode")
++    if args.compatibility_allowance:
++        raise PairRunError("output-only pair evidence rejects compatibility allowances")
++    if args.no_oracle_ledger:
++        raise PairRunError("output-only pair evidence requires the oracle ledger")
++    if args.allow_short_smoke:
++        raise PairRunError("output-only pair evidence preserves duration floors")
++    enabled = [
++        role for role in ("baseline", "candidate")
++        if telemetry_mode(args, role) != "off"
++    ]
++    if enabled:
++        raise PairRunError(
++            "output-only pair evidence requires host telemetry off for both roles; "
++            f"enabled={enabled}"
++        )
++
++
++def validate_output_only_child_evidence(
++    summary: dict[str, Any], args: argparse.Namespace
++) -> None:
++    if args.guest_evidence_mode != "output-only":
++        return
++    expected_sha256 = sha256(args.guest_output_contract_json.resolve())
++    evidence = summary.get("guest_evidence")
++    if not isinstance(evidence, dict) or evidence.get("mode") != "output-only":
++        raise PairRunError("child did not preserve output-only guest evidence mode")
++    contract = evidence.get("output_contract")
++    if not isinstance(contract, dict) or contract.get("sha256") != expected_sha256:
++        raise PairRunError("child output-only contract digest differs from the pair request")
++    validation = evidence.get("output_validation")
++    if (
++        not isinstance(validation, dict)
++        or validation.get("status") != "PASSED"
++        or validation.get("contract_sha256") != expected_sha256
++    ):
++        raise PairRunError("child output_validation did not pass the requested contract")
++
++
+@@ -1716,0 +1779 @@
++    validate_output_only_child_evidence(summary, args)
+@@ -1896,0 +1960,8 @@
++    command.extend(["--guest-evidence-mode", args.guest_evidence_mode])
++    if args.guest_output_contract_json is not None:
++        command.extend(
++            [
++                "--guest-output-contract-json",
++                str(args.guest_output_contract_json.resolve()),
++            ]
++        )
+@@ -2532,0 +2604 @@
++    validate_output_only_pair_request(args)
+@@ -2547,0 +2620,2 @@
++    if args.guest_output_contract_json is not None:
++        required_paths.append(args.guest_output_contract_json.resolve())
+@@ -2618,0 +2693,9 @@
++            "guest_evidence_mode": args.guest_evidence_mode,
++            "guest_output_contract": (
++                {
++                    "path": str(args.guest_output_contract_json.resolve()),
++                    "sha256": sha256(args.guest_output_contract_json.resolve()),
++                }
++                if args.guest_output_contract_json is not None
++                else None
++            ),
