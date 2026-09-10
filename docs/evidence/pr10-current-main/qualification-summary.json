@@ -300,6 +300,8 @@
       "nonpass": [
         "report_query.dma_range_guard"
       ],
+      "failure_observation": "range canaries changed; reproduces Mainkill1/xemu#60",
+      "range_canaries_intact": false,
       "boundary_pass": 4,
       "vulkan_validation_active": null,
       "unique_vuid_count": 0
@@ -311,10 +313,12 @@
       "nonpass": [
         "report_query.dma_range_guard"
       ],
+      "failure_observation": "range canaries intact; publication-fence B0 record remained sentinel",
+      "range_canaries_intact": true,
       "boundary_pass": 4,
       "vulkan_validation_active": true,
       "unique_vuid_count": 0
     }
   },
-  "full_xiso_disposition": "BLOCKED_ONLY_BY_EXISTING_ISSUE_60"
+  "full_xiso_disposition": "PR10_BOUNDARY_PATHS_PASS; OPENGL_REPRODUCES_ISSUE_60; VULKAN_PUBLICATION_FENCE_CONTROL_FAILED_WITH_CANARIES_INTACT"
 }
