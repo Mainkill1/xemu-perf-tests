@@ -139,6 +139,13 @@ sampled and stored level counts, and the peak summed focused texture work was
 lookup, and Vulkan pipeline creation are separated before an uninstrumented
 Vulkan/OpenGL source-isolation build.
 
+The schema-v8 follow-up completed that separation. The recurring slow frame
+creates eight new graphics pipelines. Shader binding consumes 23.906–25.034 ms
+and `vkCreateGraphicsPipelines()` consumes 12.208–13.538 ms; key/hash/cache
+lookup and pipeline-layout creation remain below 1.1 ms combined. This is a
+separate, pre-existing performance opportunity and does not clear PR #14. See
+`pipeline-prepare/REPORT.md`.
+
 Morrowind and the remaining renderer/workload cells are pending; their absence
 does not waive the reproduced snapshot failure. PR #14 remains draft and held.
 
@@ -159,6 +166,9 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
 - `texture-lookup/REPORT.md` and `texture-lookup/summary.json` record the exact
   schema-v7 build, rejected texture/cache/layout hypotheses, and the narrowed
   `create_pipeline()` attribution boundary.
+- `pipeline-prepare/REPORT.md` and `pipeline-prepare/summary.json` identify the
+  recurring burst as eight synchronous pipeline misses dominated by shader
+  binding and `vkCreateGraphicsPipelines()`.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.
