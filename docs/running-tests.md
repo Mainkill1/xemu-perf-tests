@@ -66,23 +66,6 @@ direction only. Repeat tiny work inside the guest until samples last seconds.
 Do not infer whole-emulator speed from one focused workload. Report stable ID,
 path improved, fixed-work ratio, environment, and correctness status.
 
-### Shader-identity diagnostic records
-
-When a diagnostic xemu build emits deferred Vulkan shader-identity records,
-aggregate its captured stderr by profile frame and shader stage:
-
-```text
-python tools/shader-identity-summary.py xemu-stderr.txt --format json --output shader-summary.json
-python tools/shader-identity-summary.py xemu-stderr.txt --format markdown --output shader-summary.md
-python tools/shader-identity-summary.py xemu-stderr.txt --format csv --output shader-summary.csv
-```
-
-The reports separate first, repeat, and saturated source observations and
-classify repeat sources as same-key or different-key. Malformed diagnostic
-records fail parsing. Missing summaries, record-count mismatches, or saturated
-tracking produce `incomplete` output and cannot support a performance claim.
-Unrelated stderr lines are ignored.
-
 ## Manual xemu
 
 1. Start a release xemu build. Configure legally obtained MCPX, flash ROM,
