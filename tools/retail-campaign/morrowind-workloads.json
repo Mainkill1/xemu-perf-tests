@@ -1,0 +1,116 @@
+{
+  "schema_version": 1,
+  "example_only": true,
+  "workloads": {
+    "MORROWIND-FRESH": {
+      "launch_mode": "FreshBoot",
+      "snapshot": null,
+      "inputs": {
+        "seed": {
+          "path": "inputs/clean-hdd.qcow2",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "disc": {
+          "path": "inputs/game-disc.iso",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "eeprom": {
+          "path": "inputs/eeprom.bin",
+          "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "configs": {
+          "VULKAN": {
+            "path": "configs/vulkan.toml",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "OPENGL": {
+            "path": "configs/opengl.toml",
+            "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        }
+      },
+      "input_steps": [
+        {"button": "A", "virtual_key": 65, "delay_seconds": 8, "capture_label": "fresh-before-first-a"},
+        {"button": "A", "virtual_key": 65, "delay_seconds": 8, "capture_label": "fresh-before-second-a"},
+        {"button": "DPAD_DOWN", "virtual_key": 40, "delay_seconds": 3, "capture_label": "fresh-before-load-selection"},
+        {"button": "A", "virtual_key": 65, "delay_seconds": 2, "capture_label": "fresh-before-load-menu"},
+        {"button": "A", "virtual_key": 65, "delay_seconds": 3, "capture_label": "fresh-before-save-selection"},
+        {"button": "A", "virtual_key": 65, "delay_seconds": 2, "capture_label": "fresh-before-load-confirmation"}
+      ],
+      "post_input_delay_seconds": 30,
+      "admission": {
+        "route": "fresh-menu-load",
+        "require_all_captures_accepted": true,
+        "require_image_transition": true,
+        "require_display_progression": true
+      },
+      "measurement": {
+        "duration_seconds": 20,
+        "stall_threshold_ms": 75,
+        "worst_interval_count": 10,
+        "metrics": [
+          "cadence_per_second",
+          "average_interval_ms",
+          "p95_ms",
+          "p99_ms",
+          "max_ms",
+          "stall_count",
+          "worst_intervals_ms"
+        ]
+      }
+    },
+    "MORROWIND-SNAPSHOT": {
+      "launch_mode": "Snapshot",
+      "snapshot": "gameplay-checkpoint",
+      "inputs": {
+        "seed": {
+          "path": "inputs/clean-hdd.qcow2",
+          "sha256": "0000000000000000000000000000000000000000000000000000000000000000"
+        },
+        "disc": {
+          "path": "inputs/game-disc.iso",
+          "sha256": "1111111111111111111111111111111111111111111111111111111111111111"
+        },
+        "eeprom": {
+          "path": "inputs/eeprom.bin",
+          "sha256": "4444444444444444444444444444444444444444444444444444444444444444"
+        },
+        "configs": {
+          "VULKAN": {
+            "path": "configs/vulkan.toml",
+            "sha256": "2222222222222222222222222222222222222222222222222222222222222222"
+          },
+          "OPENGL": {
+            "path": "configs/opengl.toml",
+            "sha256": "3333333333333333333333333333333333333333333333333333333333333333"
+          }
+        }
+      },
+      "input_steps": [
+        {"button": "START", "virtual_key": 13, "delay_seconds": 5, "capture_label": "before-start-focus"},
+        {"button": "B", "virtual_key": 66, "delay_seconds": 2, "capture_label": "before-b-focus"}
+      ],
+      "post_input_delay_seconds": 2,
+      "admission": {
+        "route": "snapshot-start-b",
+        "require_all_captures_accepted": true,
+        "require_image_transition": true,
+        "require_display_progression": true
+      },
+      "measurement": {
+        "duration_seconds": 20,
+        "stall_threshold_ms": 75,
+        "worst_interval_count": 10,
+        "metrics": [
+          "cadence_per_second",
+          "average_interval_ms",
+          "p95_ms",
+          "p99_ms",
+          "max_ms",
+          "stall_count",
+          "worst_intervals_ms"
+        ]
+      }
+    }
+  }
+}
