@@ -1,0 +1,240 @@
+{
+  "schema_version": 1,
+  "status": "SOURCE_PATH_REJECTED",
+  "decision": "PR14 remains HOLD; no performance claim",
+  "finding": "Clamped cubemap, saturated texture cache, and measured PR14 texture-key/layout/upload CPU work do not account for the observed 10-11 ms adverse ordinary-run tail.",
+  "source": {
+    "commit": "c16cc79a863cf8496645956571c807000822edad",
+    "tree": "bb1cbdf220a3953ea71cc5805197af1d9ff706c6",
+    "xemu_sha256": "4eb67b28b5b80a4a849962464239e733e33145245973f25a75889810ca82c2c0",
+    "unit_sha256": "fbddd855b8fa2d9846d561b863a9a61189e47c1636b34e49e7f1a8693c95a440",
+    "unit_result": "7/7 PASS"
+  },
+  "route": {
+    "workload": "PGR2 snapshot",
+    "renderer": "Vulkan",
+    "input_sequence": [
+      "B-3"
+    ],
+    "warmup_seconds": 3,
+    "measurement_seconds": 60,
+    "trace": "none",
+    "optional_controls": "all disabled"
+  },
+  "runs": [
+    {
+      "run_id": "pr67-c16cc79a-pgr2-snapshot-vulkan-texture-lookup-r1-01-research",
+      "measured_guest_frames": 1728,
+      "frame_metrics": {
+        "average_ms": 34.70480092592596,
+        "p95_ms": 41.711,
+        "p99_ms": 48.022,
+        "max_ms": 72.015,
+        "stall_count": 0
+      },
+      "texture_totals": {
+        "texture_creates": 16050041,
+        "texture_key_hashes": 16050041,
+        "texture_key_hash_cpu_us": 480451,
+        "texture_cache_lookups": 16050041,
+        "texture_cache_lookup_cpu_us": 730419,
+        "texture_cache_saturated_lookups": 0,
+        "texture_cache_saturated_misses": 0,
+        "texture_cache_hits": 16049997,
+        "texture_cache_misses": 44,
+        "cubemap_prepares": 779546,
+        "cubemap_same_level_prepares": 779546,
+        "cubemap_texture_length_calls": 779546,
+        "cubemap_texture_length_cpu_us": 21426,
+        "cubemap_layouts": 1730,
+        "cubemap_layout_cpu_us": 116368,
+        "cubemap_uploads": 1730,
+        "cubemap_upload_cpu_us": 146065
+      },
+      "per_frame": {
+        "texture_creates": 9288.218171296296,
+        "texture_key_hashes": 9288.218171296296,
+        "texture_key_hash_cpu_us": 278.03877314814815,
+        "texture_cache_lookups": 9288.218171296296,
+        "texture_cache_lookup_cpu_us": 422.69618055555554,
+        "texture_cache_saturated_lookups": 0.0,
+        "texture_cache_saturated_misses": 0.0,
+        "texture_cache_hits": 9288.192708333334,
+        "texture_cache_misses": 0.02546296296296296,
+        "cubemap_prepares": 451.1261574074074,
+        "cubemap_same_level_prepares": 451.1261574074074,
+        "cubemap_texture_length_calls": 451.1261574074074,
+        "cubemap_texture_length_cpu_us": 12.399305555555555,
+        "cubemap_layouts": 1.0011574074074074,
+        "cubemap_layout_cpu_us": 67.3425925925926,
+        "cubemap_uploads": 1.0011574074074074,
+        "cubemap_upload_cpu_us": 84.52835648148148
+      },
+      "peak_focused_texture_cpu_frame": {
+        "frame_index": 1345,
+        "guest_frame": 1858,
+        "cpu_us": 1183,
+        "texture_creates": 9240,
+        "texture_key_hashes": 9240,
+        "texture_key_hash_cpu_us": 307,
+        "texture_cache_lookups": 9240,
+        "texture_cache_lookup_cpu_us": 562,
+        "texture_cache_saturated_lookups": 0,
+        "texture_cache_saturated_misses": 0,
+        "texture_cache_hits": 9240,
+        "texture_cache_misses": 0,
+        "cubemap_prepares": 441,
+        "cubemap_same_level_prepares": 441,
+        "cubemap_texture_length_calls": 441,
+        "cubemap_texture_length_cpu_us": 17,
+        "cubemap_layouts": 1,
+        "cubemap_layout_cpu_us": 139,
+        "cubemap_uploads": 1,
+        "cubemap_upload_cpu_us": 158
+      },
+      "frame_interval_texture_cpu_pearson": 0.2900620796427461,
+      "worst_interval_frame": {
+        "guest_frame": 667,
+        "interval_ms": 72.015,
+        "pipeline_prepare_cpu_ms": 42.506,
+        "draw_flush_cpu_ms": 53.22,
+        "texture_cache_misses": 6,
+        "native_bc_uploads": 4,
+        "focused_texture_cpu_ms": 0.837,
+        "texture_key_hash_cpu_ms": 0.292,
+        "texture_cache_lookup_cpu_ms": 0.419,
+        "cubemap_focused_cpu_ms": 0.126
+      }
+    },
+    {
+      "run_id": "pr67-c16cc79a-pgr2-snapshot-vulkan-texture-lookup-r1-02-research",
+      "measured_guest_frames": 1722,
+      "frame_metrics": {
+        "average_ms": 34.82733333333334,
+        "p95_ms": 42.053,
+        "p99_ms": 46.346,
+        "max_ms": 71.64,
+        "stall_count": 0
+      },
+      "texture_totals": {
+        "texture_creates": 15994593,
+        "texture_key_hashes": 15994593,
+        "texture_key_hash_cpu_us": 481766,
+        "texture_cache_lookups": 15994593,
+        "texture_cache_lookup_cpu_us": 727562,
+        "texture_cache_saturated_lookups": 0,
+        "texture_cache_saturated_misses": 0,
+        "texture_cache_hits": 15994549,
+        "texture_cache_misses": 44,
+        "cubemap_prepares": 776900,
+        "cubemap_same_level_prepares": 776900,
+        "cubemap_texture_length_calls": 776900,
+        "cubemap_texture_length_cpu_us": 21680,
+        "cubemap_layouts": 1724,
+        "cubemap_layout_cpu_us": 117608,
+        "cubemap_uploads": 1724,
+        "cubemap_upload_cpu_us": 146944
+      },
+      "per_frame": {
+        "texture_creates": 9288.381533101045,
+        "texture_key_hashes": 9288.381533101045,
+        "texture_key_hash_cpu_us": 279.7711962833914,
+        "texture_cache_lookups": 9288.381533101045,
+        "texture_cache_lookup_cpu_us": 422.50987224157956,
+        "texture_cache_saturated_lookups": 0.0,
+        "texture_cache_saturated_misses": 0.0,
+        "texture_cache_hits": 9288.355981416957,
+        "texture_cache_misses": 0.025551684088269456,
+        "cubemap_prepares": 451.16144018583043,
+        "cubemap_same_level_prepares": 451.16144018583043,
+        "cubemap_texture_length_calls": 451.16144018583043,
+        "cubemap_texture_length_cpu_us": 12.590011614401858,
+        "cubemap_layouts": 1.0011614401858304,
+        "cubemap_layout_cpu_us": 68.29732868757259,
+        "cubemap_uploads": 1.0011614401858304,
+        "cubemap_upload_cpu_us": 85.33333333333333
+      },
+      "peak_focused_texture_cpu_frame": {
+        "frame_index": 367,
+        "guest_frame": 879,
+        "cpu_us": 1057,
+        "texture_creates": 9481,
+        "texture_key_hashes": 9481,
+        "texture_key_hash_cpu_us": 330,
+        "texture_cache_lookups": 9481,
+        "texture_cache_lookup_cpu_us": 474,
+        "texture_cache_saturated_lookups": 0,
+        "texture_cache_saturated_misses": 0,
+        "texture_cache_hits": 9481,
+        "texture_cache_misses": 0,
+        "cubemap_prepares": 490,
+        "cubemap_same_level_prepares": 490,
+        "cubemap_texture_length_calls": 490,
+        "cubemap_texture_length_cpu_us": 13,
+        "cubemap_layouts": 1,
+        "cubemap_layout_cpu_us": 110,
+        "cubemap_uploads": 1,
+        "cubemap_upload_cpu_us": 130
+      },
+      "frame_interval_texture_cpu_pearson": 0.2464999120347109,
+      "worst_interval_frame": {
+        "guest_frame": 669,
+        "interval_ms": 71.64,
+        "pipeline_prepare_cpu_ms": 45.977,
+        "draw_flush_cpu_ms": 55.811,
+        "texture_cache_misses": 6,
+        "native_bc_uploads": 4,
+        "focused_texture_cpu_ms": 0.939,
+        "texture_key_hash_cpu_ms": 0.294,
+        "texture_cache_lookup_cpu_ms": 0.459,
+        "cubemap_focused_cpu_ms": 0.186
+      }
+    }
+  ],
+  "earlier_schema5_control": [
+    {
+      "role": "previous-main",
+      "frame_metrics": {
+        "average_ms": 34.83442450638798,
+        "p95_ms": 42.046,
+        "p99_ms": 47.754,
+        "max_ms": 68.576,
+        "stall_count": 0
+      },
+      "worst_interval_frame": {
+        "guest_frame": 671,
+        "interval_ms": 68.576,
+        "pipeline_prepare_cpu_ms": 42.966,
+        "draw_flush_cpu_ms": 53.549,
+        "texture_cache_misses": null,
+        "native_bc_uploads": 4
+      }
+    },
+    {
+      "role": "candidate",
+      "frame_metrics": {
+        "average_ms": 34.58494755043231,
+        "p95_ms": 41.836,
+        "p99_ms": 46.536,
+        "max_ms": 66.08,
+        "stall_count": 0
+      },
+      "worst_interval_frame": {
+        "guest_frame": 673,
+        "interval_ms": 66.08,
+        "pipeline_prepare_cpu_ms": 41.867,
+        "draw_flush_cpu_ms": 51.647,
+        "texture_cache_misses": null,
+        "native_bc_uploads": 4
+      }
+    }
+  ],
+  "conclusions": [
+    "Both complete and measured intervals recorded zero clamped cubemap preparations.",
+    "All cubemap preparations had storage_levels equal to sampled levels.",
+    "Both runs recorded zero saturated texture-cache lookups and misses.",
+    "Peak summed texture hash, lookup, cubemap-length, layout, and upload CPU time was 1.183 ms, below the 10-11 ms adverse tail gap.",
+    "The repeatable ~66-72 ms frame is dominated by pipeline_prepare (~42-46 ms) and exists in previous main as well as PR14.",
+    "Further attribution must split shader binding, pipeline lookup, and Vulkan pipeline creation inside create_pipeline."
+  ]
+}

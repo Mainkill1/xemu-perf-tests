@@ -127,8 +127,17 @@ instrumentation attributes enough time to a changed path.
 The first PR #67 diagnostic has now rejected that hypothesis. Two complete
 counter-enabled process lifetimes recorded zero clamped cubemap preparations,
 so no enlarged storage span was checked or hashed on this PGR2 route. See
-`cubemap-span/REPORT.md`. PR #14 remains held while the broader cubemap-path
-presence and cost are checked before any Vulkan/OpenGL code isolation build.
+`cubemap-span/REPORT.md`.
+
+The broader follow-up also rejects texture-key hashing, saturated texture-cache
+lookup, and cubemap-layout work as the missing 10–11 ms cost. Both complete
+runs recorded zero saturated cache lookups. All active cubemaps used equal
+sampled and stored level counts, and the peak summed focused texture work was
+1.183 ms. The repeatable slow frame instead spends about 42–46 ms inside
+`create_pipeline()` and is present in previous main as well as PR #14. See
+`texture-lookup/REPORT.md`. PR #14 remains held while shader binding, pipeline
+lookup, and Vulkan pipeline creation are separated before an uninstrumented
+Vulkan/OpenGL source-isolation build.
 
 Morrowind and the remaining renderer/workload cells are pending; their absence
 does not waive the reproduced snapshot failure. PR #14 remains draft and held.
@@ -147,6 +156,9 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
   the exact median calculation.
 - `cubemap-span/REPORT.md` and `cubemap-span/summary.json` record the exact
   counter build and the rejected storage-span hypothesis.
+- `texture-lookup/REPORT.md` and `texture-lookup/summary.json` record the exact
+  schema-v7 build, rejected texture/cache/layout hypotheses, and the narrowed
+  `create_pipeline()` attribution boundary.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.
