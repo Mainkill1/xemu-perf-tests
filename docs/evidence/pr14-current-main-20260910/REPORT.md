@@ -36,10 +36,13 @@ The per-leaf duration tables are diagnostic context only. These Release
 builds used the documented live-marker waiver, so this full-XISO run does not
 support a performance improvement or regression claim. The first interleaved
 retail checkpoint is now published in `retail/REPORT.md`. Fresh PGR2 remained
-within the 2% gate, but Vulkan snapshot maximum interval regressed 12.59% and
-10.23% in opposite run orders. PR #14 is held while a matched scheduler trace
-attributes that repeated worst-frame result. Morrowind and remaining retail
-cells are pending.
+within the 2% gate. Vulkan PGR2 snapshot maximum interval regressed 12.59% and
+10.23% in opposite run orders. OpenGL Morrowind snapshot maximum interval
+regressed 2.34% and 5.46% in opposite run orders. OpenGL PGR2 snapshot and
+Vulkan Morrowind snapshot remained within the gate. Every Morrowind cell passed
+QMP, Start/B, image-transition, display-write progress, and final-image
+admission. PR #14 remains held; the complete retail matrix and attribution
+status are published in `retail/REPORT.md`.
 
 ## Preserved rejected attempt
 

@@ -7,11 +7,14 @@ The candidate and reference executables have SHA-256
 `51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe`
 and `13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a`.
 
-The result is **HOLD**. Fresh-start PGR2 remained within the 2% gate on both
-renderers. Vulkan snapshot maximum interval regressed in both interleaved run
-orders: 12.59% in the primary order and 10.23% in the reverse repeat. Average,
-p95, and p99 remained within 2%, and neither order recorded a stall. A mean or
-percentile result cannot override the repeated worse maximum interval.
+The result is **HOLD**. The complete retail matrix now covers PGR2 fresh start,
+PGR2 snapshot, and Morrowind snapshot on Vulkan and OpenGL. Vulkan PGR2
+snapshot maximum interval regressed in both interleaved run orders: 12.59% in
+the primary order and 10.23% in the reverse repeat. OpenGL Morrowind snapshot
+maximum interval also regressed in both orders: 2.34% and 5.46%. No run
+in either repeated candidate failure crossed the 75 ms stall threshold.
+Favorable means, percentiles, or other workloads do not override either
+repeated worse maximum interval.
 
 ## Improvement convention
 
@@ -46,11 +49,42 @@ Positive Improvement % is favorable and negative is unfavorable. Cadence is
 | PGR2 snapshot | Vulkan | Reverse repeat | p99 (ms) | `+bad` | 44.838 | 45.386 | -1.22% | PASS |
 | PGR2 snapshot | Vulkan | Reverse repeat | Maximum (ms) | `+bad` | 60.175 | 66.329 | **-10.23%** | **FAIL** |
 | PGR2 snapshot | Vulkan | Reverse repeat | Stalls | `+bad` | 0 | 0 | +0.00% | PASS |
+| PGR2 snapshot | OpenGL | Primary | Cadence (/s) | `+good` | 29.000 | 28.655 | -1.19% | PASS |
+| PGR2 snapshot | OpenGL | Primary | Average interval (ms) | `+bad` | 34.498 | 34.900 | -1.16% | PASS |
+| PGR2 snapshot | OpenGL | Primary | p95 (ms) | `+bad` | 41.908 | 42.590 | -1.63% | PASS |
+| PGR2 snapshot | OpenGL | Primary | p99 (ms) | `+bad` | 46.420 | 46.707 | -0.62% | PASS |
+| PGR2 snapshot | OpenGL | Primary | Maximum (ms) | `+bad` | 81.813 | 56.550 | +30.88% | PASS |
+| PGR2 snapshot | OpenGL | Primary | Stalls | `+bad` | 1 | 0 | +100.00% | PASS |
+| Morrowind snapshot | Vulkan | Primary | Cadence proxy (/s) | `+good` | 24.416 | 24.479 | +0.25% | PASS |
+| Morrowind snapshot | Vulkan | Primary | Average interval (ms) | `+bad` | 40.956 | 40.853 | +0.25% | PASS |
+| Morrowind snapshot | Vulkan | Primary | p95 (ms) | `+bad` | 47.688 | 47.367 | +0.67% | PASS |
+| Morrowind snapshot | Vulkan | Primary | p99 (ms) | `+bad` | 53.356 | 52.910 | +0.84% | PASS |
+| Morrowind snapshot | Vulkan | Primary | Maximum (ms) | `+bad` | 60.456 | 60.992 | -0.88% | PASS |
+| Morrowind snapshot | Vulkan | Primary | Stalls | `+bad` | 0 | 0 | +0.00% | PASS |
+| Morrowind snapshot | OpenGL | Primary | Cadence proxy (/s) | `+good` | 33.717 | 33.745 | +0.08% | PASS |
+| Morrowind snapshot | OpenGL | Primary | Average interval (ms) | `+bad` | 29.666 | 29.634 | +0.11% | PASS |
+| Morrowind snapshot | OpenGL | Primary | p95 (ms) | `+bad` | 36.361 | 37.111 | **-2.06%** | **FAIL** |
+| Morrowind snapshot | OpenGL | Primary | p99 (ms) | `+bad` | 42.009 | 41.203 | +1.92% | PASS |
+| Morrowind snapshot | OpenGL | Primary | Maximum (ms) | `+bad` | 46.740 | 47.835 | **-2.34%** | **FAIL** |
+| Morrowind snapshot | OpenGL | Primary | Stalls | `+bad` | 0 | 0 | +0.00% | PASS |
+| Morrowind snapshot | OpenGL | Reverse repeat | Cadence proxy (/s) | `+good` | 33.394 | 33.511 | +0.35% | PASS |
+| Morrowind snapshot | OpenGL | Reverse repeat | Average interval (ms) | `+bad` | 29.946 | 29.841 | +0.35% | PASS |
+| Morrowind snapshot | OpenGL | Reverse repeat | p95 (ms) | `+bad` | 37.216 | 36.863 | +0.95% | PASS |
+| Morrowind snapshot | OpenGL | Reverse repeat | p99 (ms) | `+bad` | 42.163 | 42.280 | -0.28% | PASS |
+| Morrowind snapshot | OpenGL | Reverse repeat | Maximum (ms) | `+bad` | 48.356 | 50.999 | **-5.46%** | **FAIL** |
+| Morrowind snapshot | OpenGL | Reverse repeat | Stalls | `+bad` | 0 | 0 | +0.00% | PASS |
 
 Each value is the median of two runs for that build within the stated order.
 Primary order was previous, candidate, candidate, previous. Reverse repeat was
 candidate, previous, previous, candidate. The adverse maximum therefore
-survived an order reversal.
+survived an order reversal in both affected workload/renderer pairs.
+
+Every Morrowind cell used immutable snapshot `vm-20260905015459`. Admission
+required QMP running, delivery of Start and B after fixed waits, an image change
+between pre-input and measurement, advancing display-write events, and a
+nonblack final image with varied colors. All twelve Morrowind observations
+across the two primary campaigns and OpenGL repeat passed those checks. The
+reported cadence is an NV2A display-write progress proxy, not displayed FPS.
 
 The raw uninstrumented frame logs also place the repeated peak in the same
 snapshot phase. Within measured-frame indices 150-160, the candidate median
@@ -96,6 +130,18 @@ The fixed baseline evidence is reused; it was not rebuilt. Its source is
 | PGR2 snapshot | Vulkan | Average interval (ms) | `+bad` | 34.484 | 34.514 | -0.09% | PASS |
 | PGR2 snapshot | Vulkan | p95 (ms) | `+bad` | 40.910 | 41.498 | -1.44% | PASS |
 | PGR2 snapshot | Vulkan | p99 (ms) | `+bad` | 45.186 | 45.739 | -1.22% | PASS |
+| PGR2 snapshot | OpenGL | Cadence (/s) | `+good` | 28.519 | 28.655 | +0.48% | PASS |
+| PGR2 snapshot | OpenGL | Average interval (ms) | `+bad` | 35.122 | 34.900 | +0.63% | PASS |
+| PGR2 snapshot | OpenGL | p95 (ms) | `+bad` | 42.308 | 42.590 | -0.67% | PASS |
+| PGR2 snapshot | OpenGL | p99 (ms) | `+bad` | 46.086 | 46.707 | -1.35% | PASS |
+| Morrowind snapshot | Vulkan | Cadence proxy (/s) | `+good` | 23.723 | 24.479 | +3.19% | PASS |
+| Morrowind snapshot | Vulkan | Average interval (ms) | `+bad` | 42.153 | 40.853 | +3.08% | PASS |
+| Morrowind snapshot | Vulkan | p95 (ms) | `+bad` | 47.990 | 47.367 | +1.30% | PASS |
+| Morrowind snapshot | Vulkan | p99 (ms) | `+bad` | 57.134 | 52.910 | +7.39% | PASS |
+| Morrowind snapshot | OpenGL | Cadence proxy (/s) | `+good` | 32.798 | 33.745 | +2.89% | PASS |
+| Morrowind snapshot | OpenGL | Average interval (ms) | `+bad` | 30.489 | 29.634 | +2.80% | PASS |
+| Morrowind snapshot | OpenGL | p95 (ms) | `+bad` | 38.098 | 37.111 | +2.59% | PASS |
+| Morrowind snapshot | OpenGL | p99 (ms) | `+bad` | 42.848 | 41.203 | +3.84% | PASS |
 
 The preserved baseline did not record maximum intervals or worst-frame
 samples. It cannot settle the maximum-interval gate. The same-session,
@@ -146,8 +192,11 @@ lookup and pipeline-layout creation remain below 1.1 ms combined. This is a
 separate, pre-existing performance opportunity and does not clear PR #14. See
 `pipeline-prepare/REPORT.md`.
 
-Morrowind and the remaining renderer/workload cells are pending; their absence
-does not waive the reproduced snapshot failure. PR #14 remains draft and held.
+The complete retail matrix does not clear PR #14. OpenGL PGR2 snapshot stayed
+inside the 2% gate, and Vulkan Morrowind snapshot did too. OpenGL Morrowind
+snapshot reproduced a worse maximum interval in both run orders. A matched
+symbolized trace is therefore required for that renderer in addition to the
+already completed Vulkan attribution. PR #14 remains draft and held.
 
 ## Evidence files
 
@@ -169,6 +218,14 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
 - `pipeline-prepare/REPORT.md` and `pipeline-prepare/summary.json` identify the
   recurring burst as eight synchronous pipeline misses dominated by shader
   binding and `vkCreateGraphicsPipelines()`.
+- `primary-pgr2-snapshot-opengl-r1`,
+  `primary-morrowind-snapshot-vulkan-r1`, and
+  `primary-morrowind-snapshot-opengl-r1` contain the new sanitized campaign
+  receipts and analyses. `repeat-morrowind-snapshot-opengl-r1` preserves the
+  reverse-order receipt that reproduces the maximum-interval regression.
+- Each Morrowind campaign directory also contains `admission-summary.json`,
+  with the per-cell input, image-transition, display-write, seed-integrity, and
+  private-disk cleanup results.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.
