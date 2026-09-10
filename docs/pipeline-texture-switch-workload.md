@@ -1,6 +1,6 @@
 # Pipeline texture-switch workload capsule
 
-`PipelineTextureSwitch` adds four independently selectable phases to the
+`PipelineTextureSwitch` adds six independently selectable phases to the
 existing single XISO. All use only fixed-seed generated data.
 
 - `pipeline.texture-switch` alternates two 64x64 linear A8R8G8B8 texture
@@ -21,11 +21,22 @@ existing single XISO. All use only fixed-seed generated data.
   A8R8G8B8 image and all 5,456 backing words fixed. It alternates only LOD
   clamps (levels 0 and 2), box/tent filtering, repeat/border wrap, and border
   color. In-bounds UVs make the final tiles red, green, red, green.
+- `pipeline.palette-only-update` warms an indexed 64x64 texture, changes only
+  palette entry zero, validates the blue result, and then performs 512
+  unchanged redraws. The unchanged index image proves that palette memory is
+  part of texture dirtiness and the redraw tail lets host counters verify that
+  the validation hint retires.
+- `pipeline.shared-page-overlap` warms two 16 KiB cached bindings separated by
+  256 bytes. One write changes the four pages of binding A, binding A is fully
+  validated first, and binding B must still observe its overlapping changed
+  bytes. It then performs 512 unchanged redraws from binding B.
 
 The stable catalog IDs are `pipeline_texture_switch.texture_switch`,
 `pipeline_texture_switch.shader_negative_control`,
-`pipeline_texture_switch.clear_texture_normal`, and
-`pipeline_texture_switch.sampler_only_identity`.
+`pipeline_texture_switch.clear_texture_normal`,
+`pipeline_texture_switch.sampler_only_identity`,
+`pipeline_texture_switch.palette_only_update`, and
+`pipeline_texture_switch.shared_page_overlap`.
 
 The result metadata reports one active texture stage, phase count, operations,
 draws, texture switches, sampler/address changes, and shader-state writes.
@@ -49,6 +60,12 @@ center oracle into a border sample. Upstream `d73326b` and the candidate both
 return red/blue tile centers (`BB0EC8ED`). This remains a `REGRESSION_ONLY`
 oracle until retail Xbox output replaces it.
 
+The palette-only index, initial palette, changed palette, and recipe KATs are
+`76EFDDC5`, `FEBA67C5`, `D2A80FED`, and `E9635B33`. The shared-region initial,
+changed, binding-B, and recipe KATs are `2D306945`, `E941E945`, `B721F1C5`,
+and `5F016545`. Both mutation routes must end with four blue tile centers,
+whose exact KAT is `0ABCCA3D`.
+
 Every invocation repeatedly overwrites four fixed quads. After F1, the guest
 emits a separate F2 correctness fence and reads all four tile centers. Exact
 rendered-pixel KATs are:
@@ -59,6 +76,8 @@ rendered-pixel KATs are:
 | `pipeline.shader-negative-control` | red, green, red, green | `08C5E8A1` |
 | `pipeline.clear-texture-normal` | red, red, red, red | `50C0069D` |
 | `pipeline.sampler-only-identity` | red, blue, red, blue | `BB0EC8ED` |
+| `pipeline.palette-only-update` | blue, blue, blue, blue | `0ABCCA3D` |
+| `pipeline.shared-page-overlap` | blue, blue, blue, blue | `0ABCCA3D` |
 
 The multiplier-aware terminal state is checked before each phase draws and
 asserts a fixed solid standard framebuffer:
@@ -69,6 +88,8 @@ asserts a fixed solid standard framebuffer:
 | `pipeline.shader-negative-control` | `FF4A2038` | `f110c8bd6338c325` |
 | `pipeline.clear-texture-normal` | `FF305060` | `22ba4f1405cda325` |
 | `pipeline.sampler-only-identity` | `FF405020` | `0b8438c8404da325` |
+| `pipeline.palette-only-update` | `FF604020` | `467aab2f95cda325` |
+| `pipeline.shared-page-overlap` | `FF206040` | `83bb59a8648da325` |
 
 For the dedicated clear-boundary manifests, the multiplier-aware terminal
 states are `418E6684` (smoke multiplier 1), `BF18BC54` (quick multiplier 32),
@@ -122,6 +143,13 @@ also control-calibration starting points, not portable timing claims.
 The dedicated `resources/pipeline-sampler-only-identity-*.json` manifests
 isolate the sampler/image cache split with the same 1/1, 64/32, and 160/80
 smoke/quick/sustained starting profiles.
+
+The dedicated `resources/pipeline-texture-dirty-revalidation-*.json`
+manifests select the palette-only and shared-page leaves together. Their
+smoke, quick, and sustained profiles use 0/1, 1/2, and 4/8
+warmup/multiplier settings with per-iteration completion. These are
+correctness and host-counter qualification routes; their elapsed times are
+not standalone performance claims.
 
 Calibrate each phase on the control build, then freeze the same fixed work for
 control and candidate:

@@ -1,0 +1,11 @@
+renderer,test_id,status,unique_vuids
+opengl,SurfaceRendering::XemuCpuReadAfterGpuWrite,PASS,N/A
+opengl,PipelineTextureSwitch::pipeline.texture-switch,PASS,N/A
+opengl,PipelineTextureSwitch::pipeline.sampler-only-identity,PASS,N/A
+opengl,PipelineTextureSwitch::pipeline.palette-only-update,PASS,N/A
+opengl,PipelineTextureSwitch::pipeline.shared-page-overlap,PASS,N/A
+vulkan,SurfaceRendering::XemuCpuReadAfterGpuWrite,PASS,0
+vulkan,PipelineTextureSwitch::pipeline.texture-switch,PASS,0
+vulkan,PipelineTextureSwitch::pipeline.sampler-only-identity,PASS,0
+vulkan,PipelineTextureSwitch::pipeline.palette-only-update,PASS,0
+vulkan,PipelineTextureSwitch::pipeline.shared-page-overlap,PASS,0

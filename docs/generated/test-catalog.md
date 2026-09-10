@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a` contains 149 leaves and 5 groups.
+Catalog `sha256:d228f056ce8db56b3d80c02693cda2132c84cb5a737fbc3f7ff09629128fc143` contains 151 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -24,6 +24,8 @@ Catalog `sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a
 | `pipeline_texture_switch.shader_negative_control` | leaf | `PipelineTextureSwitch::pipeline.shader-negative-control` |
 | `pipeline_texture_switch.clear_texture_normal` | leaf | `PipelineTextureSwitch::pipeline.clear-texture-normal` |
 | `pipeline_texture_switch.sampler_only_identity` | leaf | `PipelineTextureSwitch::pipeline.sampler-only-identity` |
+| `pipeline_texture_switch.palette_only_update` | leaf | `PipelineTextureSwitch::pipeline.palette-only-update` |
+| `pipeline_texture_switch.shared_page_overlap` | leaf | `PipelineTextureSwitch::pipeline.shared-page-overlap` |
 | `report_query.zero_query` | leaf | `ReportQuery::report.zero-query` |
 | `report_query.single_boundary` | leaf | `ReportQuery::report.single-boundary` |
 | `report_query.clear_boundary` | leaf | `ReportQuery::report.clear-boundary` |

@@ -1,0 +1,6 @@
+failpoint,fail_after,test_id,consumer_outcome,status,unique_vuids,remaining_processes
+surface-download-map,9,SurfaceRendering::XemuCpuReadAfterGpuWrite,CPU access stopped through controlled error,EXPECTED_FAILURE,0,0
+surface-download-invalidate,9,SurfaceRendering::XemuCpuReadAfterGpuWrite,CPU access stopped without stale continuation,EXPECTED_FAILURE,0,0
+texture-staging-flush,0,PipelineTextureSwitch::pipeline.texture-switch,draw skipped then expected framebuffer reached,PASS,0,0
+texture-staging-flush,1,PipelineTextureSwitch::pipeline.palette-only-update,draw skipped then expected palette framebuffer reached,PASS,0,0
+texture-staging-flush,3,PipelineTextureSwitch::pipeline.shared-page-overlap,draw skipped then expected shared-page framebuffer reached,PASS,0,0
