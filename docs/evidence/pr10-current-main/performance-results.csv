@@ -1,0 +1,9 @@
+backend,id,metric,raw_plus,previous_main_us,candidate_us,improvement_percent,gate
+opengl,pfifo_array_elements.array_element16,mean run average,+bad,522,522,0.0,PASS
+opengl,pfifo_array_elements.array_element16,mean run p95,+bad,525,524.5,0.095,PASS
+opengl,pfifo_array_elements.array_element32,mean run average,+bad,1144.5,1129,1.354,PASS
+opengl,pfifo_array_elements.array_element32,mean run p95,+bad,1151.5,1135.5,1.389,PASS
+vulkan,pfifo_array_elements.array_element16,mean run average,+bad,1704.5,1681,1.379,PASS
+vulkan,pfifo_array_elements.array_element16,mean run p95,+bad,1725.5,1705.5,1.159,PASS
+vulkan,pfifo_array_elements.array_element32,mean run average,+bad,2511.5,2434.5,3.066,PASS
+vulkan,pfifo_array_elements.array_element32,mean run p95,+bad,2517,2437.5,3.159,PASS
