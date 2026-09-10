@@ -284,6 +284,22 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                     self.assertEqual(loaded["suite_id"], f"pgraph-output-only-{backend}-v1")
                     self.assertEqual(len(loaded["records"]), 1)
                     self.assertIsNone(loaded["records"][0]["metadata"])
+                    self.assertEqual(
+                        loaded["artifact_identity"],
+                        {
+                            "perf_tests_commit": "442ec11b52ce1c9d7359825944bcbc2b5f524d07",
+                            "perf_tests_tree": "61cbc0122f306d6beb9388a1f71256723a66a0d3",
+                            "guest_iso_sha256": "3896df77a75fc35a6212f30b46cfd836fe65f86dbfc2004bd756c5fd7f1aacbe",
+                            "catalog_sha256": "55c5db836784736aa3370866ab3e2b16b3d0806fc1b6986befe0dfc8e60130fc",
+                            "catalog_id": "sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a",
+                            "child_runner_source_sha256": CHILD_SHA256,
+                            "child_runner_patched_sha256": source_sha256(child),
+                            "child_patch_sha256": source_sha256(CHILD_PATCH),
+                            "pair_runner_source_sha256": PAIR_SHA256,
+                            "pair_runner_patched_sha256": source_sha256(_pair),
+                            "pair_patch_sha256": source_sha256(PAIR_PATCH),
+                        },
+                    )
                     wrong_selector = SimpleNamespace(**vars(args))
                     wrong_selector.test_id = "BusyPfifo::PgraphPatternPolling"
                     with self.assertRaisesRegex(ValueError, "workload.test_id mismatch"):
@@ -334,7 +350,6 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 (
                     "child_command",
                     "validate_output_only_pair_request",
-                    "validate_output_only_child_evidence",
                 ),
                 {
                     "Path": Path,
@@ -369,7 +384,6 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 guest_evidence_mode="output-only",
                 guest_output_contract_json=contract_path,
                 host_telemetry="off",
-                output_contract_identity={"guest_iso_sha256": "guest"},
             )
             namespace["validate_output_only_pair_request"](args)
             command = namespace["child_command"](
@@ -384,34 +398,6 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                     str(contract_path.resolve()),
                 ],
             )
-            summary = {
-                "guest_evidence": {
-                    "mode": "output-only",
-                    "output_contract": {"sha256": "pinned-contract"},
-                    "output_validation": {
-                        "status": "PASSED",
-                        "contract_sha256": "pinned-contract",
-                    },
-                    "identity_validation": {
-                        "status": "PASSED",
-                        "artifact_identity": {"guest_iso_sha256": "guest"},
-                    },
-                }
-            }
-            namespace["validate_output_only_child_evidence"](summary, args)
-            summary["guest_evidence"]["output_contract"]["sha256"] = "wrong"
-            with self.assertRaisesRegex(PairRunError, "contract digest"):
-                namespace["validate_output_only_child_evidence"](summary, args)
-            summary["guest_evidence"]["output_contract"]["sha256"] = "pinned-contract"
-            summary["guest_evidence"]["identity_validation"]["artifact_identity"] = {}
-            with self.assertRaisesRegex(PairRunError, "identity"):
-                namespace["validate_output_only_child_evidence"](summary, args)
-            summary["guest_evidence"]["identity_validation"]["artifact_identity"] = {
-                "guest_iso_sha256": "guest"
-            }
-            summary["guest_evidence"]["output_validation"]["status"] = "FAILED"
-            with self.assertRaisesRegex(PairRunError, "output_validation"):
-                namespace["validate_output_only_child_evidence"](summary, args)
             args.compatibility_allowance = [Path("allowance.json")]
             with self.assertRaisesRegex(PairRunError, "compatibility"):
                 namespace["validate_output_only_pair_request"](args)
@@ -427,7 +413,10 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 )
                 namespace = extract_functions(
                     pair,
-                    ("load_output_only_pair_identity",),
+                    (
+                        "load_output_only_pair_identity",
+                        "validate_output_only_child_evidence",
+                    ),
                     {
                         "Path": Path,
                         "argparse": argparse,
@@ -435,6 +424,7 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                         "re": __import__("re"),
                         "sha256": source_sha256,
                         "PairRunError": PairRunError,
+                        "Any": Any,
                         "__file__": str(pair),
                     },
                 )
@@ -442,9 +432,32 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                     guest_evidence_mode="output-only",
                     guest_output_contract_json=contract_path,
                 )
-                self.assertEqual(
-                    namespace["load_output_only_pair_identity"](args), identity
-                )
+                loaded_identity = namespace["load_output_only_pair_identity"](args)
+                self.assertEqual(loaded_identity, identity)
+                args.output_contract_identity = loaded_identity
+                contract_sha256 = source_sha256(contract_path)
+                summary = {
+                    "guest_evidence": {
+                        "mode": "output-only",
+                        "output_contract": {"sha256": contract_sha256},
+                        "output_validation": {
+                            "status": "PASSED",
+                            "contract_sha256": contract_sha256,
+                        },
+                        "identity_validation": {
+                            "status": "PASSED",
+                            "artifact_identity": loaded_identity,
+                        },
+                    }
+                }
+                namespace["validate_output_only_child_evidence"](summary, args)
+                summary["guest_evidence"]["identity_validation"]["artifact_identity"] = {}
+                with self.assertRaisesRegex(PairRunError, "identity"):
+                    namespace["validate_output_only_child_evidence"](summary, args)
+                summary["guest_evidence"]["identity_validation"]["artifact_identity"] = loaded_identity
+                summary["guest_evidence"]["output_validation"]["status"] = "FAILED"
+                with self.assertRaisesRegex(PairRunError, "output_validation"):
+                    namespace["validate_output_only_child_evidence"](summary, args)
                 identity["pair_runner_patched_sha256"] = "2" * 64
                 contract_path.write_text(
                     json.dumps({"schema_version": 1, "artifact_identity": identity}),
@@ -473,6 +486,40 @@ class PgraphOutputOnlyContractTests(unittest.TestCase):
                 namespace["validate_summary"](
                     {}, SimpleNamespace(warmup_iterations=2), "off", "baseline"
                 )
+
+    def test_patched_main_assigns_identity_before_creating_run_directory(self):
+        for _child, pair in self.patched_sources():
+            tree = ast.parse(pair.read_text(encoding="utf-8"), filename=str(pair))
+            main = next(
+                node for node in tree.body
+                if isinstance(node, ast.FunctionDef) and node.name == "main"
+            )
+            request_line = None
+            assignment_line = None
+            run_directory_line = None
+            for node in ast.walk(main):
+                if isinstance(node, ast.Call) and isinstance(node.func, ast.Name):
+                    if node.func.id == "validate_output_only_pair_request":
+                        request_line = node.lineno
+                if isinstance(node, ast.Assign):
+                    if any(
+                        isinstance(target, ast.Attribute)
+                        and isinstance(target.value, ast.Name)
+                        and target.value.id == "args"
+                        and target.attr == "output_contract_identity"
+                        for target in node.targets
+                    ):
+                        assignment_line = node.lineno
+                    if any(
+                        isinstance(target, ast.Name) and target.id == "run_dir"
+                        for target in node.targets
+                    ):
+                        run_directory_line = node.lineno
+            self.assertIsNotNone(request_line)
+            self.assertIsNotNone(assignment_line)
+            self.assertIsNotNone(run_directory_line)
+            self.assertLess(request_line, assignment_line)
+            self.assertLess(assignment_line, run_directory_line)
 
 
 if __name__ == "__main__":

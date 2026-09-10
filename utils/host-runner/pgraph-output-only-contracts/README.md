@@ -27,9 +27,9 @@ Apply both digest-pinned patches only to their stated inputs:
 - `run-pair-output-only-forwarding.patch` targets pair SHA-256
   `e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a`;
   its patch SHA-256 is
-  `ab66875bca3f0232b31024cd1cda05749511e29f9b31ce2bdc57f29ccd691966`
+  `bfc2c68a70c6f68544ed954af8daf20a062ac426317582c589d106591189aaf8`
   and its result SHA-256 is
-  `058320b60d0ff235b2666222609c2a3cc5975226070c3cd4d6873effa61a6dbb`.
+  `7e1a7ccc3fefc259775bffb5ba3198f05b3549b511ca4f342195b07716850e0e`.
 
 The pair forwards `--guest-evidence-mode` and the contract path to every
 sequential child. In output-only mode it rejects marker compatibility,

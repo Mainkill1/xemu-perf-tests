@@ -11,8 +11,8 @@
     "child_runner_patched_sha256": "fa6f714ee31a89eaabc44719f2b1057b9c75869c2264e5acaf78f81e74b4b608",
     "child_patch_sha256": "fa75c44647f4db7c0b5c507e7fb30237c788e3205f19453ade896895ad7b705a",
     "pair_runner_source_sha256": "e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a",
-    "pair_runner_patched_sha256": "058320b60d0ff235b2666222609c2a3cc5975226070c3cd4d6873effa61a6dbb",
-    "pair_patch_sha256": "ab66875bca3f0232b31024cd1cda05749511e29f9b31ce2bdc57f29ccd691966"
+    "pair_runner_patched_sha256": "7e1a7ccc3fefc259775bffb5ba3198f05b3549b511ca4f342195b07716850e0e",
+    "pair_patch_sha256": "bfc2c68a70c6f68544ed954af8daf20a062ac426317582c589d106591189aaf8"
   },
   "workload": {
     "test_id": null,
