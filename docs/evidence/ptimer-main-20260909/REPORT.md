@@ -1,6 +1,6 @@
 # Current-main PTIMER baseline correction
 
-[PR #59](https://github.com/Mainkill1/xemu/pull/59) prioritizes [masked-alarm issue #40](https://github.com/Mainkill1/xemu/issues/40), with the separately tracked [deadline issue #39](https://github.com/Mainkill1/xemu/issues/39). Main remains unchanged. Other optimization tests are paused pending this baseline decision.
+[PR #59](https://github.com/Mainkill1/xemu/pull/59) prioritizes [masked-alarm issue #40](https://github.com/Mainkill1/xemu/issues/40), with the separately tracked [deadline issue #39](https://github.com/Mainkill1/xemu/issues/39). The owner selected `baseline/cycle-01-start` at `9f618d6d8c4c446ef023955f3d4de22f661f61a4` as the fixed reference. Its product source is unchanged from `bd1fecb9`, so the existing compiled baseline and measurements remain applicable. This timer candidate remains separate and unmerged; other optimization paths stay paused pending its qualification.
 
 | Evidence | Status |
 | --- | --- |
@@ -11,7 +11,10 @@
 | Shared generic timer suite | 576/576 PASS natively, exit 0; shared stub regression check |
 | Exact current-main negative controls | All five intended native failures reproduced on bd1; repaired controls pass on 8da |
 | Native VMState and guest checks | GL/VK smoke and v5 roundtrip passed; corrected r2 old-v4 resume failed final guest progression |
+| PGR2 GL/VK snapshot and fresh-start | All four candidate capture/lifecycle gates complete; unfavorable snapshot observations keep acceptance held |
 | Fixed-work performance and resources | Pending; no 2% gate pass claimed |
+
+The [PGR2 comparison](pgr2/README.md) preserves all four retained-baseline/candidate cells. Snapshot OpenGL mean/p95/p99 intervals rose by 7.32% / 7.31% / 14.45%; Snapshot Vulkan p99 rose by 2.46%. Single non-interleaved capture pairs do not establish causation, but these unfavorable observations do not support acceptance under the 2% gate. Fresh-start observations and capture/resource limits are included alongside them.
 
 The table compares retained main and candidate Morrowind display-write cadence and interval tails, not rendered FPS. Both candidate cells completed, but this single non-contemporaneous comparison does not establish a causal performance improvement or pass the 2% gate. Raw numeric inputs are in [metrics.json](metrics.json), identities and artifact hashes in [manifest.json](manifest.json). Historical figure inputs remain archived; current summaries use tables.
 

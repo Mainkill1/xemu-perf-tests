@@ -1,0 +1,293 @@
+{
+  "schema": "ptimer-pgr2-comparison-v1",
+  "recorded_date": "2026-09-09",
+  "disposition": {
+    "status": "acceptance_held",
+    "reason": "Snapshot OpenGL mean, p95, and p99 guest-frame intervals and Snapshot Vulkan p99 are unfavorable by more than 2% in one retained-baseline/candidate observation per cell.",
+    "qualification": "These non-interleaved single observations do not establish causation or pass the 2% performance gate. Repeatable fixed-work evidence remains required."
+  },
+  "identity": {
+    "fixed_baseline": {
+      "branch": "baseline/cycle-01-start",
+      "commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "product_source": "bd1fecb93353272dda2a810991e28945de35b665",
+      "tested_binary_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "tested_source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tested_source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d"
+    },
+    "candidate": {
+      "commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+      "tree": "20c4d0a4551a878485370329e9856766dca7c752",
+      "tested_binary_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6"
+    },
+    "workload": {
+      "game": "Project Gotham Racing 2",
+      "disc_sha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd",
+      "snapshot_seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+      "snapshot_manifest_sha256": "2b33ac44bfd7e563d2161d3c3546530414759520459dc7a65a0ef8c8dbca51c5",
+      "fresh_boot_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "vulkan_config_sha256": "ee47218c846e75c7dbcc9e88fddb09053f96b73dd606e3b516a33fadb07b167e",
+      "opengl_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656"
+    },
+    "tooling": {
+      "snapshot_wrapper_sha256": "e5d1964384da8605794d1058052338b205b92225046af553c8c6667594b540c8",
+      "fresh_boot_adapter_sha256": "f598318d989dcd87e4a23e685ce2dbb90d470d7b2e4fc741ebf5cda6520233f0",
+      "capture_runner_sha256": "c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38",
+      "launcher_sha256": "d1938ccbdb9235f668e873a306442540093cda86883c67ddf2835d034b580279"
+    }
+  },
+  "measurement_contract": {
+    "observations_per_identity_per_cell": 1,
+    "pairing": "retained baseline and candidate were measured at different times; observations were not interleaved",
+    "measurement_seconds": 60,
+    "snapshot_warmup_seconds": 3,
+    "fresh_boot_warmup_seconds": 30,
+    "trace_profile": "CpuScheduler",
+    "trace_start_mode": "SteadyState",
+    "surface_scale": 1,
+    "vulkan_telemetry": "Disabled",
+    "presentmon": "Enabled; sample count is reported only as a capture gate",
+    "guest_frame_interval_unit": "ms; lower is better",
+    "guest_flip_cadence_unit": "logged guest flip events per second; higher is better; this is not rendered FPS",
+    "relative_delta_formula": "100 * (candidate - baseline) / baseline",
+    "unfavorable_threshold_percent": 2.0
+  },
+  "cells": [
+    {
+      "mode": "Snapshot",
+      "renderer": "Vulkan",
+      "baseline": {
+        "run_id": "ptimer-main-c17591d5-pgr2-snapshot-vulkan-r1-20260909",
+        "guest_frame_count": 1740,
+        "guest_frame_mean_ms": 34.483841379310306,
+        "guest_frame_p95_ms": 40.91,
+        "guest_frame_p99_ms": 45.186,
+        "guest_flip_cadence_hz": 29.0120750575906,
+        "presentmon_sample_count": 3597,
+        "complete_receipt_sha256": "008c59071b9013ffc6edef58fbfffc3ee5394f9d575b8f838c6247fc838e0f70",
+        "hdd_lifecycle_sha256": "5e08c108bc414e88a00693ada724d0bbad59056fb04bdcfb3f1c9ff23b171518",
+        "capture_image_sha256": "c18a34c68b000303a05b52efd9bc439e970fcf7a585f55db0b5406c2e5872f65"
+      },
+      "candidate": {
+        "run_id": "ptimer-main-8da17c3e-pgr2-snapshot-vulkan-r1-20260909",
+        "guest_frame_count": 1732,
+        "guest_frame_mean_ms": 34.62726212471138,
+        "guest_frame_p95_ms": 41.338,
+        "guest_frame_p99_ms": 46.296,
+        "guest_flip_cadence_hz": 28.869237080423265,
+        "presentmon_sample_count": 3594,
+        "complete_receipt_sha256": "cd8c20fdb229fd69de65e65f93f5ecba0bb14c135785c13f478a2e904ddc3c1f",
+        "hdd_lifecycle_sha256": "0dccad9da1614a62f02589f35e5aa92079d305fdeed647f205885f5373f9892e",
+        "capture_image_sha256": "c18a34c68b000303a05b52efd9bc439e970fcf7a585f55db0b5406c2e5872f65"
+      },
+      "relative_delta_percent": {
+        "guest_frame_mean_ms": 0.41590710218,
+        "guest_frame_p95_ms": 1.046198973356,
+        "guest_frame_p99_ms": 2.456513079272,
+        "guest_flip_cadence_hz": -0.492339747791
+      },
+      "unfavorable_above_2_percent": [
+        "guest_frame_p99_ms"
+      ],
+      "gates": {
+        "baseline_status": "complete",
+        "candidate_status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "guest_frame_stalls": 0,
+        "private_hdd_cleanup": "complete",
+        "seed_unchanged": true
+      },
+      "visual_scope": "Stationary race UI with car and HUD, 0 MPH, Position 6/6, Target 2nd, Lap 1/3, and no pause overlay. This establishes static scene/input readiness only."
+    },
+    {
+      "mode": "Snapshot",
+      "renderer": "OpenGL",
+      "baseline": {
+        "run_id": "ptimer-main-c17591d5-pgr2-snapshot-opengl-r1-20260909",
+        "guest_frame_count": 1708,
+        "guest_frame_mean_ms": 35.12222423887584,
+        "guest_frame_p95_ms": 42.308,
+        "guest_frame_p99_ms": 46.086,
+        "guest_flip_cadence_hz": 28.519344100716634,
+        "presentmon_sample_count": 3598,
+        "complete_receipt_sha256": "f8a8c8411d34e9666301341a405f7744ba2d465d04088adbb971d455708e9971",
+        "hdd_lifecycle_sha256": "bf7a1a4980a61be06c06c13704bd72d3c335b1ddddc4dda70b2e3f6e8288b31d",
+        "capture_image_sha256": "01f78e9747164b2ea1bbc255aa32c74b387c40e4929d27fb6e25dc176d0a2e7f"
+      },
+      "candidate": {
+        "run_id": "ptimer-main-8da17c3e-pgr2-snapshot-opengl-r1-20260909",
+        "guest_frame_count": 1592,
+        "guest_frame_mean_ms": 37.69465766331665,
+        "guest_frame_p95_ms": 45.4,
+        "guest_frame_p99_ms": 52.745,
+        "guest_flip_cadence_hz": 26.538510358451582,
+        "presentmon_sample_count": 3596,
+        "complete_receipt_sha256": "4e2304e87b7581ceba431cc31732d0255c9a046b96c1637d6fd4a8e6362e6664",
+        "hdd_lifecycle_sha256": "d2f1ccd19e10bb6512f7edaf19feaefbc50010ba425b11e6ed45909853e3ead3",
+        "capture_image_sha256": "ea6bf7466bedc050434f28aa547bfb756f6f22b7678d67430f4c24c96ae0ca58"
+      },
+      "relative_delta_percent": {
+        "guest_frame_mean_ms": 7.324232676567,
+        "guest_frame_p95_ms": 7.308310485015,
+        "guest_frame_p99_ms": 14.449073471336,
+        "guest_flip_cadence_hz": -6.945579587208
+      },
+      "unfavorable_above_2_percent": [
+        "guest_frame_mean_ms",
+        "guest_frame_p95_ms",
+        "guest_frame_p99_ms"
+      ],
+      "gates": {
+        "baseline_status": "complete",
+        "candidate_status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "guest_frame_stalls": 0,
+        "private_hdd_cleanup": "complete",
+        "seed_unchanged": true
+      },
+      "visual_scope": "Stationary race UI with car and HUD, 0 MPH, Position 6/6, Target 2nd, Lap 1/3, and no pause overlay. This establishes static scene/input readiness only."
+    },
+    {
+      "mode": "FreshBoot",
+      "renderer": "Vulkan",
+      "baseline": {
+        "run_id": "ptimer-main-c17591d5-pgr2-fresh-vulkan-r1-20260909",
+        "guest_frame_count": 1801,
+        "guest_frame_mean_ms": 33.333300943919966,
+        "guest_frame_p95_ms": 33.412,
+        "guest_frame_p99_ms": 34.497,
+        "guest_flip_cadence_hz": 29.99998168078507,
+        "presentmon_sample_count": 3595,
+        "complete_receipt_sha256": "1df84a3abe0a4677a52f3ec916d7a033ae571453a5df90f1f2464d079d55f15d",
+        "hdd_lifecycle_sha256": "26ca6e904c259bbe39a49d69c1023c79cfa922b2a009348de4f7acbccaf2fb3f",
+        "wrapper_identity_sha256": "2edd79e5d550a6ef2a704b2efe2798c31e36752da34bdea94e5436657266e59d",
+        "capture_image_sha256": "2c97fbe1c5aa2e22be642930aabf9a79c32e6299493c816ccdc32c1259b8fc06"
+      },
+      "candidate": {
+        "run_id": "ptimer-main-8da17c3e-pgr2-fresh-vulkan-r1-20260909",
+        "guest_frame_count": 1801,
+        "guest_frame_mean_ms": 33.3425774569684,
+        "guest_frame_p95_ms": 33.554,
+        "guest_frame_p99_ms": 34.341,
+        "guest_flip_cadence_hz": 29.99997643506383,
+        "presentmon_sample_count": 3595,
+        "complete_receipt_sha256": "b090cfb9266e741b4964d9b6d1974b78e9b86ed7477a8cbd04142abb9c5a132b",
+        "hdd_lifecycle_sha256": "e4d4c7068e793ad8660917356c7c3b4a438e47dc8773561770a4f1f2e2f1918d",
+        "wrapper_identity_sha256": "b949982b4f56183b6f7b0a3ad224ae0b558bc33d5f8dd4962c597939166e4c9d",
+        "capture_image_sha256": "4cb4d78e927d2fae4dafac11117bb3ec27ff84253f97b7573aebeedd0073ec17"
+      },
+      "relative_delta_percent": {
+        "guest_frame_mean_ms": 0.027829566187,
+        "guest_frame_p95_ms": 0.424997007063,
+        "guest_frame_p99_ms": -0.452213235934,
+        "guest_flip_cadence_hz": -1.7485748e-05
+      },
+      "unfavorable_above_2_percent": [],
+      "gates": {
+        "baseline_status": "complete",
+        "candidate_status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "guest_frame_stalls": 0,
+        "private_hdd_cleanup": "complete",
+        "seed_unchanged": true
+      },
+      "visual_scope": "Stationary start-grid race UI with car and HUD, 0 MPH, dashed lap time, and no pause overlay. This establishes static scene/input readiness only."
+    },
+    {
+      "mode": "FreshBoot",
+      "renderer": "OpenGL",
+      "baseline": {
+        "run_id": "ptimer-main-c17591d5-pgr2-fresh-opengl-r1-20260909",
+        "guest_frame_count": 1800,
+        "guest_frame_mean_ms": 33.34260111111114,
+        "guest_frame_p95_ms": 33.822,
+        "guest_frame_p99_ms": 36.059,
+        "guest_flip_cadence_hz": 29.99094675460558,
+        "presentmon_sample_count": 3596,
+        "complete_receipt_sha256": "df7caa6d6f58755d29306c0230bd9d09f73cda89553508fc98dd56e4b43dd31c",
+        "hdd_lifecycle_sha256": "592f5aa116f9bef415fdb412f494a67db91caec55e32fade47d03eeab92f4b36",
+        "wrapper_identity_sha256": "4804cd7c836214e7171f6141fb02b4b1c1ed52fe04f5982bbfa226b4cabf639e",
+        "capture_image_sha256": "52bff975e004c74b065949aa42f6fa00600f27bf181404f60f7bf480141b73b5"
+      },
+      "candidate": {
+        "run_id": "ptimer-main-8da17c3e-pgr2-fresh-opengl-r1-20260909",
+        "guest_frame_count": 1802,
+        "guest_frame_mean_ms": 33.33326415094343,
+        "guest_frame_p95_ms": 33.74,
+        "guest_frame_p99_ms": 34.44,
+        "guest_flip_cadence_hz": 29.999966445019393,
+        "presentmon_sample_count": 3597,
+        "complete_receipt_sha256": "9ea2b17068f9e450c4338e111c3ea1ee3a0e8efa9018838f7967aabcec523803",
+        "hdd_lifecycle_sha256": "d49f29257aeb3cc95f8dec66ee93cf13a7a436fe863ea904318a59b7f8dbeb54",
+        "wrapper_identity_sha256": "59ec0ba18843100da634df2766e385b81af6e7609812b92dca40a12c2a044c79",
+        "capture_image_sha256": "72a48fb02b0665a49bd2fa2e6773e2d5f1288a34115ae77695914ed483870711"
+      },
+      "relative_delta_percent": {
+        "guest_frame_mean_ms": -0.028003094709,
+        "guest_frame_p95_ms": -0.242445745373,
+        "guest_frame_p99_ms": -4.489863834272,
+        "guest_flip_cadence_hz": 0.030074710504
+      },
+      "unfavorable_above_2_percent": [],
+      "gates": {
+        "baseline_status": "complete",
+        "candidate_status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "guest_frame_stalls": 0,
+        "private_hdd_cleanup": "complete",
+        "seed_unchanged": true
+      },
+      "visual_scope": "Stationary start-grid race UI with car and HUD, 0 MPH, dashed lap time, and no pause overlay. This establishes static scene/input readiness only."
+    }
+  ],
+  "resource_metrics": {
+    "cpu": null,
+    "gpu": null,
+    "reason": "Raw NVIDIA CSVs and sealed ETLs exist, but this packet has no reviewed same-window CPU or GPU summary. No ETL/WPA extraction was performed."
+  },
+  "setup_failures": [
+    {
+      "scope": "retained-baseline FreshBoot",
+      "stage": "dispatcher setup before PowerShell, GUI dispatch, or workload launch",
+      "result": "SSH command-path quoting failure",
+      "evidence_sha256": "a6dcaea31e9630e88cf0cabf8eeb9aa4a54d5572a0c4162cc5676fcd0d240006",
+      "workload_started": false,
+      "disposition": "preserved; corrected invocation completed the intended first valid Vulkan cell"
+    },
+    {
+      "scope": "candidate Snapshot Vulkan",
+      "stage": "dispatcher parsing before runner command or workload launch",
+      "result": "client-side quoting expanded remote PowerShell variables",
+      "evidence_sha256": "2667de515136e9d1102c036b857541835bfdb66536481b5c0657aff9f6d708a7",
+      "workload_started": false,
+      "disposition": "preserved; corrected no-game quote control passed before the intended first valid cell",
+      "corrected_control_sha256": "9d67510e8e6cced8f2af1ecee2537c076a1566292ac5f99ca7067cd26822d364"
+    }
+  ],
+  "authority": {
+    "baseline_snapshot_handoff_sha256": "78c0c4ab15cb8945e5aadebfa6c7ed8ab99d76212eac4b881c2e5fd4cf11c1b5",
+    "baseline_fresh_boot_handoff_sha256": "40eded5f67f17679abbfe6e15e8320861f30a230cff67698eb71df4b26ea7a11",
+    "candidate_handoff_sha256": "acbf3d9be81761b1864f393430223b76591e61cec1749e54c2bf0af553a98625",
+    "candidate_input_manifest_sha256": "ab5dd297b2b9dadd28f58b327dafeb3f8e6d237911b6027d3837ef80a8699a20"
+  }
+}
