@@ -53,8 +53,8 @@ candidate, previous, previous, candidate. The adverse maximum therefore
 survived an order reversal.
 
 The raw uninstrumented frame logs also place the repeated peak in the same
-snapshot phase. Within measured-frame indices 150-160, every candidate run was
-slower than every previous-main run:
+snapshot phase. Within measured-frame indices 150-160, the candidate median
+was worse in both interleaved run orders:
 
 | Order | Run | Build | Phase-peak index | Guest frame | Phase peak (ms) |
 | --- | ---: | --- | ---: | ---: | ---: |

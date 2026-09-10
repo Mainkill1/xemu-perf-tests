@@ -26,5 +26,5 @@
     "raw_direction": "+bad",
     "gate": "FAIL"
   },
-  "interpretation": "Every candidate phase peak exceeded every previous-main phase peak. Lower averages and percentiles do not waive this lag-spike failure."
+  "interpretation": "The candidate phase-peak median was worse in both interleaved run orders. Lower averages and percentiles do not waive this lag-spike failure."
 }
