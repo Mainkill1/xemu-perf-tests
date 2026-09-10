@@ -46,20 +46,25 @@ CPU_FIELDS = (
 def read_records(path: Path) -> tuple[dict, list[dict]]:
     schema = None
     frames = []
-    with path.open(encoding="utf-8-sig") as stream:
-        for line_number, line in enumerate(stream, 1):
-            if not line.strip():
-                continue
-            try:
-                record = json.loads(line)
-            except json.JSONDecodeError as error:
-                raise SystemExit(
-                    f"invalid JSON on line {line_number}: {error}"
-                ) from error
-            if record.get("type") == "schema":
-                schema = record
-            elif record.get("type") == "frame":
-                frames.append(record)
+    lines = path.read_text(encoding="utf-8-sig").splitlines(keepends=True)
+    for line_number, line in enumerate(lines, 1):
+        if not line.strip():
+            continue
+        try:
+            record = json.loads(line)
+        except json.JSONDecodeError as error:
+            incomplete_final_write = (
+                line_number == len(lines) and not line.endswith(("\n", "\r"))
+            )
+            if incomplete_final_write:
+                break
+            raise SystemExit(
+                f"invalid JSON on line {line_number}: {error}"
+            ) from error
+        if record.get("type") == "schema":
+            schema = record
+        elif record.get("type") == "frame":
+            frames.append(record)
 
     if schema is None or int(schema.get("schema_version", 0)) < 6:
         raise SystemExit("missing or unsupported Vulkan telemetry schema")

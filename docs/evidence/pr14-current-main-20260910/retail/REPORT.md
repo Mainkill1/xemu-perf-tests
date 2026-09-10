@@ -124,6 +124,12 @@ Research PR #67 owns the missing counters for clamped cubemap span, surface,
 dirty, and hash work. A behavioral one-change build is permitted only if that
 instrumentation attributes enough time to a changed path.
 
+The first PR #67 diagnostic has now rejected that hypothesis. Two complete
+counter-enabled process lifetimes recorded zero clamped cubemap preparations,
+so no enlarged storage span was checked or hashed on this PGR2 route. See
+`cubemap-span/REPORT.md`. PR #14 remains held while the broader cubemap-path
+presence and cost are checked before any Vulkan/OpenGL code isolation build.
+
 Morrowind and the remaining renderer/workload cells are pending; their absence
 does not waive the reproduced snapshot failure. PR #14 remains draft and held.
 
@@ -139,6 +145,8 @@ does not waive the reproduced snapshot failure. PR #14 remains draft and held.
   no-ETL diagnostic reversal and affected-phase counters.
 - `phase-peak-summary.json` records the uninstrumented phase-window values and
   the exact median calculation.
+- `cubemap-span/REPORT.md` and `cubemap-span/summary.json` record the exact
+  counter build and the rejected storage-span hypothesis.
 
 Every completed run reported successful workload admission and cleanup. No
 xemu or trace process and no disposable private HDD remained after a campaign.

@@ -11,13 +11,14 @@ SUMMARIZER = REPO_ROOT / "utils" / "summarize_vk_texture_span.py"
 
 
 class VkTextureSpanSummaryTests(unittest.TestCase):
-    def run_summary(self, records):
+    def run_summary(self, records, incomplete_tail=""):
         with tempfile.TemporaryDirectory() as temp_dir:
             temp = Path(temp_dir)
             source = temp / "telemetry.jsonl"
             output = temp / "summary.json"
             source.write_text(
-                "".join(json.dumps(record) + "\n" for record in records),
+                "".join(json.dumps(record) + "\n" for record in records)
+                + incomplete_tail,
                 encoding="utf-8",
             )
             completed = subprocess.run(
@@ -94,6 +95,30 @@ class VkTextureSpanSummaryTests(unittest.TestCase):
         self.assertNotEqual(completed.returncode, 0)
         self.assertIsNone(result)
         self.assertIn("unsupported Vulkan telemetry schema", completed.stderr)
+
+    def test_ignores_an_incomplete_final_write(self):
+        fields = {
+            f"clamped_cubemap_{name}_per_guest_frame": 0
+            for name in (
+                "prepares", "sampled_levels", "storage_levels",
+                "storage_span_bytes", "sampled_span_bytes", "extra_span_bytes",
+                "surface_range_checks", "surface_range_check_cpu_us",
+                "prepare_dirty_checks", "prepare_dirty_hits",
+                "prepare_dirty_check_cpu_us", "bound_dirty_checks",
+                "bound_dirty_hits", "bound_dirty_storage_span_bytes",
+                "bound_dirty_sampled_span_bytes", "bound_dirty_extra_span_bytes",
+                "bound_dirty_check_cpu_us", "content_hashes",
+                "content_hash_texture_bytes", "content_hash_extra_texture_bytes",
+                "content_hash_cpu_us", "uploads", "upload_cpu_us",
+            )
+        }
+        completed, result = self.run_summary([
+            {"type": "schema", "schema_version": 6},
+            dict(fields, type="frame", schema_version=6, guest_frame=1),
+        ], incomplete_tail='{"type":"frame","guest_frame":2')
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(result["frame_count"], 1)
 
 
 if __name__ == "__main__":
