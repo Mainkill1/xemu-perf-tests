@@ -1,0 +1,8 @@
+comparison,campaign,workload,renderer,metric,raw_plus,reference_us,candidate_us,improvement_percent,gate
+previous-main,1,palette unchanged-draw steady state,vulkan,mean run average,+bad,30165.0,31442.0,-4.233,NOISY_FAIL
+fixed-cycle-baseline,1,palette unchanged-draw steady state,vulkan,mean run average,+bad,30664.0,30160.5,1.642,PASS
+previous-main,2,palette unchanged-draw steady state,vulkan,mean run average,+bad,30707.5,30979.5,-0.886,PASS
+fixed-cycle-baseline,2,palette unchanged-draw steady state,vulkan,mean run average,+bad,30119.0,30909.5,-2.625,NOISY_FAIL
+prior-pr11-head,direct-isolation,palette unchanged-draw steady state,vulkan,mean run average,+bad,30250.5,30369.0,-0.392,PASS
+previous-main,1,surface download,vulkan,mean run average,+bad,55564.0,55456.5,0.193,PASS
+fixed-cycle-baseline,1,surface download,vulkan,mean run average,+bad,55347.0,55623.5,-0.500,PASS

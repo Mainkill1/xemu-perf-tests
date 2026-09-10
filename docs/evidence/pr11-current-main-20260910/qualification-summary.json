@@ -1,0 +1,54 @@
+{
+  "schema_version": 1,
+  "status": "QUALIFIED_WITH_KNOWN_BASELINE_FAILURE",
+  "candidate": {
+    "commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+    "tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+    "release_xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+    "diagnostic_xemu_sha256": "18b818d5ad7f5818fdde7461aa2350bee31f6281fe74686ba098f60415d139c1"
+  },
+  "previous_main": {
+    "commit": "c5a598a0ea42f96ea3c460321d31bdb8916328ed",
+    "compiled_source_commit": "659ad30be0488e85bea0df9514a5e52a31fcf290",
+    "xemu_sha256": "7be97adf32b0e9e56f80a00c17f82f211b46a908098ff8b81e55b6df8eebcd27"
+  },
+  "cycle_baseline": {
+    "ref_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "product_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "compiled_source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "perf_tests": {
+    "commit": "edfb442642a5aee7a812bc3e8516cb554d692925",
+    "tree": "ae056a16c92a7d8ff68019d663521ae2d6f7fc7f",
+    "iso_sha256": "3b37e64231c7b1a0ce672a2c8922cd9bbf3f071f6bbda1722fb8f8d0f4c2a796",
+    "catalog_id": "sha256:d228f056ce8db56b3d80c02693cda2132c84cb5a737fbc3f7ff09629128fc143",
+    "catalog_sha256": "b9cdbeba0376703e3587c93a3c0c1c53f71cc51d71024cbc57a1d9720671f8db",
+    "runner_sha256": "169ec960a057dc66dfe38bf5dea814894e2d8677fc903a3c8db49283086087c7",
+    "host_contracts": "155/155 PASS"
+  },
+  "confirmed_validation": {
+    "release_build": "PASS",
+    "release_diagnostic_controls_absent": "PASS",
+    "diagnostic_build": "PASS",
+    "failure_state_unit": "10/10 PASS",
+    "failpoint_unit": "5/5 PASS",
+    "texture_state_unit": "2/2 PASS",
+    "combined_units": "17/17 PASS",
+    "perf_test_host_contracts": "128/128 PASS",
+    "perf_test_catalog": "PASS",
+    "perf_test_xiso_build": "PASS",
+    "native_failure_injection": "5/5 expected outcomes; texture paths 0 VUIDs",
+    "ordinary_opengl": "5/5 PASS",
+    "ordinary_vulkan": "5/5 PASS; 0 VUIDs",
+    "surface_performance_vs_previous_main": "+0.193% PASS",
+    "surface_performance_vs_cycle_baseline": "-0.500% PASS",
+    "draw_suppression_direct_isolation": "-0.392% PASS",
+    "full_xiso_opengl": "156 records; 155 PASS + known xemu#60",
+    "full_xiso_vulkan": "156 records; 155 PASS + known xemu#60; 0 VUIDs",
+    "full_xiso_functional_hashes": "PASS both renderers"
+  },
+  "pending_validation": {},
+  "performance_gate": "PASS_DIRECT_ISOLATION_AND_SURFACE; CROSS_BASELINE_PALETTE_NOISY",
+  "decision": "QUALIFIED_FOR_INTEGRATION; KNOWN_BASELINE_FAILURE_XEMU_ISSUE_60"
+}
