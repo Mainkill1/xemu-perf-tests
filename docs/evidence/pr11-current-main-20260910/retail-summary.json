@@ -176,6 +176,27 @@
   },
   "evidence_locations": {
     "compact_results": "retail-results.csv",
-    "raw_evidence": "Retained on the authorized test host; compact sanitized results are published here."
+    "raw_evidence": "Retained on the authorized test host; compact sanitized results are published here.",
+    "pgr2_run_ids": [
+      "pr11-19944268-pgr2-snapshot-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-vulkan-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-vulkan-r1-20260910",
+      "pr11-baseline-c17591d5-pgr2-snapshot-vulkan-host-control-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-opengl-r1-20260910",
+      "pr11-19944268-pgr2-snapshot-opengl-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-opengl-r1-20260910",
+      "pr11-parent-c5a598a0-pgr2-snapshot-opengl-r2-20260910",
+      "pr11-baseline-c17591d5-pgr2-snapshot-opengl-host-control-r1-20260910",
+      "pr11-19944268-pgr2-fresh-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-fresh-vulkan-r2-20260910",
+      "pr11-parent-c5a598a0-pgr2-fresh-vulkan-r1-20260910",
+      "pr11-19944268-pgr2-fresh-opengl-r1-20260910"
+    ],
+    "morrowind_run_ids": [
+      "pr11-19944268-morrowind-vulkan-r6",
+      "pr11-parent-c5a598a0-morrowind-vulkan-r1",
+      "pr11-19944268-morrowind-opengl-r2",
+      "pr11-parent-c5a598a0-morrowind-opengl-r1"
+    ]
   }
 }

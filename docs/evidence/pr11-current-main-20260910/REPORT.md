@@ -206,7 +206,8 @@ deleted and no xemu, PresentMon, or WPR process remained.
 
 Compact per-metric rows are in `retail-results.csv`; exact runner, game, seed,
 configuration, and helper identities are in `retail-manifest.json`. Raw PGR2
-ETLs remain on the test host at the run paths recorded in `retail-summary.json`.
+ETLs remain on the test host; sanitized run IDs and retention status are recorded
+in `retail-summary.json`.
 
 ## Validation status
 
