@@ -41,6 +41,33 @@ CPU_FIELDS = (
     "content_hash_cpu_us",
     "upload_cpu_us",
 )
+TEXTURE_FIELD_NAMES = (
+    "texture_creates",
+    "texture_key_hashes",
+    "texture_key_hash_cpu_us",
+    "texture_cache_lookups",
+    "texture_cache_lookup_cpu_us",
+    "texture_cache_saturated_lookups",
+    "texture_cache_saturated_misses",
+    "texture_cache_hits",
+    "texture_cache_misses",
+    "cubemap_prepares",
+    "cubemap_same_level_prepares",
+    "cubemap_texture_length_calls",
+    "cubemap_texture_length_cpu_us",
+    "cubemap_layouts",
+    "cubemap_layout_cpu_us",
+    "cubemap_uploads",
+    "cubemap_upload_cpu_us",
+)
+TEXTURE_FIELDS = tuple(f"{name}{SUFFIX}" for name in TEXTURE_FIELD_NAMES)
+TEXTURE_CPU_FIELDS = (
+    "texture_key_hash_cpu_us",
+    "texture_cache_lookup_cpu_us",
+    "cubemap_texture_length_cpu_us",
+    "cubemap_layout_cpu_us",
+    "cubemap_upload_cpu_us",
+)
 
 
 def read_records(path: Path) -> tuple[dict, list[dict]]:
@@ -110,7 +137,7 @@ def summarize(schema: dict, frames: list[dict]) -> dict:
     active_frames = [
         frame for frame in output_frames if frame["prepares"] > 0
     ]
-    return {
+    result = {
         "schema_version": 1,
         "telemetry_schema_version": int(schema["schema_version"]),
         "source_field_contract": {
@@ -130,6 +157,40 @@ def summarize(schema: dict, frames: list[dict]) -> dict:
         },
         "frames": output_frames,
     }
+    if int(schema["schema_version"]) >= 7:
+        texture_totals = {name: 0 for name in TEXTURE_FIELD_NAMES}
+        texture_frames = []
+        for frame_index, frame in enumerate(frames):
+            missing = [field for field in TEXTURE_FIELDS if field not in frame]
+            if missing:
+                raise SystemExit(
+                    f"frame {frame_index} lacks texture-work field {missing[0]}"
+                )
+            values = {
+                name: int(frame[f"{name}{SUFFIX}"])
+                for name in TEXTURE_FIELD_NAMES
+            }
+            for name, value in values.items():
+                texture_totals[name] += value
+            cpu_us = sum(values[name] for name in TEXTURE_CPU_FIELDS)
+            texture_frames.append({
+                "frame_index": frame_index,
+                "guest_frame": int(frame["guest_frame"]),
+                "cpu_us": cpu_us,
+                **values,
+            })
+        result["texture_work"] = {
+            "source_field_contract": {
+                "suffix": SUFFIX,
+                "required_fields": list(TEXTURE_FIELD_NAMES),
+            },
+            "totals": texture_totals,
+            "peak_cpu_frame": max(
+                texture_frames, key=lambda frame: frame["cpu_us"]
+            ),
+            "frames": texture_frames,
+        }
+    return result
 
 
 def main() -> int:

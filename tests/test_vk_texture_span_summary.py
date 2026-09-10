@@ -120,6 +120,78 @@ class VkTextureSpanSummaryTests(unittest.TestCase):
         self.assertEqual(completed.returncode, 0, completed.stderr)
         self.assertEqual(result["frame_count"], 1)
 
+    def test_aggregates_schema7_texture_lookup_and_cubemap_fields(self):
+        clamped_fields = {
+            f"clamped_cubemap_{name}_per_guest_frame": 0
+            for name in (
+                "prepares", "sampled_levels", "storage_levels",
+                "storage_span_bytes", "sampled_span_bytes", "extra_span_bytes",
+                "surface_range_checks", "surface_range_check_cpu_us",
+                "prepare_dirty_checks", "prepare_dirty_hits",
+                "prepare_dirty_check_cpu_us", "bound_dirty_checks",
+                "bound_dirty_hits", "bound_dirty_storage_span_bytes",
+                "bound_dirty_sampled_span_bytes", "bound_dirty_extra_span_bytes",
+                "bound_dirty_check_cpu_us", "content_hashes",
+                "content_hash_texture_bytes", "content_hash_extra_texture_bytes",
+                "content_hash_cpu_us", "uploads", "upload_cpu_us",
+            )
+        }
+        texture_fields = {
+            f"{name}_per_guest_frame": 0
+            for name in (
+                "texture_creates", "texture_key_hashes", "texture_key_hash_cpu_us",
+                "texture_cache_lookups", "texture_cache_lookup_cpu_us",
+                "texture_cache_saturated_lookups",
+                "texture_cache_saturated_misses", "texture_cache_hits",
+                "texture_cache_misses", "cubemap_prepares",
+                "cubemap_same_level_prepares", "cubemap_texture_length_calls",
+                "cubemap_texture_length_cpu_us", "cubemap_layouts",
+                "cubemap_layout_cpu_us", "cubemap_uploads",
+                "cubemap_upload_cpu_us",
+            )
+        }
+        first = dict(clamped_fields, **texture_fields,
+                     type="frame", schema_version=7, guest_frame=40)
+        first.update({
+            "texture_creates_per_guest_frame": 12,
+            "texture_key_hashes_per_guest_frame": 12,
+            "texture_key_hash_cpu_us_per_guest_frame": 300,
+            "texture_cache_lookups_per_guest_frame": 12,
+            "texture_cache_lookup_cpu_us_per_guest_frame": 900,
+            "texture_cache_saturated_lookups_per_guest_frame": 10,
+            "texture_cache_saturated_misses_per_guest_frame": 3,
+            "texture_cache_hits_per_guest_frame": 9,
+            "texture_cache_misses_per_guest_frame": 3,
+            "cubemap_prepares_per_guest_frame": 2,
+            "cubemap_layout_cpu_us_per_guest_frame": 100,
+            "cubemap_upload_cpu_us_per_guest_frame": 200,
+        })
+        second = dict(clamped_fields, **texture_fields,
+                      type="frame", schema_version=7, guest_frame=41)
+        second.update({
+            "texture_creates_per_guest_frame": 4,
+            "texture_key_hashes_per_guest_frame": 4,
+            "texture_key_hash_cpu_us_per_guest_frame": 50,
+            "texture_cache_lookups_per_guest_frame": 4,
+            "texture_cache_lookup_cpu_us_per_guest_frame": 100,
+            "texture_cache_saturated_lookups_per_guest_frame": 4,
+            "texture_cache_saturated_misses_per_guest_frame": 1,
+            "texture_cache_hits_per_guest_frame": 3,
+            "texture_cache_misses_per_guest_frame": 1,
+        })
+
+        completed, result = self.run_summary([
+            {"type": "schema", "schema_version": 7}, first, second
+        ])
+
+        self.assertEqual(completed.returncode, 0, completed.stderr)
+        self.assertEqual(result["texture_work"]["totals"]["texture_creates"], 16)
+        self.assertEqual(
+            result["texture_work"]["totals"]["texture_cache_saturated_misses"], 4
+        )
+        self.assertEqual(result["texture_work"]["peak_cpu_frame"]["guest_frame"], 40)
+        self.assertEqual(result["texture_work"]["peak_cpu_frame"]["cpu_us"], 1500)
+
 
 if __name__ == "__main__":
     unittest.main()
