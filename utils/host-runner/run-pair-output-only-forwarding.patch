@@ -1,0 +1,120 @@
+--- run-pair.py
++++ run-pair.py
+@@ -391,0 +392,11 @@
++    parser.add_argument(
++        "--guest-evidence-mode",
++        choices=("live-markers", "output-only"),
++        default="live-markers",
++        help="Forward the child guest-evidence transport mode",
++    )
++    parser.add_argument(
++        "--guest-output-contract-json",
++        type=Path,
++        help="Schema-1 output-only contract forwarded unchanged to each child",
++    )
+@@ -1701,0 +1713,80 @@
++def validate_output_only_pair_request(args: argparse.Namespace) -> None:
++    if args.guest_evidence_mode != "output-only":
++        if args.guest_output_contract_json is not None:
++            raise PairRunError(
++                "--guest-output-contract-json requires --guest-evidence-mode output-only"
++            )
++        return
++    if args.guest_output_contract_json is None:
++        raise PairRunError("output-only pair evidence requires --guest-output-contract-json")
++    if args.allow_missing_live_markers:
++        raise PairRunError("output-only pair evidence rejects marker compatibility mode")
++    if args.compatibility_allowance:
++        raise PairRunError("output-only pair evidence rejects compatibility allowances")
++    if args.no_oracle_ledger:
++        raise PairRunError("output-only pair evidence requires the oracle ledger")
++    if args.allow_short_smoke:
++        raise PairRunError("output-only pair evidence preserves duration floors")
++    enabled = [role for role in ("baseline", "candidate") if telemetry_mode(args, role) != "off"]
++    if enabled:
++        raise PairRunError(
++            "output-only pair evidence requires host telemetry off for both roles; "
++            f"enabled={enabled}"
++        )
++
++
++def load_output_only_pair_identity(args: argparse.Namespace) -> dict | None:
++    if args.guest_evidence_mode != "output-only":
++        return None
++    try:
++        manifest = json.loads(args.guest_output_contract_json.read_text(encoding="utf-8"))
++    except (OSError, json.JSONDecodeError) as exc:
++        raise PairRunError(f"could not parse output-only pair contract: {exc}") from exc
++    identity = manifest.get("artifact_identity") if isinstance(manifest, dict) else None
++    if not isinstance(identity, dict):
++        raise PairRunError("output-only pair contract lacks artifact_identity")
++    fields = (
++        "guest_iso_sha256", "catalog_sha256", "child_runner_source_sha256",
++        "child_runner_patched_sha256", "child_patch_sha256",
++        "pair_runner_source_sha256", "pair_runner_patched_sha256", "pair_patch_sha256",
++    )
++    for field in fields:
++        value = identity.get(field)
++        if not isinstance(value, str) or re.fullmatch(r"[0-9a-f]{64}", value) is None:
++            raise PairRunError(f"output-only pair contract artifact_identity.{field} is invalid")
++    if not isinstance(identity.get("catalog_id"), str) or not identity["catalog_id"]:
++        raise PairRunError("output-only pair contract artifact_identity.catalog_id is invalid")
++    if sha256(Path(__file__).resolve()) != identity["pair_runner_patched_sha256"]:
++        raise PairRunError("output-only pair runner digest mismatch")
++    return identity
++
++
++def validate_output_only_child_evidence(
++    summary: dict[str, Any], args: argparse.Namespace
++) -> None:
++    if args.guest_evidence_mode != "output-only":
++        return
++    expected_sha256 = sha256(args.guest_output_contract_json.resolve())
++    expected_identity = args.output_contract_identity
++    evidence = summary.get("guest_evidence")
++    if not isinstance(evidence, dict) or evidence.get("mode") != "output-only":
++        raise PairRunError("child did not preserve output-only guest evidence mode")
++    contract = evidence.get("output_contract")
++    if not isinstance(contract, dict) or contract.get("sha256") != expected_sha256:
++        raise PairRunError("child output-only contract digest differs from the pair request")
++    validation = evidence.get("output_validation")
++    if (
++        not isinstance(validation, dict)
++        or validation.get("status") != "PASSED"
++        or validation.get("contract_sha256") != expected_sha256
++    ):
++        raise PairRunError("child output_validation did not pass the requested contract")
++    identity_validation = evidence.get("identity_validation")
++    if (
++        not isinstance(identity_validation, dict)
++        or identity_validation.get("status") != "PASSED"
++        or identity_validation.get("artifact_identity") != expected_identity
++    ):
++        raise PairRunError("child output-only artifact identity validation did not pass")
++
++
+@@ -1716,0 +1808 @@
++    validate_output_only_child_evidence(summary, args)
+@@ -1896,0 +1989,5 @@
++    command.extend(["--guest-evidence-mode", args.guest_evidence_mode])
++    if args.guest_output_contract_json is not None:
++        command.extend(
++            ["--guest-output-contract-json", str(args.guest_output_contract_json.resolve())]
++        )
+@@ -2532,0 +2630,2 @@
++    validate_output_only_pair_request(args)
++    args.output_contract_identity = load_output_only_pair_identity(args)
+@@ -2547,0 +2647,2 @@
++    if args.guest_output_contract_json is not None:
++        required_paths.append(args.guest_output_contract_json.resolve())
+@@ -2618,0 +2720,10 @@
++            "guest_evidence_mode": args.guest_evidence_mode,
++            "guest_output_contract": (
++                {
++                    "path": str(args.guest_output_contract_json.resolve()),
++                    "sha256": sha256(args.guest_output_contract_json.resolve()),
++                    "artifact_identity": args.output_contract_identity,
++                }
++                if args.guest_output_contract_json is not None
++                else None
++            ),

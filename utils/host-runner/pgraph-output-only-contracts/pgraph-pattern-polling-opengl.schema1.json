@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "suite_id": "pgraph-output-only-opengl-v1",
+  "artifact_identity": {
+    "perf_tests_commit": "442ec11b52ce1c9d7359825944bcbc2b5f524d07",
+    "perf_tests_tree": "61cbc0122f306d6beb9388a1f71256723a66a0d3",
+    "guest_iso_sha256": "3896df77a75fc35a6212f30b46cfd836fe65f86dbfc2004bd756c5fd7f1aacbe",
+    "catalog_sha256": "55c5db836784736aa3370866ab3e2b16b3d0806fc1b6986befe0dfc8e60130fc",
+    "catalog_id": "sha256:c5f65e25a9ca5581a55b92b73e1f9894bfb2082fd08cf79a175bd6cc94c50b8a",
+    "child_runner_source_sha256": "c478e3a38865de180f3751b88904bf18b152dd05208e773326979e3d7b65b64d",
+    "child_runner_patched_sha256": "fa6f714ee31a89eaabc44719f2b1057b9c75869c2264e5acaf78f81e74b4b608",
+    "child_patch_sha256": "fa75c44647f4db7c0b5c507e7fb30237c788e3205f19453ade896895ad7b705a",
+    "pair_runner_source_sha256": "e358b55d940e361bf57ef64a7a5cde83fc267d885191c813e7616764a88ee58a",
+    "pair_runner_patched_sha256": "7e1a7ccc3fefc259775bffb5ba3198f05b3549b511ca4f342195b07716850e0e",
+    "pair_patch_sha256": "bfc2c68a70c6f68544ed954af8daf20a062ac426317582c589d106591189aaf8"
+  },
+  "workload": {
+    "test_id": null,
+    "backend": "opengl",
+    "surface_scale": 1,
+    "memory_megabytes": 64,
+    "vsync": false,
+    "completion_mode": "per_iteration",
+    "host_telemetry": "off",
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 4,
+    "guest_evidence_mode": "output-only",
+    "guest_evidence_capability": "post-run-output-oracles-v1",
+    "held_frame_capture": false,
+    "minimum_measurement_seconds": 15,
+    "minimum_warmup_seconds": 5
+  },
+  "result_contract": {
+    "record_order": ["BusyPfifo::PgraphPatternPolling"],
+    "pgraph_pattern_polling": {
+      "catalog_id": "busy_pfifo.pgraph_pattern_polling",
+      "revision": 1,
+      "name": "BusyPfifo::PgraphPatternPolling",
+      "iterations": 4,
+      "sample_count": 1,
+      "framebuffer_fnv1a64": "386d0f085e98c325",
+      "metadata": null
+    }
+  }
+}
