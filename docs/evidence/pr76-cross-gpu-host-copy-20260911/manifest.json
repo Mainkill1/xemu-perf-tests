@@ -1,47 +1,64 @@
 {
-  "schema_version": 1,
+  "schema_version": 2,
   "repository": "Mainkill1/xemu",
   "pull_request": 76,
   "issue": 72,
-  "candidate_commit": "c40375db7fc274dc097eae71c72d3ee6460dcce8",
-  "candidate_tree": "001ffaca2bc407d25c1519c4805a3765f899896f",
-  "executable_sha256": "4cacd9ddd20a6255fd845e871acf5c7cc04df777af10d35d0fcb4c0dcbbb8a46",
-  "build_profile": "Official Windows Release: O2, full LTO, x86-64-v3, assertions and DWARF retained",
+  "candidate_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+  "candidate_tree": "11981a736703553349357cd89926b443901cadb9",
+  "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+  "baseline_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+  "previous_main_commit": "fc8c5dec9c1aa18883e74b57937d7ec90fdea074",
+  "build_profile": "Official Windows O2/full-LTO/x86-64-v3; assertions and DWARF retained; unstripped",
   "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "test_image": {
+    "source_commit": "61012b4e702fbb46a02d813e71f2159a109a1c29",
+    "iso_sha256": "6b2161f1b4abab94648f3fa0ca8da893092bab1b63d7e139a2358eb0319d05ac",
+    "catalog_records": 157
+  },
   "focused_unit": {
-    "test": "test-xbox-vk-device-selection.exe",
-    "result": "PASS",
+    "name": "test-xbox-vk-device-selection.exe",
     "exit_code": 0
   },
-  "native_runs": [
-    "pr76-focused-r2-amd",
-    "pr76-focused-r2-nvidia"
+  "focused_runs": [
+    "pr76-focused-final-amd",
+    "pr76-focused-final-nvidia"
   ],
-  "pgr2_snapshot_runs": [
-    "pr76-c40375db7f-pgr2-snapshot-nvidia-r1",
-    "pr76-c40375db7f-pgr2-snapshot-nvidia-warm-r2",
-    "pr76-c40375db7f-pgr2-snapshot-amd-cold-r1",
-    "pr76-c40375db7f-pgr2-snapshot-amd-warm-r2"
+  "xiso_runs": [
+    "2026-09-11-121257-perf-full-suite-a08c4d929165",
+    "2026-09-11-121517-perf-full-suite-a08c4d929165",
+    "2026-09-11-121825-perf-full-suite-a08c4d929165"
+  ],
+  "retail_runs": [
+    "pr76-a08c4d9291-pgr2-full-amd-cold-r1",
+    "pr76-a08c4d9291-pgr2-full-amd-warm-r2",
+    "pr76-a08c4d9291-pgr2-full-nvidia-cold-r1",
+    "pr76-a08c4d9291-pgr2-full-nvidia-warm-r2",
+    "pr76-a08c4d9291-pgr2-snapshot-amd-cold-r1",
+    "pr76-a08c4d9291-pgr2-snapshot-amd-warm-r2",
+    "pr76-a08c4d9291-pgr2-snapshot-nvidia-cold-r1",
+    "pr76-a08c4d9291-pgr2-snapshot-nvidia-warm-r2",
+    "pr76-a08c4d9291-morrowind-amd-cold-r1",
+    "pr76-a08c4d9291-morrowind-nvidia-cold-r1"
+  ],
+  "excluded_attempts": [
+    "xiso-clean-archive-preflight",
+    "morrowind-warm-preflight"
   ],
   "comparison_reference": {
-    "role": "previous main / failing release",
-    "commit": "fc8c5dec9c1aa18883e74b57937d7ec90fdea074",
-    "executable_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
-    "method": "retained published three-run warm median; reference executable not rebuilt"
+    "previous_main": "fc8c5dec9c1aa18883e74b57937d7ec90fdea074",
+    "baseline": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "method": "retained published PR70/current-main statistics; controls were not rebuilt"
   },
-  "completed_gates": [
-    "focused exact-UUID native output on AMD host-copy and NVIDIA shared paths",
-    "60-second PGR2 snapshot on AMD host-copy and NVIDIA shared paths"
-  ],
+  "result": {
+    "correctness": "PASS",
+    "nvidia_incremental_performance": "PASS with single-run maximums interpreted against published run ranges",
+    "amd_functional": "PASS",
+    "amd_performance": "MIXED; no improvement claim",
+    "ready_to_integrate": true
+  },
   "unpublished": [
     "guest screenshots",
     "private guest paths and writable media",
-    "host-specific launch paths"
-  ],
-  "remaining_gates": [
-    "full XISO suite on NVIDIA shared and AMD host-copy paths",
-    "PGR2 full-start qualification on NVIDIA shared and AMD host-copy paths",
-    "Morrowind snapshot qualification on NVIDIA shared and AMD host-copy paths",
-    "final comparison against previous main and fixed cycle baseline"
+    "raw host-specific launch records"
   ]
 }
