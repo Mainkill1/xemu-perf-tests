@@ -1,0 +1,313 @@
+{
+  "schema_version": 1,
+  "campaign": "pr59-attribution-20260910-r1",
+  "declared_utc": "2026-09-10T23:59:42.226690+00:00",
+  "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+  "cases": [
+    {
+      "phase": "pilot",
+      "index": 1,
+      "pair": 0,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 10,
+      "run_id": "pr59-attr-r1-pilot-01-opengl-b"
+    },
+    {
+      "phase": "pilot",
+      "index": 2,
+      "pair": 0,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 10,
+      "run_id": "pr59-attr-r1-pilot-02-opengl-am"
+    },
+    {
+      "phase": "pilot",
+      "index": 3,
+      "pair": 0,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 10,
+      "run_id": "pr59-attr-r1-pilot-03-vulkan-am"
+    },
+    {
+      "phase": "pilot",
+      "index": 4,
+      "pair": 0,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 10,
+      "run_id": "pr59-attr-r1-pilot-04-vulkan-b"
+    },
+    {
+      "phase": "measured",
+      "index": 1,
+      "pair": 1,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-01-opengl-b"
+    },
+    {
+      "phase": "measured",
+      "index": 2,
+      "pair": 1,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-02-opengl-am"
+    },
+    {
+      "phase": "measured",
+      "index": 3,
+      "pair": 1,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-03-vulkan-am"
+    },
+    {
+      "phase": "measured",
+      "index": 4,
+      "pair": 1,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-04-vulkan-b"
+    },
+    {
+      "phase": "measured",
+      "index": 5,
+      "pair": 2,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-05-vulkan-b"
+    },
+    {
+      "phase": "measured",
+      "index": 6,
+      "pair": 2,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-06-vulkan-am"
+    },
+    {
+      "phase": "measured",
+      "index": 7,
+      "pair": 2,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-07-opengl-am"
+    },
+    {
+      "phase": "measured",
+      "index": 8,
+      "pair": 2,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-08-opengl-b"
+    },
+    {
+      "phase": "measured",
+      "index": 9,
+      "pair": 3,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-09-opengl-b"
+    },
+    {
+      "phase": "measured",
+      "index": 10,
+      "pair": 3,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-10-opengl-am"
+    },
+    {
+      "phase": "measured",
+      "index": 11,
+      "pair": 3,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-11-vulkan-am"
+    },
+    {
+      "phase": "measured",
+      "index": 12,
+      "pair": 3,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-12-vulkan-b"
+    },
+    {
+      "phase": "measured",
+      "index": 13,
+      "pair": 4,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-13-vulkan-b"
+    },
+    {
+      "phase": "measured",
+      "index": 14,
+      "pair": 4,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-14-vulkan-am"
+    },
+    {
+      "phase": "measured",
+      "index": 15,
+      "pair": 4,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-15-opengl-am"
+    },
+    {
+      "phase": "measured",
+      "index": 16,
+      "pair": 4,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-16-opengl-b"
+    },
+    {
+      "phase": "measured",
+      "index": 17,
+      "pair": 5,
+      "renderer": "OPENGL",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-17-opengl-b"
+    },
+    {
+      "phase": "measured",
+      "index": 18,
+      "pair": 5,
+      "renderer": "OPENGL",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-18-opengl-am"
+    },
+    {
+      "phase": "measured",
+      "index": 19,
+      "pair": 5,
+      "renderer": "VULKAN",
+      "build": "AM",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-19-vulkan-am"
+    },
+    {
+      "phase": "measured",
+      "index": 20,
+      "pair": 5,
+      "renderer": "VULKAN",
+      "build": "B",
+      "seconds": 60,
+      "run_id": "pr59-attr-r1-20-vulkan-b"
+    }
+  ],
+  "builds": {
+    "B": {
+      "source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+    },
+    "AM": {
+      "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+      "tree": "20c4d0a4551a878485370329e9856766dca7c752",
+      "sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6"
+    }
+  },
+  "inputs": [
+    {
+      "file": "xemu.exe",
+      "sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+    },
+    {
+      "file": "xemu.exe",
+      "sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6"
+    },
+    {
+      "file": "vm-20260907142321.qcow2",
+      "sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c"
+    },
+    {
+      "file": "opengl.toml",
+      "sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656"
+    },
+    {
+      "file": "vulkan.toml",
+      "sha256": "ee47218c846e75c7dbcc9e88fddb09053f96b73dd606e3b516a33fadb07b167e"
+    },
+    {
+      "file": "run-pgr2-lag-objective.ps1",
+      "sha256": "e5d1964384da8605794d1058052338b205b92225046af553c8c6667594b540c8"
+    },
+    {
+      "file": "capture-pgr2-snapshot-wpr.ps1",
+      "sha256": "c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38"
+    },
+    {
+      "file": "start-retail-snapshot.ps1",
+      "sha256": "d1938ccbdb9235f668e873a306442540093cda86883c67ddf2835d034b580279"
+    },
+    {
+      "file": "invoke-xemu-timed-key-sequence.ps1",
+      "sha256": "6fcc4f2a12b5ed212a0d4bb5d7ca3e70041e8676a68d39db191976f5f2c57df0"
+    },
+    {
+      "file": "send-xemu-key.ps1",
+      "sha256": "eab682af9b58f75ff5ed88b5a160c983bf022649e7b2c71dab0764e62b8d392d"
+    },
+    {
+      "file": "capture-full-xemu-window.ps1",
+      "sha256": "7381116e826dc286251bbba4f4f9227fcd498fc0e38dfcd9d95269216d357bfd"
+    },
+    {
+      "file": "manifest.json",
+      "sha256": "2b33ac44bfd7e563d2161d3c3546530414759520459dc7a65a0ef8c8dbca51c5"
+    },
+    {
+      "file": "Project Gotham Racing 2 (USA, Asia) (En,Ja,Fr,De,Es,It,Zh,Ko).iso",
+      "sha256": "6943653e6e8540f2c473579cf27c8e710d79ac76f88abaa95ec0c011c5bd69cd"
+    }
+  ],
+  "host": {
+    "cpu": "AMD Ryzen 9 6900HX with Radeon Graphics",
+    "logical_processors": 16,
+    "os": "Microsoft Windows NT 10.0.19045.0",
+    "display_version": "22H2",
+    "build": "19045",
+    "revision": 6466,
+    "nvidia": "NVIDIA GeForce RTX 3070 Ti Laptop GPU, 581.95"
+  },
+  "toolchain": "Retained Windows optimized full-LTO x86-64-v3 builds with assertions and matching DWARF; see original PR59 build evidence. No rebuild in this campaign.",
+  "instrumentation": {
+    "trace": "CpuScheduler",
+    "start": "SteadyState",
+    "warmup_seconds": 3,
+    "presentmon": "enabled, host telemetry only",
+    "vulkan_detail": "disabled",
+    "scale": 1,
+    "host_cpu_reduction": false,
+    "snapshot": "original v4 vm-20260907142321",
+    "input": "keyboard reconnect, B-3",
+    "gpu_sensor_limit": "partial tail coverage; not a full resource qualification"
+  },
+  "original_evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/b180091ccfc14d198426a0802b4cb5c9ad7153cc/docs/evidence/ptimer-main-20260909/pgr2/comparison.json"
+}
