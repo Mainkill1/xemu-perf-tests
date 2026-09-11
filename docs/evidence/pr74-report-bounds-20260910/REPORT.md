@@ -1,6 +1,19 @@
 # PR74: report bounds and idle retirement
 
-**24 current-head targeted cases PASS under Wine and Windows; release qualification still pending.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). This evidence branch covers PR74 only.
+**Hold for the OpenGL tail control; all three requested workloads have completed.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). Product source is `e1ec62ede550b7ab7fdf92f1d866e8747703fd0e`, EXE `8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0`.
+
+| Current-head qualification | OpenGL | Vulkan |
+| --- | --- | --- |
+| Full 158-record XISO | 157 PASS; one inherited small-cubemap FAIL | 158 PASS; validation active, zero VUIDs |
+| Report bounds and 4,097-draw query oracle | PASS | PASS |
+| Morrowind snapshot | Active gameplay; cadence/p95/p99 within 2% of previous main | Active gameplay; cadence/p95/p99 within 2% of previous main |
+| PGR2 full start | Valid capture; mean/p95/p99 within 2%, **maximum interval adverse** | Valid capture; mean/p95/p99 within 2%; maximum 35.301 ms |
+
+PGR2 OpenGL recorded a maximum interval of **50.133 ms**, with four intervals over 40 ms and one over 50 ms. The retained previous-main maximum was **36.950 ms**. No interval exceeded 75 ms, but that threshold does not erase the smaller adverse tail. One predeclared matched OpenGL previous-main/candidate pair is pending; this first observation remains part of the decision.
+
+[Full-suite summary](full-xiso-summary.json), [all per-test outcomes](full-xiso-results.csv), [initial retail records](retail-initial-results.json), and [comparison table](retail-results.csv) preserve these results. The OpenGL cubemap failure has the same unchanged test implementation as the retained [previous-main control](../pr14-current-main-20260910/full-xiso/receipt.json); it is not relabeled PASS. Full-suite durations are diagnostic only, not performance comparisons.
+
+The [24 targeted production-path cases](targeted-tests.md) also pass under Wine and natively on Windows. The restored [158-record image manifest](guest-build-fe8.json) pins the new XISO separately from the older image below. No merge, baseline change, or speedup is claimed.
 
 The retained native dataset below uses `05c149635b839e09bbe1c457f26f55ca4ad5be8b`, built from tree `f1479bd7e58371f8b03233b73bf239b93dd5a024`. Windows executable SHA-256: `9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09`.
 

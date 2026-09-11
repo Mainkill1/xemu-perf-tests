@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "status": "HOLD_FOR_MATCHED_OPENGL_TAIL_CONTROL",
+  "reference_scope": "Historical retained prior-main and fixed baseline; not concurrent paired controls. PR11 candidate19944268 is the prior-main reference for PR74.",
+  "initial_runs": [
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "product_source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+      "product_exe_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "intervals": 676,
+      "maximum_interval_ms": 48.635999999999996,
+      "tail_counts": {
+        ">75ms": 0
+      },
+      "validity": {
+        "result": "complete",
+        "seed_unchanged": true,
+        "private_hdd_deleted": true,
+        "scene_admission": "Both start/end images reviewed: active unpaused gameplay with crosshair and no overlay."
+      },
+      "evidence_sha256": {
+        "result.json": "cc67e3052b6f28a37c622a8eed15201c3c7470fad9cf55ebfd570dee376f770d",
+        "launch-1/guest-flips.log": "17186b3b7f09351ca7e4bdec7bdd4b609a174eea9bf6b2b52c2eb28477698c96"
+      }
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "product_source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+      "product_exe_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "intervals": 477,
+      "maximum_interval_ms": 59.841,
+      "tail_counts": {
+        ">75ms": 0
+      },
+      "validity": {
+        "result": "complete",
+        "seed_unchanged": true,
+        "private_hdd_deleted": true,
+        "scene_admission": "Both start/end images reviewed: active unpaused gameplay with crosshair and no overlay."
+      },
+      "evidence_sha256": {
+        "result.json": "0de34797176bc9a831b159398e58bf8dee5b58ad4003de07d3d9f96837beb6a6",
+        "launch-1/guest-flips.log": "6d664a5baddcbc7c682c44c7dd8d21a4dc8b9446c222be29c07af3810b6440dc"
+      }
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "product_source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+      "product_exe_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "intervals": 1801,
+      "maximum_interval_ms": 50.133,
+      "tail_counts": {
+        ">40ms": 4,
+        ">50ms": 1,
+        ">75ms": 0,
+        ">100ms": 0
+      },
+      "validity": {
+        "status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "duration_seconds": 60,
+        "warmup_seconds": 30
+      },
+      "evidence_sha256": {
+        "complete.json": "c73ff54d96f29b4fb544e760ee21a60f68388710af90a56e61242771a1c1adfd",
+        "frame-time-summary.json": "3bebac445aa0cdff875bbc29901b083b8a4539365f834d1a75fdceb7f866ccb8",
+        "xemu-frames-measured.csv": "b14b6f856c6a66b7edf3317d0f6c808c1333eaf067c452fb15f29499408f1edf"
+      }
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "product_source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+      "product_exe_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "intervals": 1801,
+      "maximum_interval_ms": 35.301,
+      "tail_counts": {
+        ">40ms": 0,
+        ">50ms": 0,
+        ">75ms": 0,
+        ">100ms": 0
+      },
+      "validity": {
+        "status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "duration_seconds": 60,
+        "warmup_seconds": 30
+      },
+      "evidence_sha256": {
+        "complete.json": "45c019b18881c6552b9e1f7b9216a3145801f7dd7575ac19ff9629ee8486e4de",
+        "frame-time-summary.json": "79181b7f18ec6bcfd8c2d5d39ed2c44178be5ef0cc8b0c90fcff307ed171d4ba",
+        "xemu-frames-measured.csv": "07606b66de555b05624e6dd400d347506710bd2af91b474bd6978bc25ddc9140"
+      }
+    }
+  ],
+  "comparison_rows": [
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "Display-write cadence (events/s)",
+      "raw_plus": "+good",
+      "baseline": 32.7984268773,
+      "previous_main": 34.24314979305423,
+      "candidate": 33.86009489642217,
+      "improvement_vs_baseline_percent": 3.236947988676109,
+      "improvement_vs_previous_main_percent": -1.1186321905169994,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "p95 display-write interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 38.098,
+      "previous_main": 36.099,
+      "candidate": 36.245,
+      "improvement_vs_baseline_percent": 4.863772376502708,
+      "improvement_vs_previous_main_percent": -0.4044433363805114,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "p99 display-write interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 42.848,
+      "previous_main": 41.051,
+      "candidate": 41.799,
+      "improvement_vs_baseline_percent": 2.4481889469753537,
+      "improvement_vs_previous_main_percent": -1.8221236997880625,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "Display-write cadence (events/s)",
+      "raw_plus": "+good",
+      "baseline": 23.7231158291,
+      "previous_main": 24.123598687234885,
+      "candidate": 23.875533689504238,
+      "improvement_vs_baseline_percent": 0.6424866847266175,
+      "improvement_vs_previous_main_percent": -1.0283084250689023,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "p95 display-write interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 47.99,
+      "previous_main": 48.111,
+      "candidate": 48.171,
+      "improvement_vs_baseline_percent": -0.37716190873098016,
+      "improvement_vs_previous_main_percent": -0.12471160441479553,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "Morrowind snapshot",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "p99 display-write interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 57.134,
+      "previous_main": 53.964,
+      "candidate": 53.823,
+      "improvement_vs_baseline_percent": 5.795148247978437,
+      "improvement_vs_previous_main_percent": 0.2612853013119825,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "Mean guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 33.342601,
+      "previous_main": 33.33331520532741,
+      "candidate": 33.342557468073295,
+      "improvement_vs_baseline_percent": 0.00013055948066834666,
+      "improvement_vs_previous_main_percent": -0.027726803316607374,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "p95 guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 33.822,
+      "previous_main": 33.541,
+      "candidate": 33.722,
+      "improvement_vs_baseline_percent": 0.2956655431376069,
+      "improvement_vs_previous_main_percent": -0.5396380549178752,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "opengl",
+      "run": "initial candidate r1",
+      "metric": "p99 guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 36.059,
+      "previous_main": 34.638,
+      "candidate": 34.902,
+      "improvement_vs_baseline_percent": 3.208630300341098,
+      "improvement_vs_previous_main_percent": -0.7621687164386018,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "Mean guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 33.333301,
+      "previous_main": 33.33333564686286,
+      "candidate": 33.33387729039419,
+      "improvement_vs_baseline_percent": -0.001728872859585147,
+      "improvement_vs_previous_main_percent": -0.001624930481225297,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "p95 guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 33.412,
+      "previous_main": 33.861000000000004,
+      "candidate": 33.56,
+      "improvement_vs_baseline_percent": -0.4429546270801007,
+      "improvement_vs_previous_main_percent": 0.8889282655562503,
+      "gate": "WITHIN_2_PERCENT"
+    },
+    {
+      "workload": "PGR2 full start",
+      "renderer": "vulkan",
+      "run": "initial candidate r1",
+      "metric": "p99 guest-frame interval (ms)",
+      "raw_plus": "+bad",
+      "baseline": 34.497,
+      "previous_main": 34.8725,
+      "candidate": 34.426,
+      "improvement_vs_baseline_percent": 0.20581499840565254,
+      "improvement_vs_previous_main_percent": 1.280378521757833,
+      "gate": "WITHIN_2_PERCENT"
+    }
+  ],
+  "adverse_signal": "PGR2 OpenGL initial maximum50.133ms with4 intervals>40ms, versus retained previous-main36.950ms and0>40ms; matched control pair is pending. Do not omit this result or claim performance-neutral qualification from mean/p99 alone."
+}

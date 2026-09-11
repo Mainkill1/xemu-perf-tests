@@ -1,0 +1,13 @@
+workload,renderer,run,metric,raw_plus,baseline,previous_main,candidate,improvement_vs_baseline_percent,improvement_vs_previous_main_percent,gate
+Morrowind snapshot,opengl,initial candidate r1,Display-write cadence (events/s),+good,32.7984268773,34.24314979305423,33.86009489642217,3.236947988676109,-1.1186321905169994,WITHIN_2_PERCENT
+Morrowind snapshot,opengl,initial candidate r1,p95 display-write interval (ms),+bad,38.098,36.099,36.245,4.863772376502708,-0.4044433363805114,WITHIN_2_PERCENT
+Morrowind snapshot,opengl,initial candidate r1,p99 display-write interval (ms),+bad,42.848,41.051,41.799,2.4481889469753537,-1.8221236997880625,WITHIN_2_PERCENT
+Morrowind snapshot,vulkan,initial candidate r1,Display-write cadence (events/s),+good,23.7231158291,24.123598687234885,23.875533689504238,0.6424866847266175,-1.0283084250689023,WITHIN_2_PERCENT
+Morrowind snapshot,vulkan,initial candidate r1,p95 display-write interval (ms),+bad,47.99,48.111,48.171,-0.37716190873098016,-0.12471160441479553,WITHIN_2_PERCENT
+Morrowind snapshot,vulkan,initial candidate r1,p99 display-write interval (ms),+bad,57.134,53.964,53.823,5.795148247978437,0.2612853013119825,WITHIN_2_PERCENT
+PGR2 full start,opengl,initial candidate r1,Mean guest-frame interval (ms),+bad,33.342601,33.33331520532741,33.342557468073295,0.00013055948066834666,-0.027726803316607374,WITHIN_2_PERCENT
+PGR2 full start,opengl,initial candidate r1,p95 guest-frame interval (ms),+bad,33.822,33.541,33.722,0.2956655431376069,-0.5396380549178752,WITHIN_2_PERCENT
+PGR2 full start,opengl,initial candidate r1,p99 guest-frame interval (ms),+bad,36.059,34.638,34.902,3.208630300341098,-0.7621687164386018,WITHIN_2_PERCENT
+PGR2 full start,vulkan,initial candidate r1,Mean guest-frame interval (ms),+bad,33.333301,33.33333564686286,33.33387729039419,-0.001728872859585147,-0.001624930481225297,WITHIN_2_PERCENT
+PGR2 full start,vulkan,initial candidate r1,p95 guest-frame interval (ms),+bad,33.412,33.861000000000004,33.56,-0.4429546270801007,0.8889282655562503,WITHIN_2_PERCENT
+PGR2 full start,vulkan,initial candidate r1,p99 guest-frame interval (ms),+bad,34.497,34.8725,34.426,0.20581499840565254,1.280378521757833,WITHIN_2_PERCENT
