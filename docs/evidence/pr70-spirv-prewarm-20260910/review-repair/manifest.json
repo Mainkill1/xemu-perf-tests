@@ -1,0 +1,62 @@
+{
+  "source_commit": "b111a9612911c9c170d661974852a46f3ad336b8",
+  "source_tree": "ae2cf13138c75cb2a63d5357561ad2800db92670",
+  "runtime_cleanup_commit": "ee00a1d21c",
+  "test_repair_commit": "01028d6db68c454e502f89b93383797e7a367553",
+  "os": "Linux",
+  "toolchain": {
+    "clang": "19.1.7",
+    "gcc_coverage": "14.2.0",
+    "glib": "2.84.4",
+    "flags": [
+      "-std=gnu11",
+      "-O1",
+      "-g",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-fsanitize=address,undefined",
+      "-fno-omit-frame-pointer"
+    ],
+    "ASAN_OPTIONS": "detect_leaks=1"
+  },
+  "source_sha256": {
+    "hw/xbox/nv2a/pgraph/vk/uniform-layout.h": "5850bcf44925513020f618cd3f3d1b24a014ef77f1dd7e40e38663ed65f80211",
+    "hw/xbox/nv2a/pgraph/vk/spirv-prewarm.h": "47235b2501c527b36d999cb43d83d0c0a5790c613dbdb9b6478654ddca3bf3b8",
+    "hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c": "f5c624d1d570d3c53ce9011fd6d8774f0e262d1aa4f7274e00b926bf05d1b072",
+    "tests/unit/test-xbox-vk-uniform-layout.c": "494100c422b6c892f850677417143f5d9b28581912f0fd138f61b15de4540dc8",
+    "tests/unit/test-xbox-vk-spirv-prewarm.c": "b8a1f5543f510408a59f6f9ed1d52caaafa7e680a27493130d540d5d126b2242"
+  },
+  "results": [
+    {
+      "test": "uniform layout ownership",
+      "cases": 6,
+      "complete_pair_cycles": 256,
+      "exit_code": 0,
+      "asan_ubsan_lsan": "PASS",
+      "binary_sha256": "965c8aea46aa4e30f8858b2045d5375be0b843c325aece1162453ce85b32f11d"
+    },
+    {
+      "test": "SPIR-V cache format and lifecycle helpers",
+      "groups": 13,
+      "new_structural_cases": 10,
+      "existing_source_size_case": "outer checksum corrected",
+      "exit_code": 0,
+      "asan_ubsan_lsan": "PASS",
+      "binary_sha256": "0d87c9df45f6ed0d682a362723befad51a63cb4ef892de09c8d2a12a86910106"
+    }
+  ],
+  "coverage": {
+    "file": "hw/xbox/nv2a/pgraph/vk/spirv-prewarm.c",
+    "lines_executed_percent": 92.39,
+    "branches_executed_percent": 99.4,
+    "branches_taken_at_least_once_percent": 70.06,
+    "note": "Coverage is for the focused cache executable, not the emulator. Record size, reserved field, header/payload extent, per-record integrity, SPIR-V validation, and final totals rejection paths were reached."
+  },
+  "limitations": [
+    "Tests call the same production cleanup helper used by partial construction and module destruction; no full-emulator allocator injection performed.",
+    "No native Windows or Vulkan device execution in this result.",
+    "No performance measurements or release qualification.",
+    "Native construction/recovery, eviction, renderer switching, gameplay and resource checks remain pending."
+  ]
+}

@@ -1,0 +1,48 @@
+{
+  "status": "BUILD_AND_FOCUSED_UNIT_PASS",
+  "candidate_commit": "b111a9612911c9c170d661974852a46f3ad336b8",
+  "candidate_tree": "ae2cf13138c75cb2a63d5357561ad2800db92670",
+  "kind": "Windows O2/full-LTO x86-v3 SPIR-V prewarm candidate with DWARF and assertions; instrumentation disabled",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "instrumentation": "normal production candidate; no stage-attribution trace",
+  "focused_unit": {
+    "name": "test-xbox-vk-spirv-prewarm.exe",
+    "runner": "Wine in a dedicated WINEPREFIX",
+    "exit_code": 0
+  },
+  "dwarf_sections_verified": [
+    ".debug_info",
+    ".debug_line"
+  ],
+  "artifacts": {
+    "xemu.exe": {
+      "sha256": "e28c88fc44c5454f93d6af0a46010b562ba50dd2bb8ab77d8208514785d22ae6",
+      "bytes": 44151227
+    },
+    "xemu.exe.debug": {
+      "sha256": "63bb976d0e6658f214d2964f3f0d73d678a9d0bf0e439e9ce783f11513ae7586",
+      "bytes": 15917603
+    },
+    "xemu-symbols.txt.gz": {
+      "sha256": "5e166a5287598d1298cab2706825ff4ae5c764e1aa53003ad622edb03a2be2af",
+      "bytes": 1396988
+    },
+    "test-xbox-vk-spirv-prewarm.exe": {
+      "sha256": "6ed99dba9484047342a4c5e90b0cca612f4e5318bee4e53049813b9fb4efacde",
+      "bytes": 4146848
+    },
+    "test-xbox-vk-uniform-layout.exe": {
+      "sha256": "20c05ceeb2caf727bb8d09e269b4f38dfda6ebdeaa1919998757ed32a5a96bc6",
+      "bytes": 4123825
+    }
+  }
+}

@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "status": "complete",
+  "evidence_class": "exploratory route-coverage evidence",
+  "measurement_seconds": 120,
+  "alignment": "Final automated race-confirmation input followed by fixed 7-second delay; no guest-event race-start detector.",
+  "manual_driving": true,
+  "limits": [
+    "Different manual driving line, speed, traffic and track position across cells.",
+    "Single previous-main bracket only.",
+    "Useful for exercising more shader/map states; not an exact 2% qualification and not proof the whole map was traversed.",
+    "NVIDIA sampler retained only about 83% of each 120-second window because forced sampler shutdown lost its buffered tail."
+  ],
+  "cells": [
+    {
+      "name": "01-previous-main-manual-race-b1",
+      "role": "previous_main",
+      "renderer": "VULKAN",
+      "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+      "cache_mode": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "metrics": {
+        "fps": 29.15549919287398,
+        "average_ms": 34.26227189728961,
+        "p95_ms": 41.817,
+        "p99_ms": 49.569,
+        "max_ms": 182.864,
+        "stalls": 1,
+        "guest_frames": 3505,
+        "host_presents": 7189
+      },
+      "resources": {
+        "samples": 207,
+        "normalized_host_cpu_pct": 21.920381866368352,
+        "working_set_average_bytes": 1061012484.94686,
+        "working_set_peak_bytes": 1077571584.0,
+        "private_average_bytes": 3112612591.922705,
+        "private_peak_bytes": 3124109312.0
+      },
+      "focus_loss": 0,
+      "not_responding": 0,
+      "normal_close": true,
+      "hdd_deleted": true,
+      "seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "identity": {
+        "logical_commit": "e18ba8d6274cf227cc9e5ae1b5684f28ed911a99",
+        "logical_tree": "3826f39bafd751596436958da355ca87e5b98c87",
+        "build_source_commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+        "build_tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+        "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+        "runtime_equivalence": "Only later performance-template documentation differs from the logical previous-main tree."
+      },
+      "gpu_partial": {
+        "samples": 198,
+        "coverage_seconds": 100.031,
+        "measurement_seconds": 120,
+        "coverage_percent": 83.35916666666667,
+        "gpu_util_avg_pct": 29.984848484848484,
+        "gpu_util_peak_pct": 51.0,
+        "gpu_memory_util_avg_pct": 3.6717171717171717,
+        "gpu_memory_util_peak_pct": 12.0,
+        "vram_used_avg_mib": 882.0151515151515,
+        "vram_used_peak_mib": 885.0,
+        "power_draw_avg_w": 22.26969696969697,
+        "power_draw_peak_w": 24.52,
+        "temperature_avg_c": 47.45454545454545,
+        "temperature_peak_c": 49.0
+      }
+    },
+    {
+      "name": "02-candidate-manual-race-cold",
+      "role": "candidate",
+      "renderer": "VULKAN",
+      "xemu_sha256": "d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d",
+      "cache_mode": "cold",
+      "cache_before": null,
+      "cache_after": {
+        "bytes": 5418200,
+        "sha256": "a20d080c3e26ebc0384b93fd7910c4a4b64a3fcd99aacf2ae4d0c0f4e329f07f"
+      },
+      "cache_stats": {
+        "hits": 190,
+        "misses": 221,
+        "rejections": 0,
+        "fallbacks": 0,
+        "records": 221,
+        "source_bytes": 1859833,
+        "spirv_bytes": 3551216,
+        "loaded_bytes": 0,
+        "queued_bytes": 5411049,
+        "write": "published"
+      },
+      "metrics": {
+        "fps": 29.462738046250102,
+        "average_ms": 33.9443616058808,
+        "p95_ms": 39.741,
+        "p99_ms": 46.01,
+        "max_ms": 74.022,
+        "stalls": 0,
+        "guest_frames": 3537,
+        "host_presents": 7193
+      },
+      "resources": {
+        "samples": 208,
+        "normalized_host_cpu_pct": 22.185103809633425,
+        "working_set_average_bytes": 1060900292.9230769,
+        "working_set_peak_bytes": 1072623616.0,
+        "private_average_bytes": 3116449358.769231,
+        "private_peak_bytes": 3124924416.0
+      },
+      "focus_loss": 0,
+      "not_responding": 0,
+      "normal_close": true,
+      "hdd_deleted": true,
+      "seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "identity": {
+        "logical_commit": "b14bfb745870faae500a1ecb0ff49d2143ba8bd1",
+        "logical_tree": "3a79dd692d9e7f1089fa0b138d07fc4269fbd704",
+        "build_source_commit": "b14bfb745870faae500a1ecb0ff49d2143ba8bd1",
+        "build_tree": "3a79dd692d9e7f1089fa0b138d07fc4269fbd704",
+        "xemu_sha256": "d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d"
+      },
+      "gpu_partial": {
+        "samples": 198,
+        "coverage_seconds": 99.82,
+        "measurement_seconds": 120,
+        "coverage_percent": 83.18333333333334,
+        "gpu_util_avg_pct": 33.27272727272727,
+        "gpu_util_peak_pct": 51.0,
+        "gpu_memory_util_avg_pct": 6.095959595959596,
+        "gpu_memory_util_peak_pct": 14.0,
+        "vram_used_avg_mib": 882.0151515151515,
+        "vram_used_peak_mib": 885.0,
+        "power_draw_avg_w": 22.151464646464646,
+        "power_draw_peak_w": 26.14,
+        "temperature_avg_c": 49.44949494949495,
+        "temperature_peak_c": 50.0
+      }
+    },
+    {
+      "name": "03-candidate-manual-race-warm",
+      "role": "candidate",
+      "renderer": "VULKAN",
+      "xemu_sha256": "d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d",
+      "cache_mode": "warm",
+      "cache_before": {
+        "bytes": 5418200,
+        "sha256": "a20d080c3e26ebc0384b93fd7910c4a4b64a3fcd99aacf2ae4d0c0f4e329f07f"
+      },
+      "cache_after": {
+        "bytes": 5418200,
+        "sha256": "a20d080c3e26ebc0384b93fd7910c4a4b64a3fcd99aacf2ae4d0c0f4e329f07f"
+      },
+      "cache_stats": {
+        "hits": 484,
+        "misses": 0,
+        "rejections": 0,
+        "fallbacks": 0,
+        "records": 221,
+        "source_bytes": 1859833,
+        "spirv_bytes": 3551216,
+        "loaded_bytes": 5418200,
+        "queued_bytes": 0,
+        "write": "clean"
+      },
+      "metrics": {
+        "fps": 29.600075153324966,
+        "average_ms": 33.77582250351627,
+        "p95_ms": 37.773,
+        "p99_ms": 46.694,
+        "max_ms": 76.365,
+        "stalls": 1,
+        "guest_frames": 3555,
+        "host_presents": 7196
+      },
+      "resources": {
+        "samples": 208,
+        "normalized_host_cpu_pct": 22.01451808488993,
+        "working_set_average_bytes": 1046440960.0,
+        "working_set_peak_bytes": 1075970048.0,
+        "private_average_bytes": 3113403136.0,
+        "private_peak_bytes": 3139416064.0
+      },
+      "focus_loss": 0,
+      "not_responding": 0,
+      "normal_close": true,
+      "hdd_deleted": true,
+      "seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "identity": {
+        "logical_commit": "b14bfb745870faae500a1ecb0ff49d2143ba8bd1",
+        "logical_tree": "3a79dd692d9e7f1089fa0b138d07fc4269fbd704",
+        "build_source_commit": "b14bfb745870faae500a1ecb0ff49d2143ba8bd1",
+        "build_tree": "3a79dd692d9e7f1089fa0b138d07fc4269fbd704",
+        "xemu_sha256": "d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d"
+      },
+      "gpu_partial": {
+        "samples": 198,
+        "coverage_seconds": 99.9,
+        "measurement_seconds": 120,
+        "coverage_percent": 83.25,
+        "gpu_util_avg_pct": 30.954545454545453,
+        "gpu_util_peak_pct": 53.0,
+        "gpu_memory_util_avg_pct": 4.040404040404041,
+        "gpu_memory_util_peak_pct": 13.0,
+        "vram_used_avg_mib": 882.0151515151515,
+        "vram_used_peak_mib": 885.0,
+        "power_draw_avg_w": 22.80878787878788,
+        "power_draw_peak_w": 24.19,
+        "temperature_avg_c": 50.45959595959596,
+        "temperature_peak_c": 51.0
+      }
+    }
+  ]
+}

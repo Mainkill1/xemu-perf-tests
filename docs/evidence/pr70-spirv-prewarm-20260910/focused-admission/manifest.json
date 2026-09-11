@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "candidate": {
+    "commit": "b14bfb745870faae500a1ecb0ff49d2143ba8bd1",
+    "tree": "3a79dd692d9e7f1089fa0b138d07fc4269fbd704",
+    "xemu_sha256": "d6c0762fd672932667537b7152bf4068a7c313d2980d4b545e020e852064bc9d",
+    "xemu_bytes": 44151227
+  },
+  "baseline_reused": {
+    "ref_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "compiled_source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "frame_average_ms": 34.483841,
+    "p95_ms": 40.91,
+    "p99_ms": 45.186,
+    "frame_count": 1740,
+    "provenance": "xemu-perf-tests docs/evidence/pr11-current-main-20260910/retail-summary.json; reused, not rerun"
+  },
+  "test_revision_note": "Private adaptation of maintained Session 1 PGR2 snapshot runner; no source rebuild and no baseline rebuild.",
+  "artifacts": [
+    "admission-summary.json",
+    "metrics.csv",
+    "cache-results.csv",
+    "REPORT.md"
+  ],
+  "raw_policy": "Raw logs and copyrighted screenshots remain private on authorized host.",
+  "test_tooling": {
+    "repository": "Mainkill1/xemu-perf-tests",
+    "base_commit": "54739778eb0d7783fee35f911c462c6f41a11132",
+    "adaptation": "private PR70 cache-admission wrapper around maintained Session 1 PGR2 snapshot route"
+  }
+}

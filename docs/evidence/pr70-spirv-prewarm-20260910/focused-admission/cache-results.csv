@@ -1,0 +1,4 @@
+cell,cache_before_bytes,cache_after_bytes,cache_hits,cache_misses,cache_rejections,cache_fallbacks,cache_records,cache_loaded_bytes,cache_queued_bytes,cache_write
+cold,,3042552,20,121,0,0,121,0,3038601,published
+warm,3042552,3042552,140,0,0,0,121,3042552,0,clean
+corrupt-recovery,16,3042552,20,121,1,0,121,0,3038601,published
