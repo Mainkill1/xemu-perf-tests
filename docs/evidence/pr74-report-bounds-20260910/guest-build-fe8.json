@@ -1,0 +1,25 @@
+{
+  "status": "GUEST_XISO_BUILD_PASS",
+  "source_commit": "fe8dc57da7001f6ac33258cceb70d6ff6c2b9411",
+  "source_tree": "d0c31d449a87fac8cdfaee406149cebbaffa70f3",
+  "source_archive_sha256": "2da84e0c2d491c781ff9443415d226872de248ca623e666230c8abe45e632fc2",
+  "catalog_id": "sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a",
+  "catalog_file_sha256": "8d1348066d12a4230edacadf9fa537ad6e6d669ae692fa48d056595df97c18ab",
+  "catalog_tests": 158,
+  "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+  "build_type": "Release",
+  "cmake_target": "xemu-perf-tests_xiso",
+  "tool_versions": {
+    "cmake": "cmake version 3.31.6",
+    "python": "3.13.5",
+    "nxdk_cc": "Debian clang version 19.1.7 (3+b1)",
+    "nv2a_vsh": "0.1.12"
+  },
+  "nxdk_cache_unchanged": true,
+  "embedded_catalog_verified_after_xiso_extraction": true,
+  "artifact": {
+    "name": "perf-fe8dc57d.iso",
+    "sha256": "e0f875e2fb4df2b5b753f550890b38c793214eada9fb668291e86236a1099b46",
+    "bytes": 3670016
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "status": "FINAL_PASS_AFTER_ONE_CORRECTED_RUNNER_RETRY",
+  "performance_acceptance": false,
+  "attempts": [
+    {
+      "name": "dispatch-shell-mismatch",
+      "classification": "controller setup failure",
+      "result": "Windows PowerShell 5 rejected the PowerShell 7 named-pipe constructor overload",
+      "inner_runner_started": false,
+      "native_unit_executions": 0,
+      "xemu_launches": 0
+    },
+    {
+      "name": "focused-r1",
+      "classification": "common installed-runner admission failure before emulator launch",
+      "result": "Windows native unit passed; all requested guest cells were rejected by the same argparse requirement before xemu launch",
+      "native_unit_executions": 1,
+      "native_unit_exit_code": 0,
+      "requested_guest_cells": 12,
+      "xemu_launches": 0,
+      "shared_error": "--enable-xemu-only-tests requires --mode perf and either --full-suite or --profile pfifo-packet-boundary",
+      "private_receipt_sha256": "f1ce76780e3a236717c5faedd8db8d11ffeb5abcb53d34f6d8c48658233797b2",
+      "sanitized_result_sha256": "a15ebf7711e90e7192cfaabf5232605e9e5a7c7fbb1209734ff0f4d9e5ccf2d6"
+    },
+    {
+      "name": "focused-r2",
+      "classification": "corrected bounded candidate run",
+      "result": "12/12 exact report cells passed",
+      "correction": "Added the admission-required pfifo-packet-boundary profile while retaining explicit test IDs; runner source and returned records confirmed exact test-ID precedence.",
+      "native_unit_executions": 0,
+      "native_unit_receipt_reused": true,
+      "xemu_launches": 12,
+      "passed_guest_cells": 12,
+      "private_receipt_sha256": "8671b97d9f7df19ad7d6dd21f5f1b09cbfc78180b5a8362a5b578abc5345b1f2",
+      "sanitized_result_sha256": "34fd02d66da902c2dfd640c3bfd3bad1db3cbad3a14c5fb0ea402a573fef4faa",
+      "summary_reverification_sha256": "308766fd7b4b2d6f2f790be22007cd242291f429b8e21c439d44ac3db94fc65c"
+    }
+  ],
+  "final_counts": {
+    "windows_native_unit_executions": 1,
+    "candidate_xemu_launches": 12,
+    "passed_focused_cells": 12,
+    "baseline_xemu_launches": 0
+  },
+  "cleanup": {
+    "remaining_candidate_processes": 0,
+    "private_hdd_absent": true
+  }
+}

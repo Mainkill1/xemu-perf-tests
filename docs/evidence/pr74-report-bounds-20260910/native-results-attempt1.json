@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "status": "FAILED",
+  "scope": "Focused candidate-only native report correctness on OpenGL and Vulkan; no baseline execution, full catalog, retail workload, benchmark, ETL, build, or input campaign",
+  "performance_acceptance": false,
+  "run_error": "One or more focused correctness cells failed.",
+  "candidate": {
+    "source_commit": "05c149635b839e09bbe1c457f26f55ca4ad5be8b",
+    "source_tree": "f1479bd7e58371f8b03233b73bf239b93dd5a024",
+    "xemu_sha256": "9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09",
+    "verified_build_sha256": "46fad80dbb336d75360e25b481a59223bc94551381ac94ebd8c7c97c8ac89567",
+    "build_info_sha256": "49aa5fe6b052558329f351f4d79aa41033c44f35d35eae601d9c3b78125e419e",
+    "native_unit_sha256": "cb460eb5d568c0d4757c7fdd0aba0a52df24637ef33c1ae81bcd413b536ea4e1"
+  },
+  "host_identity": {
+    "source": "Retained same-host preflight recorded before this run; no additional inventory campaign",
+    "recorded_utc": "2026-09-10T23:53:05.7072060Z",
+    "os": "Microsoft Windows NT 10.0.19045.0",
+    "display_version": "22H2",
+    "build": "19045.6466",
+    "cpu": "AMD Ryzen 9 6900HX with Radeon Graphics",
+    "logical_processors": 16,
+    "gpu": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+    "gpu_driver": "581.95"
+  },
+  "test_image": {
+    "source_commit": "61012b4e702fbb46a02d813e71f2159a109a1c29",
+    "source_tree": "f5499b106caba6edf79ab3f7445a46503708121c",
+    "nxdk_commit": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+    "xiso_bytes": 3670016,
+    "xiso_sha256": "6b2161f1b4abab94648f3fa0ca8da893092bab1b63d7e139a2358eb0319d05ac",
+    "catalog_sha256": "8298d8baa59144caa4fd8715c4709b86e40e47fb5f830539b853fefa2a9f1a29",
+    "catalog_id": "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e",
+    "full_catalog_records": 157,
+    "focused_execution_records_per_cell": 1
+  },
+  "runner": {
+    "sha256": "169ec960a057dc66dfe38bf5dea814894e2d8677fc903a3c8db49283086087c7",
+    "python_sha256": "d932e5e2f324d57f392e8fd063dcf6d0185be8a664c57c6d24e7762ed02c28ca",
+    "session_id": 1,
+    "user_interactive": true,
+    "qualification": "correctness diagnostic only; no performance acceptance"
+  },
+  "matrix": {
+    "expected_cells": 12,
+    "observed_cells": 12,
+    "passed_cells": 0,
+    "failed_cells": 12,
+    "missing_cells": [],
+    "cells": [
+      {
+        "label": "opengl-zero-query",
+        "backend": "opengl",
+        "test_id": "report_query.zero_query",
+        "scenario": "zero_query",
+        "status": "failed",
+        "error": "opengl-zero-query did not report its evidence directory"
+      },
+      {
+        "label": "opengl-single-boundary",
+        "backend": "opengl",
+        "test_id": "report_query.single_boundary",
+        "scenario": "single_boundary",
+        "status": "failed",
+        "error": "opengl-single-boundary did not report its evidence directory"
+      },
+      {
+        "label": "opengl-multiple-boundaries",
+        "backend": "opengl",
+        "test_id": "report_query.multiple_boundaries",
+        "scenario": "multiple_boundaries",
+        "status": "failed",
+        "error": "opengl-multiple-boundaries did not report its evidence directory"
+      },
+      {
+        "label": "opengl-clear-boundary",
+        "backend": "opengl",
+        "test_id": "report_query.clear_boundary",
+        "scenario": "clear_boundary",
+        "status": "failed",
+        "error": "opengl-clear-boundary did not report its evidence directory"
+      },
+      {
+        "label": "opengl-dma-target-switch",
+        "backend": "opengl",
+        "test_id": "report_query.dma_target_switch",
+        "scenario": "dma_target_switch",
+        "status": "failed",
+        "error": "opengl-dma-target-switch did not report its evidence directory"
+      },
+      {
+        "label": "opengl-dma-range-guard",
+        "backend": "opengl",
+        "test_id": "report_query.dma_range_guard",
+        "scenario": "dma_range_guard",
+        "status": "failed",
+        "error": "opengl-dma-range-guard did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-zero-query",
+        "backend": "vulkan",
+        "test_id": "report_query.zero_query",
+        "scenario": "zero_query",
+        "status": "failed",
+        "error": "vulkan-zero-query did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-single-boundary",
+        "backend": "vulkan",
+        "test_id": "report_query.single_boundary",
+        "scenario": "single_boundary",
+        "status": "failed",
+        "error": "vulkan-single-boundary did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-multiple-boundaries",
+        "backend": "vulkan",
+        "test_id": "report_query.multiple_boundaries",
+        "scenario": "multiple_boundaries",
+        "status": "failed",
+        "error": "vulkan-multiple-boundaries did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-clear-boundary",
+        "backend": "vulkan",
+        "test_id": "report_query.clear_boundary",
+        "scenario": "clear_boundary",
+        "status": "failed",
+        "error": "vulkan-clear-boundary did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-dma-target-switch",
+        "backend": "vulkan",
+        "test_id": "report_query.dma_target_switch",
+        "scenario": "dma_target_switch",
+        "status": "failed",
+        "error": "vulkan-dma-target-switch did not report its evidence directory"
+      },
+      {
+        "label": "vulkan-dma-range-guard",
+        "backend": "vulkan",
+        "test_id": "report_query.dma_range_guard",
+        "scenario": "dma_range_guard",
+        "status": "failed",
+        "error": "vulkan-dma-range-guard did not report its evidence directory"
+      }
+    ]
+  },
+  "native_unit": {
+    "target": "test-xbox-pgraph-reports",
+    "builder_requirement": "Record the exact candidate source/build receipt and terminal PASS under Wine.",
+    "builder_result": {
+      "runner": "Wine",
+      "exit_code": 0,
+      "verified_build_sha256": "46fad80dbb336d75360e25b481a59223bc94551381ac94ebd8c7c97c8ac89567"
+    },
+    "native_requirement": "Hash and run the same deployed unit once on Windows before any xemu cell; require exit code zero and preserve stdout/stderr hashes.",
+    "native_result": {
+      "runner": "Windows native",
+      "execution_count": 1,
+      "exit_code": 0,
+      "tap_cases": 10,
+      "stdout_sha256": "477a5a19044d6dc67c4fe593c47392b98b9cfa75c356a8cd5ebf4b599292a2a8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+    },
+    "result": {
+      "target": "test-xbox-pgraph-reports",
+      "status": "passed",
+      "exit_code": 0,
+      "executable_sha256": "cb460eb5d568c0d4757c7fdd0aba0a52df24637ef33c1ae81bcd413b536ea4e1",
+      "stdout_sha256": "477a5a19044d6dc67c4fe593c47392b98b9cfa75c356a8cd5ebf4b599292a2a8",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "error": null
+    }
+  },
+  "missing_no_draw_control": {
+    "status": "MISSING",
+    "statement": "The 157-record image has no true report-only no-draw/no-active-command-buffer leaf. The zero_query leaf records renderer work with a draw, so it cannot independently prove Vulkan idle retirement with no command buffer.",
+    "zero_query_classification": "This is not a no-draw/no-active-command-buffer control because it deliberately issues a draw."
+  },
+  "gdb_diagnostic": {
+    "status": "UNSUPPORTED_BY_EXISTING_RUNNER_SEAM",
+    "runner_capability": "The installed HostGDBSampler captures info threads and all-thread backtraces only; it has no breakpoint command or expression-state capture hook.",
+    "marker_requirement": "Host GDB sampling waits for the live F0 measurement marker, while the ordinary Release runner uses --allow-missing-live-markers and explicitly rejects combining that waiver with --host-gdb-samples.",
+    "missing_requirement": "A pre-existing same-user Session 1 debugger seam that can break at pgraph_vk_process_pending_reports and print FIFO GET/PUT, queue nonempty, in_command_buffer, query counts, and retirement state without modifying xemu.",
+    "action": "Do not invent a debugger framework or treat stack samples as the requested state proof. Preserve native guest publication/canary results and report the diagnostic gap."
+  },
+  "historical_baseline_only": {
+    "previous_main_executable_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+    "source_equivalence": "Runtime-source-equivalent to e18ba8d6274cf227cc9e5ae1b5684f28ed911a99; intervening main changes were documentation only.",
+    "frozen_baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "opengl_observation": "dma_range_guard failed with terminal completion, later B0 publication, and changed range canaries.",
+    "vulkan_observation": "dma_range_guard failed with intact canaries and later B0 left at its sentinel; it did not reproduce the OpenGL overwrite signature.",
+    "rerun": false
+  },
+  "final_cleanup": {
+    "private_hdd_absent": true,
+    "remaining_owned_process_count": 0,
+    "error": null
+  },
+  "interpretation_limits": [
+    "The diagnostic runner transport and guest-reported durations are correctness evidence only and cannot support performance acceptance.",
+    "The invalid-command rejection policy remains a chosen safe emulator behavior; hardware error behavior is unproven.",
+    "A passing zero_query leaf does not fill the true no-draw control gap.",
+    "The focused run does not qualify the other 151 catalog records or any retail workload."
+  ]
+}

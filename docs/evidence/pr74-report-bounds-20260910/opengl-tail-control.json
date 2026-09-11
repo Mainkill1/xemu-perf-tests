@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "decision": "HOLD_NOT_READY_TO_MERGE",
+  "renderer": "opengl",
+  "workload": "PGR2 full start",
+  "order": [
+    "previous_main",
+    "candidate"
+  ],
+  "scope": "One predeclared matched pair after the initial adverse candidate run; retained baseline not rebuilt or moved.",
+  "cells": [
+    {
+      "role": "previous_main",
+      "run_id": "pr74-gl-control-previous-main-opengl-r1-20260911",
+      "source": "19944268d97ecd92f2dcd820d6e151107833795b",
+      "executable_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+      "mean_ms": 33.333357935627035,
+      "p95_ms": 33.817,
+      "p99_ms": 34.861,
+      "maximum_ms": 43.501,
+      "intervals": 1802,
+      "above_40ms": 2,
+      "above_50ms": 0,
+      "above_75ms": 0,
+      "above_100ms": 0,
+      "validity": {
+        "status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "duration_seconds": 60,
+        "warmup_seconds": 30,
+        "base_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656",
+        "hdd_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606"
+      },
+      "source_hashes": {
+        "complete.json": "a4239aee7c99eed4f6274665a2bb4fee454d87639e6b2e4d9a05646bd02af623",
+        "frame-time-summary.json": "f019e217b5c1cd3ffdc80c58699835de06c4f921386c127f7308323620a3e39e",
+        "xemu-frames-measured.csv": "ca2c571c6e651e8d0b0a549b3fecd9ee5bff445a0147310a6b91bb3c226f35bc",
+        "hdd-lifecycle.json": "193fee537fdd9b9f94719e9ffb3ec562aa49826e02d266574d11c65685bd901a"
+      }
+    },
+    {
+      "role": "candidate",
+      "run_id": "pr74-gl-control-candidate-opengl-r2-20260911",
+      "source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+      "executable_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "mean_ms": 33.39142745969982,
+      "p95_ms": 33.78,
+      "p99_ms": 34.727,
+      "maximum_ms": 88.478,
+      "intervals": 1799,
+      "above_40ms": 3,
+      "above_50ms": 3,
+      "above_75ms": 1,
+      "above_100ms": 0,
+      "validity": {
+        "status": "complete",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "duration_seconds": 60,
+        "warmup_seconds": 30,
+        "base_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656",
+        "hdd_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606"
+      },
+      "source_hashes": {
+        "complete.json": "c08b94e543c40a9335d649775f38ab53be7075cd7f28569a7698e0b238b98bb3",
+        "frame-time-summary.json": "f225fd3ed107b4b6c3321cb649cfbe0d1aa51e4bd2ca34cc6ac1c0e9a609d939",
+        "xemu-frames-measured.csv": "52733ba4ceb741277098299db1c282f733c9e98f390a3dfb7a01cdb121c16a18",
+        "hdd-lifecycle.json": "3b44a713ff2672a4545345f5aa7e2f2a92c57c959c31cd29a4eca8c1dc5a7755"
+      }
+    }
+  ],
+  "improvement_percent": {
+    "mean_ms": -0.17420844364053575,
+    "p95_ms": 0.1094124257030459,
+    "p99_ms": 0.38438369524683846,
+    "maximum_ms": -103.39302544769086
+  },
+  "interpretation": "Repeated adverse candidate tail signal prevents readiness. This main\u2192candidate pair does not independently isolate patch causality from run-order, host scheduling, driver or cache state. No speedup claim; all initial and repeated results remain visible.",
+  "remaining_gate": "Attribute retained ETLs around adverse intervals and obtain sufficiently controlled tail qualification before promoting PR74. No broad runtime rewrite justified by these measurements alone."
+}

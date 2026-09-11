@@ -1,0 +1,41 @@
+{
+  "schema_version": 1,
+  "product_source": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+  "product_tree": "8b34a2a6115246a42799f7f927933e50a413751d",
+  "product_exe_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+  "test_source": "fe8dc57da7001f6ac33258cceb70d6ff6c2b9411",
+  "test_tree": "d0c31d449a87fac8cdfaee406149cebbaffa70f3",
+  "iso_sha256": "e0f875e2fb4df2b5b753f550890b38c793214eada9fb668291e86236a1099b46",
+  "catalog_id": "sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a",
+  "qualification": "Correctness only; missing-live-marker waiver; diagnostic durations are not performance evidence.",
+  "cells": [
+    {
+      "backend": "opengl",
+      "source_summary_sha256": "27eb8aacf4620629c833c844f3bf4c3d391d9ed6d832c85b047bcf54677c809c",
+      "records": 158,
+      "passed": 157,
+      "failures": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1"
+      ],
+      "functional_hash_validation": "PASSED",
+      "vulkan_validation": {
+        "enabled": false,
+        "active": null,
+        "unique_vuid_count": 0
+      }
+    },
+    {
+      "backend": "vulkan",
+      "source_summary_sha256": "dd73269e1d6c78e5015696fb74998c7678ed7026bcfc6fd76ab390a9bc0490d4",
+      "records": 158,
+      "passed": 158,
+      "failures": [],
+      "functional_hash_validation": "PASSED",
+      "vulkan_validation": {
+        "enabled": true,
+        "active": true,
+        "unique_vuid_count": 0
+      }
+    }
+  ]
+}

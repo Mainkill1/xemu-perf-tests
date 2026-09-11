@@ -33,6 +33,7 @@
 #include "tests/pfifo_packet_boundary_tests.h"
 #include "tests/pipeline_texture_switch_tests.h"
 #include "tests/primitive_type_tests.h"
+#include "tests/query_pressure_tests.h"
 #include "tests/report_query_tests.h"
 #include "tests/surface_rendering_tests.h"
 #include "tests/texture_cubemap_fallback_tests.h"
@@ -313,6 +314,7 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   }
   REG_TEST(PipelineTextureSwitchTests)
   REG_TEST(PrimitiveTypeTests)
+  REG_TEST(QueryPressureTests)
   REG_TEST(ReportQueryTests)
   REG_TEST(SurfaceRenderingTests)
   REG_TEST(TinyDrawTests)

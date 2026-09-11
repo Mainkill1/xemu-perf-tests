@@ -1,0 +1,4 @@
+TAP version 13
+1..2
+ok 1 - incomplete descriptor stops before guarded read
+ok 2 - exact descriptor decodes and serializes
