@@ -315,5 +315,23 @@
     "sha256": "c631a3e43fcb803fac18d5c171cf8847c9ff23bec5c0190285a02c4f63b95c1e",
     "dispatcher": "PowerShell 7 named-pipe runspace, interactive Session 1",
     "scope": "unchanged pinned historical capture script called sequentially; pilot admission reviewed separately"
+  },
+  "publication": {
+    "status": "BOUNDED_REPEAT_COMPLETE_QUALIFICATION_HELD",
+    "measured_runs": 20,
+    "readiness_pilots_excluded": 4,
+    "invalid_measured_runs": 0,
+    "runtime_source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "current_test_source_commit": "0043629b0bc13d2b34a1bf3c1008171ad8eecb8f",
+    "current_test_source_tree": "c010d261e408219194f81dedcda30b85bcca9250",
+    "current_main": "e18ba8d6274cf227cc9e5ae1b5684f28ed911a99",
+    "canonical_baseline": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "current_main_incremental_effect": "NOT_TESTED",
+    "raw_artifact_hashes": "retained-artifacts.json",
+    "frame_intervals": "frame-intervals.csv.gz",
+    "per_run": "runs.json",
+    "paired_comparison": "paired-results.json",
+    "unit_results": "timebase-unit-results.json",
+    "observer_activity": "Sequential capture controller; occasional receipt reads and small file transfers. No heavy ETL export or unit execution on the capture host during timing."
   }
 }
