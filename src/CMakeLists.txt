@@ -113,6 +113,8 @@ add_library(
         tests/pipeline_texture_switch_tests.h
         tests/primitive_type_tests.cpp
         tests/primitive_type_tests.h
+        tests/query_pressure_tests.cpp
+        tests/query_pressure_tests.h
         tests/report_query_tests.cpp
         tests/report_query_tests.h
         tests/surface_rendering_tests.cpp

@@ -105,6 +105,11 @@ def entries():
         ("dma_descriptor_rewrite", "report.dma-descriptor-rewrite"),
         ("dma_range_guard", "report.dma-range-guard")],
         ("report", "gpu", "correctness", "xemu-only"))
+    out.append(leaf(
+        "query_pressure.repeated_page_4097", "query_pressure", "QueryPressure",
+        "query.repeated-page-4097",
+        "Preserves the historical 4,097-draw same-page vertex rewrite control with a terminal ZPASS report and 512 tile checks.",
+        ("gpu", "correctness", "hardware-safe")))
 
     def staged(parent, legacy_parent, selection_group, stages, tags, description):
         out.append(group(parent, parent.split(".")[0], "GameLoadComposite", legacy_parent,
@@ -274,6 +279,13 @@ def catalog(items):
             if item.suite_id == "report_query":
                 d["observations"].append({"name": "report.memory", "kind": "structured",
                                           "scope_version": 1})
+            if item.suite_id == "query_pressure":
+                d["observations"].extend([
+                    {"name": "recipe.input", "kind": "hash", "algorithm": "fnv1a32",
+                     "scope_version": 1},
+                    {"name": "zpass.accumulated", "kind": "known_answer", "expected": 655424},
+                    {"name": "framebuffer.tile_mismatches", "kind": "known_answer", "expected": 0},
+                ])
         tests.append(d)
     raw = json.dumps(tests, sort_keys=True, separators=(",", ":")).encode()
     return {"schema_version": 1, "catalog_id": "sha256:" + hashlib.sha256(raw).hexdigest(),

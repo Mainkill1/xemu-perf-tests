@@ -30,6 +30,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"report_query.fifo_producer_ordering", 2, "report_query", "report.fifo-producer-ordering", "Runs the report.fifo-producer-ordering workload and records its deterministic result.", "ReportQuery", "report.fifo-producer-ordering", "report.fifo-producer-ordering", TestKind::LEAF, 0, 0},
   {"report_query.dma_descriptor_rewrite", 2, "report_query", "report.dma-descriptor-rewrite", "Runs the report.dma-descriptor-rewrite workload and records its deterministic result.", "ReportQuery", "report.dma-descriptor-rewrite", "report.dma-descriptor-rewrite", TestKind::LEAF, 0, 0},
   {"report_query.dma_range_guard", 2, "report_query", "report.dma-range-guard", "Runs the report.dma-range-guard workload and records its deterministic result.", "ReportQuery", "report.dma-range-guard", "report.dma-range-guard", TestKind::LEAF, 0, 0},
+  {"query_pressure.repeated_page_4097", 1, "query_pressure", "query.repeated-page-4097", "Preserves the historical 4,097-draw same-page vertex rewrite control with a terminal ZPASS report and 512 tile checks.", "QueryPressure", "query.repeated-page-4097", "query.repeated-page-4097", TestKind::LEAF, 0, 0},
   {"game_load.long_unlocked_scene", 1, "game_load", "08-LongUnlockedScene", "Groups the long-scene stages; the group has no timing value.", "GameLoadComposite", "08-LongUnlockedScene", "08-LongUnlockedScene", TestKind::GROUP, 0, 0},
   {"game_load.long_unlocked_scene.cpu", 1, "game_load", "08-LongUnlockedScene-01-CPU", "Measures the cpu stage.", "GameLoadComposite", "08-LongUnlockedScene-01-CPU", "08-LongUnlockedScene", TestKind::LEAF, 1, 0},
   {"game_load.long_unlocked_scene.pfifo", 1, "game_load", "08-LongUnlockedScene-02-PFIFO", "Measures the pfifo stage.", "GameLoadComposite", "08-LongUnlockedScene-02-PFIFO", "08-LongUnlockedScene", TestKind::LEAF, 1, 1},
@@ -159,4 +160,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e";
+static constexpr const char *kTestCatalogId = "sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a";
