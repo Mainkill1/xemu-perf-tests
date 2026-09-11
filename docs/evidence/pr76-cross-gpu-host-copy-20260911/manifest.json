@@ -17,13 +17,31 @@
     "pr76-focused-r2-amd",
     "pr76-focused-r2-nvidia"
   ],
+  "pgr2_snapshot_runs": [
+    "pr76-c40375db7f-pgr2-snapshot-nvidia-r1",
+    "pr76-c40375db7f-pgr2-snapshot-nvidia-warm-r2",
+    "pr76-c40375db7f-pgr2-snapshot-amd-cold-r1",
+    "pr76-c40375db7f-pgr2-snapshot-amd-warm-r2"
+  ],
+  "comparison_reference": {
+    "role": "previous main / failing release",
+    "commit": "fc8c5dec9c1aa18883e74b57937d7ec90fdea074",
+    "executable_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
+    "method": "retained published three-run warm median; reference executable not rebuilt"
+  },
+  "completed_gates": [
+    "focused exact-UUID native output on AMD host-copy and NVIDIA shared paths",
+    "60-second PGR2 snapshot on AMD host-copy and NVIDIA shared paths"
+  ],
   "unpublished": [
     "guest screenshots",
     "private guest paths and writable media",
     "host-specific launch paths"
   ],
   "remaining_gates": [
-    "same-GPU performance comparison against previous main",
-    "broader xiso and retail regression testing"
+    "full XISO suite on NVIDIA shared and AMD host-copy paths",
+    "PGR2 full-start qualification on NVIDIA shared and AMD host-copy paths",
+    "Morrowind snapshot qualification on NVIDIA shared and AMD host-copy paths",
+    "final comparison against previous main and fixed cycle baseline"
   ]
 }

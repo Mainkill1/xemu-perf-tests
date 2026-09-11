@@ -1,0 +1,11 @@
+comparison,metric,raw_plus,reference,candidate,improvement_percent
+nvidia_reuse_vs_previous_main,fps,+good,29.408,29.384450617774128,-0.0800781495711167
+nvidia_reuse_vs_previous_main,mean,+bad,33.992,34.00405895691601,-0.03547586760418496
+nvidia_reuse_vs_previous_main,p95,+bad,39.714,39.718,-0.010072014906594371
+nvidia_reuse_vs_previous_main,p99,+bad,43.144,42.989,0.3592620063044714
+nvidia_reuse_vs_previous_main,max,+bad,52.959,58.48,-10.42504579013953
+amd_reuse_vs_nvidia_reuse,fps,+good,29.384450617774128,25.414652831675983,-13.509858794831054
+amd_reuse_vs_nvidia_reuse,mean,+bad,34.00405895691601,39.34649639344262,-15.711175666692057
+amd_reuse_vs_nvidia_reuse,p95,+bad,39.718,47.374,-19.27589506017422
+amd_reuse_vs_nvidia_reuse,p99,+bad,42.989,55.764,-29.71690432436206
+amd_reuse_vs_nvidia_reuse,max,+bad,58.48,100.149,-71.25341997264023
