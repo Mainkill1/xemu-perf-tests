@@ -1,0 +1,38 @@
+{
+  "status": "BUILD_AND_FOCUSED_WINDOWS_UNIT_PASS",
+  "candidate_commit": "c40375db7fc274dc097eae71c72d3ee6460dcce8",
+  "candidate_tree": "001ffaca2bc407d25c1519c4805a3765f899896f",
+  "kind": "PR76 Windows O2/full-LTO x86-v3 build with DWARF and assertions",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "focused_unit": {
+    "name": "test-xbox-vk-device-selection.exe",
+    "exit_code": 0
+  },
+  "artifacts": {
+    "xemu.exe": {
+      "sha256": "4cacd9ddd20a6255fd845e871acf5c7cc04df777af10d35d0fcb4c0dcbbb8a46",
+      "bytes": 44199538
+    },
+    "xemu.exe.debug": {
+      "sha256": "4c55c4e67640fc96f606eeacbcf94341fc75a7318fded3564ce6c7b762a5d805",
+      "bytes": 15928026
+    },
+    "xemu-symbols.txt.gz": {
+      "sha256": "db3e2db1c5766ffe3e6b044d9a68655298ad0a848a82998186ce88035d0f70a3",
+      "bytes": 1398247
+    },
+    "test-xbox-vk-device-selection.exe": {
+      "sha256": "0b1af495f705334bb97325c6159282cef69ee99ea2d9b5228aa3947c9089b9ac",
+      "bytes": 4130622
+    }
+  }
+}

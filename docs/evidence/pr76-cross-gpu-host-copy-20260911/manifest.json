@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "repository": "Mainkill1/xemu",
+  "pull_request": 76,
+  "issue": 72,
+  "candidate_commit": "c40375db7fc274dc097eae71c72d3ee6460dcce8",
+  "candidate_tree": "001ffaca2bc407d25c1519c4805a3765f899896f",
+  "executable_sha256": "4cacd9ddd20a6255fd845e871acf5c7cc04df777af10d35d0fcb4c0dcbbb8a46",
+  "build_profile": "Official Windows Release: O2, full LTO, x86-64-v3, assertions and DWARF retained",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "focused_unit": {
+    "test": "test-xbox-vk-device-selection.exe",
+    "result": "PASS",
+    "exit_code": 0
+  },
+  "native_runs": [
+    "pr76-focused-r2-amd",
+    "pr76-focused-r2-nvidia"
+  ],
+  "unpublished": [
+    "guest screenshots",
+    "private guest paths and writable media",
+    "host-specific launch paths"
+  ],
+  "remaining_gates": [
+    "same-GPU performance comparison against previous main",
+    "broader xiso and retail regression testing"
+  ]
+}
