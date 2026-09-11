@@ -17,9 +17,32 @@ EXPECTED_TESTS = [
     "report_query.dma_range_guard",
 ]
 
+EXPECTED_SCENARIOS = {
+    "report_query.zero_query": "zero_query",
+    "report_query.single_boundary": "single_boundary",
+    "report_query.multiple_boundaries": "multiple_boundaries",
+    "report_query.clear_boundary": "clear_boundary",
+    "report_query.dma_target_switch": "dma_target_switch",
+    "report_query.dma_range_guard": "dma_range_guard",
+}
 
-def complete(record: dict, sentinel_timestamp: int) -> bool:
-    return record["timestamp"] != sentinel_timestamp and record["done"] == 0
+# report_query_tests.cpp: kTimestampSentinel, kValueSentinel, kDoneSentinel,
+# and kExpectedDone. Keep these known guest constants independent of evidence.
+TIMESTAMP_SENTINEL = 0xF00DFACECAFE0123
+VALUE_SENTINEL = 0xDEADBEEF
+DONE_SENTINEL = 0xA5A55A5A
+EXPECTED_DONE = 0
+B1_SENTINEL_RECORD = {
+    "timestamp": TIMESTAMP_SENTINEL,
+    "value": VALUE_SENTINEL,
+    "done": DONE_SENTINEL,
+}
+
+
+def complete(record: dict) -> bool:
+    return (record["timestamp"] != TIMESTAMP_SENTINEL and
+            record["value"] != VALUE_SENTINEL and
+            record["done"] == EXPECTED_DONE)
 
 
 def check_cell(cell: dict) -> None:
@@ -27,35 +50,36 @@ def check_cell(cell: dict) -> None:
     assert cell["outcome"] == "PASS"
     metadata = cell["metadata"]
     scenario = cell["scenario"]
+    assert scenario == EXPECTED_SCENARIOS[cell["test_id"]]
     assert metadata["kind"] == "report_query_observations"
     assert metadata["scenario"] == scenario
     assert metadata["completion"]["completed"] is True
     records = metadata["records"]
-    sentinel = records["b1"]["timestamp"]
+    assert records["b1"] == B1_SENTINEL_RECORD
     if scenario == "zero_query":
-        assert complete(records["a0"], sentinel)
+        assert complete(records["a0"])
         assert records["a0"]["value"] == 0
     elif scenario == "single_boundary":
-        assert complete(records["a0"], sentinel)
+        assert complete(records["a0"])
         assert records["a0"]["value"] != 0
     elif scenario == "multiple_boundaries":
-        assert complete(records["a0"], sentinel)
-        assert complete(records["a1"], sentinel)
+        assert complete(records["a0"])
+        assert complete(records["a1"])
         assert records["a0"]["value"] != 0
         assert records["a1"]["value"] == 2 * records["a0"]["value"]
     elif scenario == "clear_boundary":
-        assert complete(records["a0"], sentinel)
-        assert complete(records["a1"], sentinel)
+        assert complete(records["a0"])
+        assert complete(records["a1"])
         assert records["a0"]["value"] != 0
         assert records["a1"]["value"] == records["a0"]["value"]
     elif scenario == "dma_target_switch":
-        assert complete(records["a0"], sentinel)
-        assert complete(records["b0"], sentinel)
+        assert complete(records["a0"])
+        assert complete(records["b0"])
         assert records["a0"]["value"] != 0
         assert records["b0"]["value"] == records["a0"]["value"]
     elif scenario == "dma_range_guard":
-        assert complete(records["a0"], sentinel)
-        assert complete(records["b0"], sentinel)
+        assert complete(records["a0"])
+        assert complete(records["b0"])
         assert records["a0"]["value"] != 0
         assert records["a1"] == {
             "timestamp": 0xC7C7C7C7C7C7C7C7,
@@ -101,8 +125,9 @@ def main() -> None:
     assert data["matrix"]["passed_cells"] == 12
     assert data["matrix"]["failed_cells"] == 0
     assert data["matrix"]["missing_cells"] == []
-    assert [(cell["backend"], cell["test_id"]) for cell in cells] == [
-        (backend, test_id)
+    assert [(cell["backend"], cell["test_id"], cell["scenario"])
+            for cell in cells] == [
+        (backend, test_id, EXPECTED_SCENARIOS[test_id])
         for backend in ("opengl", "vulkan")
         for test_id in EXPECTED_TESTS
     ]
