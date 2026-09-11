@@ -1,0 +1,3 @@
+attempt,stage,emulator_started,result,reason
+xiso-clean-archive-preflight,source-state eligibility,no,EXCLUDED,SOURCE_STATE=clean-archive did not satisfy the runner literal clean requirement; subsequent correctness runs used the explicit dirty-build waiver and remain timing-ineligible
+morrowind-warm-preflight,persistent-cache prerequisite,no,EXCLUDED,required persistent cache file did not yet exist; the preflight stopped before emulator launch and produced no performance sample

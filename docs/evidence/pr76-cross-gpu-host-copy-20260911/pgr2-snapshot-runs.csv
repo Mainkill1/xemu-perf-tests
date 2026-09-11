@@ -1,0 +1,5 @@
+workload,gpu,transport,phase_label,run_id,fps_or_cadence,mean_ms,p95_ms,p99_ms,max_ms,stalls_75ms,frames,focus_loss_samples,not_responding_samples,spirv_hits,spirv_misses,spirv_rejections,spirv_fallbacks,functional_status,measurement_status
+pgr2_snapshot,amd,host copy,cold,pr76-a08c4d9291-pgr2-snapshot-amd-cold-r1,25.054373956813418,39.86088180610884,47.557,60.362,343.26,9,1506,0,0,141,0,0,0,complete,complete
+pgr2_snapshot,amd,host copy,warm,pr76-a08c4d9291-pgr2-snapshot-amd-warm-r2,25.390410154367537,39.39074212598425,48.22,56.18,61.653,0,1524,0,0,141,0,0,0,complete,complete
+pgr2_snapshot,nvidia,shared external memory,cold,pr76-a08c4d9291-pgr2-snapshot-nvidia-cold-r1,29.49869953549889,33.88702032749856,39.785,42.865,48.526,0,1771,0,0,141,0,0,0,complete,complete
+pgr2_snapshot,nvidia,shared external memory,warm,pr76-a08c4d9291-pgr2-snapshot-nvidia-warm-r2,29.535533900228458,33.8687996613996,39.503,43.917,57.787,0,1772,0,0,140,0,0,0,complete,complete
