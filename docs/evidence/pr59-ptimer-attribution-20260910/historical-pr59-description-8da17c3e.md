@@ -534,4 +534,3 @@ Earlier failed build dispatches, collector attempts, baseline controls and runti
 **Status:** Testing
 
 The patch fixes the targeted native timer controls, but it is not ready to merge. PGR2 FreshBoot was neutral in one capture pair, while Snapshot OpenGL and Vulkan tail observations crossed the 2% hold threshold. Strict fixed-work comparison, resource attribution, migration readiness, and full-XISO validation remain incomplete, so `main` and `baseline` stay unchanged.
-

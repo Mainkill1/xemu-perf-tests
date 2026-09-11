@@ -162,7 +162,7 @@ From the evidence repository root, recompute the published frame/paired results 
 ```sh
 python3 docs/evidence/pr59-ptimer-attribution-20260910/check-results.py
 python3 -m unittest discover -s utils -p test_summarize_snapshot_pairs.py -v
-python3 utils/summarize_snapshot_pairs.py docs/evidence/pr59-ptimer-attribution-20260910/runs.json --expected-pairs 5 --renderer OPENGL --renderer VULKAN --output /tmp/pr59-paired-results.json
+python3 utils/summarize_snapshot_pairs.py docs/evidence/pr59-ptimer-attribution-20260910/runs.json --expected-pairs 5 --renderer OPENGL --renderer VULKAN --output pr59-paired-results.recomputed.json
 ```
 
 The capture controller is [run_snapshot_campaign.ps1](../../../utils/run_snapshot_campaign.ps1), byte-identical to the executed controller and pinned in the manifest. In the supported interactive PowerShell 7 session it was invoked twice, first `-ManifestPath <site-local-manifest> -Phase pilot`, then `-ManifestPath <site-local-manifest> -Phase measured`, with visual admission between them. The private manifest supplies local executable/input/output paths for the public identities. The pinned historical runner and its dependencies are prerequisites; this wrapper is not a self-contained distribution of those tools or the game/snapshot assets.
