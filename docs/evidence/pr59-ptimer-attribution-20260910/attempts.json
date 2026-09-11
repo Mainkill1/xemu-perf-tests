@@ -1,0 +1,23 @@
+{
+  "premeasurement_launch": [
+    {
+      "attempt": 1,
+      "outcome": "failed before emulator launch",
+      "cause": "Windows PowerShell 5.1 lacks the named-pipe constructor used by the dispatcher",
+      "change": "Use installed PowerShell 7; no capture recipe change"
+    }
+  ],
+  "unit_build_setup": [
+    {
+      "attempts": [
+        1,
+        2,
+        3
+      ],
+      "outcome": "failed before unit execution",
+      "cause": "ccache scratch ownership did not match the build host rootless Docker mapping",
+      "change": "Dedicated writable cache with rootless container default user; original source/build mounted read-only"
+    }
+  ],
+  "measured_cell_exclusions": []
+}

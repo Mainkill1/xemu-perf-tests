@@ -309,5 +309,11 @@
     "input": "keyboard reconnect, B-3",
     "gpu_sensor_limit": "partial tail coverage; not a full resource qualification"
   },
-  "original_evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/b180091ccfc14d198426a0802b4cb5c9ad7153cc/docs/evidence/ptimer-main-20260909/pgr2/comparison.json"
+  "original_evidence": "https://github.com/Mainkill1/xemu-perf-tests/blob/b180091ccfc14d198426a0802b4cb5c9ad7153cc/docs/evidence/ptimer-main-20260909/pgr2/comparison.json",
+  "controller": {
+    "file": "utils/run_snapshot_campaign.ps1",
+    "sha256": "c631a3e43fcb803fac18d5c171cf8847c9ff23bec5c0190285a02c4f63b95c1e",
+    "dispatcher": "PowerShell 7 named-pipe runspace, interactive Session 1",
+    "scope": "unchanged pinned historical capture script called sequentially; pilot admission reviewed separately"
+  }
 }
