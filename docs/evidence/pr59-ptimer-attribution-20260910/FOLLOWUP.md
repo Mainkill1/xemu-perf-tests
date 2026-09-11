@@ -1,6 +1,6 @@
 # Follow-up: execution order and avoidable timer scheduling work
 
-**Status: source/order review complete; retained scheduler-trace attribution in progress. PR59 remains draft/HOLD.** No product change, build, new gameplay benchmark or baseline move has been made in this follow-up.
+**Status: source/order review and 20 retained maximum-frame scheduler windows analyzed. PR59 remains draft/HOLD.** No product change, build, new gameplay benchmark or baseline move has been made in this follow-up.
 
 ## Execution order is a real limitation of the maximum-interval comparison
 
@@ -37,6 +37,12 @@ The narrowest promising later change is an ACK-specific no-op path: retain pre-W
 
 ## Retained-trace work
 
-The assigned analysis uses existing ETLs, serialized exports with automated admission, and no new emulator launches. The first export confirms a WPR steady-state marker can arrive roughly 100 ms after the controller's recorded measurement boundary. The marker alone is therefore not a valid frame-window origin. The trace analysis is checking retained QPC/UTC anchors against the trace-header origin and recording clock-alignment limitations before attributing running, ready and waiting time.
+The [retained-trace report](TRACE-ATTRIBUTION.md) analyzes each measured run's maximum interval, using sequential offline exports with automated admission and no new emulator launches. In those selected windows, the key threads' total ready-but-not-running time is only **0.029–0.284 ms per thread**. This does not account for OpenGL's **2.204–15.973 ms** second-position maximum differences. It does not rule out power, scheduling or wait effects elsewhere in the run.
 
-No CPU/IRQ/timer/wakeup totals are claimed here while that extraction is underway. The prior [report](REPORT.md) and all original data remain available; its hold decision is unchanged. The completed trace findings and next measured diagnostic step will be added separately to this evidence branch.
+In 4/5 OpenGL pairs, the second maximum contains more CPU0/TCG execution time; in 4/5, more PFIFO waiting time. The exceptions differ, so the captures do not establish one common mechanism. A longer selected frame also gives a thread more time to execute or wait: these state totals are context, not an equal-work CPU-cost comparison. Vulkan maximum ordering is mixed, and these maximum-only windows do **not** attribute the Vulkan p99 result.
+
+Frame windows use retained QPC/UTC start/end anchors and the ETL header origin. A WPR marker in the first trace arrives about 105 ms after the mapped start; it is not used as an exact origin. All 20 frame selections and map calculations were independently recomputed from the published frame intervals. That checks the calculation, not clock accuracy. Unknown thread names remain unnamed; the report does not label them main/UI or assign an old thread's wait reason to the newly scheduled thread.
+
+The current exports do not count PTIMER calls, same-deadline requeues, absent deletions, IRQ transitions or actual wakeups. Those remain the next diagnostic measurements, using matched diagnostic B/AM builds while preserving the retained production baseline. Aggregate counts must be tied to completed guest work, with instrumentation excluded from production timing builds. If redundant scheduling is material, test the narrow ACK/no-op design above before changing timer arithmetic or wait policy.
+
+The prior [report](REPORT.md), original measurements and adverse observations remain available. No result here establishes a performance pass or completes the separate full-suite, Morrowind snapshot, resource, fixed-work or current-main integration gates.

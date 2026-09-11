@@ -1,6 +1,6 @@
 # PR59 PTIMER attribution: repeated snapshot results
 
-> Follow-up: the [source and execution-order review](FOLLOWUP.md) confirms a five-for-five OpenGL second-position maximum pattern. Retained scheduler-trace attribution is underway; the original measurements below are preserved.
+> Follow-up: the [source and execution-order review](FOLLOWUP.md) confirms a five-for-five OpenGL second-position maximum pattern. The [20 retained maximum-frame scheduler windows](TRACE-ATTRIBUTION.md) narrow ready-queue attribution but do not establish a PTIMER cause. The original measurements below are preserved.
 
 **Decision: HOLD / insufficient attribution.** The 20 predeclared measured captures completed. OpenGL's original large p99 observation did not repeat consistently: median paired improvement is **+0.177%**, with one of five pairs worse than 2%. Vulkan p99 remains concerning: median **−2.249%**, with three of five pairs worse than 2%. OpenGL maximum interval is also unfavorable in three pairs. These results do not establish a speedup or identify PTIMER as the cause.
 
