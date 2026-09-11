@@ -1,0 +1,69 @@
+{
+  "schema_version": 1,
+  "status": "PASS_WITH_PRESERVED_HARNESS_FAILURES",
+  "candidate_commit": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+  "candidate_tree": "8b34a2a6115246a42799f7f927933e50a413751d",
+  "candidate_xemu_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+  "results": [
+    {
+      "target": "test-xbox-pgraph-reports.exe",
+      "executable_sha256": "03d36338f544976e409774188592f2cf1b9b6613898d9f151880f6735b6203cf",
+      "result": "PASS",
+      "tests": "16/16",
+      "exit_code": 0,
+      "stdout_sha256": "a14aae1d696b5e1b7091a149e5336f828837af80d59bc872cfe111ded7433692",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_execution_count": 2,
+      "note": "The first result was repeated once because a receipt-only empty-stderr bug recurred. Both produced the same complete TAP output. It was not run in the final completion attempt."
+    },
+    {
+      "target": "test-xbox-pgraph-report-wrapper.exe",
+      "executable_sha256": "40d3ac1609a9ba844c01654b04d21e78e0f99b3e17a1a81cfe3afbb044afd4ca",
+      "result": "PASS",
+      "tests": "2/2",
+      "exit_code": 0,
+      "stdout_sha256": "57214dd76dbb9eabda39e9d50d1a4e912ca36cb1dd8c1286360dd187de531986",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_execution_count": 1
+    },
+    {
+      "target": "test-xbox-pgraph-vk-reports.exe",
+      "executable_sha256": "182496d84cc6384781556a2767cd4e919b17ea1f88c4b4d54f471eb32c32c563",
+      "result": "PASS",
+      "tests": "6/6",
+      "exit_code": 0,
+      "stdout_sha256": "0270e35ac5dc7014263c1287cca79de494f05159a779c61b64d00e6cc8f2454c",
+      "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "native_execution_count": 1
+    }
+  ],
+  "attempts": [
+    {
+      "id": "pre-session1",
+      "result": "DISPATCHER_FAILURE",
+      "native_process_executions": 0,
+      "reason": "Windows PowerShell 5 selected an incompatible named-pipe constructor overload; PowerShell 7.6.5 is required."
+    },
+    {
+      "id": "r1",
+      "result": "RECEIPT_FAILURE_AFTER_SERIALIZER_PASS",
+      "native_process_executions": 1,
+      "reason": "Empty stderr produced no PowerShell object, and strict-mode .Length access failed."
+    },
+    {
+      "id": "r2",
+      "result": "REPEATED_RECEIPT_FAILURE_AFTER_SERIALIZER_PASS",
+      "native_process_executions": 1,
+      "reason": "A typed assignment did not convert no output into an empty string. The complete serializer TAP was preserved; no product failure occurred."
+    },
+    {
+      "id": "r3",
+      "result": "PASS",
+      "native_process_executions": 2,
+      "scope": "Prior serializer evidence verified; wrapper and Vulkan units executed once each."
+    }
+  ],
+  "final_receipt_sha256": "7909b0ebe6e364a5588fd50de4d2bf77d811089704ab7122b352c4ee00105a93",
+  "final_cleanup": "PASS; no tracked process remained",
+  "qualification": "Native unit correctness only; no emulator, XISO, retail, or performance run"
+}

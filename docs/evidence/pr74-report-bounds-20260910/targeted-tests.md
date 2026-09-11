@@ -1,12 +1,12 @@
 # PR74 targeted production-path qualification
 
-**All 24 targeted cases pass under Wine at product commit `e1ec62ede550b7ab7fdf92f1d866e8747703fd0e`, tree `8b34a2a6115246a42799f7f927933e50a413751d`.** The full Windows executable also builds and has been deployed with matching DWARF and symbols. Native execution, refreshed-XISO and retail/performance gates remain pending. The earlier native results at `05c149635b` remain a separate dataset.
+**All 24 targeted cases pass under Wine and natively on Windows at product commit `e1ec62ede550b7ab7fdf92f1d866e8747703fd0e`, tree `8b34a2a6115246a42799f7f927933e50a413751d`.** The full Windows executable also builds and has been deployed with matching DWARF and symbols. Refreshed-XISO and retail/performance gates remain pending. The earlier native results at `05c149635b` remain a separate dataset.
 
 | Target | Cases | Completed execution | Evidence |
 | --- | ---: | --- | --- |
-| Production serializer | 16 | Wine PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-reports.tap.txt) |
-| Production wrapper → decoder → serializer | 2 | Wine PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-report-wrapper.tap.txt) |
-| Production Vulkan pending → finish → retirement | 6 | Wine PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-vk-reports.tap.txt) |
+| Production serializer | 16 | Wine + native Windows PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-reports.tap.txt) |
+| Production wrapper → decoder → serializer | 2 | Wine + native Windows PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-report-wrapper.tap.txt) |
+| Production Vulkan pending → finish → retirement | 6 | Wine + native Windows PASS, exit 0 | [TAP](targeted-e1ec62ed/test-xbox-pgraph-vk-reports.tap.txt) |
 
 The serializer checks exact fits and rejects incomplete DMA/VRAM spans, including the base/offset guards and maximum unsigned values. Rejected operations preserve the entire owned buffer; accepted writes preserve the entire prefix and suffix. The wrapper executes the actual decoder with both an incomplete descriptor before protected memory and a valid descriptor at the boundary.
 
@@ -28,9 +28,9 @@ Earlier attempts are retained privately: build staging/mount and archive-name fa
 
 ## Remaining acceptance
 
-- Run these same executable identities once natively on Windows.
+- Native execution is complete; [native summary](targeted-e1ec62ed/native-unit-summary.json) pins the same executable/TAP identities and preserves the failed dispatcher/receipt attempts. Serializer executed twice due to receipt handling; wrapper and Vulkan executed once each. All owned unit processes closed.
 - Build and identify the restored 158-record XISO, then run both renderers and the 4,097-draw query control with the specified staging sizes.
-- Complete vertex/report regression coverage, PGR2 fresh start and snapshot, and Morrowind snapshot.
+- Complete vertex/report regression coverage, PGR2 fresh start and Morrowind snapshot, matching the three-workload acceptance scope requested after targeted tests passed.
 - Report normal-path performance and resources against both previous main and the fixed baseline, preserving adverse tail results and incomplete gates.
 
 PR74 remains draft. No performance improvement or release qualification is claimed from these tests.

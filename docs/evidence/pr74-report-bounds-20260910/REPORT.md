@@ -1,12 +1,12 @@
 # PR74: report bounds and idle retirement
 
-**24 current-head targeted cases PASS under Wine; release qualification still pending.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). This evidence branch covers PR74 only.
+**24 current-head targeted cases PASS under Wine and Windows; release qualification still pending.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). This evidence branch covers PR74 only.
 
 The retained native dataset below uses `05c149635b839e09bbe1c457f26f55ca4ad5be8b`, built from tree `f1479bd7e58371f8b03233b73bf239b93dd5a024`. Windows executable SHA-256: `9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09`.
 
 The shared writer validates the complete three-word descriptor read and all 16 destination bytes. The Vulkan queue retires at FIFO idle even without an active command buffer. Existing GPU completion, captured DMA ownership, cumulative counts and the three little-endian stores are preserved.
 
-Current product head `e1ec62ede550b7ab7fdf92f1d866e8747703fd0e` now passes 16 serializer, two wrapper/decoder and six real Vulkan retirement cases under Wine. The exact full Windows build and diagnostic bundle are complete. [Targeted results, test boundaries and artifact hashes](targeted-tests.md) are separate from the retained native results below. Native and broader qualification remain pending.
+Current product head `e1ec62ede550b7ab7fdf92f1d866e8747703fd0e` now passes 16 serializer, two wrapper/decoder and six real Vulkan retirement cases under Wine and Windows. The exact full Windows build and diagnostic bundle are complete. [Targeted results, test boundaries and artifact hashes](targeted-tests.md) are separate from the retained native results below. The requested full XISO, Morrowind snapshot and PGR2 full-start qualification remains pending.
 
 ## Retained native results
 
@@ -52,4 +52,4 @@ The [checker correction](checker-review.md) now rejects incomplete result public
 
 The original 4,097-draw query-pressure fixture has also been restored to the maintained suite. [Provenance and required run settings](query-control-provenance.md) preserve attribution and the original oracle. Current catalog now has 158 records (153 leaves, five groups), ID `sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a`. Existing profile changes only refresh generated catalog/plan identities. No new XISO or guest result is claimed yet; all earlier records above still refer to their original 157-record image.
 
-PR74’s expanded serializer, wrapper/decoder and real Vulkan retirement tests now pass under Wine at `e1ec62ede5`. [Current targeted evidence](targeted-tests.md) includes each TAP record and the build receipts. The native results above retain their original source and test-image identities.
+PR74’s expanded serializer, wrapper/decoder and real Vulkan retirement tests now pass under Wine and Windows at `e1ec62ede5`. [Current targeted evidence](targeted-tests.md) includes each TAP record and the build receipts. The native results above retain their original source and test-image identities.
