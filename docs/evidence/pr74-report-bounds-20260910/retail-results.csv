@@ -11,3 +11,11 @@ PGR2 full start,opengl,initial candidate r1,p99 guest-frame interval (ms),+bad,3
 PGR2 full start,vulkan,initial candidate r1,Mean guest-frame interval (ms),+bad,33.333301,33.33333564686286,33.33387729039419,-0.001728872859585147,-0.001624930481225297,WITHIN_2_PERCENT
 PGR2 full start,vulkan,initial candidate r1,p95 guest-frame interval (ms),+bad,33.412,33.861000000000004,33.56,-0.4429546270801007,0.8889282655562503,WITHIN_2_PERCENT
 PGR2 full start,vulkan,initial candidate r1,p99 guest-frame interval (ms),+bad,34.497,34.8725,34.426,0.20581499840565254,1.280378521757833,WITHIN_2_PERCENT
+PGR2 full start,opengl,initial candidate r1,Maximum guest-frame interval (ms),+bad,,36.95,50.133,,-35.67794316644113,ADVERSE_INITIAL_RESULT_RETAINED_FINAL_HOLD
+PGR2 full start,vulkan,initial candidate r1,Maximum guest-frame interval (ms),+bad,,42.0095,35.301,,15.969007010319096,WITHIN_2_PERCENT_VS_PREVIOUS_MAIN
+Morrowind snapshot,opengl,initial candidate r1,Maximum display-write interval (ms),+bad,,,48.636,,,REFERENCE_NOT_RECOVERED
+Morrowind snapshot,vulkan,initial candidate r1,Maximum display-write interval (ms),+bad,,,59.841,,,REFERENCE_NOT_RECOVERED
+PGR2 full start,opengl,matched candidate r2 vs same-session previous-main,Mean guest-frame interval (ms),+bad,,33.333357935627035,33.39142745969982,,-0.17420844364053575,WITHIN_2_PERCENT
+PGR2 full start,opengl,matched candidate r2 vs same-session previous-main,p95 guest-frame interval (ms),+bad,,33.817,33.78,,0.1094124257030459,WITHIN_2_PERCENT
+PGR2 full start,opengl,matched candidate r2 vs same-session previous-main,p99 guest-frame interval (ms),+bad,,34.861,34.727,,0.38438369524683846,WITHIN_2_PERCENT
+PGR2 full start,opengl,matched candidate r2 vs same-session previous-main,Maximum guest-frame interval (ms),+bad,,43.501,88.478,,-103.39302544769086,HOLD_ADVERSE_TAIL

@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "status": "HOLD_PGR2_OPENGL_TAIL",
+  "merge_ready": false,
+  "candidate": {
+    "source_commit": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+    "source_tree": "8b34a2a6115246a42799f7f927933e50a413751d",
+    "xemu_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+    "dwarf_sha256": "6730eb0f3cac314df74cf8e30cdd07290a9cf3d0a1d93c39297b1c1cd8fab7f5",
+    "source_state": "clean",
+    "build_info_sha256": "f36a27afe10289b15000d424bf2eda5578104299c3b4803f2c065f3bf321b821"
+  },
+  "test_image": {
+    "source_commit": "fe8dc57da7001f6ac33258cceb70d6ff6c2b9411",
+    "source_tree": "d0c31d449a87fac8cdfaee406149cebbaffa70f3",
+    "xiso_sha256": "e0f875e2fb4df2b5b753f550890b38c793214eada9fb668291e86236a1099b46",
+    "catalog_file_sha256": "8d1348066d12a4230edacadf9fa537ad6e6d669ae692fa48d056595df97c18ab",
+    "catalog_id": "sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a",
+    "records": 158
+  },
+  "native_units": {
+    "wine": "24/24 passed",
+    "windows": "24/24 passed"
+  },
+  "full_xiso": {
+    "cells": [
+      {
+        "renderer": "opengl",
+        "record_count": 158,
+        "suite_status": "failed",
+        "runner_exit_code": 1,
+        "nonpass_records": [
+          {
+            "id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+            "outcome": "FAIL"
+          }
+        ],
+        "functional_hash_validation": "PASSED",
+        "dma_range_guard": {
+          "status": "passed",
+          "a0_value": 16384,
+          "a1_unchanged": true,
+          "b0_value": 0,
+          "b1_full_sentinel_unchanged": true,
+          "range_canaries_intact": true
+        },
+        "query_pressure": {
+          "status": "PASS",
+          "draws": 4097,
+          "expected_zpass": 655424,
+          "observed_zpass": 655424,
+          "tile_mismatches": 0,
+          "framebuffer_fnv1a64": "89ccbb563c63e0a5"
+        },
+        "vulkan_validation_active": null,
+        "unique_vuid_count": 0,
+        "summary_sha256": "27eb8aacf4620629c833c844f3bf4c3d391d9ed6d832c85b047bcf54677c809c"
+      },
+      {
+        "renderer": "vulkan",
+        "record_count": 158,
+        "suite_status": "passed",
+        "runner_exit_code": 0,
+        "nonpass_records": [],
+        "functional_hash_validation": "PASSED",
+        "dma_range_guard": {
+          "status": "passed",
+          "a0_value": 16384,
+          "a1_unchanged": true,
+          "b0_value": 0,
+          "b1_full_sentinel_unchanged": true,
+          "range_canaries_intact": true
+        },
+        "query_pressure": {
+          "status": "PASS",
+          "draws": 4097,
+          "expected_zpass": 655424,
+          "observed_zpass": 655424,
+          "tile_mismatches": 0,
+          "framebuffer_fnv1a64": "89ccbb563c63e0a5"
+        },
+        "vulkan_validation_active": true,
+        "unique_vuid_count": 0,
+        "summary_sha256": "dd73269e1d6c78e5015696fb74998c7678ed7026bcfc6fd76ab390a9bc0490d4"
+      }
+    ],
+    "inherited_gl_cubemap_fingerprint": "MATCHED_INHERITED_FINGERPRINT",
+    "cleanup": {
+      "tracked_processes": 0,
+      "suite_private_hdd_absent": true
+    },
+    "performance_acceptance": false
+  },
+  "morrowind_snapshot": {
+    "opengl": {
+      "status": "complete",
+      "duration_seconds": 20,
+      "display_write_events": 677,
+      "display_write_intervals": 676,
+      "cadence_per_second": 33.86009489642217,
+      "p95_ms": 36.245,
+      "p99_ms": 41.799,
+      "max_ms": 48.635999999999996,
+      "over_75ms": 0,
+      "visual_admission": "passed: active harbor gameplay, centered crosshair, no pause/controller overlay",
+      "seed_unchanged": true,
+      "private_hdd_deleted": true
+    },
+    "vulkan": {
+      "status": "complete",
+      "duration_seconds": 20,
+      "display_write_events": 478,
+      "display_write_intervals": 477,
+      "cadence_per_second": 23.875533689504238,
+      "p95_ms": 48.171,
+      "p99_ms": 53.823,
+      "max_ms": 59.841,
+      "over_75ms": 0,
+      "visual_admission": "passed: active harbor gameplay, centered crosshair, no pause/controller overlay",
+      "seed_unchanged": true,
+      "private_hdd_deleted": true
+    }
+  },
+  "pgr2_fresh_start": {
+    "opengl": {
+      "rows": 1801,
+      "max_us": 50133,
+      "max_ms": 50.133,
+      "over_40ms": 4,
+      "over_50ms": 1,
+      "over_75ms": 0,
+      "over_100ms": 0,
+      "summary": {
+        "schema_version": 1,
+        "guest_frame_source": "XEMU_FRAME_LOG",
+        "guest_frame_count": 1801,
+        "guest_average_ms": 33.342557468073295,
+        "guest_p95_ms": 33.722,
+        "guest_p99_ms": 34.902,
+        "guest_stall_threshold_ms": 75,
+        "guest_stall_count": 0,
+        "host_present_source": "PresentMon",
+        "host_present_count": 3596,
+        "host_present_average_ms": 16.66698837597327,
+        "host_present_p95_ms": 18.0312,
+        "host_present_p99_ms": 19.9463
+      }
+    },
+    "vulkan": {
+      "rows": 1801,
+      "max_us": 35301,
+      "max_ms": 35.301,
+      "over_40ms": 0,
+      "over_50ms": 0,
+      "over_75ms": 0,
+      "over_100ms": 0,
+      "summary": {
+        "schema_version": 1,
+        "guest_frame_source": "XEMU_FRAME_LOG",
+        "guest_frame_count": 1801,
+        "guest_average_ms": 33.33387729039419,
+        "guest_p95_ms": 33.56,
+        "guest_p99_ms": 34.426,
+        "guest_stall_threshold_ms": 75,
+        "guest_stall_count": 0,
+        "host_present_source": "PresentMon",
+        "host_present_count": 3595,
+        "host_present_average_ms": 16.66723691237832,
+        "host_present_p95_ms": 21.9943,
+        "host_present_p99_ms": 24.6718
+      }
+    }
+  },
+  "matched_pgr2_opengl_control": {
+    "schema_version": 1,
+    "metric": "complete guest frames selected by QPC timestamp",
+    "cells": [
+      {
+        "label": "historical-candidate-r1",
+        "run_id": "pr74-e1ec62ed-pgr2-fresh-opengl-r1-20260911",
+        "source_commit": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+        "xemu_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "frames": 1801,
+        "mean_ms": 33.342557468073295,
+        "p95_ms": 33.722,
+        "p99_ms": 34.902,
+        "max_ms": 50.133,
+        "over_40ms": 4,
+        "over_50ms": 1,
+        "over_75ms": 0
+      },
+      {
+        "label": "matched-previous-main-r1",
+        "run_id": "pr74-gl-control-previous-main-opengl-r1-20260911",
+        "source_commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+        "xemu_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "frames": 1802,
+        "mean_ms": 33.333357935627035,
+        "p95_ms": 33.817,
+        "p99_ms": 34.861,
+        "max_ms": 43.501,
+        "over_40ms": 2,
+        "over_50ms": 0,
+        "over_75ms": 0
+      },
+      {
+        "label": "matched-candidate-r2",
+        "run_id": "pr74-gl-control-candidate-opengl-r2-20260911",
+        "source_commit": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+        "xemu_sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+        "functional_status": "complete",
+        "measurement_status": "complete",
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "frames": 1799,
+        "mean_ms": 33.39142745969982,
+        "p95_ms": 33.78,
+        "p99_ms": 34.727,
+        "max_ms": 88.478,
+        "over_40ms": 3,
+        "over_50ms": 3,
+        "over_75ms": 1
+      }
+    ],
+    "matched_candidate_improvement_percent": {
+      "mean_ms": -0.17420844364053575,
+      "p95_ms": 0.1094124257030459,
+      "p99_ms": 0.3843836952468384,
+      "max_ms": -103.39302544769085
+    }
+  },
+  "final_cleanup": {
+    "checked_utc": "2026-09-11T07:28:39.5807083+00:00",
+    "tracked_process_count": 0,
+    "tracked_processes": [],
+    "suite_private_hdd_present": false,
+    "previous_control_etl_present": true,
+    "candidate_control_etl_present": true
+  },
+  "disposition": {
+    "reason": "Repeated adverse candidate OpenGL tails: initial maximum 50.133 ms; matched previous-main\u2192candidate pair 43.501\u219288.478 ms, with one candidate interval above 75 ms. Patch causality remains unproven; run-order, host, driver and cache effects remain possible.",
+    "next_step": "Inspect the retained existing candidate and control ETLs around the reported frame timestamps before any merge decision."
+  },
+  "excluded": {
+    "pgr2_snapshot": "not part of narrowed immediate acceptance set",
+    "focused_query_capacity": "not launched; restored 4097-draw leaf passed inside both full suites at default configuration"
+  },
+  "attempts": [
+    {
+      "id": "full-xiso-r1",
+      "status": "setup_failure",
+      "emulator_launched": false,
+      "reason": "generated SOURCE_STATE phrase rejected before evidence/HDD creation"
+    },
+    {
+      "id": "full-xiso-r2",
+      "status": "invalid_admission_aborted",
+      "evidence_eligible": false,
+      "reason": "disallowed build-state waiver; interrupted and cleaned"
+    },
+    {
+      "id": "full-xiso-r3",
+      "status": "complete",
+      "renderers": 2
+    }
+  ],
+  "retained_pgr2_etls": [
+    {
+      "run_id": "pr74-e1ec62ed-pgr2-fresh-opengl-r1-20260911",
+      "file": "pgr2-cpuscheduler.etl",
+      "bytes": 1965031424,
+      "sha256": "e95b2cc710e9c28e2320205d2f113672efab452cc922225c43f5cc9fb9bb9685"
+    },
+    {
+      "run_id": "pr74-e1ec62ed-pgr2-fresh-vulkan-r1-20260911",
+      "file": "pgr2-cpuscheduler.etl",
+      "bytes": 1891631104,
+      "sha256": "e31983c209fad2f5979dc88c08973615fa067ccecd97647f621c4f8def307013"
+    },
+    {
+      "run_id": "pr74-gl-control-previous-main-opengl-r1-20260911",
+      "file": "pgr2-cpuscheduler.etl",
+      "bytes": 1956642816,
+      "sha256": "85b55a94f4ad03ea5d9d6a3dd63ff415099baec22499c84a94ba2dfa7ed67dce"
+    },
+    {
+      "run_id": "pr74-gl-control-candidate-opengl-r2-20260911",
+      "file": "pgr2-cpuscheduler.etl",
+      "bytes": 1978662912,
+      "sha256": "10b83c408f73644a01281684929383b780a0ffaf075e7f8b9df8c4b1b66169e5"
+    }
+  ]
+}

@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "description": "Retained measured guest-frame records only; no game assets or private configuration. Each .csv preserves the original key=value line format.",
+  "files": [
+    {
+      "file": "pgr2-opengl-candidate-r1.csv",
+      "sha256": "b14b6f856c6a66b7edf3317d0f6c808c1333eaf067c452fb15f29499408f1edf",
+      "records": 1801
+    },
+    {
+      "file": "pgr2-vulkan-candidate-r1.csv",
+      "sha256": "07606b66de555b05624e6dd400d347506710bd2af91b474bd6978bc25ddc9140",
+      "records": 1801
+    },
+    {
+      "file": "pgr2-opengl-previous-main.csv",
+      "sha256": "ca2c571c6e651e8d0b0a549b3fecd9ee5bff445a0147310a6b91bb3c226f35bc",
+      "records": 1802
+    },
+    {
+      "file": "pgr2-opengl-candidate-r2.csv",
+      "sha256": "52733ba4ceb741277098299db1c282f733c9e98f390a3dfb7a01cdb121c16a18",
+      "records": 1799
+    }
+  ]
+}
