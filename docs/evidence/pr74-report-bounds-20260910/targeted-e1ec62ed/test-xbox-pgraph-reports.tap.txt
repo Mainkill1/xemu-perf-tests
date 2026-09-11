@@ -1,0 +1,18 @@
+TAP version 13
+1..16
+ok 1 - exact DMA fit writes a complete report
+ok 2 - incomplete DMA span performs no stores
+ok 3 - exact nonzero offset fit writes a complete report
+ok 4 - one-byte-short DMA span performs no stores
+ok 5 - original incomplete span performs no stores
+ok 6 - offset beyond DMA limit performs no stores
+ok 7 - exact VRAM fit writes a complete report
+ok 8 - incomplete VRAM span performs no stores
+ok 9 - exact nonzero base and offset VRAM fit writes a report
+ok 10 - RAMIN descriptor requires all three words
+ok 11 - base beyond VRAM performs no stores
+ok 12 - base at VRAM end performs no stores
+ok 13 - base plus offset beyond VRAM performs no stores
+ok 14 - report one byte past VRAM performs no stores
+ok 15 - maximum base performs no stores
+ok 16 - maximum offset performs no stores

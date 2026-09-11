@@ -1,0 +1,61 @@
+{
+  "status": "BUILD_AND_WINDOWS_UNITS_PASS",
+  "candidate_commit": "e1ec62ede550b7ab7fdf92f1d866e8747703fd0e",
+  "candidate_tree": "8b34a2a6115246a42799f7f927933e50a413751d",
+  "kind": "PR74 Windows O2/full-LTO x86-v3 build with DWARF and assertions",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "diagnostics": "unstripped executable, separate DWARF image, ordered symbols, assertions enabled",
+  "dwarf_sections_verified": [
+    ".debug_info",
+    ".debug_line"
+  ],
+  "windows_units": {
+    "test-xbox-pgraph-reports.exe": {
+      "exit_code": 0,
+      "cases": 16
+    },
+    "test-xbox-pgraph-report-wrapper.exe": {
+      "exit_code": 0,
+      "cases": 2
+    },
+    "test-xbox-pgraph-vk-reports.exe": {
+      "exit_code": 0,
+      "cases": 6
+    }
+  },
+  "artifacts": {
+    "xemu.exe": {
+      "sha256": "8cf23d484a36d3f93989898e7f31cfaa329c231db80b410bca6032509f508fc0",
+      "bytes": 44149458
+    },
+    "xemu.exe.debug": {
+      "sha256": "6730eb0f3cac314df74cf8e30cdd07290a9cf3d0a1d93c39297b1c1cd8fab7f5",
+      "bytes": 15918906
+    },
+    "xemu-symbols.txt.gz": {
+      "sha256": "304c477ef3fc764b74c536a7f3f70bd56e4147f608e64825bf91c3b922454887",
+      "bytes": 1397794
+    },
+    "test-xbox-pgraph-reports.exe": {
+      "sha256": "03d36338f544976e409774188592f2cf1b9b6613898d9f151880f6735b6203cf",
+      "bytes": 4122846
+    },
+    "test-xbox-pgraph-report-wrapper.exe": {
+      "sha256": "40d3ac1609a9ba844c01654b04d21e78e0f99b3e17a1a81cfe3afbb044afd4ca",
+      "bytes": 3783303
+    },
+    "test-xbox-pgraph-vk-reports.exe": {
+      "sha256": "182496d84cc6384781556a2767cd4e919b17ea1f88c4b4d54f471eb32c32c563",
+      "bytes": 3841539
+    }
+  }
+}
