@@ -1,0 +1,196 @@
+{
+  "schema_version": 2,
+  "status": "passed",
+  "campaign_id": "pr70-current-main-qualification-r6",
+  "started_utc": "2026-09-11T03:44:52.5224385-07:00",
+  "host_admission": {
+    "checked_utc": "2026-09-11T03:44:52.6053972-07:00",
+    "gpu_policy": "auto",
+    "expected_auto_adapter_vendor": "NVIDIA",
+    "adapters": [
+      {
+        "name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "driver_version": "32.0.15.8195",
+        "driver_date": "2025-11-18T00:00:00Z"
+      },
+      {
+        "name": "AMD Radeon(TM) Graphics",
+        "driver_version": "30.0.14052.3002",
+        "driver_date": "2022-05-19T00:00:00Z"
+      }
+    ],
+    "status": "passed"
+  },
+  "builds": [
+    {
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "build_info_sha256": "663b1e841098fb7eb902dfe8fe47750da2435fd00cae11359a1581edcbddb728"
+    },
+    {
+      "role": "previous_main",
+      "logical_commit": "42490a530168e5a12976cd7840b13bb1a6798f25",
+      "source_commit": "37cf6cbcc61392aaba14658df6ed8aa4cb566abd",
+      "tree": "53c6683cb85401c680a6ba27402714a45733a4e5",
+      "xemu_sha256": "af22a8f75811a4c7b9f46de673d9f5ae8e8d0c77e06a3c9ffe9e15736cc2a4d2",
+      "build_info_sha256": "55bf62b84ad489d915130922eb1aa711d5fe4fb10483359792d7822c82c0c0d5"
+    },
+    {
+      "role": "candidate",
+      "logical_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "source_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "tree": "2c2b03d39bae4e7b4f01bbf5d08f3b6c7c5640fc",
+      "xemu_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
+      "build_info_sha256": "073500a5dd265636774624548b01d901a3d60e7d0ca1136195cca6550a2d1f23"
+    }
+  ],
+  "script_manifest": [
+    {
+      "name": "campaign-common.ps1",
+      "bytes": 14162,
+      "sha256": "83232577e1f1a9082449e87fa3e76c7368191582c490ef0015bfc628f3c4ab66"
+    },
+    {
+      "name": "campaign-config.ps1",
+      "bytes": 4402,
+      "sha256": "cecad9d66c1ed6d515516fd8d9ba6b3974a73dfed3eee17d21c7395339949de9"
+    },
+    {
+      "name": "capture-pgr2-spirv-prewarm-pr70.ps1",
+      "bytes": 65233,
+      "sha256": "e03c0a37c502fbb8de65c2d1188ead29cd26b5320a606dd85e767dc0c77acfc5"
+    },
+    {
+      "name": "dispatch-run-all.ps1",
+      "bytes": 694,
+      "sha256": "b6946d716dd8935f98a81641bdc7aa2c9aed5432635c6db60a388a6af09cd0ad"
+    },
+    {
+      "name": "invoke-xemu-timed-key-sequence.ps1",
+      "bytes": 2748,
+      "sha256": "6fcc4f2a12b5ed212a0d4bb5d7ca3e70041e8676a68d39db191976f5f2c57df0"
+    },
+    {
+      "name": "morrowind-control-exact-isolated.ps1",
+      "bytes": 10287,
+      "sha256": "852818be40af52fa84a30ab43c2bfd49892d7dd71348d08e734010498b5f0832"
+    },
+    {
+      "name": "README.md",
+      "bytes": 5337,
+      "sha256": "f859128cf65bcb8a0de2617f0853509cdfb82a627ba73692a8ed5fa171f6300f"
+    },
+    {
+      "name": "run-all-session1.ps1",
+      "bytes": 3419,
+      "sha256": "460dc844786d308e85be1550574118961c0dddcd79c5a2d7d86fdf7747e79068"
+    },
+    {
+      "name": "run-full-xiso-session1.ps1",
+      "bytes": 18907,
+      "sha256": "56b87b943b5ef7c787d3c3295198ecea30a047b6fd3cddafe470eec576b3318e"
+    },
+    {
+      "name": "run-morrowind-qualification-cell-exact-isolated.ps1",
+      "bytes": 10368,
+      "sha256": "f54c4d9b27073a0666923717e64f54fb369baa4e6a8fd3501e8befb48be56805"
+    },
+    {
+      "name": "run-retail-session1.ps1",
+      "bytes": 17517,
+      "sha256": "93991121e96b892cd5869e58d0c11105ad8609e5598f7ffabcf02829278cab65"
+    },
+    {
+      "name": "send-xemu-key.ps1",
+      "bytes": 1250,
+      "sha256": "eab682af9b58f75ff5ed88b5a160c983bf022649e7b2c71dab0764e62b8d392d"
+    },
+    {
+      "name": "SHA256SUMS.txt",
+      "bytes": 1556,
+      "sha256": "e7af37b08131bcc0f6eefe5ead3988610a23c41740d601c61aafb12ef87729ac"
+    },
+    {
+      "name": "start-retail-snapshot.ps1",
+      "bytes": 15151,
+      "sha256": "8c382cca28e40fc72278dbca289a8d0013247d3e8c11a282f555b17ae3dfbe41"
+    },
+    {
+      "name": "summarize-vk-perf.py",
+      "bytes": 22668,
+      "sha256": "3870f5791f24c32f82a6770741b5a55696a10cb4abc055cfb957dcacad8398aa"
+    },
+    {
+      "name": "write-results.ps1",
+      "bytes": 11501,
+      "sha256": "6024c7ebb95b792ae2f9fb9ed37dfaa9685aec1209729e9bf4d4593793cc7130"
+    }
+  ],
+  "phases": [
+    {
+      "name": "full_xiso_157_and_baseline_isolated_controls",
+      "status": "passed",
+      "started_utc": "2026-09-11T04:02:03.5509438-07:00",
+      "completed_utc": "2026-09-11T04:03:29.1587046-07:00"
+    },
+    {
+      "name": "retail",
+      "status": "passed",
+      "completed_utc": "2026-09-11T05:48:45.4911101-07:00",
+      "cells": 36
+    },
+    {
+      "name": "tables_and_acceptance",
+      "status": "passed",
+      "completed_utc": "2026-09-11T05:50:43.9646755-07:00",
+      "qualification_status": "HOLD",
+      "incremental_patch_gate": "PASS",
+      "cycle_baseline_gate": "HOLD"
+    }
+  ],
+  "error": null,
+  "final_cleanup": {
+    "scope": "r6 final receipt",
+    "terminated_xemu_pids": [],
+    "terminated_trace_pids": [],
+    "status": "passed",
+    "errors": [],
+    "completed_utc": "2026-09-11T12:51:33.7091036+00:00"
+  },
+  "completed_utc": "2026-09-11T12:51:33.7117085+00:00",
+  "resume_started_utc": "2026-09-11T04:05:36.7191587-07:00",
+  "qualification_status": "HOLD",
+  "incremental_patch_gate": "PASS",
+  "cycle_baseline_gate": "HOLD",
+  "resume_reason": "Admit warm reuse when a repeat guest path discovers additional shaders; retain all misses and republished cache growth in evidence.",
+  "resume_script_manifest": [
+    {
+      "name": "campaign-common.ps1",
+      "bytes": 14359,
+      "sha256": "e8e8df3e7f9201d2038325cd55487c9615c49fb6d406a4432425d92c3523428a"
+    },
+    {
+      "name": "write-results.ps1",
+      "bytes": 13528,
+      "sha256": "67d1342f0ee0f6df8d5b3d0bd4bafc0a1184321059fa019cd7c6cc49a3f4ab49"
+    },
+    {
+      "name": "resume-morrowind-r6-session1.ps1",
+      "bytes": 12416,
+      "sha256": "42964939d7d5aead34107d2dec99b3eaced893803ae66acb48649b17163724e8"
+    },
+    {
+      "name": "dispatch-resume-morrowind-r6.ps1",
+      "bytes": 706,
+      "sha256": "261cf192e427e6745fb8a6cb970a0ebd5b48d54d42f35cd4c48894fe924379b5"
+    },
+    {
+      "name": "finalize-r6-receipt.ps1",
+      "bytes": 2805,
+      "sha256": "e14b752298c39b9294d091936a8498b5a9789122af349fdec994eb3b4b8bcd88"
+    }
+  ]
+}

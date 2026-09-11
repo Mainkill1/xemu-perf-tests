@@ -1,0 +1,646 @@
+{
+  "schema_version": 2,
+  "status": "passed",
+  "campaign_id": "pr70-current-main-qualification-r6",
+  "maintained_xiso": {
+    "sha256": "6b2161f1b4abab94648f3fa0ca8da893092bab1b63d7e139a2358eb0319d05ac",
+    "catalog_id": "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e",
+    "records": 157,
+    "registered_full_run_records": 152,
+    "gated_leaf_records": 5
+  },
+  "cells": [
+    {
+      "label": "01-baseline-opengl",
+      "workload": "full_xiso_registered_152_records",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "cache_phase": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "record_count": 152,
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "01-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:47:01.4791125-07:00"
+      }
+    },
+    {
+      "label": "02-candidate-opengl",
+      "workload": "full_xiso_all_157_records",
+      "role": "candidate",
+      "logical_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "source_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "tree": "2c2b03d39bae4e7b4f01bbf5d08f3b6c7c5640fc",
+      "xemu_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "cache_phase": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "record_count": 157,
+      "non_pass_records": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "02-candidate-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:49:14.9259092-07:00"
+      }
+    },
+    {
+      "label": "03-previous-opengl",
+      "workload": "full_xiso_all_157_records",
+      "role": "previous_main",
+      "logical_commit": "42490a530168e5a12976cd7840b13bb1a6798f25",
+      "source_commit": "37cf6cbcc61392aaba14658df6ed8aa4cb566abd",
+      "tree": "53c6683cb85401c680a6ba27402714a45733a4e5",
+      "xemu_sha256": "af22a8f75811a4c7b9f46de673d9f5ae8e8d0c77e06a3c9ffe9e15736cc2a4d2",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "cache_phase": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "record_count": 157,
+      "non_pass_records": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "03-previous-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:51:27.3733217-07:00"
+      }
+    },
+    {
+      "label": "04-previous-vulkan",
+      "workload": "full_xiso_all_157_records",
+      "role": "previous_main",
+      "logical_commit": "42490a530168e5a12976cd7840b13bb1a6798f25",
+      "source_commit": "37cf6cbcc61392aaba14658df6ed8aa4cb566abd",
+      "tree": "53c6683cb85401c680a6ba27402714a45733a4e5",
+      "xemu_sha256": "af22a8f75811a4c7b9f46de673d9f5ae8e8d0c77e06a3c9ffe9e15736cc2a4d2",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU [06af030bb691ba528d6e537f143ca591]",
+        "status": "passed"
+      },
+      "cache_phase": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "record_count": 157,
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "04-previous-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:53:25.7933856-07:00"
+      }
+    },
+    {
+      "label": "05-candidate-vulkan-cold",
+      "workload": "full_xiso_all_157_records",
+      "role": "candidate",
+      "logical_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "source_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "tree": "2c2b03d39bae4e7b4f01bbf5d08f3b6c7c5640fc",
+      "xemu_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU [06af030bb691ba528d6e537f143ca591]",
+        "status": "passed"
+      },
+      "cache_phase": "cold",
+      "cache_before": null,
+      "cache_after": {
+        "name": "spirv-v1-vk13-spv16.bin",
+        "bytes": 1146671,
+        "sha256": "cfc45b8684124889f2a61abd62300a7d7025aa5612aff84559fba28fa95037e1"
+      },
+      "cache_stats": {
+        "hits": 10,
+        "misses": 61,
+        "rejections": 0,
+        "fallbacks": 0,
+        "records": 61,
+        "source_bytes": 411600,
+        "spirv_bytes": 733040,
+        "loaded_bytes": 0,
+        "queued_bytes": 1144640,
+        "write": "published"
+      },
+      "record_count": 157,
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "05-candidate-vulkan-cold",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:55:24.2032796-07:00"
+      }
+    },
+    {
+      "label": "06-candidate-vulkan-warm",
+      "workload": "full_xiso_all_157_records",
+      "role": "candidate",
+      "logical_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "source_commit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+      "tree": "2c2b03d39bae4e7b4f01bbf5d08f3b6c7c5640fc",
+      "xemu_sha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU [06af030bb691ba528d6e537f143ca591]",
+        "status": "passed"
+      },
+      "cache_phase": "warm",
+      "cache_before": {
+        "name": "spirv-v1-vk13-spv16.bin",
+        "bytes": 1146671,
+        "sha256": "cfc45b8684124889f2a61abd62300a7d7025aa5612aff84559fba28fa95037e1"
+      },
+      "cache_after": {
+        "name": "spirv-v1-vk13-spv16.bin",
+        "bytes": 1146671,
+        "sha256": "cfc45b8684124889f2a61abd62300a7d7025aa5612aff84559fba28fa95037e1"
+      },
+      "cache_stats": {
+        "hits": 71,
+        "misses": 0,
+        "rejections": 0,
+        "fallbacks": 0,
+        "records": 61,
+        "source_bytes": 411600,
+        "spirv_bytes": 733040,
+        "loaded_bytes": 1146671,
+        "queued_bytes": 0,
+        "write": "published"
+      },
+      "record_count": 157,
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "06-candidate-vulkan-warm",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:57:21.1262184-07:00"
+      }
+    },
+    {
+      "label": "07-baseline-vulkan",
+      "workload": "full_xiso_registered_152_records",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "expected_auto_adapter_vendor": "NVIDIA",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "cache_phase": "none",
+      "cache_before": null,
+      "cache_after": null,
+      "cache_stats": null,
+      "record_count": 152,
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_validation": "PASSED",
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "status": "passed",
+      "cleanup": {
+        "scope": "07-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T03:59:22.4959057-07:00"
+      }
+    },
+    {
+      "label": "b01-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-opengl",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.array_element16_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-array-element16",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b01-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:11.5746647+00:00"
+      }
+    },
+    {
+      "label": "b02-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-vulkan",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.array_element16_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-array-element16",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b02-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:19.3778683+00:00"
+      }
+    },
+    {
+      "label": "b03-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-opengl",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.array_element32_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-array-element32",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b03-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:27.2316570+00:00"
+      }
+    },
+    {
+      "label": "b04-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-vulkan",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.array_element32_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-array-element32",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b04-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:35.0326796+00:00"
+      }
+    },
+    {
+      "label": "b05-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-opengl",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.inline_array_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-inline-array",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b05-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:42.9096811+00:00"
+      }
+    },
+    {
+      "label": "b06-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-vulkan",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.inline_array_overflow",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.boundary-inline-array",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "inherited_pfifo_assert",
+      "outcome": "ABORT",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b06-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:50.7698393+00:00"
+      }
+    },
+    {
+      "label": "b07-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-opengl",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.incrementing_inline_fallback",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.incrementing-inline-fallback",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "runner_exit_code": 0,
+      "classification": "completed",
+      "outcome": "PASS",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b07-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:02:57.6483985+00:00"
+      }
+    },
+    {
+      "label": "b08-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-vulkan",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "pfifo_packet_boundary.incrementing_inline_fallback",
+      "legacy_test_id": "PFIFOPacketBoundary::pfifo.incrementing-inline-fallback",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "runner_exit_code": 0,
+      "classification": "completed",
+      "outcome": "PASS",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b08-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:03:04.4607213+00:00"
+      }
+    },
+    {
+      "label": "b09-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-opengl",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "legacy_test_id": "TextureCubemapFallback::UnborderedSubblockDxt1",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "opengl",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "opengl",
+        "vendor": "NVIDIA Corporation",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "source_line": "GL_VENDOR: NVIDIA Corporation; GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2",
+        "status": "passed"
+      },
+      "runner_exit_code": 1,
+      "classification": "completed",
+      "outcome": "FAIL",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b09-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-opengl",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:03:21.2955821+00:00"
+      }
+    },
+    {
+      "label": "b10-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-vulkan",
+      "workload": "full_xiso_gated_leaf",
+      "test_id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+      "legacy_test_id": "TextureCubemapFallback::UnborderedSubblockDxt1",
+      "role": "fixed_baseline",
+      "logical_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "renderer": "vulkan",
+      "gpu_policy": "auto",
+      "adapter_evidence": {
+        "renderer": "vulkan",
+        "selected": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "source_line": "Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "status": "passed"
+      },
+      "runner_exit_code": 0,
+      "classification": "completed",
+      "outcome": "PASS",
+      "status": "recorded",
+      "cleanup": {
+        "scope": "b10-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-vulkan",
+        "terminated_xemu_pids": [],
+        "terminated_trace_pids": [],
+        "status": "passed",
+        "errors": [],
+        "completed_utc": "2026-09-11T11:03:29.1083805+00:00"
+      }
+    }
+  ],
+  "error": null,
+  "final_cleanup": {
+    "scope": "full XISO final",
+    "terminated_xemu_pids": [],
+    "terminated_trace_pids": [],
+    "status": "passed",
+    "errors": [],
+    "completed_utc": "2026-09-11T11:03:29.1168507+00:00"
+  },
+  "started_utc": "2026-09-11T03:44:52.9127597-07:00",
+  "completed_utc": "2026-09-11T11:03:29.1534481+00:00",
+  "resume_started_utc": "2026-09-11T11:02:03.7083651+00:00"
+}

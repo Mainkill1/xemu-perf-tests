@@ -1,0 +1,14 @@
+a854a7722f0136d9ff723a9c4037147199efaa4afb89a12dc57e05285ab0f627  ./REPORT.md
+4f26eabdf3f3ad1d8d9034bbdaeb5f44345ee410012b51f9bf7b75446c9a1665  ./campaign-manifest.json
+8c6575288f5b3577832e5c20996723e30d92d45181125582125d88d9e3f447b1  ./full-xiso-cells.json
+feede205ab12079b84ed87315c668b060d0599728efa7eb5f22e736cb8780750  ./qualification-summary.json
+808299f0c672426e8d619da3e1ad2088b3d7d62918cf8933d59ea130a690e0b5  ./retail-cells.json
+58e55cec585f72ef4fa0433ca2a0b95da054ab8b2c3ca9b915d56e65e97e573d  ./tables/cache-proof.csv
+a872c4176f9a1e0f9233c3173d8dc8629632df968e432171572147c49f6236c1  ./tables/cache-proof.md
+e7f384325ba7cb7cd071aad7f62a23e9e28d2ff3ce404866fd23fae4ec4b224a  ./tables/full-xiso.csv
+8cd446fb728162a9f95b7efdb5650b8a3e18f869c2d126f57768661f29196f16  ./tables/full-xiso.md
+0e9fd4e78401c750f81aa074624bc70fb61fd0fc1a7dcf62ce59970281567918  ./tables/improvement-comparisons.csv
+da69ce7e3e6c9b5d0a604de649f682697410828fa780dcfd342d3ee3e90ef770  ./tables/improvement-comparisons.md
+7bfe29fbde84a2e21867b1e5e895280fc5569befff1598f0e903dfad8f039e80  ./tables/retail-cells.csv
+77ba43cd8b2367373bfeb92a2356a4397bdb8eee9560f68cea57bb4aecaf62b7  ./tables/retail-cells.md
+6470ddb67070133330aed5d246cf629d80c9246f894983975dc7e9e8f724aeaf  ./tooling/run-suite-pr70.py

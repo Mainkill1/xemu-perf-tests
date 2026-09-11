@@ -1,0 +1,53 @@
+{
+  "schema_version": 2,
+  "campaign_id": "pr70-current-main-qualification-r6",
+  "status": "HOLD",
+  "interpretation": "Improvement is positive when favorable and negative when adverse.",
+  "fixed_baseline": {
+    "Role": "fixed_baseline",
+    "LogicalCommit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "SourceCommit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "Tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "XemuSha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "previous_main": {
+    "Role": "previous_main",
+    "LogicalCommit": "42490a530168e5a12976cd7840b13bb1a6798f25",
+    "SourceCommit": "37cf6cbcc61392aaba14658df6ed8aa4cb566abd",
+    "Tree": "53c6683cb85401c680a6ba27402714a45733a4e5",
+    "XemuSha256": "af22a8f75811a4c7b9f46de673d9f5ae8e8d0c77e06a3c9ffe9e15736cc2a4d2"
+  },
+  "candidate": {
+    "Role": "candidate",
+    "LogicalCommit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+    "SourceCommit": "982a6cd5eeec0ec82a2f9b18298b1cb5a0d82830",
+    "Tree": "2c2b03d39bae4e7b4f01bbf5d08f3b6c7c5640fc",
+    "XemuSha256": "5c27d5310add91901f5a132c38d250492abf3d5eed253c2e6fe8cf63fb764768"
+  },
+  "xiso_status": "passed",
+  "retail_status": "passed",
+  "warm_cache_proof": "PASS",
+  "incremental_patch_gate": "PASS",
+  "cycle_baseline_gate": "HOLD",
+  "incremental_performance_holds": [],
+  "cycle_baseline_holds": [
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "warm",
+      "Metric": "p99 interval",
+      "Improvement_vs_baseline": -2.256,
+      "Improvement_vs_previous_main": 2.631,
+      "Incremental_gate": "PASS",
+      "Cycle_gate": "HOLD"
+    }
+  ],
+  "performance_gate_incomplete": [],
+  "tables": {
+    "retail_cells": "tables/retail-cells.md",
+    "improvement_comparisons": "tables/improvement-comparisons.md",
+    "cache_proof": "tables/cache-proof.md",
+    "full_xiso": "tables/full-xiso.md"
+  },
+  "generated_utc": "2026-09-11T12:50:43.9646755+00:00"
+}
