@@ -119,22 +119,34 @@ PR71_CAMPAIGN_MATRIX = {
     "full-xiso": {
         "renderers": ("opengl", "vulkan"),
         "roles": ("fixed_baseline", "previous_main", "candidate"),
-        "candidate_hybrid_values": ("off", "on"),
+        "candidate_hybrid_values": {
+            "opengl": ("off",),
+            "vulkan": ("off", "on"),
+        },
     },
     "pgr2_snapshot": {
         "renderers": ("opengl", "vulkan"),
         "roles": ("fixed_baseline", "previous_main", "candidate"),
-        "candidate_hybrid_values": ("off", "on"),
+        "candidate_hybrid_values": {
+            "opengl": ("off",),
+            "vulkan": ("off", "on"),
+        },
     },
     "pgr2_full_start": {
         "renderers": ("opengl", "vulkan"),
         "roles": ("fixed_baseline", "previous_main", "candidate"),
-        "candidate_hybrid_values": ("off", "on"),
+        "candidate_hybrid_values": {
+            "opengl": ("off",),
+            "vulkan": ("off", "on"),
+        },
     },
     "morrowind_snapshot": {
         "renderers": ("opengl", "vulkan"),
         "roles": ("fixed_baseline", "previous_main", "candidate"),
-        "candidate_hybrid_values": ("off", "on"),
+        "candidate_hybrid_values": {
+            "opengl": ("off",),
+            "vulkan": ("off", "on"),
+        },
     },
 }
 PR71_IMPROVEMENT_CONVENTION = {

@@ -52,6 +52,35 @@ def test_pr71_runner_is_syntax_valid_and_declares_qualification_contract():
     assert "--comparison-baseline-commit" in option_strings
     assert "--comparison-previous-main-commit" in option_strings
 
+    matrix_namespace: dict[str, object] = {}
+    exec(
+        compile(
+            ast.Module(
+                body=[
+                    node
+                    for node in tree.body
+                    if isinstance(node, ast.Assign)
+                    and any(
+                        isinstance(target, ast.Name)
+                        and target.id == "PR71_CAMPAIGN_MATRIX"
+                        for target in node.targets
+                    )
+                ],
+                type_ignores=[],
+            ),
+            str(RUNNER),
+            "exec",
+        ),
+        matrix_namespace,
+    )
+    campaign_matrix = matrix_namespace["PR71_CAMPAIGN_MATRIX"]
+    for workload in campaign_matrix.values():
+        assert workload["candidate_hybrid_values"]["opengl"] == ("off",)
+        assert workload["candidate_hybrid_values"]["vulkan"] == (
+            "off",
+            "on",
+        )
+
 
 def test_pr71_improvement_formula_preserves_positive_good_semantics():
     """The runner's shared formula must agree with the published convention."""
