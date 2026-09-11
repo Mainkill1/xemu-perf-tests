@@ -1,0 +1,29 @@
+{
+  "product_source": "05c149635b839e09bbe1c457f26f55ca4ad5be8b",
+  "product_tree": "f1479bd7e58371f8b03233b73bf239b93dd5a024",
+  "status": "BUILD_AND_DEPLOY_COMPLETE",
+  "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "profile": {
+    "optimization": 2,
+    "full_lto": true,
+    "x86_version": 3,
+    "debug": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": false
+  },
+  "artifacts_sha256": {
+    "xemu.exe": "9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09",
+    "xemu.exe.debug": "56f8ded287507810b7b501eabf9edb52d5e78f8374a015f6f62f116071df5dae",
+    "xemu-symbols.txt.gz": "48220c05074dcaf86f8f38ccedc9eba2eb25c11edeeeab14f932af1d00c97b25",
+    "test-xbox-pgraph-reports.exe": "cb460eb5d568c0d4757c7fdd0aba0a52df24637ef33c1ae81bcd413b536ea4e1",
+    "verified-build.json": "46fad80dbb336d75360e25b481a59223bc94551381ac94ebd8c7c97c8ac89567",
+    "BUILD_INFO.txt": "49aa5fe6b052558329f351f4d79aa41033c44f35d35eae601d9c3b78125e419e"
+  },
+  "wine_unit_exit_code": 0,
+  "native_unit_status": "passed",
+  "source_or_options_changed_on_retry": false,
+  "baseline_rebuilt": false,
+  "native_unit_exit_code": 0,
+  "native_unit_receipt": "build-unit-receipt.json"
+}

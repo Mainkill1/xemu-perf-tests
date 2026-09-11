@@ -1,0 +1,82 @@
+{
+  "schema_version": 1,
+  "status": "PASS",
+  "candidate": {
+    "source_commit": "05c149635b839e09bbe1c457f26f55ca4ad5be8b",
+    "source_tree": "f1479bd7e58371f8b03233b73bf239b93dd5a024",
+    "build_profile": "Windows O2/full-LTO x86-v3 issue 60 report-bounds candidate with DWARF and assertions",
+    "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+    "options": {
+      "optimization": "2",
+      "debug": true,
+      "b_lto": true,
+      "strip": false,
+      "qom_cast_debug": true,
+      "b_ndebug": "false",
+      "x86_version": "3"
+    },
+    "verified_build_sha256": "46fad80dbb336d75360e25b481a59223bc94551381ac94ebd8c7c97c8ac89567",
+    "build_info_sha256": "49aa5fe6b052558329f351f4d79aa41033c44f35d35eae601d9c3b78125e419e",
+    "artifacts": {
+      "xemu.exe": {
+        "sha256": "9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09",
+        "bytes": 44145362
+      },
+      "xemu.exe.debug": {
+        "sha256": "56f8ded287507810b7b501eabf9edb52d5e78f8374a015f6f62f116071df5dae",
+        "bytes": 15918906
+      },
+      "xemu-symbols.txt.gz": {
+        "sha256": "48220c05074dcaf86f8f38ccedc9eba2eb25c11edeeeab14f932af1d00c97b25",
+        "bytes": 1397050
+      },
+      "test-xbox-pgraph-reports.exe": {
+        "sha256": "cb460eb5d568c0d4757c7fdd0aba0a52df24637ef33c1ae81bcd413b536ea4e1",
+        "bytes": 4121310
+      }
+    },
+    "dwarf_sections_verified": [
+      ".debug_info",
+      ".debug_line"
+    ]
+  },
+  "builder_unit": {
+    "target": "test-xbox-pgraph-reports",
+    "runner": "Wine",
+    "exit_code": 0
+  },
+  "windows_native_unit": {
+    "target": "test-xbox-pgraph-reports",
+    "executable_sha256": "cb460eb5d568c0d4757c7fdd0aba0a52df24637ef33c1ae81bcd413b536ea4e1",
+    "execution_count": 1,
+    "exit_code": 0,
+    "tap_cases": 10,
+    "tap_outcome": "10/10 PASS",
+    "stdout_sha256": "477a5a19044d6dc67c4fe593c47392b98b9cfa75c356a8cd5ebf4b599292a2a8",
+    "stderr_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "cases": [
+      "exact DMA fit writes a complete report",
+      "incomplete DMA span performs no stores",
+      "exact nonzero offset fit writes a complete report",
+      "one-byte-short DMA span performs no stores",
+      "original incomplete span performs no stores",
+      "offset beyond DMA limit performs no stores",
+      "exact VRAM fit writes a complete report",
+      "incomplete VRAM span performs no stores",
+      "exact nonzero base and offset VRAM fit writes a complete report",
+      "RAMIN descriptor requires all three words"
+    ]
+  },
+  "deployment": {
+    "verified_file_count": 18,
+    "verified_total_bytes": 65667162,
+    "all_destination_hashes_matched": true,
+    "xemu_launched_by_builder": false
+  },
+  "baseline": {
+    "rebuilt": false,
+    "previous_main_executable_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+    "frozen_baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "qualification": "Focused correctness evidence only; no performance acceptance."
+}

@@ -1,27 +1,45 @@
 # PR74: report bounds and idle retirement
 
-**Status: planned validation, no native result yet.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). This evidence branch covers PR74 only.
+**Focused correctness PASS; release qualification still pending.** [Product PR74](https://github.com/Mainkill1/xemu/pull/74) repairs [issue60](https://github.com/Mainkill1/xemu/issues/60). This evidence branch covers PR74 only.
 
-The shared writer must validate the complete three-word descriptor read and all 16 destination bytes. The Vulkan queue must retire at FIFO idle even without an active command buffer. Existing GPU completion, captured DMA ownership, cumulative counts and the three little-endian stores are preserved.
+The exact candidate is `05c149635b839e09bbe1c457f26f55ca4ad5be8b`, built from tree `f1479bd7e58371f8b03233b73bf239b93dd5a024`. Windows executable SHA-256: `9a08f60052d50ffc714baac85bbe6d8d4a25aeea4a623f0394b21d0c2342fb09`.
 
-## Predeclared focused checks
+The shared writer validates the complete three-word descriptor read and all 16 destination bytes. The Vulkan queue retires at FIFO idle even without an active command buffer. Existing GPU completion, captured DMA ownership, cumulative counts and the three little-endian stores are preserved.
 
-| Check | Required result | Coverage limit |
+## Results
+
+| Check | OpenGL | Vulkan |
 | --- | --- | --- |
-| Final production serializer unit | Exact fits accepted; short spans perform no stores; bytes and neighbors correct | Helper and descriptor predicate, not full renderer wrapper |
-| Zero query, both renderers | Valid zero report publishes | Fixture still draws; not a no-command-buffer proof |
-| Single / multiple / clear boundaries | Published values and cumulative/clear behavior match oracle | Six selected controls do not qualify the full catalog |
-| DMA target switch | Reports publish to their requested separate buffers | No descriptor-mutation redesign |
-| DMA range guard | Invalid A1 leaves A canaries intact; subsequent valid B0 publishes | B is separate; zero B0 after clear is valid, not corruption |
+| Zero query | PASS: A0 = 0 | PASS: A0 = 0 |
+| Single boundary | PASS: A0 = 16,384 | PASS: A0 = 16,384 |
+| Multiple boundaries | PASS: A0/A1 = 16,384 / 32,768 | PASS: A0/A1 = 16,384 / 32,768 |
+| Clear boundary | PASS: A0/A1 = 16,384 / 16,384 | PASS: A0/A1 = 16,384 / 16,384 |
+| DMA target switch | PASS: A0/B0 = 16,384 / 16,384 | PASS: A0/B0 = 16,384 / 16,384 |
+| DMA range guard | PASS: A canaries intact, B0 = 0 published | PASS: A canaries intact, B0 = 0 published |
 
-Run the six controls once on each renderer with the exact candidate executable, plus the final unit under Wine and native Windows. Retain per-cell results and identities. Invalid-span execution is restricted to the fixed candidate; historical failures remain the reference. Existing retained baseline binaries are not rebuilt.
+All 12 selected tests completed and returned exactly the requested record. Vulkan validation was active with zero VUIDs. The final production serializer unit passed under Wine and passed 10/10 natively on Windows. The native unit ran once; the corrected guest invocation reused its verified receipt.
 
-## Measurement limits
+The original OpenGL symptom was changed A canaries; the original Vulkan symptom was an unpublished later B0 with intact A canaries. The candidate fixes both observed leaf-level symptoms. B is a separate requested buffer; its valid zero value after clear is not corruption. Invalid-span execution was restricted to the repaired candidate; historical failures remain the reference and neither baseline was rebuilt.
 
-These are correctness checks. Diagnostic transport without live guest markers cannot qualify performance. A timeout becoming successful is not an FPS improvement. A dedicated no-draw/no-active-command-buffer observation remains required; the existing zero-query control does not supply it.
+## Limits and remaining gates
+
+These are correctness diagnostics, with scale 1, 64 MiB guest memory and VSync off. The missing-live-marker waiver was explicit. No FPS, frame-tail or resource improvement is claimed, and a timeout becoming successful is not a performance improvement.
+
+The existing zero-query fixture still draws. The results do not directly establish the command-buffer state at retirement; a dedicated no-draw/no-active-command-buffer control remains pending. The descriptor predicate and valid guest path are covered, but native malformed-descriptor-wrapper coverage is not claimed. Hardware behavior for invalid report commands remains unproven.
 
 Full XISO, query-capacity/vertex ownership, PGR2 fresh-start and snapshot, Morrowind snapshot, and matched normal-path resource/frame-tail comparisons remain acceptance gates. Candidate versus previous main and versus the fixed baseline must be reported separately, with positive Improvement% favorable. No merge or baseline change follows from this focused dataset alone.
 
-## Identity and evidence
+## Preserved unsuccessful attempts
 
-[Planned manifest](planned-manifest.json) pins source, test image, catalog and runner. Final executable, build, hardware and result identities will be added after execution. No new test image is claimed: the staged current 157-record suite is reused.
+Two build links failed from ENOSPC; the successful build used the same source/options with bounded temporary storage. The first dispatcher failed before reaching the inner runner. After using the documented PowerShell version, a shared runner argument error stopped every guest invocation before xemu launched. The corrected attempt retained exact test IDs, added the required diagnostic profile, and checked returned IDs/counts. These are infrastructure failures, not product test failures. [Build outcome](build-outcome.md) and [native validation](native-validation.md) retain the details.
+
+## Reproduction and records
+
+Use the pinned runner and image from [planned-manifest.json](planned-manifest.json), exact candidate/build from [build-unit-receipt.json](build-unit-receipt.json), and settings in [native-results.json](native-results.json). For each report ID in the table, select that exact ID using the runner's `--test-id`; the installed runner also requires `--profile pfifo-packet-boundary` with `--enable-xemu-only-tests`. Explicit test ID takes precedence, and one matching returned record is required. This diagnostic invocation is not a performance run.
+
+- [Detailed native report](native-validation.md), [per-test CSV](focused-results.csv), [complete sanitized records](native-results.json).
+- [Preserved runner admission failure](native-results-attempt1.json), [independent summary rehash](summary-reverification.json).
+- [Build profile and artifact hashes](build-manifest.json), [build/unit receipt](build-unit-receipt.json).
+- Verify the public records with `python3 check-native-results.py native-results.json`.
+
+All owned test processes closed and the temporary test disk was removed. Matching DWARF and symbols are retained for diagnostics. The staged current 157-record XISO is reused; no new image is claimed. Raw build logs and private storage locations remain outside source history.
