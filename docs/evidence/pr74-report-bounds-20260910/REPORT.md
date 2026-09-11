@@ -43,3 +43,11 @@ Use the pinned runner and image from [planned-manifest.json](planned-manifest.js
 - Verify the public records with `python3 check-native-results.py native-results.json`.
 
 All owned test processes closed and the temporary test disk was removed. Matching DWARF and symbols are retained for diagnostics. The staged current 157-record XISO is reused; no new image is claimed. Raw build logs and private storage locations remain outside source history.
+
+## Review follow-up (target execution pending)
+
+The [checker correction](checker-review.md) now rejects incomplete result publication, overwritten B1 sentinels, and ID/scenario mismatches. Seven new checker tests pass, and the original 12 native records remain unchanged and accepted.
+
+The original 4,097-draw query-pressure fixture has also been restored to the maintained suite. [Provenance and required run settings](query-control-provenance.md) preserve attribution and the original oracle. Current catalog now has 158 records (153 leaves, five groups), ID `sha256:77c8b75d5eb9c4b2a6d830581e7f239b0fd7a041c569877676c286f89d0b424a`. Existing profile changes only refresh generated catalog/plan identities. No new XISO or guest result is claimed yet; all earlier records above still refer to their original 157-record image.
+
+PR74 has added expanded serializer, wrapper/decoder and real Vulkan retirement tests. Their current-head compile/link/execution is pending; the native results above must not be relabeled as those new unit results.
