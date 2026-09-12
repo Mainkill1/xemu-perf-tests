@@ -1,6 +1,6 @@
 {
   "schema_version": 1,
-  "state": "interim_hold",
+  "state": "current_head_qualified_for_focused_review; inherited_xiso_failure_60_and_broader_merge_decision_pending",
   "measurement_order": {
     "pgr2": [
       "candidate-a",
@@ -2457,7 +2457,7 @@
     ]
   },
   "final_candidate": {
-    "state": "draft_hold_pending_longer_morrowind_and_full_xiso",
+    "state": "superseded_by_current_6bf_head; historical_8ec_performance_hold",
     "product_source_sha": "8ec5e2a76475b8380adebf9a9b1df1fe442409a0",
     "product_tree": "9725e0d04ed94d77838bd9ca5a7edc373b87350c",
     "product_executable_sha256": "06bffe5204279a5a0ee4cdf62f5c61e8e0e337cd205a1dee622eb94df31bb42c",
@@ -2586,6 +2586,160 @@
       "latest_guest_source_sha": "457deacfd03a82fc2a40613b73e8c0ef77015b1d",
       "latest_iso_sha256": "ecfa6dee7d3f4eb1dcfabf9ab9b29f137c2641d25ad961382da12cd035a5d30e",
       "latest_full_suite_status": "ABORT after 78 complete records at same assertion; fixture teardown repair still pending"
+    }
+  },
+  "current_head": {
+    "state": "draft; focused correctness and performance checked; broad merge decision pending",
+    "product_source_sha": "6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc",
+    "product_tree": "2301f1cc976f93e5a943e065c4e12e034f33869f",
+    "product_executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+    "previous_main_source_sha": "5edff26383c6440da35bc92b9fca35f4a404b03b",
+    "previous_main_runtime_tree": "11981a736703553349357cd89926b443901cadb9",
+    "previous_main_executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+    "fixed_baseline_source_sha": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "fixed_baseline_rebuilt": false,
+    "unit_tests": {
+      "test_xbox_vk_texture_binding": "2 PASS / 2"
+    },
+    "test_source_sha": "5269072fb1db6b1a7ca3c9679db05bce6e204a38",
+    "test_source_tree": "9c04a2a35f750715147b8bf738bbf1750d88b103",
+    "test_iso_sha256": "1e2573d416949ced403426826bf4d8597949468ed117185847f47dfd97b64260",
+    "test_catalog_sha256": "a0674f73cef85d43f1dba0ad2059b9fa076841a0f4b1084b59186cf4ffb3871e",
+    "full_xiso": {
+      "renderer": "Vulkan",
+      "record_count": 159,
+      "pass_count": 158,
+      "fail_count": 1,
+      "sole_fail": "report_query.dma_range_guard",
+      "issue": "https://github.com/Mainkill1/xemu/issues/60",
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vuid_count": 0,
+      "xemu_exit_code": 0,
+      "runner_status": "FAILED solely due to inherited guest FAIL"
+    },
+    "pgr2_snapshot_matched": {
+      "run_order": [
+        "candidate",
+        "previous_main"
+      ],
+      "duration_seconds": 15,
+      "candidate": {
+        "frames": {
+          "guest_frame_count": 430,
+          "guest_average_ms": 34.87700000000004,
+          "guest_p95_ms": 41.3,
+          "guest_p99_ms": 45.907,
+          "guest_max_ms": 60.187,
+          "guest_stall_count": 0
+        },
+        "vk": {
+          "guest_frames": 430,
+          "telemetry_schema": 5,
+          "bind_textures_ms_per_guest_frame": 4.077230232558139,
+          "pipeline_prepare_ms_per_guest_frame": 9.015174418604651,
+          "surface_download_wait_ms_per_guest_frame": 2.6528720930232557
+        }
+      },
+      "previous_main": {
+        "frames": {
+          "guest_frame_count": 430,
+          "guest_average_ms": 34.88366511627909,
+          "guest_p95_ms": 42.067,
+          "guest_p99_ms": 51.234,
+          "guest_max_ms": 54.161,
+          "guest_stall_count": 0
+        },
+        "vk": {
+          "guest_frames": 430,
+          "telemetry_schema": 5,
+          "bind_textures_ms_per_guest_frame": 4.402879069767442,
+          "pipeline_prepare_ms_per_guest_frame": 9.398081395348838,
+          "surface_download_wait_ms_per_guest_frame": 2.6756395348837207
+        }
+      }
+    },
+    "morrowind_snapshot": {
+      "metric": "NV2A display-write cadence proxy; not displayed FPS",
+      "duration_seconds": 30,
+      "first_candidate_unpaired": {
+        "source_commit": "6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc",
+        "source_tree": "2301f1cc976f93e5a943e065c4e12e034f33869f",
+        "executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+        "status": "complete",
+        "display_write_intervals": 714,
+        "frame_interval_average_ms": 41.90545098039214,
+        "frame_interval_p95_ms": 48.172,
+        "frame_interval_p99_ms": 52.079,
+        "frame_interval_max_ms": 58.351,
+        "frame_stall_count": 0,
+        "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+        "private_hdd_deleted": true,
+        "final_image_validation": "PASSED"
+      },
+      "matched_main_then_candidate": {
+        "previous_main": {
+          "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+          "source_tree": "11981a736703553349357cd89926b443901cadb9",
+          "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+          "status": "complete",
+          "display_write_intervals": 726,
+          "frame_interval_average_ms": 41.26665151515149,
+          "frame_interval_p95_ms": 48.438,
+          "frame_interval_p99_ms": 52.773,
+          "frame_interval_max_ms": 55.457,
+          "frame_stall_count": 0,
+          "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+          "private_hdd_deleted": true,
+          "final_image_validation": "PASSED"
+        },
+        "candidate": {
+          "source_commit": "6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc",
+          "source_tree": "2301f1cc976f93e5a943e065c4e12e034f33869f",
+          "executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+          "status": "complete",
+          "display_write_intervals": 741,
+          "frame_interval_average_ms": 40.45051417004047,
+          "frame_interval_p95_ms": 46.236,
+          "frame_interval_p99_ms": 52.302,
+          "frame_interval_max_ms": 58.774,
+          "frame_stall_count": 0,
+          "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+          "private_hdd_deleted": true,
+          "final_image_validation": "PASSED"
+        }
+      }
+    },
+    "prior_8ec_morrowind": {
+      "metric": "NV2A display-write cadence proxy; not displayed FPS",
+      "order_reversed_pairs": [
+        {
+          "order": "main-candidate",
+          "main_p95_ms": 48.184,
+          "candidate_p95_ms": 49.672
+        },
+        {
+          "order": "candidate-main",
+          "main_p95_ms": 48.324,
+          "candidate_p95_ms": 49.486
+        }
+      ]
+    },
+    "pgr2_full_start": {
+      "run_id": "ablation6bf-pgr2-full-30s",
+      "renderer": "Vulkan",
+      "launch_mode": "FreshBoot",
+      "duration_seconds": 30,
+      "candidate": {
+        "guest_frame_count": 901,
+        "guest_average_ms": 33.333345172031024,
+        "guest_p95_ms": 33.566,
+        "guest_p99_ms": 33.931,
+        "guest_max_ms": 40.642,
+        "guest_stall_count": 0
+      },
+      "previous_main": "retained earlier exact-workload 30-second run; not matched in this session",
+      "fixed_baseline": "retained historical result; no baseline rebuild"
     }
   }
 }

@@ -1,37 +1,38 @@
-# Issue #79 / draft PR #80: warm Vulkan texture-binding candidate
+# Issue #79 / draft PR #80: warm Vulkan texture binding
 
-## Current proposed head: `8ec5e2a` (qualification in progress)
+## Current exact head: `6bf9e98` — focused repair supported, merge decision pending
 
-The current proposed patch keeps the clean-stage texture-preparation skip and the DMA-source guard, while restoring previous-main's descriptor/uniform update cadence. The original selective cadence moved a synchronous surface-readback wait into the following bind; order-reversed diagnostics did not show a reliable complete-frame gain. The exact proposed source is `8ec5e2a76475b8380adebf9a9b1df1fe442409a0`, tree `9725e0d04ed94d77838bd9ca5a7edc373b87350c`, Windows Release/full-LTO executable SHA-256 `06bffe5204279a5a0ee4cdf62f5c61e8e0e337cd205a1dee622eb94df31bb42c`. Previous main is `5edff26383c6440da35bc92b9fca35f4a404b03b` (retained executable source `a08c4d9` has the same runtime tree); fixed baseline remains `9f618d6d8c4c446ef023955f3d4de22f661f61a4` and was not rebuilt.
+The current source is `6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc` (tree `2301f1cc976f93e5a943e065c4e12e034f33869f`), built as Windows Release/full LTO with executable SHA-256 `6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6`. Previous main is `5edff26383c6440da35bc92b9fca35f4a404b03b` (retained equivalent-runtime-tree executable `a08c4d9`, SHA-256 `91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3`). Fixed baseline `9f618d6d8c4c446ef023955f3d4de22f661f61a4` was not rebuilt.
 
-A corrected guest fixture now has a **real negative control**. Test source `74013c3` (XISO SHA-256 `848356eef5f4bede318dcd5fa73c848191f323200c15ba224310c61b5c9ff166`) maps clean stage 0 to separate, GPU-visible DMA pages outside retained surfaces and dirties only stage 1. The vulnerable `b5aea97` renders stale red after remap (actual pixel KAT `3138308333`, expected `2028477935`); previous main and final `8ec5e2a` both PASS. A diagnostic guard probe confirms that vulnerable `b5aea97` reached the clean-stage skip with `dirty=0`, `surface_overlap=0`, old source `0x2ff4000`, and new source `0x2ffc000`. The source/pixel result, rather than a failing test label alone, is the negative-control evidence. The palette-DMA focused leaf also passes on the final build.
+The repair skips clean, non-surface active texture stages while checking the current DMA source, and restores the previous-main slow-bind trigger for a disabled dirty stage. The one-line trigger change from `8ec5e2a` to `6bf9e98` was made because two order-reversed 30-second Morrowind pairs on `8ec5e2a` had adverse p95 intervals (-3.09% and -2.40% against previous main). Two focused host unit tests pass on the current head. The direct cause of the Morrowind tail change remains an inference from this one-variable ablation; it has not been measured with a disabled-stage counter in Morrowind.
 
-The matched schema-5 PGR2 Vulkan snapshot runs used the same seed and telemetry with candidate first, previous main second. Lower is better. Improvement % is `100 × (previous main − candidate) / previous main`; positive is favorable.
+The latest full Vulkan XISO uses guest source `5269072fb1db6b1a7ca3c9679db05bce6e204a38`, tree `9c04a2a35f750715147b8bf738bbf1750d88b103`, ISO SHA-256 `1e2573d416949ced403426826bf4d8597949468ed117185847f47dfd97b64260`. Its palette fixture now restores both texture DMA handles to stable full-RAM mappings; a two-leaf palette-remap → palette-only-update sequence passes. The full 159-record run completed with **158 PASS / one inherited FAIL**, `report_query.dma_range_guard` ([xemu#60](https://github.com/Mainkill1/xemu/issues/60)). The record-count and functional-hash checks pass, Vulkan validation is active with zero VUIDs, and xemu exited normally. The suite's overall status is **FAILED** because of that one guest failure; it must not be called a complete PASS. Earlier 159-record attempts aborted after 78 records because the guest palette fixture reused a short framebuffer DMA mapping; those aborted results remain historical evidence below.
 
-| Measured 15-second PGR2 window | Previous main | `8ec5e2a` | Improvement |
+The latest matched PGR2 Vulkan snapshot ran candidate then previous main for 15 seconds each, with schema-5 telemetry. All durations are per guest frame. For lower-is-better measurements, positive Improvement % is favorable.
+
+| PGR2 measure | Previous main | `6bf9e98` | Improvement % |
 | --- | ---: | ---: | ---: |
-| Texture-binding CPU / guest frame | 4.326 ms | 3.983 ms | **+7.93%** |
-| Surface-readback wait / guest frame | 2.589 ms | 2.565 ms | +0.90% |
-| Binding minus readback wait / guest frame | 1.737 ms | 1.418 ms | **+18.39%** |
-| Mean guest-frame interval | 34.281 ms | 34.108 ms | +0.50% |
-| p95 guest-frame interval | 40.679 ms | 40.027 ms | +1.60% |
-| p99 guest-frame interval | 44.549 ms | 44.919 ms | -0.83% |
+| Texture-binding CPU | 4.403 ms | 4.077 ms | **+7.40%** |
+| Surface-readback wait | 2.676 ms | 2.653 ms | +0.85% |
+| Binding excluding readback wait | 1.727 ms | 1.424 ms | **+17.54%** |
+| Pipeline preparation CPU | 9.398 ms | 9.015 ms | +4.07% |
+| Guest mean interval | 34.884 ms | 34.877 ms | +0.02% |
+| Guest p95 interval | 42.067 ms | 41.300 ms | +1.82% |
+| Guest p99 interval | 51.234 ms | 45.907 ms | +10.40% |
+| Guest maximum interval | 54.161 ms | 60.187 ms | -11.11% |
 
-This matched run shows CPU work removed without merely relabeling the readback wait. It does not establish a broad frame-tail PASS. The final head's uninstrumented 30-second PGR2 fresh start admitted 900 guest frames at mean 33.333 ms, p95 33.652 ms, p99 34.554 ms, maximum 38.534 ms, with zero intervals ≥75 ms.
+The reduced binding work is not simply a wait moved outside the region. Maximum is a single adverse observation, so this diagnostic capture alone does not establish an end-to-end frame-tail improvement. Both cells admitted 430 guest frames and zero ≥75-ms stalls.
 
-The first matched, uninstrumented Morrowind 15-second snapshot pair used the same snapshot and input sequence, candidate first. It records an NV2A display-write cadence proxy, not displayed FPS.
+Morrowind uses the NV2A display-write interval as a cadence proxy, not displayed FPS. A current-head unpaired 30-second cell admitted gameplay at p95 48.172 ms, within the previous-main range of 48.184–48.438 ms. One current matched **main → candidate** 30-second pair gave:
 
-| Morrowind display-write interval | Previous main | `8ec5e2a` | Improvement |
+| Morrowind display-write interval | Previous main | `6bf9e98` | Improvement % |
 | --- | ---: | ---: | ---: |
-| Mean | 41.715 ms | 42.076 ms | -0.86% |
-| p95 | 47.679 ms | 48.671 ms | **-2.08%** |
-| p99 | 55.160 ms | 53.989 ms | +2.12% |
+| Mean | 41.267 ms | 40.451 ms | +1.98% |
+| p95 | 48.438 ms | 46.236 ms | **+4.55%** |
+| p99 | 52.773 ms | 52.302 ms | +0.89% |
+| Maximum | 55.457 ms | 58.774 ms | -5.98% |
 
-Both runs admitted active gameplay and cleaned their private disks. The short p95 signal is adverse, while p99 favors the candidate; a longer paired run is needed before a performance decision.
-
-The first 159-record full XISO image from test source `74013c3` aborted after 78 complete records, immediately after the new palette-DMA leaf passed, at the shared `palette_offset < palette_dma_len` assertion. Previous main reproduced the **same assertion at the same test boundary**, so it is a guest test-sequence problem rather than a PR #80 regression. Test source `457deac` restores non-paletted texture/DMA state at teardown without weakening the pixel oracle. Its XISO SHA-256 is `ecfa6dee7d3f4eb1dcfabf9ab9b29f137c2641d25ad961382da12cd035a5d30e`; a full run still aborted at the same 78-record boundary; further guest-state teardown repair is pending. The separate inherited `report_query.dma_range_guard` failure remains tracked by [xemu#60](https://github.com/Mainkill1/xemu/issues/60).
-
-The machine-readable current-head cells and exact source/build identities are in [results.json](results.json). This PR remains **draft/HOLD** until the latest full XISO and longer Morrowind comparison are resolved. Earlier candidate/diagnostic sections below are retained as historical evidence and do not qualify this head.
+Both runs admitted active gameplay, advanced display writes, validated the final image, and deleted private HDD copies. The p95 direction is no longer adverse in this pair, but one matched pair does not prove a general Morrowind speedup or identify the exact scheduling cause. The current-head uninstrumented 30-second PGR2 fresh start admitted 901 guest frames: mean 33.333 ms, p95 33.566 ms, p99 33.931 ms, maximum 40.642 ms, zero intervals ≥75 ms. This is close to the retained previous-main 30-second run (p95 33.631 ms, p99 34.284 ms); the runs were in different sessions, so the small difference is inconclusive. The current and earlier exact-head source/build/result rows are in [results.json](results.json).
 
 ---
 
