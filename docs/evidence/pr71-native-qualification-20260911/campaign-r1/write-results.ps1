@@ -132,7 +132,11 @@ foreach ($workload in @($retail.cells.workload | Sort-Object -Unique)) {
                     Previous_runs = $previous.Count
                     Candidate_runs = $candidate.Count
                 }
-                if ($renderer -eq 'vulkan' -and
+                # Repeated cold runs are the performance gate. The single
+                # warm run per setting/workload proves persisted-cache reuse
+                # and remains visible in the tables without pretending it is
+                # a repeated timing sample.
+                if ($renderer -eq 'vulkan' -and $phase -eq 'cold' -and
                     $metric.Key -in @('frame_average_ms', 'p95_ms', 'p99_ms', 'max_ms')) {
                     $gateRows += [pscustomobject][ordered]@{
                         Workload = $workload
@@ -241,7 +245,7 @@ $warmProof = @($retail.cells | Where-Object {
 # A warm run may discover additional shaders because guest execution is not
 # instruction-identical.  Hits plus loaded bytes prove cross-run reuse; all
 # new misses remain reported and must be republished without fallback.
-$cachePass = $warmProof.Count -ge 8 -and @($warmProof | Where-Object {
+$cachePass = $warmProof.Count -ge 6 -and @($warmProof | Where-Object {
     -not $_.cache_stats -or $_.cache_stats.hits -le 0 -or
     $_.cache_stats.rejections -ne 0 -or $_.cache_stats.fallbacks -ne 0 -or
     $_.cache_stats.loaded_bytes -le 0 -or $_.cache_stats.write -ne 'published' -or

@@ -156,4 +156,7 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
     assert "resume_started_utc" in controller
     assert "completedPhases" in controller
     assert "host_admission" in controller
-    assert "tables_only = $true" in (CAMPAIGN / "write-results.ps1").read_text(encoding="utf-8")
+    writer = (CAMPAIGN / "write-results.ps1").read_text(encoding="utf-8")
+    assert "tables_only = $true" in writer
+    assert "$phase -eq 'cold'" in writer
+    assert "$warmProof.Count -ge 6" in writer
