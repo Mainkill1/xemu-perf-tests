@@ -1,0 +1,10 @@
+pair,workload,renderer,first_run,second_run,previous_main_p99_ms,candidate_p99_ms,p99_improvement_pct,previous_main_progress_per_second,candidate_progress_per_second,progress_improvement_pct,previous_main_max_ms,candidate_max_ms,max_improvement_pct
+1,pgr2_snapshot,VULKAN,pr81-ptimer-snapshot-candidate-r2,pr81-ptimer-snapshot-previous-r1,42.619,43.135,-1.211,29.682738488473724,29.65564538895862,-0.091,48.828,52.982,-8.507
+2,pgr2_snapshot,VULKAN,pr81-ptimer-snapshot-previous-r2,pr81-ptimer-snapshot-candidate-r3,43.343,43.176,0.385,29.58319827960206,29.625388951078836,0.143,54.971,53.793,2.143
+3,pgr2_snapshot,OPENGL,pr81-ptimer-snapshot-candidate-opengl-r1,pr81-ptimer-snapshot-previous-opengl-r1,44.627,44.401,0.506,29.11000528068884,29.366709006241813,0.882,56.138,71.019,-26.508
+4,pgr2_snapshot,OPENGL,pr81-ptimer-snapshot-previous-opengl-r2,pr81-ptimer-snapshot-candidate-opengl-r2,43.687,45.171,-3.397,29.27783661427184,29.00840682461702,-0.92,59.419,56.462,4.977
+5,pgr2_full_start,VULKAN,pr81-ptimer-full-candidate-r1,pr81-ptimer-full-previous-r1,33.917,33.996,-0.233,30.000003379549774,29.995665184503622,-0.014,44.271,42.065,4.983
+6,pgr2_full_start,OPENGL,pr81-ptimer-full-candidate-opengl-r1,pr81-ptimer-full-previous-opengl-r1,33.956,34.062,-0.312,29.99999956722447,30.000069024408234,0.0,43.21,42.506,1.629
+7,morrowind_snapshot,VULKAN,morrowind-candidate-r1,morrowind-previous-r1,55.114,54.76,0.642,23.62562707949702,23.840847245985906,0.911,62.493,65.908,-5.465
+8,morrowind_snapshot,OPENGL,morrowind-candidate-opengl-r1,morrowind-previous-opengl-r1,41.26,42.3,-2.521,33.79663343514451,33.01899637893341,-2.301,49.082,50.2,-2.278
+9,morrowind_snapshot,OPENGL,morrowind-previous-opengl-r2,morrowind-candidate-opengl-r2,40.661,41.638,-2.403,34.33466661563992,33.83216687391995,-1.464,44.414,56.337,-26.845
