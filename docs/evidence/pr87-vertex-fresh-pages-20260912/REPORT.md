@@ -4,7 +4,7 @@
 
 ## Decision from these runs
 
-The original direct-copy head improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, but **PGR2 Vulkan snapshot p95/p99 worsened in both orders**. A trace-only counter probe found that PGR2 marked read pages on nearly every draw while direct copies occurred in only five measured frames. The current head gates that bookkeeping after quiet batches and conservatively stages the first upload when read history is unavailable. Its same-session PGR2 snapshot pair did not reproduce the old tail loss, and the new 160-record XISO ran on both renderers with only the inherited #60/#82 failures. Exact-current-head performance qualification and remaining vertex-lifetime cases are still pending. Keep PR #87 draft.
+The original direct-copy head improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, but **PGR2 Vulkan snapshot p95/p99 worsened in both orders**. A trace-only counter probe found that PGR2 marked read pages on nearly every draw while direct copies occurred in only five measured frames. The current head gates that bookkeeping after quiet batches and conservatively stages the first upload when read history is unavailable. A new exact-current-head 60-second Morrowind pair measured **+5.98%** cadence and **+5.23%/+4.06%** p95/p99 improvement against its exact parent. Its same-session PGR2 snapshot pair did not reproduce the old tail loss, and the new 160-record XISO ran on both renderers with only the inherited #60/#82 failures. Remaining vertex-lifetime and broader game/renderer qualification cases are still pending. Keep PR #87 draft. The [current Morrowind diagnosis](MORROWIND-DIAGNOSIS.md) separates established GPU completion cost from unproven per-pass and guest-report identity details.
 
 These Morrowind values are **NV2A guest display writes per second, not displayed FPS**. The fixed Morrowind snapshot keeps one camera view; the PGR2 fresh boot reaches the race scene without a driven lap. Neither substitutes for a full-race or map-traversal test.
 
@@ -36,6 +36,18 @@ Positive **Improvement %** means better. Cadence uses `+good`; intervals use `+b
 | Candidate → parent | Guest interval p99 | `+bad` | 53.874 ms | 53.128 ms | **+1.38%** |
 
 The earlier **single 10-second** uninstrumented candidate cell was neutral/adverse versus a #85 cell from an earlier session: 23.897 versus 23.996 writes/s, p95 50.299 versus 48.498 ms, p99 58.382 versus 59.161 ms. It remains in the results rather than being discarded. The 60-second paired runs provide a better comparison, but still represent one fixed scene and two pairs.
+
+### Exact current head: candidate → parent 60-second pair
+
+The gated current #87 source `974f2ae63b166f64aa2ea6a77963c77481e28969` ran first, followed immediately by exact #85 parent `2163208fdc49c7f6b4834bce98e6a11b494d4241`. The same snapshot, renderer, runner, input and 60-second window were used. Both cells passed the final-image nonblack/color check, retained the same seed hash, deleted their private HDD, and left no xemu or tracing process. Different final-image hashes reflect scene variation; no pixel-equivalence claim is made. [Exact result records and hashes](results/morrowind-current-head-parent-60s-r3.json) are retained.
+
+| Current-head Vulkan metric | Raw + | Exact #85 parent | Current PR #87 | Improvement % |
+| --- | --- | ---: | ---: | ---: |
+| Guest display writes/s | `+good` | 24.296 | 25.750 | **+5.98%** |
+| Guest interval p95 | `+bad` | 48.389 ms | 45.985 ms | **+5.23%** |
+| Guest interval p99 | `+bad` | 55.004 ms | 52.860 ms | **+4.06%** |
+
+This confirms a same-session current-head Morrowind gain in one fixed view, with the candidate running first. It is not a map-traversal test or a measured displayed-FPS gain. The earlier exact-current GPU timestamp control had an opposite diagnostic guest-cadence direction; its inserted timestamps and short sequential windows make it an attribution probe, not a replacement for these uninstrumented cells.
 
 The retained fixed-baseline medians from a different session were p95/p99 **47.413/52.773 ms**. The current candidate two-cell medians are **45.882/52.287 ms**, or descriptively **+3.23%/+0.92%** against that historical baseline. The different sessions and test windows prevent treating that cumulative comparison as a formal same-day baseline pass. [The baseline source and results](../issue79-warm-texture-binding-20260912/README.md) remain unchanged.
 
