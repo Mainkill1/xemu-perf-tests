@@ -283,7 +283,7 @@ void PipelineTextureSwitchTests::Initialize() {
                     reinterpret_cast<DWORD>(host_.GetPaletteMemoryForStage(0)),
                     kPaletteEntries * sizeof(uint32_t) - 1, &palette_dma_red_);
   pb_create_dma_ctx(kPaletteDmaBlue, DMA_CLASS_3,
-                    reinterpret_cast<DWORD>(host_.GetPaletteMemoryForStage(1)),
+                    reinterpret_cast<DWORD>(host_.GetTextureMemoryForStage(2)),
                     kPaletteEntries * sizeof(uint32_t) - 1, &palette_dma_blue_);
   pb_bind_channel(&texture_dma_red_);
   pb_bind_channel(&texture_dma_blue_);
@@ -1197,13 +1197,20 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   });
   SynchronizeCorrectness(host_);
   uint32_t actual_kat = kFnvOffsetBasis;
+  std::array<uint32_t, 4> actual_tiles{};
   for (uint32_t tile = 0; tile < 4; ++tile) {
     const uint32_t actual = ReadTileCenter(tile);
+    actual_tiles[tile] = actual;
     AssertXemuPerfEqual(kExpected[tile], actual,
                         XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
                         "texture_dma_remap_tile", __FILE__, __LINE__);
     actual_kat = Fnv1aAddWord(actual_kat, actual);
   }
+  PrintMsg("TEXTURE_DMA_REMAP_TILES %08lx %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(actual_tiles[0]),
+           static_cast<unsigned long>(actual_tiles[1]),
+           static_cast<unsigned long>(actual_tiles[2]),
+           static_cast<unsigned long>(actual_tiles[3]));
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "texture_dma_remap_pixel_kat", __FILE__, __LINE__);
@@ -1225,6 +1232,9 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   metadata << "\"stage1_sampler_writes_after_remap\":1,";
   metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
   metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
+  metadata << "\"tile_argb\":[" << actual_tiles[0] << ","
+           << actual_tiles[1] << "," << actual_tiles[2] << ","
+           << actual_tiles[3] << "],";
   metadata << "\"terminal_fence\":\"F2 after F1\"}";
   EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_kat, actual_kat);
   host_.FinishDraw(suite_name_, kTextureDmaRemapName, results, metadata.str());
@@ -1241,13 +1251,29 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   }
   memset(host_.GetTextureMemoryForStage(0), 0, kTexturePixels);
   auto *red = host_.GetPaletteMemoryForStage(0);
-  auto *blue = host_.GetPaletteMemoryForStage(1);
+  // DMA descriptors store the page frame separately from the 12-bit adjust.
+  // pb_create_dma_ctx does not encode an adjust, so sources 1 KiB apart in
+  // GetPaletteMemoryForStage(0/1) would resolve to the same 4 KiB page.
+  auto *blue = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(2));
   for (uint32_t entry = 0; entry < kPaletteEntries; ++entry) {
     red[entry] = kTextureAColor;
     blue[entry] = kTextureBColor;
   }
   auto *stage_one_image = reinterpret_cast<uint32_t *>(
-      host_.GetTextureMemoryForStage(2));
+      host_.GetTextureMemoryForStage(3));
+  const uint32_t red_dma_page = reinterpret_cast<uint32_t>(red) & 0x03FFF000;
+  const uint32_t blue_dma_page = reinterpret_cast<uint32_t>(blue) & 0x03FFF000;
+  AssertXemuPerfEqual(0, reinterpret_cast<uint32_t>(red) & 0xFFF,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_red_dma_page_aligned", __FILE__, __LINE__);
+  AssertXemuPerfEqual(0, reinterpret_cast<uint32_t>(blue) & 0xFFF,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_blue_dma_page_aligned", __FILE__, __LINE__);
+  AssertXemuPerfEqual(1, static_cast<uint32_t>(red_dma_page != blue_dma_page),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_dma_sources_have_distinct_pages", __FILE__,
+                      __LINE__);
   for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
     stage_one_image[pixel] = kTextureBColor;
   }
@@ -1294,13 +1320,20 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   });
   SynchronizeCorrectness(host_);
   uint32_t actual_kat = kFnvOffsetBasis;
+  std::array<uint32_t, 4> actual_tiles{};
   for (uint32_t tile = 0; tile < 4; ++tile) {
     const uint32_t actual = ReadTileCenter(tile);
+    actual_tiles[tile] = actual;
     AssertXemuPerfEqual(kExpected[tile], actual,
                         XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
                         "palette_dma_remap_tile", __FILE__, __LINE__);
     actual_kat = Fnv1aAddWord(actual_kat, actual);
   }
+  PrintMsg("PALETTE_DMA_REMAP_TILES %08lx %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(actual_tiles[0]),
+           static_cast<unsigned long>(actual_tiles[1]),
+           static_cast<unsigned long>(actual_tiles[2]),
+           static_cast<unsigned long>(actual_tiles[3]));
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "palette_dma_remap_pixel_kat", __FILE__, __LINE__);
@@ -1321,6 +1354,9 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   metadata << "\"stage1_sampler_writes_after_remap\":1,";
   metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
   metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
+  metadata << "\"tile_argb\":[" << actual_tiles[0] << ","
+           << actual_tiles[1] << "," << actual_tiles[2] << ","
+           << actual_tiles[3] << "],";
   metadata << "\"terminal_fence\":\"F2 after F1\"}";
   EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_kat, actual_kat);
   host_.FinishDraw(suite_name_, kPaletteDmaRemapName, results, metadata.str());
