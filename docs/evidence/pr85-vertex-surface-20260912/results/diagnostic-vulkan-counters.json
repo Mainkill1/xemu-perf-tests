@@ -1,0 +1,34 @@
+{
+  "status": "complete",
+  "schema_version": 5,
+  "full_run_frames": 421,
+  "window_frames": 244,
+  "window_intervals": 243,
+  "display_writes_per_second": 24.3803128973354,
+  "interval_ms": {
+    "p50": 40.405,
+    "p95": 48.2319,
+    "p99": 51.92193999999998,
+    "max": 58.915
+  },
+  "need_buffer_space": {
+    "submit_count_total": 245,
+    "frames_with_submit": 244,
+    "submit_count_median_per_frame": 1.0,
+    "sampled_wait_us_median_per_frame": 9424.5,
+    "sampled_wait_us_p95_per_frame": 14131.35
+  },
+  "surface_down": {
+    "submit_count_total": 1,
+    "sampled_wait_us_median_per_frame": 0.0
+  },
+  "all_finish_sampled_wait_us_median_per_frame": 11808.0,
+  "descriptor_update": {
+    "calls_median_per_frame": 1151.0,
+    "region_us_median_per_frame": 10007.0,
+    "region_minus_need_wait_us_median_per_frame": 578.5
+  },
+  "draw_flush_region_us_median_per_frame": 15250.0,
+  "vertex_staged_bytes_median_per_frame": 3084288.0,
+  "vk_queue_submit_calls_median_per_frame": 4.0
+}
