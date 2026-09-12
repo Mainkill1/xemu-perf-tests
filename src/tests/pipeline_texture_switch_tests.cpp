@@ -1407,7 +1407,14 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "palette_dma_remap_pixel_kat", __FILE__, __LINE__);
+  // Disabled PBKit texture stages only write CONTROL0; they do not clear the
+  // palette register. Restore a non-paletted format while stage 0 is still
+  // enabled so its commit retires the DMA-B palette selection before another
+  // suite's progress draw can inspect it.
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kDefaultDmaA);
   PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kDefaultDmaB);
+  SetDefaultTextureFormat();
+  host_.SetupTextureStages();
   host_.SetTextureStageEnabled(0, false);
   host_.SetTextureStageEnabled(1, false);
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
