@@ -144,6 +144,21 @@ def summarize(perf_path, flips_path, result_path):
             }
             for key in cause_fields
         }
+    pipeline_fields = (
+        "pipeline_dirty_count", "pipeline_dirty_same_key_count",
+        "pipeline_uniform_only_key_count",
+        "pipeline_uniform_only_alpha_count",
+        "pipeline_uniform_only_zoffset_count", "pipeline_create_count",
+    )
+    if all(all(key in frame for key in pipeline_fields) for frame in selected):
+        summary["pipeline_key_churn"] = {
+            key: {
+                "total": sum(frame[key] for frame in selected),
+                "median_per_guest_frame": statistics.median(
+                    frame[key] for frame in selected),
+            }
+            for key in pipeline_fields
+        }
     if schema.get("draw_queries", {}).get("supported"):
         stat_names = schema["draw_stats"]
         by_shader = defaultdict(lambda: defaultdict(int))
