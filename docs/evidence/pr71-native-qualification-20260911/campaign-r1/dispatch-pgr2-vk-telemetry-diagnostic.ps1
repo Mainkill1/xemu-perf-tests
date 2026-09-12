@@ -27,12 +27,15 @@ try {
     [void]$powershell.AddStatement()
     [void]$powershell.AddScript({
         param([string]$Script, [string]$Override, [string]$Root, [int]$Seconds)
-        $arguments = @('-DurationSeconds', $Seconds)
-        if ($Override) { $arguments += @('-BuildOverrideRoot', $Override) }
-        if ($Root) { $arguments += @('-DiagnosticRoot', $Root) }
+        $arguments = @{ DurationSeconds = $Seconds }
+        if ($Override) { $arguments.BuildOverrideRoot = $Override }
+        if ($Root) { $arguments.DiagnosticRoot = $Root }
         & $Script @arguments
-    }).AddArgument((Join-Path $PSScriptRoot 'run-pgr2-vk-telemetry-diagnostic.ps1')) `
-        .AddArgument($BuildOverrideRoot).AddArgument($DiagnosticRoot).AddArgument($DurationSeconds)
+    })
+    [void]$powershell.AddArgument((Join-Path $PSScriptRoot 'run-pgr2-vk-telemetry-diagnostic.ps1'))
+    [void]$powershell.AddArgument($BuildOverrideRoot)
+    [void]$powershell.AddArgument($DiagnosticRoot)
+    [void]$powershell.AddArgument($DurationSeconds)
     $output = $powershell.Invoke()
     foreach ($line in @($output)) { [Console]::WriteLine([string]$line) }
     if ($powershell.HadErrors) {
