@@ -63,6 +63,28 @@ def summarize(perf_path, flips_path, result_path):
             "p95_wait_us_per_frame": percentile(waits, .95),
             "sum_sampled_wait_us": sum(waits),
         }
+        gpu_fields = {
+            "gpu_batch_ns": "finish_gpu_batch_ns_per_guest_frame",
+            "gpu_aux_ns": "finish_gpu_aux_ns_per_guest_frame",
+            "gpu_handoff_ns": "finish_gpu_handoff_ns_per_guest_frame",
+            "gpu_main_ns": "finish_gpu_main_ns_per_guest_frame",
+        }
+        if all("finish_gpu_timed_submit_count_per_guest_frame" in row
+               for row in selected):
+            gpu_counts = [row["finish_gpu_timed_submit_count_per_guest_frame"][index]
+                          for row in selected]
+            reasons[name]["gpu_timed_submits"] = sum(gpu_counts)
+            for label, key in gpu_fields.items():
+                if not all(key in row for row in selected):
+                    continue
+                values = [row[key][index] for row in selected]
+                timed_values = [value for value, count in zip(values, gpu_counts)
+                                if count > 0]
+                reasons[name][f"sum_{label}"] = sum(values)
+                reasons[name][f"median_{label}_per_timed_frame"] = (
+                    statistics.median(timed_values) if timed_values else None)
+                reasons[name][f"p95_{label}_per_timed_frame"] = (
+                    percentile(timed_values, .95) if timed_values else None)
 
     cpu_regions = {}
     for index, name in enumerate(schema["cpu_regions"]):
