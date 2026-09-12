@@ -26,6 +26,8 @@ static constexpr char kSamplerOnlyIdentityName[] =
 static constexpr char kPaletteOnlyUpdateName[] = "pipeline.palette-only-update";
 static constexpr char kSharedPageOverlapName[] =
     "pipeline.shared-page-overlap";
+static constexpr char kTextureDmaRemapName[] = "pipeline.texture-dma-remap";
+static constexpr char kPaletteDmaRemapName[] = "pipeline.palette-dma-remap";
 
 static constexpr uint32_t kSeed = 0x50545357;  // "PTSW"
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
@@ -61,6 +63,24 @@ static constexpr uint32_t kClearOperationsPerIteration =
 static constexpr uint32_t kTextureAColor = 0xFFFF0000;
 static constexpr uint32_t kTextureBColor = 0xFF0000FF;
 static constexpr uint32_t kDiffuseColor = 0xFF00FF00;
+static constexpr uint32_t kTextureDmaRed = 23;
+static constexpr uint32_t kTextureDmaBlue = 24;
+static constexpr uint32_t kTextureDmaGreen = 25;
+static constexpr uint32_t kPaletteDmaRed = 26;
+static constexpr uint32_t kPaletteDmaBlue = 27;
+// PBKit's handle 11 is later rewritten for a bounded framebuffer surface.
+// Texture and palette teardown must select the stable full-RAM DMA object.
+static constexpr uint32_t kFullRamDmaHandle = 3;
+static constexpr uint32_t kTextureStageStride = 64;
+// Keep the DMA sources out of the host texture/render-target pool. They still
+// need GPU-addressable backing; ordinary XBE globals do not provide that.
+static constexpr uint32_t kDmaTextureStorageBytes =
+    3 * kLinearTextureBytes;
+// PBKit frame/depth surfaces live toward the top of a 64 MiB Xbox address
+// space. Keep this allocation in a separate physical window so a retained
+// SurfaceBinding cannot mask the clean-stage DMA remap fast path under test.
+static constexpr uint32_t kDmaTextureLowAddress = 0x01000000;
+static constexpr uint32_t kDmaTextureHighAddress = 0x02FFFFFF;
 static constexpr uint32_t kSamplerMipColors[] = {
     0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF};
 static constexpr uint32_t kBackgroundColor = 0xFF101820;
@@ -193,6 +213,40 @@ void SynchronizeCorrectness(TestHost &host) {
   host.WaitForGpu();
 }
 
+void PushDmaBinding(uint32_t method, uint32_t handle) {
+  Pushbuffer::Begin();
+  Pushbuffer::Push(method, handle);
+  Pushbuffer::End();
+}
+
+void DrawDmaTile(TestHost &host, const Quad &quad, bool stage_one,
+                 float texture_extent) {
+  host.SetFinalCombiner0Just(stage_one ? TestHost::SRC_TEX1
+                                        : TestHost::SRC_TEX0);
+  host.Begin(TestHost::PRIMITIVE_QUADS);
+  const float xy[][2] = {{quad.left, quad.top}, {quad.right, quad.top},
+                         {quad.right, quad.bottom}, {quad.left, quad.bottom}};
+  const float uv[][2] = {{0.f, 0.f}, {texture_extent, 0.f},
+                         {texture_extent, texture_extent},
+                         {0.f, texture_extent}};
+  for (uint32_t vertex = 0; vertex < 4; ++vertex) {
+    host.SetTexCoord0(uv[vertex][0], uv[vertex][1]);
+    host.SetTexCoord1(uv[vertex][0], uv[vertex][1]);
+    host.SetVertex(xy[vertex][0], xy[vertex][1], 1.f);
+  }
+  host.End();
+}
+
+uint32_t ReadTileCenter(uint32_t tile) {
+  const Quad &quad = kQuads[tile];
+  const uint32_t x = static_cast<uint32_t>((quad.left + quad.right) * 0.5f);
+  const uint32_t y = static_cast<uint32_t>((quad.top + quad.bottom) * 0.5f);
+  const auto *base = reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const auto *row = reinterpret_cast<volatile const uint32_t *>(
+      base + static_cast<size_t>(y) * pb_back_buffer_pitch());
+  return row[x];
+}
+
 }  // namespace
 
 PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
@@ -217,12 +271,47 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
       [this]() { Run(kSamplerOnlyIdentity); };
   tests_[kPaletteOnlyUpdateName] = [this]() { RunPaletteOnlyUpdate(); };
   tests_[kSharedPageOverlapName] = [this]() { RunSharedPageOverlap(); };
+  tests_[kTextureDmaRemapName] = [this]() { RunTextureDmaRemap(); };
+  tests_[kPaletteDmaRemapName] = [this]() { RunPaletteDmaRemap(); };
 }
 
 void PipelineTextureSwitchTests::Initialize() {
   TestSuite::Initialize();
 
   ResetCanonicalTextureBacking();
+
+  dma_texture_storage_ = static_cast<uint32_t *>(MmAllocateContiguousMemoryEx(
+      kDmaTextureStorageBytes, kDmaTextureLowAddress,
+      kDmaTextureHighAddress, 0,
+      PAGE_WRITECOMBINE | PAGE_READWRITE));
+  ASSERT(dma_texture_storage_ != nullptr);
+  if (!dma_texture_storage_) {
+    return;
+  }
+  auto *red = dma_texture_storage_;
+  auto *blue = red + kTexturePixels;
+  auto *green = blue + kTexturePixels;
+
+  pb_create_dma_ctx(kTextureDmaRed, DMA_CLASS_3,
+                    reinterpret_cast<DWORD>(red),
+                    kLinearTextureBytes - 1, &texture_dma_red_);
+  pb_create_dma_ctx(kTextureDmaBlue, DMA_CLASS_3,
+                    reinterpret_cast<DWORD>(blue),
+                    kLinearTextureBytes - 1, &texture_dma_blue_);
+  pb_create_dma_ctx(kTextureDmaGreen, DMA_CLASS_3,
+                    reinterpret_cast<DWORD>(green),
+                    kLinearTextureBytes - 1, &texture_dma_green_);
+  pb_create_dma_ctx(kPaletteDmaRed, DMA_CLASS_3,
+                    reinterpret_cast<DWORD>(host_.GetPaletteMemoryForStage(0)),
+                    kPaletteEntries * sizeof(uint32_t) - 1, &palette_dma_red_);
+  pb_create_dma_ctx(kPaletteDmaBlue, DMA_CLASS_3,
+                    reinterpret_cast<DWORD>(host_.GetTextureMemoryForStage(2)),
+                    kPaletteEntries * sizeof(uint32_t) - 1, &palette_dma_blue_);
+  pb_bind_channel(&texture_dma_red_);
+  pb_bind_channel(&texture_dma_blue_);
+  pb_bind_channel(&texture_dma_green_);
+  pb_bind_channel(&palette_dma_red_);
+  pb_bind_channel(&palette_dma_blue_);
 
   auto *texture_a = reinterpret_cast<uint32_t *>(
       host_.GetTextureMemoryForStage(0));
@@ -270,6 +359,15 @@ void PipelineTextureSwitchTests::Initialize() {
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "sampler_identity_input_kat == expected", __FILE__,
                       __LINE__);
+}
+
+void PipelineTextureSwitchTests::Deinitialize() {
+  host_.WaitForGpu();
+  if (dma_texture_storage_) {
+    MmFreeContiguousMemory(dma_texture_storage_);
+    dma_texture_storage_ = nullptr;
+  }
+  TestSuite::Deinitialize();
 }
 
 void PipelineTextureSwitchTests::SetupTest() {
@@ -1054,6 +1152,286 @@ void PipelineTextureSwitchTests::RunSharedPageOverlap() {
   EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_final, actual_final);
   host_.FinishDraw(suite_name_, kSharedPageOverlapName, results,
                    metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void PipelineTextureSwitchTests::RunTextureDmaRemap() {
+  static constexpr uint32_t kPhase = 0x1507;
+  static constexpr uint32_t kFormatB =
+      2U | (2U << 4) |
+      (NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8 << 8) |
+      (1U << 16) | (6U << 20) | (6U << 24);
+  static constexpr uint32_t kExpected[] = {
+      kTextureAColor, kTextureBColor, kDiffuseColor, kTextureBColor};
+  uint32_t expected_kat = kFnvOffsetBasis;
+  for (uint32_t expected : kExpected) {
+    expected_kat = Fnv1aAddWord(expected_kat, expected);
+  }
+
+  ASSERT(dma_texture_storage_ != nullptr);
+  if (!dma_texture_storage_) {
+    return;
+  }
+  auto *red = dma_texture_storage_;
+  auto *blue = red + kTexturePixels;
+  auto *green = blue + kTexturePixels;
+  for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
+    red[pixel] = kTextureAColor;
+    blue[pixel] = kTextureBColor;
+    green[pixel] = kDiffuseColor;
+  }
+  const uint32_t red_source =
+      reinterpret_cast<uint32_t>(red) & 0x03FFFFFF;
+  const uint32_t blue_source =
+      reinterpret_cast<uint32_t>(blue) & 0x03FFFFFF;
+  const uint32_t green_source =
+      reinterpret_cast<uint32_t>(green) & 0x03FFFFFF;
+  const uint32_t red_source_kat = HashWords(red, kTexturePixels);
+  const uint32_t blue_source_kat = HashWords(blue, kTexturePixels);
+  const uint32_t green_source_kat = HashWords(green, kTexturePixels);
+  AssertXemuPerfEqual(0, (red_source | blue_source | green_source) & 0xFFF,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "texture_dma_sources_page_aligned", __FILE__, __LINE__);
+  AssertXemuPerfEqual(1, static_cast<uint32_t>(
+                          red_source != blue_source &&
+                          red_source != green_source &&
+                          blue_source != green_source),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "texture_dma_sources_distinct", __FILE__, __LINE__);
+  PrintMsg("TEXTURE_DMA_REMAP_SOURCES %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(red_source),
+           static_cast<unsigned long>(blue_source),
+           static_cast<unsigned long>(green_source));
+  PrintMsg("TEXTURE_DMA_REMAP_SOURCE_KATS %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(red_source_kat),
+           static_cast<unsigned long>(blue_source_kat),
+           static_cast<unsigned long>(green_source_kat));
+
+  host_.SetVertexShaderProgram(nullptr);
+  host_.SetupFixedFunctionPassthrough();
+  for (uint32_t stage = 0; stage < 2; ++stage) {
+    auto &texture = host_.GetTextureStage(stage);
+    texture.SetFormat(GetTextureFormatInfo(
+        NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+    texture.SetTextureDimensions(kTextureWidth, kTextureHeight);
+    texture.SetImageDimensions(kTextureWidth, kTextureHeight);
+    texture.SetMipMapLevels(1);
+    texture.SetLODClamp(0, 0);
+    texture.SetUWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+    texture.SetVWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+    texture.SetPWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+    texture.SetFilter();
+    texture.SetEnabled(true);
+  }
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE,
+                              TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetupTextureStages();
+  host_.SetBlend(false);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::End();
+
+  SetXemuPerfEventContext(kPhase, expected_kat);
+  auto results = Profile(kTextureDmaRemapName, 1, [&]() {
+    host_.PrepareDraw(kBackgroundColor);
+    // PrepareDraw recommits the host's default A-relative texture methods.
+    // Establish the initial two-DMA state before the control draws.
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_CONTEXT_DMA_A, texture_dma_red_.ChannelID);
+    Pushbuffer::Push(NV097_SET_CONTEXT_DMA_B, texture_dma_blue_.ChannelID);
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, 0);
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET + kTextureStageStride, 0);
+    Pushbuffer::Push(NV097_SET_TEXTURE_FORMAT + kTextureStageStride, kFormatB);
+    Pushbuffer::End();
+    DrawDmaTile(host_, kQuads[0], false, kTextureWidth);
+    DrawDmaTile(host_, kQuads[1], true, kTextureWidth);
+    SynchronizeCorrectness(host_);
+
+    // Stage 0's source changes without a stage-0 texture-state write. Stage 1
+    // receives an unrelated sampler write, admitting the texture slow path.
+    // The binder must resolve stage 0's new A target despite its clean flag.
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_CONTEXT_DMA_A, texture_dma_green_.ChannelID);
+    Pushbuffer::Push(NV097_SET_TEXTURE_ADDRESS + kTextureStageStride,
+                     kRepeatAddress);
+    Pushbuffer::End();
+    DrawDmaTile(host_, kQuads[2], false, kTextureWidth);
+    DrawDmaTile(host_, kQuads[3], true, kTextureWidth);
+  });
+  SynchronizeCorrectness(host_);
+  uint32_t actual_kat = kFnvOffsetBasis;
+  std::array<uint32_t, 4> actual_tiles{};
+  for (uint32_t tile = 0; tile < 4; ++tile) {
+    const uint32_t actual = ReadTileCenter(tile);
+    actual_tiles[tile] = actual;
+    AssertXemuPerfEqual(kExpected[tile], actual,
+                        XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                        "texture_dma_remap_tile", __FILE__, __LINE__);
+    actual_kat = Fnv1aAddWord(actual_kat, actual);
+  }
+  PrintMsg("TEXTURE_DMA_REMAP_TILES %08lx %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(actual_tiles[0]),
+           static_cast<unsigned long>(actual_tiles[1]),
+           static_cast<unsigned long>(actual_tiles[2]),
+           static_cast<unsigned long>(actual_tiles[3]));
+  AssertXemuPerfEqual(expected_kat, actual_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
+                      "texture_dma_remap_pixel_kat", __FILE__, __LINE__);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetupTextureStages();
+  host_.PrepareDraw(kBackgroundColor);
+  SynchronizeCorrectness(host_);
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,\"kind\":\"texture_dma_remap\",";
+  metadata << "\"test_id\":\"" << kTextureDmaRemapName << "\",";
+  metadata << "\"oracle_provenance\":\"SPEC_DERIVED\",";
+  metadata << "\"clean_remapped_stage\":0,\"dirty_control_stage\":1,";
+  metadata << "\"stage0_texture_state_writes_after_remap\":0,";
+  metadata << "\"stage1_sampler_writes_after_remap\":1,";
+  metadata << "\"source_physical\":{\"red\":" << red_source
+           << ",\"blue\":" << blue_source << ",\"green\":"
+           << green_source << "},";
+  metadata << "\"source_kat\":{\"red\":" << red_source_kat
+           << ",\"blue\":" << blue_source_kat << ",\"green\":"
+           << green_source_kat << "},";
+  metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
+  metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
+  metadata << "\"tile_argb\":[" << actual_tiles[0] << ","
+           << actual_tiles[1] << "," << actual_tiles[2] << ","
+           << actual_tiles[3] << "],";
+  metadata << "\"terminal_fence\":\"F2 after F1\"}";
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_kat, actual_kat);
+  host_.FinishDraw(suite_name_, kTextureDmaRemapName, results, metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
+  static constexpr uint32_t kPhase = 0x1508;
+  static constexpr uint32_t kExpected[] = {
+      kTextureAColor, kTextureBColor, kTextureBColor, kTextureBColor};
+  uint32_t expected_kat = kFnvOffsetBasis;
+  for (uint32_t expected : kExpected) {
+    expected_kat = Fnv1aAddWord(expected_kat, expected);
+  }
+  memset(host_.GetTextureMemoryForStage(0), 0, kTexturePixels);
+  auto *red = host_.GetPaletteMemoryForStage(0);
+  // DMA descriptors store the page frame separately from the 12-bit adjust.
+  // pb_create_dma_ctx does not encode an adjust, so sources 1 KiB apart in
+  // GetPaletteMemoryForStage(0/1) would resolve to the same 4 KiB page.
+  auto *blue = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(2));
+  for (uint32_t entry = 0; entry < kPaletteEntries; ++entry) {
+    red[entry] = kTextureAColor;
+    blue[entry] = kTextureBColor;
+  }
+  auto *stage_one_image = reinterpret_cast<uint32_t *>(
+      host_.GetTextureMemoryForStage(3));
+  const uint32_t red_dma_page = reinterpret_cast<uint32_t>(red) & 0x03FFF000;
+  const uint32_t blue_dma_page = reinterpret_cast<uint32_t>(blue) & 0x03FFF000;
+  AssertXemuPerfEqual(0, reinterpret_cast<uint32_t>(red) & 0xFFF,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_red_dma_page_aligned", __FILE__, __LINE__);
+  AssertXemuPerfEqual(0, reinterpret_cast<uint32_t>(blue) & 0xFFF,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_blue_dma_page_aligned", __FILE__, __LINE__);
+  AssertXemuPerfEqual(1, static_cast<uint32_t>(red_dma_page != blue_dma_page),
+                      XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
+                      "palette_dma_sources_have_distinct_pages", __FILE__,
+                      __LINE__);
+  for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
+    stage_one_image[pixel] = kTextureBColor;
+  }
+
+  ConfigurePalettePipeline();
+  auto &stage_one = host_.GetTextureStage(1);
+  stage_one.SetFormat(GetTextureFormatInfo(
+      NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+  stage_one.SetTextureDimensions(kTextureWidth, kTextureHeight);
+  stage_one.SetImageDimensions(kTextureWidth, kTextureHeight);
+  stage_one.SetMipMapLevels(1);
+  stage_one.SetLODClamp(0, 0);
+  stage_one.SetUWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  stage_one.SetVWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  stage_one.SetPWrap(TextureStage::WRAP_CLAMP_TO_EDGE, false);
+  stage_one.SetFilter();
+  stage_one.SetEnabled(true);
+  host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE,
+                              TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetupTextureStages();
+
+  SetXemuPerfEventContext(kPhase, expected_kat);
+  auto results = Profile(kPaletteDmaRemapName, 1, [&]() {
+    host_.PrepareDraw(kBackgroundColor);
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_CONTEXT_DMA_B, palette_dma_red_.ChannelID);
+    Pushbuffer::Push(NV097_SET_TEXTURE_PALETTE, 1U);
+    Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET + kTextureStageStride,
+                     reinterpret_cast<uint32_t>(stage_one_image) & 0x03FFFFFF);
+    Pushbuffer::End();
+    DrawDmaTile(host_, kQuads[0], false, 1.f);
+    DrawDmaTile(host_, kQuads[1], true, kTextureWidth);
+    SynchronizeCorrectness(host_);
+
+    // Stage 0's indexed image and palette method stay clean. The palette DMA
+    // source changes while an unrelated stage-1 sampler write admits a bind.
+    Pushbuffer::Begin();
+    Pushbuffer::Push(NV097_SET_CONTEXT_DMA_B, palette_dma_blue_.ChannelID);
+    Pushbuffer::Push(NV097_SET_TEXTURE_ADDRESS + kTextureStageStride,
+                     kRepeatAddress);
+    Pushbuffer::End();
+    DrawDmaTile(host_, kQuads[2], false, 1.f);
+    DrawDmaTile(host_, kQuads[3], true, kTextureWidth);
+  });
+  SynchronizeCorrectness(host_);
+  uint32_t actual_kat = kFnvOffsetBasis;
+  std::array<uint32_t, 4> actual_tiles{};
+  for (uint32_t tile = 0; tile < 4; ++tile) {
+    const uint32_t actual = ReadTileCenter(tile);
+    actual_tiles[tile] = actual;
+    AssertXemuPerfEqual(kExpected[tile], actual,
+                        XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+                        "palette_dma_remap_tile", __FILE__, __LINE__);
+    actual_kat = Fnv1aAddWord(actual_kat, actual);
+  }
+  PrintMsg("PALETTE_DMA_REMAP_TILES %08lx %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(actual_tiles[0]),
+           static_cast<unsigned long>(actual_tiles[1]),
+           static_cast<unsigned long>(actual_tiles[2]),
+           static_cast<unsigned long>(actual_tiles[3]));
+  AssertXemuPerfEqual(expected_kat, actual_kat,
+                      XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
+                      "palette_dma_remap_pixel_kat", __FILE__, __LINE__);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
+  host_.SetTextureStageEnabled(0, false);
+  host_.SetTextureStageEnabled(1, false);
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetupTextureStages();
+  host_.PrepareDraw(kBackgroundColor);
+  SynchronizeCorrectness(host_);
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,\"kind\":\"palette_dma_remap\",";
+  metadata << "\"test_id\":\"" << kPaletteDmaRemapName << "\",";
+  metadata << "\"oracle_provenance\":\"SPEC_DERIVED\",";
+  metadata << "\"clean_palette_stage\":0,\"dirty_control_stage\":1,";
+  metadata << "\"palette_register_writes_after_remap\":0,";
+  metadata << "\"stage1_sampler_writes_after_remap\":1,";
+  metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
+  metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
+  metadata << "\"tile_argb\":[" << actual_tiles[0] << ","
+           << actual_tiles[1] << "," << actual_tiles[2] << ","
+           << actual_tiles[3] << "],";
+  metadata << "\"terminal_fence\":\"F2 after F1\"}";
+  EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_kat, actual_kat);
+  host_.FinishDraw(suite_name_, kPaletteDmaRemapName, results, metadata.str());
   ClearXemuPerfEventContext();
 }
 
