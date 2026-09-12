@@ -1,0 +1,68 @@
+{
+  "schema_version": 1,
+  "classification": "trace-only diagnostic; not a performance A/B or displayed-FPS measurement",
+  "product_source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "product_tree": "4d49acf74c5069b0cf03a995c7867f55554ac028",
+  "diagnostic_patch_sha256": "eeec9c5e0b12d5a3ac8ac93969d2ac001370fdcc05d7124c765cf86c4cb2845c",
+  "diagnostic_executable_sha256": "0fbd3b777fc9d040a1a98ef7555fc6bea0a0a3653c6f51fee8c801b409667894",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "qmp_sampler_sha256": "d393b85f9d798e20652cbe79d82aaa6b8928caed389189e3cb9d97d8844c4101",
+  "snapshot": "vm-20260905015459",
+  "renderer": "VULKAN",
+  "measurement_seconds": 15,
+  "guest_display_writes": 361,
+  "result_status": "complete",
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true,
+  "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "raw_input_sha256": {
+    "trace": "c95aa5aaef6c16e7d63708c8ac39dceb010483ec577dfb6cc4b81fad5285f9f3",
+    "qmp_samples": "8768d609991c30f1c066487fcdc1493a3489b8a51349d2d80e3fe9d7aed8bba2",
+    "runner_result": "8843927e77179403505b0d78284c77608612d9a8d28dab8491eb82d6fdf79016"
+  },
+  "all_run": {
+    "queued": 538,
+    "stalled": 538,
+    "written": 538,
+    "ordered_triplets": 538,
+    "distinct_report_vram_addresses": [
+      "0x00fff000"
+    ],
+    "distinct_query_counts": [
+      0
+    ]
+  },
+  "measurement_window": {
+    "queued": 361,
+    "stalled": 361,
+    "written": 361,
+    "ordered_triplets": 361,
+    "stall_to_write_median_ms": 2.031,
+    "stall_to_write_p95_nearest_rank_ms": 3.55
+  },
+  "guest_qmp_samples": {
+    "total": 180,
+    "resolved": 9,
+    "direct_helper_entry_stack_index_zero": 4,
+    "caller_site_index_zero": 5,
+    "transient_unmapped": 2,
+    "record_gva": "0x80fff000",
+    "record_gpa": "0x00fff000",
+    "resolved_done_values": [
+      "0x00000000"
+    ]
+  },
+  "address_match": {
+    "guest_record_gpa": "0x00fff000",
+    "vulkan_queued_vram": "0x00fff000",
+    "vulkan_stalled_vram": "0x00fff000",
+    "vulkan_written_vram": "0x00fff000",
+    "matched": true
+  },
+  "limits": [
+    "The QMP sampler read the completed word after monitor scheduling; it did not capture the pending sentinel or the first guest load timestamp.",
+    "Trace instrumentation and QMP sampling perturb timing; stall-to-write values describe the diagnostic run only.",
+    "The fixed snapshot does not measure map traversal or host-presented FPS."
+  ]
+}

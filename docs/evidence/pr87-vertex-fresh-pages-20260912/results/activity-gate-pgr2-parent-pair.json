@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "scope": "same-session 60-second PGR2 Vulkan snapshot pair, current PR87 gate then exact #85 parent",
+  "product_head": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "product_executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+  "parent_commit": "2163208fdc49c7f6b4834bce98e6a11b494d4241",
+  "parent_executable_sha256": "fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc",
+  "metric_limit": "guest flip FPS and intervals, not host-present FPS; no ETL or PresentMon active",
+  "rows": [
+    {
+      "order": "candidate first",
+      "source_label": null,
+      "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+      "guest_frames": 1776,
+      "guest_fps": 29.56535075674526,
+      "guest_interval_p95_ms": 38.872,
+      "guest_interval_p99_ms": 43.241,
+      "guest_interval_max_ms": 50.664,
+      "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+      "base_config_sha256": "2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0",
+      "runner_sha256": null,
+      "raw_result_sha256": "a7bab7dd7006d8a386d235c5dc6483c5a32d89e24035e93755f1b5e23d4c79f1"
+    },
+    {
+      "order": "parent second",
+      "source_label": null,
+      "executable_sha256": "fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc",
+      "guest_frames": 1770,
+      "guest_fps": 29.490504320431384,
+      "guest_interval_p95_ms": 39.643,
+      "guest_interval_p99_ms": 43.306,
+      "guest_interval_max_ms": 59.686,
+      "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+      "base_config_sha256": "2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0",
+      "runner_sha256": null,
+      "raw_result_sha256": "8a92005708bc662198e7c3fa8585a71ef1b5b54d3781e60bdc06d46569481a18"
+    }
+  ],
+  "candidate_vs_parent_improvement_percent": {
+    "guest_fps": 0.25379842779433837,
+    "guest_p95_ms": 1.9448578563680874,
+    "guest_p99_ms": 0.1500946751027521
+  }
+}

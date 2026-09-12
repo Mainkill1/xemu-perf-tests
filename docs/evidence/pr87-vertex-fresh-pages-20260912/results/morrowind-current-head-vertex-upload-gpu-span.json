@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "purpose": "Trace-only GPU timestamp attribution; not a product performance comparison or a prediction of removable time",
+  "product_source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "diagnostic_patch_sha256": "9cbce4f8a3a37262eb561b2da424270ae135aed1a9dc5fde3788c888235a820e",
+  "diagnostic_executable_sha256": "466c15c31c0e882f506fef38a06facd984f7d4113c0b39126e728a425e5b3338",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "window_seconds": 10.0036388,
+  "guest_display_writes": 251,
+  "guest_display_writes_per_window_second": 25.090869934248328,
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true,
+  "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "gpu_timestamp_valid_bits": 64,
+  "gpu_timestamp_period_ns": 1,
+  "query_pairs_per_submit_capacity": 256,
+  "all_reasons_gpu_main_ns": 2242273376,
+  "all_reasons_vertex_upload_span_ns": 394252352,
+  "all_reasons_upload_span_share_of_main_percent": 17.583,
+  "staging_copies": 57713,
+  "direct_copies": 28197,
+  "reasons": {
+    "need_buffer_space": {
+      "submits": 252,
+      "gpu_main_ns": 1991536736,
+      "vertex_upload_span_ns": 365980960,
+      "vertex_upload_span_share_of_main_percent": 18.377,
+      "timed_vertex_uploads": 54277,
+      "uploads_entered_with_active_pass": 54277,
+      "query_pair_overflows": 0,
+      "median_upload_span_ns_per_guest_write": 1213696,
+      "p95_upload_span_ns_per_guest_write": 2408096,
+      "span_exceeds_main_frame_count": 0
+    },
+    "stalled": {
+      "submits": 251,
+      "gpu_main_ns": 216394752,
+      "vertex_upload_span_ns": 27944960,
+      "vertex_upload_span_share_of_main_percent": 12.914,
+      "timed_vertex_uploads": 3362,
+      "uploads_entered_with_active_pass": 3362,
+      "query_pair_overflows": 0,
+      "median_upload_span_ns_per_guest_write": 69056,
+      "p95_upload_span_ns_per_guest_write": 436352,
+      "span_exceeds_main_frame_count": 0
+    },
+    "flip_stall": {
+      "submits": 250,
+      "gpu_main_ns": 34193408,
+      "vertex_upload_span_ns": 326432,
+      "vertex_upload_span_share_of_main_percent": 0.955,
+      "timed_vertex_uploads": 68,
+      "uploads_entered_with_active_pass": 68,
+      "query_pair_overflows": 0,
+      "median_upload_span_ns_per_guest_write": 0,
+      "p95_upload_span_ns_per_guest_write": 13440,
+      "span_exceeds_main_frame_count": 0
+    },
+    "surface_down": {
+      "submits": 1,
+      "gpu_main_ns": 148480,
+      "vertex_upload_span_ns": 0,
+      "vertex_upload_span_share_of_main_percent": 0.0,
+      "timed_vertex_uploads": 0,
+      "uploads_entered_with_active_pass": 0,
+      "query_pair_overflows": 0,
+      "median_upload_span_ns_per_guest_write": 0,
+      "p95_upload_span_ns_per_guest_write": 0,
+      "span_exceeds_main_frame_count": 0
+    }
+  },
+  "private_inputs_sha256": {
+    "diagnostic_counter_stream": "4490081380c361587e88d39d328cdd73ae0081a7e7490676a7d85eb57233daa4",
+    "guest_display_write_stream": "108bc1d5e27fac9f206d067d96249946e0add17758f4127d9ce6e0891369f3dd",
+    "run_result": "dc184d64b207f07a3afe94a71e668b32f253e0e9dd95fcc874f3bf12207156cc"
+  },
+  "method": "Align counter rows and guest-write events by ordinal, select events in the recorded measurement UTC interval, sum GPU timestamp pairs around each ordered staged vertex upload; the pair begins before pass-ending nondraw entry and ends after barriers/copy, excluding the next pass begin. Sum per-reason main GPU batch timestamps for the denominator. Timestamp queries and retrieval are diagnostic overhead.",
+  "limits": "One fixed-camera Vulkan snapshot on one device; timestamp-instrumented, no controlled A/B, no host-presented FPS, no first pending guest-load timestamp. Upload span is not removable time and does not include the following render-pass begin."
+}

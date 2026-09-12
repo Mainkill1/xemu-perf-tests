@@ -240,6 +240,12 @@ def entries():
         "XemuRisingTransientBufferGrowth",
         "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.",
         ("vertex", "allocation", "correctness", "xemu-only")))
+    out.append(leaf(
+        "vertex_buffer_allocation.ordered_same_page_overwrite",
+        "vertex_buffer_allocation", "Vertex buffer allocation",
+        "XemuVertexRamOrderedSamePageOverwrite",
+        "Draws, drains the FIFO without GPU completion, overwrites the same vertex page, and checks both ordered colors.",
+        ("vertex", "correctness", "xemu-only")))
     return out
 
 
@@ -400,6 +406,8 @@ def failure_diagnosis(test):
             "Two disjoint vertex ranges sharing one guest page interfered. Check byte-range versus page dirty tracking, upload offsets, cache keys, and allocation aliasing.",
         "vertex_buffer_allocation.rising_transient_growth":
             "A just-below, exact-capacity, repeated-small-growth, or large-growth phase failed. Check required-size arithmetic, paired buffer capacities, mapping restoration, command-buffer completion, and post-growth draw offsets.",
+        "vertex_buffer_allocation.ordered_same_page_overwrite":
+            "A later CPU write changed an earlier recorded draw, the later draw read stale vertices, or the intervening FIFO drain completed GPU work. Check read-page tracking, mapped-write eligibility, ordered staging, and submission lifetime.",
     }
     if test_id in exact:
         return exact[test_id]
@@ -714,6 +722,7 @@ def render():
         "surface.cpu_read_after_gpu_write",
         "surface.surface_download_path",
         "vertex_buffer_allocation.disjoint_same_page",
+        "vertex_buffer_allocation.ordered_same_page_overwrite",
         "tiny_draw.inline_buffers.vertex_shader",
     ]
     profiles = {
