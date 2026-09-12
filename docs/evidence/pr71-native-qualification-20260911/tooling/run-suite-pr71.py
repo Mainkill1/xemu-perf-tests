@@ -3755,6 +3755,8 @@ def write_summary(
     scale: int,
     vsync: bool,
     guest_iso: Path | None,
+    guest_source_commit: str | None,
+    guest_source_tree: str | None,
     host_process: dict | None,
     host_telemetry: dict | None,
     guest_event_evidence: dict | None,
@@ -3829,7 +3831,12 @@ def write_summary(
         "build_cleanliness": build_cleanliness,
         "guest_release": PERF_RELEASE if mode == "perf" else None,
         "guest_image": (
-            {"path": str(guest_iso), "sha256": sha256(guest_iso)}
+            {
+                "path": str(guest_iso),
+                "sha256": sha256(guest_iso),
+                "source_commit": guest_source_commit,
+                "source_tree": guest_source_tree,
+            }
             if guest_iso is not None
             else None
         ),
@@ -4012,6 +4019,14 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--xemu", type=Path, default=DEFAULT_XEMU)
     parser.add_argument("--guest-iso", type=Path, default=PERF_ISO)
+    parser.add_argument(
+        "--guest-source-commit",
+        help="Exact source commit used to build the supplied guest XISO",
+    )
+    parser.add_argument(
+        "--guest-source-tree",
+        help="Exact source tree used to build the supplied guest XISO",
+    )
     parser.add_argument(
         "--catalog",
         type=Path,
@@ -4255,6 +4270,12 @@ def parse_args() -> argparse.Namespace:
         ),
     )
     args = parser.parse_args()
+    for name in ("guest_source_commit", "guest_source_tree"):
+        value = getattr(args, name)
+        if value is not None and not re.fullmatch(r"[0-9a-f]{40}", value):
+            parser.error(
+                f"--{name.replace('_', '-')} must be a 40-character commit/tree SHA"
+            )
     if args.warmup_iterations < 0:
         parser.error("--warmup-iterations must be non-negative")
     if args.timeout_seconds < 1:
@@ -4969,6 +4990,8 @@ def main() -> int:
             args.scale,
             args.vsync,
             guest_iso if args.mode == "perf" else None,
+            args.guest_source_commit,
+            args.guest_source_tree,
             host_process,
             host_telemetry,
             guest_event_evidence,

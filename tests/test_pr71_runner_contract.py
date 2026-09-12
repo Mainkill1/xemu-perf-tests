@@ -13,6 +13,7 @@ RUNNER = (
     ROOT
     / "docs/evidence/pr71-native-qualification-20260911/tooling/run-suite-pr71.py"
 )
+CAMPAIGN = ROOT / "docs/evidence/pr71-native-qualification-20260911/campaign-r1"
 
 
 def test_pr71_runner_is_syntax_valid_and_declares_qualification_contract():
@@ -101,3 +102,46 @@ def test_pr71_improvement_formula_preserves_positive_good_semantics():
     assert math.isclose(calculate(110.0, 100.0, "+good"), 10.0)
     assert math.isclose(calculate(90.0, 100.0, "+bad"), 10.0)
     assert calculate(0.0, 0.0, "+good") is None
+
+
+def test_pr71_campaign_package_contract_is_complete_without_running_cells():
+    """The Windows package is statically checked; benchmark execution is deployment-only."""
+
+    required = {
+        "campaign-config.ps1",
+        "campaign-common.ps1",
+        "run-all-session1.ps1",
+        "run-full-xiso-session1.ps1",
+        "run-retail-session1.ps1",
+        "capture-pgr2-native-pr71.ps1",
+        "run-morrowind-qualification-cell-exact-isolated.ps1",
+        "morrowind-control-exact-isolated.ps1",
+        "write-results.ps1",
+    }
+    assert required <= {path.name for path in CAMPAIGN.iterdir()}
+    config = (CAMPAIGN / "campaign-config.ps1").read_text(encoding="utf-8")
+    for identity in (
+        "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+        "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+        "5edff26383c6440da35bc92b9fca35f4a404b03b",
+        "a08c4d92916554f55f09231f525cda1f93b55129",
+        "11981a736703553349357cd89926b443901cadb9",
+        "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+        "0bb7618aec5ea73355a03bcb176a922ea8b3ec2e",
+        "d0dfbf18f5fccafd3fc06b2401bbe1c17affdda4",
+        "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+    ):
+        assert identity in config
+    for path in CAMPAIGN.glob("*.ps1"):
+        text = path.read_text(encoding="utf-8")
+        assert "run-suite-pr70" not in text
+    retail = (CAMPAIGN / "run-retail-session1.ps1").read_text(encoding="utf-8")
+    xiso = (CAMPAIGN / "run-full-xiso-session1.ps1").read_text(encoding="utf-8")
+    assert "HybridUbershaders" in retail and "'On'" in retail and "'Off'" in retail
+    assert "vk_hybrid_ubershaders" in (CAMPAIGN / "capture-pgr2-native-pr71.ps1").read_text(encoding="utf-8")
+    assert "ShaderCache" in retail and "cache_shaders" in (CAMPAIGN / "campaign-common.ps1").read_text(encoding="utf-8")
+    assert "candidate-vulkan-on-cold" in retail and "candidate-vulkan-on-warm" in retail
+    assert "guest-source-commit" in xiso and "guest-source-tree" in xiso
+    assert "baseline-candidate" in retail and "candidate-baseline" in retail
+    assert "Get-HostAdmission" in (CAMPAIGN / "run-all-session1.ps1").read_text(encoding="utf-8")
+    assert "tables_only = $true" in (CAMPAIGN / "write-results.ps1").read_text(encoding="utf-8")
