@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "probe_patch_sha256": "a5babd1f62d807cab7c7c894d883e144107391bc1bc3cdffd7ee358b673aeb4b",
+  "method": "Single sequential 10-second opt-in timestamp cell per source, identical snapshot/runner/config; diagnostic comparison only; instrumentation and run order confound throughput",
+  "cells": [
+    {
+      "label": "exact_pr85_parent",
+      "source_commit": "2163208fdc49c7f6b4834bce98e6a11b494d4241",
+      "source_tree": "e71f9bd72997bf81da62fab8029a8a310d00c23c",
+      "diagnostic_executable_sha256": "ab7a36ae6cd3952bed500cb2dded1e0ca6d79ad761a2ae6bea837299fe0dc74a",
+      "result_sha256": "e3596c4f6001fb0bd13d0bf9949f100302e276aacdff130b4f8b3a4fa7cb1120",
+      "perf_input_sha256": "1cc154ff149ae81ad1f3955aa94cd07b3ad6ff259911288e3469d00cd460ede6",
+      "flips_input_sha256": "1bd38a5da9bdcc43d089ad1a93de944e78cc86154d855e4c0f9ee67710c94c26",
+      "guest_display_writes": 253,
+      "guest_display_writes_per_second_diagnostic_only": 25.281608893610343,
+      "guest_interval_p95_ms_diagnostic_only": 47.724,
+      "guest_interval_p99_ms_diagnostic_only": 53.32,
+      "capacity_submissions": 254,
+      "capacity_host_wait_total_ms": 2364.903,
+      "capacity_gpu_batch_total_ms": 2253.965472,
+      "capacity_gpu_main_mean_ms_per_guest_write": 8.449548648221343,
+      "capacity_gpu_main_median_ms_per_timed_write": 8.041824,
+      "capacity_gpu_main_p95_ms_per_timed_write": 12.219910399999993,
+      "total_sampled_finish_wait_median_ms_per_guest_write": 11.379,
+      "image_validation": "PASSED",
+      "private_hdd_deleted": true
+    },
+    {
+      "label": "pr87_current_head",
+      "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+      "source_tree": "4d49acf74c5069b0cf03a995c7867f55554ac028",
+      "diagnostic_executable_sha256": "80889154812d794bd6ae4d600fa861cde57110c14d736e9c6dc3ab43e18d0c44",
+      "result_sha256": "3f7575f4566929f4975691a6cdea87e3bbabfeb987ecba980aa5b3879ffa2a42",
+      "perf_input_sha256": "900f3bc94a952ff4fe7f1811befc06f63f70d3eb5eb5eef487ff9e586b1a924f",
+      "flips_input_sha256": "24cf92a71820f3e1562f921d263908e053b31a01868814c274ed85dc9a08d143",
+      "guest_display_writes": 243,
+      "guest_display_writes_per_second_diagnostic_only": 24.28344379085783,
+      "guest_interval_p95_ms_diagnostic_only": 49.094,
+      "guest_interval_p99_ms_diagnostic_only": 59.36,
+      "capacity_submissions": 244,
+      "capacity_host_wait_total_ms": 2306.59,
+      "capacity_gpu_batch_total_ms": 2168.704864,
+      "capacity_gpu_main_mean_ms_per_guest_write": 8.031552395061729,
+      "capacity_gpu_main_median_ms_per_timed_write": 8.1224,
+      "capacity_gpu_main_p95_ms_per_timed_write": 10.985078399999997,
+      "total_sampled_finish_wait_median_ms_per_guest_write": 12.161,
+      "image_validation": "PASSED",
+      "private_hdd_deleted": true
+    }
+  ]
+}

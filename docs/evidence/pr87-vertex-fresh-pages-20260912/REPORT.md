@@ -183,6 +183,18 @@ The capacity batch's GPU elapsed interval accounts for **94.0% of its total host
 
 In the 242 consecutive intervals wholly inside this new window, the fastest 24 had median guest interval **34.699 ms** and capacity-main GPU time **4.984 ms**; the slowest 24 had **49.111 ms** and **10.294 ms**. Interval rank correlation was **0.821** with capacity-main GPU time, **0.829** with capacity-batch GPU time, and **0.827** with host capacity wait. Staged-copy count correlated 0.366; the groups' medians were 193 and 243.5 copies. This is strong timing attribution for the Vulkan completion path, while variation in guest work and the intrusive timestamps prevent a per-copy cost estimate. [Frame association and input identities](results/morrowind-current-gate-gpu-interval-association.json) make the calculation reviewable. The next performance experiment should target the remaining *ordered* vertex-copy pass breaks or another measured component inside the main GPU command buffer; it must keep the report and vertex-data completion contracts intact.
 
+An **exact #85 parent timestamp control** used the same diagnostic patch, build profile, snapshot, runner and 10-second window in the following run. Parent source/tree were `2163208fdc49c7f6b4834bce98e6a11b494d4241` / `e71f9bd72997bf81da62fab8029a8a310d00c23c`, executable SHA-256 `ab7a36ae6cd3952bed500cb2dded1e0ca6d79ad761a2ae6bea837299fe0dc74a`. Its 253 counter records matched 253 display-write events; image, seed and private-disk checks passed, and the builder/test processes were cleaned up. These were **current → parent, single sequential diagnostic cells**, not a balanced performance trial.
+
+| Timestamp diagnostic metric | Exact #85 parent | Current PR #87 |
+| --- | ---: | ---: |
+| Guest display writes/s, diagnostic only | 25.282 | 24.283 |
+| Capacity main-buffer GPU mean/write | 8.450 ms | 8.032 ms |
+| Capacity main-buffer GPU median/write | 8.042 ms | 8.122 ms |
+| Capacity main-buffer GPU p95/write | 12.220 ms | 10.985 ms |
+| Total sampled finish-wait median/write | 11.379 ms | 12.161 ms |
+
+The mean and p95 GPU-main directions favor #87, but its median does not, and guest progression went the other way in these intrusive sequential cells. That conflict **does not overturn** the earlier uninstrumented 60-second old-head Morrowind pairs; it does mean this timestamp pair cannot establish an exact-current-head throughput gain or assign the original 5–7% gain solely to GPU pass breaks. The one safe conclusion is the common bottleneck: both exact trees spend substantial time completing the main graphics batch before the guest can proceed. [Parent summary](results/morrowind-parent-gpu-phases-summary.json) and [paired diagnostic identities](results/morrowind-parent-current-gpu-phase-control.json) retain the raw input hashes and adverse result.
+
 ## What the Morrowind wait counters actually mean
 
 An additional **counter-only exact-parent control** used the same Morrowind snapshot and runner as the earlier candidate counter window. The parent executable SHA-256 was `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`; its 248-display-write window passed the final-image oracle, deleted its private disk, and left no trace process running. The candidate window contained 246 writes. These short diagnostic windows are not a paired performance qualification. Their sampled waits reveal where execution blocks, not a sum of independently additive CPU costs.
