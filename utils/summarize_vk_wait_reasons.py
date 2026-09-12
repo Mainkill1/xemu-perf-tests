@@ -5,6 +5,7 @@ import argparse
 import hashlib
 import json
 import statistics
+from collections import defaultdict
 from datetime import datetime
 from pathlib import Path
 
@@ -97,7 +98,7 @@ def summarize(perf_path, flips_path, result_path):
 
     total_wait = [sum(row["finish_sampled_wait_us_per_guest_frame"])
                   for row in selected]
-    return {
+    summary = {
         "schema_version": 1,
         "source_commit": result["source_commit"],
         "executable_sha256": result["executable_sha256"],
@@ -114,6 +115,74 @@ def summarize(perf_path, flips_path, result_path):
         "reasons": reasons,
         "cpu_regions": cpu_regions,
     }
+    command_fields = (
+        "draw_begin_count", "draw_clear_count", "draw_command_count",
+        "pipeline_bind_count", "descriptor_bind_count",
+        "descriptor_same_recorded_bind_count", "descriptor_write_count",
+    )
+    if all(all(key in frame for key in command_fields) for frame in selected):
+        summary["command_recording"] = {
+            key: {
+                "total": sum(frame[key] for frame in selected),
+                "median_per_guest_frame": statistics.median(
+                    frame[key] for frame in selected),
+            }
+            for key in command_fields
+        }
+    cause_fields = (
+        "descriptor_reason_texture_count", "descriptor_reason_first_count",
+        "descriptor_reason_vsh_count", "descriptor_reason_psh_count",
+        "descriptor_reason_ubo_reset_count", "texture_slow_bind_count",
+        "texture_slow_bind_same_images_count",
+    )
+    if all(all(key in frame for key in cause_fields) for frame in selected):
+        summary["descriptor_write_causes"] = {
+            key: {
+                "total": sum(frame[key] for frame in selected),
+                "median_per_guest_frame": statistics.median(
+                    frame[key] for frame in selected),
+            }
+            for key in cause_fields
+        }
+    if schema.get("draw_queries", {}).get("supported"):
+        stat_names = schema["draw_stats"]
+        by_shader = defaultdict(lambda: defaultdict(int))
+        draw_counts = []
+        for frame in selected:
+            if frame["draw_query_overflows"] or frame["draw_shader_overflows"]:
+                raise ValueError("draw-query profiling capacity was exceeded")
+            draw_counts.append(sum(shader["draw_count"] for shader in
+                                   frame["fragment_shader_stats"]))
+            for shader in frame["fragment_shader_stats"]:
+                aggregate = by_shader[shader["spirv_hash"]]
+                for key in ("draw_count", "gpu_time_ns", *stat_names):
+                    aggregate[key] += shader[key]
+        shaders = [dict(spirv_hash=shader_hash, **counts)
+                   for shader_hash, counts in by_shader.items()]
+        shaders.sort(key=lambda row: row["draw_count"], reverse=True)
+        total_draws = sum(draw_counts)
+        total_draw_gpu_ns = sum(shader["gpu_time_ns"] for shader in shaders)
+        for shader in shaders:
+            shader["draw_share_percent"] = (
+                100 * shader["draw_count"] / total_draws if total_draws else 0)
+            shader["draw_gpu_time_share_percent"] = (
+                100 * shader["gpu_time_ns"] / total_draw_gpu_ns
+                if total_draw_gpu_ns else 0)
+        summary["draw_queries"] = {
+            "capacity_per_submission": schema["draw_queries"]["capacity"],
+            "overflow_count": 0,
+            "unique_fragment_spirv_hashes": len(shaders),
+            "total_profiled_draw_groups": total_draws,
+            "median_profiled_draw_groups_per_guest_frame":
+                statistics.median(draw_counts),
+            "sum_draw_gpu_time_ns": total_draw_gpu_ns,
+            "pipeline_stat_totals": {
+                name: sum(shader[name] for shader in shaders)
+                for name in stat_names
+            },
+            "fragment_shaders": shaders,
+        }
+    return summary
 
 
 def main():
