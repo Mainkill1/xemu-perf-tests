@@ -1,0 +1,336 @@
+{
+  "campaign_id": "pr71-native-qualification-20260911-r2",
+  "status": "passed",
+  "latest_xiso": {
+    "sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+    "catalog_id": "sha256:a0d41d33c1f5da2ba60db7102b094847df048d489ee2a7d7c72d9c6d0048a86e",
+    "records": 157,
+    "registered_full_run_records": 152,
+    "gated_leaf_records": 5
+  },
+  "candidate_head": "d21072b39fd3a84b06943977f5f441116f229b2e",
+  "runtime_commit": "28290977a09e75ff86ecb16b0aa0caa62cdb43a7",
+  "candidate_binary_sha256": "e161c4cfe6b7b6af9d91fc7f28afde52efa43e6d899db24f1b0d2a2324e0d2c5",
+  "full_suite_cells": 9,
+  "gated_baseline_controls": 10,
+  "cells": [
+    {
+      "label": "01-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "passed",
+      "record_count": 152,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "cache_phase": "none",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on"
+    },
+    {
+      "label": "02-candidate-opengl",
+      "role": "candidate",
+      "renderer": "opengl",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "cache_phase": "none",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on"
+    },
+    {
+      "label": "03-previous-opengl",
+      "role": "previous_main",
+      "renderer": "opengl",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": false,
+      "unique_vuid_count": 0,
+      "cache_phase": "none",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on"
+    },
+    {
+      "label": "04-previous-vulkan",
+      "role": "previous_main",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "none",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on"
+    },
+    {
+      "label": "05-candidate-vulkan-off-cold",
+      "role": "candidate",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "cold",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on",
+      "cache_stats": {
+        "hits": 10,
+        "misses": 61,
+        "records": 61,
+        "loaded_bytes": 0,
+        "rejections": 0,
+        "fallbacks": 0
+      }
+    },
+    {
+      "label": "06-candidate-vulkan-off-warm",
+      "role": "candidate",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "warm",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on",
+      "cache_stats": {
+        "hits": 71,
+        "misses": 0,
+        "records": 61,
+        "loaded_bytes": 1146671,
+        "rejections": 0,
+        "fallbacks": 0
+      }
+    },
+    {
+      "label": "07-candidate-vulkan-on-cold",
+      "role": "candidate",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "cold",
+      "hybrid_ubershaders": "on",
+      "shader_cache": "on",
+      "cache_stats": {
+        "hits": 10,
+        "misses": 64,
+        "records": 64,
+        "loaded_bytes": 0,
+        "rejections": 0,
+        "fallbacks": 0
+      }
+    },
+    {
+      "label": "08-candidate-vulkan-on-warm",
+      "role": "candidate",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 157,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "warm",
+      "hybrid_ubershaders": "on",
+      "shader_cache": "on",
+      "cache_stats": {
+        "hits": 74,
+        "misses": 0,
+        "records": 64,
+        "loaded_bytes": 1276986,
+        "rejections": 0,
+        "fallbacks": 0
+      }
+    },
+    {
+      "label": "09-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "passed",
+      "record_count": 152,
+      "functional_hash_validation": "PASSED",
+      "non_pass_records": [
+        "report_query.dma_range_guard"
+      ],
+      "validation_active": true,
+      "unique_vuid_count": 0,
+      "cache_phase": "none",
+      "hybrid_ubershaders": "off",
+      "shader_cache": "on"
+    },
+    {
+      "label": "b01-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b02-pfifo_packet_boundary-array_element16_overflow-fixed-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b03-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b04-pfifo_packet_boundary-array_element32_overflow-fixed-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b05-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b06-pfifo_packet_boundary-inline_array_overflow-fixed-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b07-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b08-pfifo_packet_boundary-incrementing_inline_fallback-fixed-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b09-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-opengl",
+      "role": "fixed_baseline",
+      "renderer": "opengl",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    },
+    {
+      "label": "b10-texture_cubemap_fallback-unbordered_subblock_dxt1-fixed-baseline-vulkan",
+      "role": "fixed_baseline",
+      "renderer": "vulkan",
+      "status": "recorded",
+      "record_count": null,
+      "functional_hash_validation": null,
+      "non_pass_records": null,
+      "validation_active": null,
+      "unique_vuid_count": null,
+      "cache_phase": null,
+      "hybrid_ubershaders": null,
+      "shader_cache": null
+    }
+  ]
+}
