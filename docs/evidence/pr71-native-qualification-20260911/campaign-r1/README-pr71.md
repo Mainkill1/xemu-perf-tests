@@ -15,4 +15,6 @@ $env:XEMU_LAB_ROOT = '<test-box lab root>'
 
 The campaign executes full XISO OpenGL/Vulkan, PGR2 snapshot, PGR2 120-second fresh start, and Morrowind snapshot. Candidate Vulkan runs use isolated Hybrid ubershader Off and On profiles, each with explicit shader cache cold/warm phases. OpenGL is always Hybrid Off. Fixed and previous controls are Hybrid Off. Every cell records the exact logical/source/tree/executable/config identities, renderer and auto-GPU evidence, Vulkan validation result, cache controls, run-order bracket, and cleanup receipt. The host memory/GPU admission runs once at campaign start; per-cell checks only enforce idle emulator/trace processes.
 
+Remote dispatch through `dispatch-run-all.ps1` requires PowerShell 7 (`pwsh`) because Windows PowerShell 5.1 does not provide the named-pipe connection overload used for `GuiTestConsole`.
+
 Reports are tables only. Improvement % uses the positive-good convention: higher-is-better metrics use `+good`, lower-is-better metrics use `+bad`; favorable movement is positive and adverse movement is negative. No graphs are generated.

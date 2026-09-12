@@ -1,4 +1,7 @@
 $ErrorActionPreference = 'Stop'
+if ($PSVersionTable.PSVersion.Major -lt 7) {
+    throw 'dispatch-run-all.ps1 requires PowerShell 7 (pwsh).'
+}
 $labRoot = $env:XEMU_LAB_ROOT
 if ([string]::IsNullOrWhiteSpace($labRoot)) {
     throw 'Set XEMU_LAB_ROOT before dispatching the campaign.'
