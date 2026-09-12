@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "scope": "opt-in diagnostic process lifetime, excluded from uninstrumented performance comparison",
+  "runs": [
+    {
+      "name": "morrowind-preliminary-diagnostic",
+      "product_commit": "e4093f40efbd4a038af5a3b46d5b671e033bb086",
+      "raw_ndjson_sha256": "4a60bd3aa70466bfa3882f4b3ccb1be775022e8641ae7b4c56427b9bb449c7c8",
+      "frame_records": 1038,
+      "schema_record_version": 7,
+      "frame_schema_versions": [
+        6
+      ],
+      "counters": {
+        "vertex_version_draws_per_guest_frame": 767705,
+        "vertex_version_bytes_per_guest_frame": 1130013480,
+        "vertex_version_skipped_uploads_per_guest_frame": 767705,
+        "vertex_staging_copies_per_guest_frame": 34866,
+        "vertex_direct_copies_per_guest_frame": 117429
+      }
+    },
+    {
+      "name": "ordered-oracle-preliminary",
+      "product_commit": "e4093f40efbd4a038af5a3b46d5b671e033bb086",
+      "raw_ndjson_sha256": "25770642e84a0c17c68a6fe2a6655c94c191bda0994fc1f7eebe04a162c65661",
+      "frame_records": 34,
+      "schema_record_version": 7,
+      "frame_schema_versions": [
+        6
+      ],
+      "counters": {
+        "vertex_version_draws_per_guest_frame": 0,
+        "vertex_version_bytes_per_guest_frame": 0,
+        "vertex_version_skipped_uploads_per_guest_frame": 0,
+        "vertex_staging_copies_per_guest_frame": 29,
+        "vertex_direct_copies_per_guest_frame": 8
+      }
+    },
+    {
+      "name": "cross-title-final",
+      "product_commit": "07eff566b17b2abb643ca55b677dd9ac3a34792e",
+      "raw_ndjson_sha256": "d959d0e9c26acaf0cbca6556e01679c9fcbfa7215f47aaa6fd212e1bd047ad89",
+      "frame_records": 57,
+      "schema_record_version": 7,
+      "frame_schema_versions": [
+        7
+      ],
+      "counters": {
+        "vertex_version_draws_per_guest_frame": 81861,
+        "vertex_version_bytes_per_guest_frame": 10822096,
+        "vertex_version_selected_ranges_per_guest_frame": 81861,
+        "vertex_staging_copies_per_guest_frame": 37511,
+        "vertex_direct_copies_per_guest_frame": 364
+      }
+    }
+  ]
+}

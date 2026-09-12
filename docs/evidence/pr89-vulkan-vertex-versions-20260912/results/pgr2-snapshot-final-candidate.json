@@ -1,0 +1,30 @@
+{
+  "schema_version": 1,
+  "guest_frame_source": "XEMU_FRAME_LOG",
+  "guest_frame_count": 1774,
+  "guest_average_ms": 33.83869503945883,
+  "guest_p95_ms": 38.97,
+  "guest_p99_ms": 42.348,
+  "guest_max_ms": 52.79,
+  "guest_worst_intervals_ms": [
+    52.79,
+    48.266,
+    47.474,
+    45.909,
+    45.86,
+    45.039,
+    44.676,
+    44.45,
+    44.12,
+    43.745
+  ],
+  "guest_stall_threshold_ms": 75,
+  "guest_stall_count": 0,
+  "host_present_source": null,
+  "host_present_count": 0,
+  "host_present_average_ms": null,
+  "host_present_p95_ms": null,
+  "host_present_p99_ms": null,
+  "host_present_max_ms": null,
+  "host_present_worst_intervals_ms": []
+}

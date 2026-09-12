@@ -1,0 +1,13 @@
+{
+  "renderer": "vulkan",
+  "build": "candidate",
+  "source": "07eff566b17b2abb643ca55b677dd9ac3a34792e",
+  "executable_sha256": "594a2bed93e3ee8b2e28430608c465a187ed5958bcaa11c97852d45caeeeafe6",
+  "exit_code": 0,
+  "run_count": 1,
+  "run": "[local test-host path withheld]",
+  "status": "PASSED",
+  "record_count": 12,
+  "functional_hash": "PASSED",
+  "vuid_count": 0
+}
