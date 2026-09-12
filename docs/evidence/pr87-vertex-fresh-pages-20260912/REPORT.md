@@ -84,6 +84,24 @@ The 60-second snapshot used the same seed SHA-256 `cbc17b468d49127a09743a63777ee
 
 Both orders show a similar FPS loss and adverse tails, making a simple second-run explanation unlikely. The [four compact result records](results/pgr2-snapshot-vulkan-pairs.json) identify each executable and raw-result hash. This does not yet identify whether the extra time is host-mapped writes, added page checks, changed render-pass structure, or GPU execution; isolate those costs before changing the patch.
 
+### Focused PGR2 counter control
+
+A separate 20-second parent→candidate diagnostic pair used the same PGR2 snapshot and opt-in aggregate Vulkan telemetry. This pair is **not** an uninstrumented performance acceptance result. Both runs completed with the same seed/config identities; 590 parent and 589 candidate guest frames entered the measured window. The candidate's new direct-copy path was nearly idle: only five frames in each build had any vertex upload. Thus PGR2 gets almost none of the intended saved pass/copy work, while the patch's page-read bookkeeping still runs during draw preparation.
+
+| Measured PGR2 Vulkan window | Exact #85 parent | PR #87 candidate |
+| --- | ---: | ---: |
+| Draw-flush calls / guest frame | 4,770.49 | 4,770.53 |
+| Staged vertex copies / 20 s | 123 | 61 |
+| Direct vertex copies / 20 s | N/A | 62 |
+| Direct vertex bytes / 20 s | N/A | 471,040 |
+| Frames with a vertex copy | 5 / 590 | 5 / 589 |
+| Timed draw-flush region / guest frame | 19.602 ms | 19.984 ms |
+| Timed pipeline preparation / guest frame | 9.071 ms | 8.925 ms |
+| Timed descriptor update / guest frame | 6.116 ms | 6.329 ms |
+| Total sampled finish wait / guest frame | 10.756 ms | 10.564 ms |
+
+The 0.382 ms higher draw-flush total is consistent with overhead in a very frequent path, and the saved vertex traffic is too rare to amortize much work in this scene. The timed regions can nest and include fence waits, so their differences must not be added. The short diagnostic pair did **not** reproduce the longer uninstrumented p95 regression; instrumentation and window length limit its performance interpretation. It also did not include GPU timestamps or pass-ending reason counters, so page tracking is a **leading hypothesis**, not a measured sole cause. A minimal next test is an isolated bookkeeping gate that retains the old staged path whenever prior page reads were not tracked; compare the same parent/candidate PGR snapshot and Morrowind scene before accepting it. [Compact counter control](results/pgr2-snapshot-vulkan-counter-control.json) preserves the exact executable and input hashes.
+
 ## What the Morrowind wait counters actually mean
 
 An additional **counter-only exact-parent control** used the same Morrowind snapshot and runner as the earlier candidate counter window. The parent executable SHA-256 was `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`; its 248-display-write window passed the final-image oracle, deleted its private disk, and left no trace process running. The candidate window contained 246 writes. These short diagnostic windows are not a paired performance qualification. Their sampled waits reveal where execution blocks, not a sum of independently additive CPU costs.
