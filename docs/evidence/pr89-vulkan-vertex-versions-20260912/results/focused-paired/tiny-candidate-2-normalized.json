@@ -1,0 +1,55 @@
+[
+  {
+    "schema_version": 1,
+    "id": "vertex_buffer_allocation.tiny.inline_arrays",
+    "revision": 1,
+    "kind": "leaf",
+    "name": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+    "outcome": "PASS",
+    "iterations": 50,
+    "sample_count": 10,
+    "measurement_iterations_multiplier": 5,
+    "warmup_iterations": 1,
+    "gpu_completion_mode": "per_iteration",
+    "completion_wait_us": 688,
+    "total_us": 3468904,
+    "average_us": 69378,
+    "min_us": 61497,
+    "max_us": 73273,
+    "median_us": 70151,
+    "p95_us": 73273,
+    "mad_us": 2496,
+    "unit": "us",
+    "direction": "lower_is_better",
+    "raw_results": [
+      61497,
+      71426,
+      68877,
+      72588,
+      67616,
+      73273,
+      66488,
+      72609,
+      66980,
+      72422
+    ],
+    "framebuffer_fnv1a64": "377e6c029807f325",
+    "metadata": {
+      "schema_version": 1,
+      "kind": "vertex_allocation_validity",
+      "draw_mode": "inlinearrays",
+      "embedded_completion": {
+        "scope": "per_body",
+        "included_in_raw_timing": true,
+        "wait_calls_total": 51,
+        "wait_calls_measured": 50,
+        "wait_calls_warmup": 1,
+        "wait_us_total": 866
+      },
+      "retained_vertex_ram": false,
+      "work_checksum": "4988d90d",
+      "result_checksum": "f36e0ec5",
+      "tile_center_kat": "f36e0ec5"
+    }
+  }
+]
