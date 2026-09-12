@@ -68,8 +68,9 @@ static constexpr uint32_t kTextureDmaBlue = 24;
 static constexpr uint32_t kTextureDmaGreen = 25;
 static constexpr uint32_t kPaletteDmaRed = 26;
 static constexpr uint32_t kPaletteDmaBlue = 27;
-static constexpr uint32_t kDefaultDmaA = 3;
-static constexpr uint32_t kDefaultDmaB = 11;
+// PBKit's handle 11 is later rewritten for a bounded framebuffer surface.
+// Texture and palette teardown must select the stable full-RAM DMA object.
+static constexpr uint32_t kFullRamDmaHandle = 3;
 static constexpr uint32_t kTextureStageStride = 64;
 // Keep the DMA sources out of the host texture/render-target pool. They still
 // need GPU-addressable backing; ordinary XBE globals do not provide that.
@@ -1278,8 +1279,8 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "texture_dma_remap_pixel_kat", __FILE__, __LINE__);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kDefaultDmaA);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kDefaultDmaB);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
   host_.SetTextureStageEnabled(0, false);
   host_.SetTextureStageEnabled(1, false);
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
@@ -1407,31 +1408,13 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "palette_dma_remap_pixel_kat", __FILE__, __LINE__);
-  // Disabled PBKit texture stages only write CONTROL0; they do not clear the
-  // palette register. Restore a non-paletted format while stage 0 is still
-  // enabled so its commit retires the DMA-B palette selection before another
-  // suite's progress draw can inspect it.
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kDefaultDmaA);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kDefaultDmaB);
-  SetDefaultTextureFormat();
-  host_.SetupTextureStages();
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
   host_.SetTextureStageEnabled(0, false);
   host_.SetTextureStageEnabled(1, false);
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetupTextureStages();
   host_.PrepareDraw(kBackgroundColor);
-  // PrepareDraw replays the disabled-stage shortcut, which does not write
-  // TEXPALETTE. Explicitly retire every palette offset before the next suite
-  // can enable a stage or select a shorter DMA object.
-  Pushbuffer::Begin();
-  for (uint32_t stage = 0; stage < 4; ++stage) {
-    Pushbuffer::Push(NV097_SET_TEXTURE_PALETTE +
-                         stage * kTextureStageStride,
-                     0);
-  }
-  Pushbuffer::End();
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kDefaultDmaA);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kDefaultDmaB);
   SynchronizeCorrectness(host_);
 
   std::ostringstream metadata;
