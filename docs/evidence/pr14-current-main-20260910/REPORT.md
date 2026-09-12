@@ -34,9 +34,14 @@ part of PR #14.
 
 The per-leaf duration tables are diagnostic context only. These Release
 builds used the documented live-marker waiver, so this full-XISO run does not
-support a performance improvement or regression claim. PR #14 remains gated
-on interleaved PGR2 and Morrowind runs that record average interval, p95, p99,
-maximum interval, stall count, and the worst intervals.
+support a performance improvement or regression claim. The first interleaved
+retail checkpoint is now published in `retail/REPORT.md`. Fresh PGR2 remained
+within the 2% gate. Vulkan PGR2 snapshot maximum interval regressed 12.59% and
+10.23% in opposite run orders. OpenGL Morrowind snapshot maximum interval
+regressed 2.34% and 5.46% in opposite run orders. OpenGL PGR2 snapshot and
+Vulkan Morrowind snapshot remained within the gate. Every Morrowind cell passed
+QMP, Start/B, image-transition, display-write progress, and final-image
+admission. PR #14 remains held; the expanded retail coverage and attribution status are published in `retail/REPORT.md`.
 
 ## Preserved rejected attempt
 

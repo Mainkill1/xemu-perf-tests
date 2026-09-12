@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "status": "storage_span_hypothesis_rejected",
+  "route": {
+    "workload": "PGR2 snapshot",
+    "renderer": "Vulkan",
+    "warmup_seconds": 3,
+    "measurement_seconds": 60,
+    "input_sequence": ["B-3"],
+    "optional_controls": "all disabled",
+    "telemetry": "enabled; diagnostic only",
+    "order": ["pr14", "pr67", "pr67", "pr14"]
+  },
+  "pr14": {
+    "source_commit": "a1645a8612b6222437e2da17915258412a9beee0",
+    "source_tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+    "executable_sha256": "51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe"
+  },
+  "research_pr67": {
+    "source_commit": "866bba7971427c7dfe3bb6b193bc9760b93985c2",
+    "source_tree": "b20500d04bf7b5c061e295d954df064c26b8b0bf",
+    "executable_sha256": "ff2a6b25bf4de8342ad29b7882a75eb66ff61a195ffdd58947b73fd3c990ef9f",
+    "unit_sha256": "2f9638a13eaca049944e64ff9de6d1baa301c6f4c88d0e6cc07f968d433be4a5",
+    "unit_result": "7/7 PASS"
+  },
+  "cells": [
+    {"role": "pr14", "average_ms": 34.19608836944133, "p95_ms": 40.872, "p99_ms": 46.419, "max_ms": 87.252, "phase_peak_ms": 59.016, "stall_count": 1},
+    {"role": "pr67", "average_ms": 34.40641800458705, "p95_ms": 41.064, "p99_ms": 45.17, "max_ms": 63.919, "phase_peak_ms": 63.919, "stall_count": 0, "full_telemetry_frames": 2322, "measured_telemetry_frames": 1744, "clamped_cubemap_prepares": 0},
+    {"role": "pr67", "average_ms": 34.49892409430704, "p95_ms": 41.36, "p99_ms": 45.632, "max_ms": 59.316, "phase_peak_ms": 59.316, "stall_count": 0, "full_telemetry_frames": 2311, "measured_telemetry_frames": 1739, "clamped_cubemap_prepares": 0},
+    {"role": "pr14", "average_ms": 34.89970348837211, "p95_ms": 41.991, "p99_ms": 46.531, "max_ms": 60.43, "phase_peak_ms": 60.43, "stall_count": 0}
+  ],
+  "focused_result": {
+    "condition": "cubemap && storage_levels > levels",
+    "full_run_prepares": 0,
+    "measured_window_prepares": 0,
+    "extra_span_bytes": 0,
+    "focused_cpu_us": 0,
+    "conclusion": "The clamped-cubemap storage-span path is absent and cannot cause this PGR2 tail."
+  }
+}

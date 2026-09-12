@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "workload": "MORROWIND",
+  "renderer": "VULKAN",
+  "candidate_vs_previous_primary": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 24.41643393080743,
+      "candidate": 24.47868492968729,
+      "improvement_percent": 0.25495532663070836
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 40.95603621621166,
+      "candidate": 40.85327425823486,
+      "improvement_percent": 0.25090796734894827
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 47.6875,
+      "candidate": 47.3675,
+      "improvement_percent": 0.6710353866317175
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 53.3565,
+      "candidate": 52.9105,
+      "improvement_percent": 0.83588691162276
+    },
+    {
+      "metric": "max_ms",
+      "reference": 60.4565,
+      "candidate": 60.9915,
+      "improvement_percent": -0.8849337953735391
+    },
+    {
+      "metric": "stall_count",
+      "reference": 0.0,
+      "candidate": 0.0,
+      "improvement_percent": 0.0
+    }
+  ],
+  "candidate_vs_previous_repeat": null,
+  "candidate_vs_fixed_baseline": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 23.723115829141207,
+      "candidate": 24.47868492968729,
+      "improvement_percent": 3.1849488321342276,
+      "evidence": "main-apu-snapshot-load/results/vulkan/result.json"
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 42.15297727272727,
+      "candidate": 40.85327425823486,
+      "improvement_percent": 3.083300631609973,
+      "evidence": "main-apu-snapshot-load/results/vulkan/result.json"
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 47.99,
+      "candidate": 47.3675,
+      "improvement_percent": 1.297145238591378,
+      "evidence": "main-apu-snapshot-load/results/vulkan/result.json"
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 57.134,
+      "candidate": 52.9105,
+      "improvement_percent": 7.392270801974308,
+      "evidence": "main-apu-snapshot-load/results/vulkan/result.json"
+    }
+  ],
+  "fixed_baseline_tail_limitation": "Historical fixed-baseline evidence has no guest maximum/worst-stall samples; same-session BaselineControl is required for those fields.",
+  "primary_adverse_tail_over_2_percent": [],
+  "repeat_adverse_tail_over_2_percent": [],
+  "reproduced_adverse_tail_over_2_percent": [],
+  "wpr_etl_escalation_authorized": false,
+  "rule": "WPR/ETL only after the same adverse >2% tail metric appears in both no-trace orders."
+}

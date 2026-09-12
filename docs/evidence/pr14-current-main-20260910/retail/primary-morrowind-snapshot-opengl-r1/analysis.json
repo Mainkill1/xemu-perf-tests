@@ -1,0 +1,124 @@
+{
+  "schema_version": 1,
+  "workload": "MORROWIND",
+  "renderer": "OPENGL",
+  "candidate_vs_previous_primary": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 33.716952703330506,
+      "candidate": 33.74533137677935,
+      "improvement_percent": 0.08416737330487875
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 29.666089799820046,
+      "candidate": 29.63420691337835,
+      "improvement_percent": 0.10747249353330636
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 36.3615,
+      "candidate": 37.1105,
+      "improvement_percent": -2.05987101742228
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 42.009,
+      "candidate": 41.203,
+      "improvement_percent": 1.9186364826584719
+    },
+    {
+      "metric": "max_ms",
+      "reference": 46.739999999999995,
+      "candidate": 47.835499999999996,
+      "improvement_percent": -2.343816859221227
+    },
+    {
+      "metric": "stall_count",
+      "reference": 0.0,
+      "candidate": 0.0,
+      "improvement_percent": 0.0
+    }
+  ],
+  "candidate_vs_previous_repeat": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 33.393907356902396,
+      "candidate": 33.511309217201685,
+      "improvement_percent": 0.35156670659871814
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 29.94613789336448,
+      "candidate": 29.840678420676873,
+      "improvement_percent": 0.3521638518567499
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 37.216,
+      "candidate": 36.863,
+      "improvement_percent": 0.9485167669819473
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 42.1625,
+      "candidate": 42.28,
+      "improvement_percent": -0.2786836643937141
+    },
+    {
+      "metric": "max_ms",
+      "reference": 48.3565,
+      "candidate": 50.998999999999995,
+      "improvement_percent": -5.46462212939315
+    },
+    {
+      "metric": "stall_count",
+      "reference": 0.0,
+      "candidate": 0.0,
+      "improvement_percent": 0.0
+    }
+  ],
+  "candidate_vs_fixed_baseline": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 32.798426877284314,
+      "candidate": 33.74533137677935,
+      "improvement_percent": 2.8870424274855857,
+      "evidence": "main-apu-snapshot-load/results/opengl/result.json"
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 30.48926666666667,
+      "candidate": 29.63420691337835,
+      "improvement_percent": 2.804461526203711,
+      "evidence": "main-apu-snapshot-load/results/opengl/result.json"
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 38.098,
+      "candidate": 37.1105,
+      "improvement_percent": 2.5919995800304405,
+      "evidence": "main-apu-snapshot-load/results/opengl/result.json"
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 42.848,
+      "candidate": 41.203,
+      "improvement_percent": 3.8391523525018583,
+      "evidence": "main-apu-snapshot-load/results/opengl/result.json"
+    }
+  ],
+  "fixed_baseline_tail_limitation": "Historical fixed-baseline evidence has no guest maximum/worst-stall samples; same-session BaselineControl is required for those fields.",
+  "primary_adverse_tail_over_2_percent": [
+    "max_ms",
+    "p95_ms"
+  ],
+  "repeat_adverse_tail_over_2_percent": [
+    "max_ms"
+  ],
+  "reproduced_adverse_tail_over_2_percent": [
+    "max_ms"
+  ],
+  "wpr_etl_escalation_authorized": true,
+  "rule": "WPR/ETL only after the same adverse >2% tail metric appears in both no-trace orders."
+}
