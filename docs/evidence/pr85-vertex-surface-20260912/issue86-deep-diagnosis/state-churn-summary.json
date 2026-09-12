@@ -1,0 +1,272 @@
+{
+  "schema_version": 1,
+  "source_commit": "5717357917abdd92e7c344d9e4f1b36b6fa61afa+state-churn",
+  "executable_sha256": "3abec3268d47a7881d734a0b7d46a2f825ed729021e5adda672cf9a6254b60af",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "full_run_frames": 404,
+  "window_frames": 229,
+  "perf_input_sha256": "3dacc557e29a23ef08d3c02ddb214d5822a9ec5501d1b62495c748431f9b3afd",
+  "flips_input_sha256": "fc75bf330817e99cdf122e90fbbcdbcead957898cd0f056e098c7cb3ec16fa94",
+  "median_total_sampled_finish_wait_us_per_frame": 12820,
+  "p95_total_sampled_finish_wait_us_per_frame": 18408.2,
+  "queue_submits_median_per_frame": 4,
+  "reasons": {
+    "vertex_buffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    },
+    "surface_create": {
+      "submits": 2,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 7876,
+      "gpu_timed_submits": 2,
+      "sum_gpu_batch_ns": 7743584,
+      "median_gpu_batch_ns_per_timed_frame": 7743584,
+      "p95_gpu_batch_ns_per_timed_frame": 7743584.0,
+      "sum_gpu_aux_ns": 307040,
+      "median_gpu_aux_ns_per_timed_frame": 307040,
+      "p95_gpu_aux_ns_per_timed_frame": 307040.0,
+      "sum_gpu_handoff_ns": 80128,
+      "median_gpu_handoff_ns_per_timed_frame": 80128,
+      "p95_gpu_handoff_ns_per_timed_frame": 80128.0,
+      "sum_gpu_main_ns": 7356416,
+      "median_gpu_main_ns_per_timed_frame": 7356416,
+      "p95_gpu_main_ns_per_timed_frame": 7356416.0
+    },
+    "surface_down": {
+      "submits": 1,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 249,
+      "gpu_timed_submits": 1,
+      "sum_gpu_batch_ns": 187200,
+      "median_gpu_batch_ns_per_timed_frame": 187200,
+      "p95_gpu_batch_ns_per_timed_frame": 187200.0,
+      "sum_gpu_aux_ns": 9984,
+      "median_gpu_aux_ns_per_timed_frame": 9984,
+      "p95_gpu_aux_ns_per_timed_frame": 9984.0,
+      "sum_gpu_handoff_ns": 40000,
+      "median_gpu_handoff_ns_per_timed_frame": 40000,
+      "p95_gpu_handoff_ns_per_timed_frame": 40000.0,
+      "sum_gpu_main_ns": 137216,
+      "median_gpu_main_ns_per_timed_frame": 137216,
+      "p95_gpu_main_ns_per_timed_frame": 137216.0
+    },
+    "need_buffer_space": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    },
+    "framebuffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    },
+    "presenting": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    },
+    "flip_stall": {
+      "submits": 228,
+      "frames_with_submit": 228,
+      "median_wait_us_per_frame": 1231,
+      "p95_wait_us_per_frame": 1518.1999999999998,
+      "sum_sampled_wait_us": 242563,
+      "gpu_timed_submits": 228,
+      "sum_gpu_batch_ns": 141725888,
+      "median_gpu_batch_ns_per_timed_frame": 802400.0,
+      "p95_gpu_batch_ns_per_timed_frame": 885337.6,
+      "sum_gpu_aux_ns": 2716832,
+      "median_gpu_aux_ns_per_timed_frame": 9984.0,
+      "p95_gpu_aux_ns_per_timed_frame": 23456.0,
+      "sum_gpu_handoff_ns": 104256544,
+      "median_gpu_handoff_ns_per_timed_frame": 653776.0,
+      "p95_gpu_handoff_ns_per_timed_frame": 678889.6,
+      "sum_gpu_main_ns": 34752512,
+      "median_gpu_main_ns_per_timed_frame": 139264.0,
+      "p95_gpu_main_ns_per_timed_frame": 210944.0
+    },
+    "flush": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    },
+    "stalled": {
+      "submits": 229,
+      "frames_with_submit": 229,
+      "median_wait_us_per_frame": 11601,
+      "p95_wait_us_per_frame": 17037.4,
+      "sum_sampled_wait_us": 2738885,
+      "gpu_timed_submits": 229,
+      "sum_gpu_batch_ns": 2636702464,
+      "median_gpu_batch_ns_per_timed_frame": 11167296,
+      "p95_gpu_batch_ns_per_timed_frame": 16536576.0,
+      "sum_gpu_aux_ns": 107687776,
+      "median_gpu_aux_ns_per_timed_frame": 328224,
+      "p95_gpu_aux_ns_per_timed_frame": 1210316.8,
+      "sum_gpu_handoff_ns": 24436640,
+      "median_gpu_handoff_ns_per_timed_frame": 38912,
+      "p95_gpu_handoff_ns_per_timed_frame": 669286.4,
+      "sum_gpu_main_ns": 2504578048,
+      "median_gpu_main_ns_per_timed_frame": 10795008,
+      "p95_gpu_main_ns_per_timed_frame": 15265382.4
+    },
+    "texture_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null,
+      "sum_gpu_aux_ns": 0,
+      "median_gpu_aux_ns_per_timed_frame": null,
+      "p95_gpu_aux_ns_per_timed_frame": null,
+      "sum_gpu_handoff_ns": 0,
+      "median_gpu_handoff_ns_per_timed_frame": null,
+      "p95_gpu_handoff_ns_per_timed_frame": null,
+      "sum_gpu_main_ns": 0,
+      "median_gpu_main_ns_per_timed_frame": null,
+      "p95_gpu_main_ns_per_timed_frame": null
+    }
+  },
+  "cpu_regions": {
+    "draw_begin_surface_update": {
+      "median_us_per_frame": 132,
+      "p95_us_per_frame": 152.0
+    },
+    "draw_flush": {
+      "median_us_per_frame": 5762,
+      "p95_us_per_frame": 6127.8
+    },
+    "pipeline_prepare": {
+      "median_us_per_frame": 2177,
+      "p95_us_per_frame": 2317.4
+    },
+    "bind_textures": {
+      "median_us_per_frame": 626,
+      "p95_us_per_frame": 696.0
+    },
+    "texture_upload": {
+      "median_us_per_frame": 0,
+      "p95_us_per_frame": 0.0
+    },
+    "update_descriptor_sets": {
+      "median_us_per_frame": 502,
+      "p95_us_per_frame": 536.6
+    }
+  },
+  "command_recording": {
+    "draw_begin_count": {
+      "total": 266114,
+      "median_per_guest_frame": 1156
+    },
+    "draw_clear_count": {
+      "total": 1146,
+      "median_per_guest_frame": 5
+    },
+    "draw_command_count": {
+      "total": 264968,
+      "median_per_guest_frame": 1151
+    },
+    "pipeline_bind_count": {
+      "total": 140234,
+      "median_per_guest_frame": 611
+    },
+    "descriptor_bind_count": {
+      "total": 264968,
+      "median_per_guest_frame": 1151
+    },
+    "descriptor_same_recorded_bind_count": {
+      "total": 0,
+      "median_per_guest_frame": 0
+    },
+    "descriptor_write_count": {
+      "total": 264968,
+      "median_per_guest_frame": 1151
+    }
+  }
+}

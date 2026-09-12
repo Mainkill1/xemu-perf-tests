@@ -1,0 +1,29 @@
+{
+  "schema_version": 1,
+  "source_commit": "5717357917abdd92e7c344d9e4f1b36b6fa61afa+pass-reasons",
+  "executable_sha256": "bfd7b815af7a068a9e239cb8fca802a455ddc029e4dae2b65a6230006b5a87cd",
+  "diagnostic_patch_sha256": "ee264b9af9aa8524e3e432ce8e1e7e3a1c9c6f2eb5c76ab590bac560e718a3b5",
+  "perf_input_sha256": "6e94d678007a467d189b046179a1a6b0d64f639e99a0de1f2dfd91b36f92f932",
+  "flip_input_sha256": "14a7be8a0157f5a820705d5a124f1e6863aa52f782a68c58e02a1928b25ce70c",
+  "result_input_sha256": "0d4376b53748c014ab3dc6ac32028e5840b87612e5c749afbeadb34ed7dbfc4d",
+  "window_display_writes": 230,
+  "pass_begins": 82897,
+  "pass_end_totals": {
+    "finish": 460,
+    "nondraw": 78962,
+    "surface": 2071,
+    "framebuffer": 0,
+    "query": 0,
+    "clear": 1404
+  },
+  "pass_end_total": 82897,
+  "pass_end_nondraw_share": 0.9525314546967925,
+  "vertex_staging_copy_total": 80094,
+  "vertex_staging_bytes_total": 701886464,
+  "vertex_staging_copies_median_per_write": 353.0,
+  "nondraw_pass_end_median_per_write": 348.0,
+  "vertex_copy_nondraw_end_pearson": 0.9985819965124599,
+  "texture_upload_calls_total": 19,
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true
+}
