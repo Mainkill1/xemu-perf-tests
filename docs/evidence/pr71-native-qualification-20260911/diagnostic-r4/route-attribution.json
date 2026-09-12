@@ -1,0 +1,158 @@
+{
+  "schema_version": 1,
+  "kind": "pr71-diagnostic-only",
+  "qualification": "not a normal-run performance acceptance test",
+  "source_commit": "3d4bf755d24564c6a39c99dd05fd9cfb949b94fd",
+  "logical_product_commit": "d21072b39fd3a84b06943977f5f441116f229b2e",
+  "source_tree": "9c692a7cf5f07e13af41db11295839e3e9f8295d",
+  "executable_sha256": "7e7a24c78b2c8c9265a68f1248c1ab2eaf1a1a2212834f7dba3b5269bf27754d",
+  "status": "passed",
+  "cells": {
+    "hybrid-off": {
+      "guest_frames": 1712,
+      "cpu_regions": {
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4759.018,
+          "cpu_ms_per_guest_frame": 10.2105
+        },
+        "bind_shaders": {
+          "calls_per_guest_frame": 4759.018,
+          "cpu_ms_per_guest_frame": 4.8143
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 3077.763,
+          "cpu_ms_per_guest_frame": 0.1803
+        },
+        "pack_uber_controls": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_specialized_glsl_gen": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "module_specialized_create": {
+          "calls_per_guest_frame": 0.005,
+          "cpu_ms_per_guest_frame": 0.0007
+        },
+        "module_fallback_create": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "pipeline_specialized_miss": {
+          "calls_per_guest_frame": 0.016,
+          "cpu_ms_per_guest_frame": 0.0186
+        },
+        "pipeline_fallback_miss": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "vk_create_specialized_pipeline": {
+          "calls_per_guest_frame": 0.016,
+          "cpu_ms_per_guest_frame": 0.0172
+        },
+        "vk_create_fallback_pipeline": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        }
+      },
+      "vk_wait_ms_per_guest_frame": 11.0332,
+      "largest_intervals": [
+        {
+          "guest_frame": 1062,
+          "interval_ms": 52.381,
+          "pipeline_prepare_ms": 12.042,
+          "route_ms": 0.176,
+          "specialized_pipeline_creation_ms": 0.0
+        },
+        {
+          "guest_frame": 1130,
+          "interval_ms": 51.001,
+          "pipeline_prepare_ms": 10.936,
+          "route_ms": 0.202,
+          "specialized_pipeline_creation_ms": 0.0
+        },
+        {
+          "guest_frame": 2219,
+          "interval_ms": 49.847,
+          "pipeline_prepare_ms": 10.455,
+          "route_ms": 0.194,
+          "specialized_pipeline_creation_ms": 0.0
+        }
+      ]
+    },
+    "hybrid-on": {
+      "guest_frames": 1684,
+      "cpu_regions": {
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4759.255,
+          "cpu_ms_per_guest_frame": 11.266
+        },
+        "bind_shaders": {
+          "calls_per_guest_frame": 4759.255,
+          "cpu_ms_per_guest_frame": 5.7636
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 3077.926,
+          "cpu_ms_per_guest_frame": 1.3066
+        },
+        "pack_uber_controls": {
+          "calls_per_guest_frame": 0.005,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_specialized_glsl_gen": {
+          "calls_per_guest_frame": 0.001,
+          "cpu_ms_per_guest_frame": 0.0002
+        },
+        "module_specialized_create": {
+          "calls_per_guest_frame": 0.005,
+          "cpu_ms_per_guest_frame": 0.0009
+        },
+        "module_fallback_create": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "pipeline_specialized_miss": {
+          "calls_per_guest_frame": 0.017,
+          "cpu_ms_per_guest_frame": 0.0229
+        },
+        "pipeline_fallback_miss": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "vk_create_specialized_pipeline": {
+          "calls_per_guest_frame": 0.017,
+          "cpu_ms_per_guest_frame": 0.0212
+        },
+        "vk_create_fallback_pipeline": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        }
+      },
+      "vk_wait_ms_per_guest_frame": 11.4356,
+      "largest_intervals": [
+        {
+          "guest_frame": 791,
+          "interval_ms": 56.93,
+          "pipeline_prepare_ms": 28.748,
+          "route_ms": 2.39,
+          "specialized_pipeline_creation_ms": 12.582
+        },
+        {
+          "guest_frame": 1050,
+          "interval_ms": 55.558,
+          "pipeline_prepare_ms": 11.041,
+          "route_ms": 1.237,
+          "specialized_pipeline_creation_ms": 0.0
+        },
+        {
+          "guest_frame": 912,
+          "interval_ms": 55.075,
+          "pipeline_prepare_ms": 12.666,
+          "route_ms": 1.29,
+          "specialized_pipeline_creation_ms": 0.0
+        }
+      ]
+    }
+  }
+}

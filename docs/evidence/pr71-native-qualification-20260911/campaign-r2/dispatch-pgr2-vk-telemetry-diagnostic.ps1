@@ -2,7 +2,8 @@
 param(
     [string]$BuildOverrideRoot = '',
     [string]$DiagnosticRoot = '',
-    [ValidateRange(15, 120)][int]$DurationSeconds = 30
+    [ValidateRange(15, 120)][int]$DurationSeconds = 30,
+    [switch]$AllowStoppedRetailCampaign
 )
 $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) {
@@ -26,16 +27,18 @@ try {
     }).AddArgument($labRoot)
     [void]$powershell.AddStatement()
     [void]$powershell.AddScript({
-        param([string]$Script, [string]$Override, [string]$Root, [int]$Seconds)
+        param([string]$Script, [string]$Override, [string]$Root, [int]$Seconds, [bool]$Stopped)
         $arguments = @{ DurationSeconds = $Seconds }
         if ($Override) { $arguments.BuildOverrideRoot = $Override }
         if ($Root) { $arguments.DiagnosticRoot = $Root }
+        if ($Stopped) { $arguments.AllowStoppedRetailCampaign = $true }
         & $Script @arguments
     })
     [void]$powershell.AddArgument((Join-Path $PSScriptRoot 'run-pgr2-vk-telemetry-diagnostic.ps1'))
     [void]$powershell.AddArgument($BuildOverrideRoot)
     [void]$powershell.AddArgument($DiagnosticRoot)
     [void]$powershell.AddArgument($DurationSeconds)
+    [void]$powershell.AddArgument([bool]$AllowStoppedRetailCampaign)
     $output = $powershell.Invoke()
     foreach ($line in @($output)) { [Console]::WriteLine([string]$line) }
     if ($powershell.HadErrors) {

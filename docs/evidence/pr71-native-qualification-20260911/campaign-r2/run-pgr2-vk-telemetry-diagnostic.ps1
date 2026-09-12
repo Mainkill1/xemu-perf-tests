@@ -12,7 +12,8 @@ active qualification campaign has completed.
 param(
     [string]$DiagnosticRoot = '',
     [string]$BuildOverrideRoot = '',
-    [ValidateRange(15, 120)][int]$DurationSeconds = 30
+    [ValidateRange(15, 120)][int]$DurationSeconds = 30,
+    [switch]$AllowStoppedRetailCampaign
 )
 $ErrorActionPreference = 'Stop'
 Set-StrictMode -Version Latest
@@ -26,7 +27,26 @@ if (-not (Test-Path -LiteralPath $campaignManifest -PathType Leaf)) {
 }
 $campaignState = Get-Content -LiteralPath $campaignManifest -Raw | ConvertFrom-Json
 if ($campaignState.status -ne 'passed') {
-    throw "The active qualification campaign is not complete (status $($campaignState.status)); defer this diagnostic."
+    # This mode is diagnostic only. A stopped qualification campaign never
+    # acquires a passing result from the separate telemetry capture.
+    $retailManifestPath = Join-Path $Campaign.ResultsRoot 'retail\campaign.json'
+    if (-not $AllowStoppedRetailCampaign -or $campaignState.status -ne 'failed' -or
+        -not (Test-Path -LiteralPath $retailManifestPath -PathType Leaf)) {
+        throw "Qualification incomplete (status $($campaignState.status)); diagnostic requires an explicitly stopped, cleaned campaign."
+    }
+    $retailState = Get-Content -LiteralPath $retailManifestPath -Raw | ConvertFrom-Json
+    $snapshotCells = @(Get-ChildItem -LiteralPath (Join-Path $Campaign.ResultsRoot 'retail\cells') `
+        -Filter '*pgr2_snapshot*.json' -File)
+    $badSnapshotCells = @($snapshotCells | Where-Object {
+        (Get-Content -LiteralPath $_.FullName -Raw | ConvertFrom-Json).status -ne 'passed'
+    })
+    $xisoPassed = @($campaignState.phases | Where-Object {
+        $_.name -eq 'full_xiso_157' -and $_.status -eq 'passed'
+    }).Count -eq 1
+    if (-not $xisoPassed -or $retailState.final_cleanup.status -ne 'passed' -or
+        $snapshotCells.Count -ne 13 -or $badSnapshotCells.Count -ne 0) {
+        throw 'Stopped campaign lacks clean full-XISO and 13 completed PGR2 snapshot cells.'
+    }
 }
 
 $diagRoot = if ($DiagnosticRoot) {

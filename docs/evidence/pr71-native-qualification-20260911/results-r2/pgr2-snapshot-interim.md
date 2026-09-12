@@ -1,6 +1,6 @@
 # PR71 revised head: PGR2 snapshot bracket (interim)
 
-All 13 PGR2 snapshot cells completed with gameplay progression and successful cleanup. The Windows candidate executable is `e161c4cfe6b7b6af9d91fc7f28afde52efa43e6d899db24f1b0d2a2324e0d2c5`. **The snapshot was authored by older xemu source**; see [provenance and recapture gate](snapshot-provenance.md). The fresh-start and Morrowind work is still running. These guest-frame intervals are not displayed FPS.
+All 13 PGR2 snapshot cells completed with gameplay progression and successful cleanup. The Windows candidate executable is `e161c4cfe6b7b6af9d91fc7f28afde52efa43e6d899db24f1b0d2a2324e0d2c5`. **The snapshot was authored by older xemu source**; see [provenance and recapture gate](snapshot-provenance.md). The subsequent retail campaign was intentionally stopped to investigate the shader draw path; the partial fresh-start cells remain evidence, and Morrowind has not run. These guest-frame intervals are not displayed FPS.
 
 | Vulkan cold p99 (+bad) | Fixed baseline | Previous main | Candidate Off | Candidate On | On Improvement vs previous | On Improvement vs baseline |
 | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -24,4 +24,4 @@ Cold Hybrid On incurred two ≥75 ms stalls (85.080 and 81.425 ms maxima); neith
 | `12-pgr2_snapshot-baseline-vulkan-b2` | 1759 | 46.359 ms | 69.968 ms | 0 |
 | `13-pgr2_snapshot-previous-vulkan-b2` | 1763 | 44.416 ms | 53.391 ms | 0 |
 
-These are non-instrumented normal-run results. Do not attribute the remaining stalls to shader routing alone: the matched diagnostic for this repaired head has not yet run. The full campaign will determine whether independent fresh-start behavior agrees.
+These are non-instrumented normal-run results. Do not attribute the remaining stalls to shader routing alone: a separate, diagnostic-only capture on the repaired head is needed to identify their owner. The stopped retail campaign does not qualify the PR for merging.

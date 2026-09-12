@@ -1,0 +1,7 @@
+# PR71 r2: retail campaign interrupted for live diagnosis
+
+The operator stopped the retail matrix on September 11 after full XISO passed and all 13 PGR2 snapshot cells completed. The active fresh-start capture was terminated deliberately; the runner recorded `campaign=failed` and `retail=failed` rather than a pass. Its final cleanup passed, and no xemu or trace processes remained. The 13 completed snapshot receipts are unchanged. This is **not** a full-retail qualification.
+
+The candidate is product head `d21072b39fd3a84b06943977f5f441116f229b2e` with Windows executable SHA-256 `e161c4cfe6b7b6af9d91fc7f28afde52efa43e6d899db24f1b0d2a2324e0d2c5`. The full-XISO report is [full-xiso.md](full-xiso.md), and the PGR2 saved-race bracket is [pgr2-snapshot-interim.md](pgr2-snapshot-interim.md). The latter shows two cold Hybrid On stalls (85.080 and 81.425 ms) and −2.166% p99 improvement against previous main. The measured fresh-start cells are partial; do not infer a full-start or Morrowind result from them.
+
+For the targeted follow-up, `run-pgr2-vk-telemetry-diagnostic.ps1` accepts `-AllowStoppedRetailCampaign` only when the full-XISO phase passed, all 13 PGR2 snapshot receipts passed, and retail cleanup passed. The two telemetry captures are separately identified as **diagnostic-only**. This flag does not change the interrupted campaign's failed status or authorize a performance acceptance claim.
