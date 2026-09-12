@@ -17,6 +17,7 @@ EXPECTED_IDS = {
     "surface.cpu_read_after_gpu_write",
     "surface.surface_download_path",
     "vertex_buffer_allocation.disjoint_same_page",
+    "vertex_buffer_allocation.ordered_same_page_overwrite",
     "tiny_draw.inline_buffers.vertex_shader",
 }
 
