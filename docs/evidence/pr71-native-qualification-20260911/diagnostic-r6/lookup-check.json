@@ -1,0 +1,157 @@
+{
+  "candidate": {
+    "off": {
+      "guest_frames": 434,
+      "measured_interval_seconds": 14.957,
+      "regions": {
+        "bind_shaders": {
+          "calls_per_guest_frame": 4770.387,
+          "cpu_ms_per_guest_frame": 4.41443
+        },
+        "binding_lookup": {
+          "calls_per_guest_frame": 508.664,
+          "cpu_ms_per_guest_frame": 0.21399
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4770.387,
+          "cpu_ms_per_guest_frame": 9.7368
+        },
+        "route_binding_probe_hit": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_hit": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_miss": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 508.664,
+          "cpu_ms_per_guest_frame": 0.03109
+        }
+      }
+    },
+    "on": {
+      "guest_frames": 425,
+      "measured_interval_seconds": 14.97,
+      "regions": {
+        "bind_shaders": {
+          "calls_per_guest_frame": 4770.894,
+          "cpu_ms_per_guest_frame": 4.54006
+        },
+        "binding_lookup": {
+          "calls_per_guest_frame": 0.024,
+          "cpu_ms_per_guest_frame": 0.01071
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4770.894,
+          "cpu_ms_per_guest_frame": 9.9768
+        },
+        "route_binding_probe_hit": {
+          "calls_per_guest_frame": 508.92,
+          "cpu_ms_per_guest_frame": 0.19566
+        },
+        "route_module_probe_hit": {
+          "calls_per_guest_frame": 0.009,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_miss": {
+          "calls_per_guest_frame": 0.014,
+          "cpu_ms_per_guest_frame": 1e-05
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 508.944,
+          "cpu_ms_per_guest_frame": 0.26793
+        }
+      }
+    }
+  },
+  "candidate_diagnostic_executable_sha256": "3cb45034b915738a73019e61c9421218b88298cfbc008da3cd87ef4e25ae20b1",
+  "candidate_diagnostic_receipt_status": "passed",
+  "candidate_diagnostic_source": "2d20d081aa05da1156bc92831f37bd0b1d9bb268",
+  "candidate_diagnostic_tree": "c4c9d773e0da480d63b3f9077c7df8a24700f1a4",
+  "candidate_guest_frame_p99_ms": {
+    "off": 45.365,
+    "on": 48.449
+  },
+  "candidate_product_head": "48059eaea0d6203013bf409ecb926b092a692ee8",
+  "candidate_production_executable_sha256": "936301777c89d8ad219d53962961a5ce8e0477df1f34edd507cfe1555bd0bd42",
+  "cleanup_status": "Each cell invokes automated xemu/trace/HDD cleanup.",
+  "previous": {
+    "off": {
+      "guest_frames": 872,
+      "measured_interval_seconds": 29.939,
+      "regions": {
+        "bind_shaders": {
+          "calls_per_guest_frame": 4759.983,
+          "cpu_ms_per_guest_frame": 4.47845
+        },
+        "binding_lookup": {
+          "calls_per_guest_frame": 503.425,
+          "cpu_ms_per_guest_frame": 0.22049
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4759.983,
+          "cpu_ms_per_guest_frame": 9.86324
+        },
+        "route_binding_probe_hit": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_hit": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_miss": {
+          "calls_per_guest_frame": 0.0,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 503.425,
+          "cpu_ms_per_guest_frame": 0.03045
+        }
+      }
+    },
+    "on": {
+      "guest_frames": 867,
+      "measured_interval_seconds": 29.964,
+      "regions": {
+        "bind_shaders": {
+          "calls_per_guest_frame": 4760.091,
+          "cpu_ms_per_guest_frame": 4.53867
+        },
+        "binding_lookup": {
+          "calls_per_guest_frame": 0.012,
+          "cpu_ms_per_guest_frame": 0.00459
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 4760.091,
+          "cpu_ms_per_guest_frame": 9.98522
+        },
+        "route_binding_probe_hit": {
+          "calls_per_guest_frame": 503.468,
+          "cpu_ms_per_guest_frame": 0.21191
+        },
+        "route_module_probe_hit": {
+          "calls_per_guest_frame": 0.005,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "route_module_probe_miss": {
+          "calls_per_guest_frame": 0.007,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "select_fragment_route": {
+          "calls_per_guest_frame": 503.48,
+          "cpu_ms_per_guest_frame": 0.27947
+        }
+      }
+    }
+  },
+  "previous_diagnostic_source": "fedf4b0fa32fd51613c6c388d03aaf8e4ce48185",
+  "previous_product_head": "03b0d11675892b10851f54b892bd912396ae5a93",
+  "qualifies_normal_run_performance": false,
+  "workload": "PGR2 Vulkan snapshot; XEMU_VK_PERF_LOG schema 6; same host; prior 30 s versus candidate 15 s"
+}
