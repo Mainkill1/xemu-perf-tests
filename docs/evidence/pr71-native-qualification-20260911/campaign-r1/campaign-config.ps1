@@ -8,7 +8,7 @@ if ([string]::IsNullOrWhiteSpace($LabRoot)) {
     throw 'Set XEMU_LAB_ROOT to the test-box lab root before invoking the campaign.'
 }
 $IncomingRoot = Join-Path $LabRoot 'incoming'
-$XisoRoot = Join-Path $IncomingRoot 'pr71-current-main-xiso'
+$XisoRoot = Join-Path $IncomingRoot 'pr71-suite-0bb7618-r1'
 $XisoIdentityPath = Join-Path $XisoRoot 'identity.json'
 if (Test-Path -LiteralPath $XisoIdentityPath -PathType Leaf) {
     $XisoIdentity = Get-Content -LiteralPath $XisoIdentityPath -Raw |
@@ -58,28 +58,26 @@ $Campaign = [ordered]@{
             LogicalCommit = '5edff26383c6440da35bc92b9fca35f4a404b03b'
             SourceCommit = 'a08c4d92916554f55f09231f525cda1f93b55129'
             Tree = '11981a736703553349357cd89926b443901cadb9'
-            Xemu = Join-Path $IncomingRoot 'optimized-release-5edff263\xemu.exe'
+            Xemu = Join-Path $IncomingRoot 'pr76-cross-gpu-a08c4d9291-r2\xemu.exe'
             XemuSha256 = '91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3'
-            BuildInfo = Join-Path $IncomingRoot 'optimized-release-5edff263\BUILD_INFO.txt'
+            BuildInfo = Join-Path $IncomingRoot 'pr76-cross-gpu-a08c4d9291-r2\BUILD_INFO.txt'
         }
         candidate = [ordered]@{
             Role = 'candidate'
             LogicalCommit = 'e6048469f7f461ea8f0c91a4efe98f8331c9b8ce'
-            # The candidate is represented by the runtime-equivalent staged
-            # artifact; its logical PR head remains separately recorded.
-            SourceCommit = 'a08c4d92916554f55f09231f525cda1f93b55129'
-            Tree = '11981a736703553349357cd89926b443901cadb9'
-            Xemu = Join-Path $IncomingRoot 'pr71-e6048469f7\xemu.exe'
-            XemuSha256 = '91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3'
-            BuildInfo = Join-Path $IncomingRoot 'pr71-e6048469f7\BUILD_INFO.txt'
+            SourceCommit = 'e6048469f7f461ea8f0c91a4efe98f8331c9b8ce'
+            Tree = 'e298704f3704887127965a4d03ac087f0df06b0f'
+            Xemu = Join-Path $IncomingRoot 'pr71-e604846-release-r1\xemu.exe'
+            XemuSha256 = '4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc'
+            BuildInfo = Join-Path $IncomingRoot 'pr71-e604846-release-r1\BUILD_INFO.txt'
         }
     }
 
     Xiso = [ordered]@{
         Python = Join-Path $LabRoot 'suite\python313\python.exe'
         Runner = Join-Path $LabRoot 'suite\run-suite-pr71.py'
-        Image = Join-Path $XisoRoot 'xemu-perf-tests-pr71-current-main.iso'
-        Catalog = Join-Path $XisoRoot 'catalog.json'
+        Image = Join-Path $XisoRoot 'xemu-perf-tests-0bb7618.iso'
+        Catalog = Join-Path $XisoRoot 'catalog-0bb7618.json'
         TestSourceCommit = $XisoIdentity.TestSourceCommit
         TestSourceTree = $XisoIdentity.TestSourceTree
         ImageSha256 = $XisoIdentity.ImageSha256

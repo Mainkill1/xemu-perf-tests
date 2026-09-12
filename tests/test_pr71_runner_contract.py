@@ -124,6 +124,8 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
         "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
         "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
         "5edff26383c6440da35bc92b9fca35f4a404b03b",
+        "e298704f3704887127965a4d03ac087f0df06b0f",
+        "4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc",
         "a08c4d92916554f55f09231f525cda1f93b55129",
         "11981a736703553349357cd89926b443901cadb9",
         "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
@@ -132,6 +134,8 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
         "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
     ):
         assert identity in config
+    assert "pr71-e604846-release-r1\\xemu.exe" in config
+    assert "pr76-cross-gpu-a08c4d9291-r2\\xemu.exe" in config
     for path in CAMPAIGN.glob("*.ps1"):
         text = path.read_text(encoding="utf-8")
         assert "run-suite-pr70" not in text
