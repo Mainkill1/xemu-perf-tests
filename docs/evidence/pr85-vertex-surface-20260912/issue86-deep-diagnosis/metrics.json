@@ -54,9 +54,40 @@
       "frame_interval_p99_ms": 64.855,
       "final_image_validation": "PASSED",
       "private_hdd_deleted": true
+    },
+    "vulkan-guest-pc": {
+      "renderer": "VULKAN",
+      "display_write_events_per_window_second": 23.76722475938456,
+      "frame_interval_p95_ms": 51.923,
+      "frame_interval_p99_ms": 58.576,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
+    },
+    "vulkan-code-inspection": {
+      "renderer": "VULKAN",
+      "display_write_events_per_window_second": 23.68619189757139,
+      "frame_interval_p95_ms": 50.985,
+      "frame_interval_p99_ms": 56.44,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
     }
   },
   "raw_trace_sha256": "7a0b9a0142b887872eef10d7e4f690e4c5e78433f7eb9e8270f5e0ad019cbddd",
   "raw_etl_sha256": "9a5ef50fe716c2b5d49372a480a33985bb7a81a9a9a93ab8718b780dd5248272",
-  "raw_etl_retention": "retained in the test environment; not published due to host-specific contents"
+  "raw_etl_retention": "retained in the test environment; not published due to host-specific contents",
+  "guest_pc_correlation": {
+    "sample_count": 120,
+    "recent_stall_window_ms": 10,
+    "samples_within_window": 26,
+    "samples_at_two_retry_addresses_within_window": 22,
+    "samples_after_window": 94,
+    "samples_at_two_retry_addresses_after_window": 2,
+    "retry_address_1": "0x00336940",
+    "retry_address_2": "0x000B2492",
+    "guest_logic": "caller retries helper until fixed status value changes; status source unproven",
+    "raw_pc_sample_sha256": "9e02cceb5b96ebbfdb836ecd459c0c3f2bcef2e0353d0f32c1eb5b9eaf9e9b7c",
+    "raw_report_trace_sha256": "5eff213870fdacd9f46db8c0c508000facdf1ea717a6b9e6452a13d35a1eaa40",
+    "sampler_script_sha256": "6e91ecfeca6d4dde578bbf284835dd03064b2fa62bcf18380922dd1d4c7b0208",
+    "raw_guest_code_published": false
+  }
 }
