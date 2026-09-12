@@ -1,0 +1,221 @@
+{
+  "schema_version": 1,
+  "kind": "diagnostic-only-shader-route-lookup",
+  "pre_fix_product_commit": "d21072b39fd3a84b06943977f5f441116f229b2e",
+  "fixed_product_commit": "03b0d11675892b10851f54b892bd912396ae5a93",
+  "qualifies_product_performance": false,
+  "captures": {
+    "r5": {
+      "diagnostic_source_commit": "f7f404146f42b2971f5ca44634d2b7578d931266",
+      "diagnostic_source_tree": "27475f4d8df49d9eacfc1cb15b7bdcf2b2f2df26",
+      "diagnostic_executable_sha256": "7052751dd43a2b7bbaa6c3b6c5dfe901d63586fbbc927b35276b37553a9887fa",
+      "status": "passed",
+      "cells": {
+        "off": {
+          "guest_frames": 857,
+          "regions": {
+            "pipeline_prepare": {
+              "calls_per_guest_frame": 4760.288,
+              "cpu_ms_per_guest_frame": 10.35556
+            },
+            "bind_shaders": {
+              "calls_per_guest_frame": 4760.288,
+              "cpu_ms_per_guest_frame": 4.92517
+            },
+            "select_fragment_route": {
+              "calls_per_guest_frame": 3077.785,
+              "cpu_ms_per_guest_frame": 0.17936
+            },
+            "route_binding_probe_hit": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_probe_miss": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_hit": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_miss": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "binding_lookup": {
+              "calls_per_guest_frame": 503.58,
+              "cpu_ms_per_guest_frame": 0.22469
+            },
+            "binding_cache_create": {
+              "calls_per_guest_frame": 0.013,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_match": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_mismatch": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            }
+          }
+        },
+        "on": {
+          "guest_frames": 851,
+          "regions": {
+            "pipeline_prepare": {
+              "calls_per_guest_frame": 4760.416,
+              "cpu_ms_per_guest_frame": 11.29935
+            },
+            "bind_shaders": {
+              "calls_per_guest_frame": 4760.416,
+              "cpu_ms_per_guest_frame": 5.92165
+            },
+            "select_fragment_route": {
+              "calls_per_guest_frame": 3077.855,
+              "cpu_ms_per_guest_frame": 1.4448
+            },
+            "route_binding_probe_hit": {
+              "calls_per_guest_frame": 3077.843,
+              "cpu_ms_per_guest_frame": 1.04674
+            },
+            "route_binding_probe_miss": {
+              "calls_per_guest_frame": 0.013,
+              "cpu_ms_per_guest_frame": 1e-05
+            },
+            "route_module_probe_hit": {
+              "calls_per_guest_frame": 0.005,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_miss": {
+              "calls_per_guest_frame": 0.008,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "binding_lookup": {
+              "calls_per_guest_frame": 0.013,
+              "cpu_ms_per_guest_frame": 0.0055
+            },
+            "binding_cache_create": {
+              "calls_per_guest_frame": 0.013,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_match": {
+              "calls_per_guest_frame": 0.013,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_mismatch": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            }
+          }
+        }
+      }
+    },
+    "r6": {
+      "diagnostic_source_commit": "fedf4b0fa32fd51613c6c388d03aaf8e4ce48185",
+      "diagnostic_source_tree": "ed564d46d84df135e5da62f0fd7341730c576f54",
+      "diagnostic_executable_sha256": "fad6cbf79dd0c3efea5ce649baba835d8f6b50d765afcabe60ae36711c6534da",
+      "status": "passed",
+      "cells": {
+        "off": {
+          "guest_frames": 872,
+          "regions": {
+            "pipeline_prepare": {
+              "calls_per_guest_frame": 4759.983,
+              "cpu_ms_per_guest_frame": 9.86324
+            },
+            "bind_shaders": {
+              "calls_per_guest_frame": 4759.983,
+              "cpu_ms_per_guest_frame": 4.47845
+            },
+            "select_fragment_route": {
+              "calls_per_guest_frame": 503.425,
+              "cpu_ms_per_guest_frame": 0.03045
+            },
+            "route_binding_probe_hit": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_probe_miss": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_hit": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_miss": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "binding_lookup": {
+              "calls_per_guest_frame": 503.425,
+              "cpu_ms_per_guest_frame": 0.22049
+            },
+            "binding_cache_create": {
+              "calls_per_guest_frame": 0.011,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_match": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_mismatch": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            }
+          }
+        },
+        "on": {
+          "guest_frames": 867,
+          "regions": {
+            "pipeline_prepare": {
+              "calls_per_guest_frame": 4760.091,
+              "cpu_ms_per_guest_frame": 9.98522
+            },
+            "bind_shaders": {
+              "calls_per_guest_frame": 4760.091,
+              "cpu_ms_per_guest_frame": 4.53867
+            },
+            "select_fragment_route": {
+              "calls_per_guest_frame": 503.48,
+              "cpu_ms_per_guest_frame": 0.27947
+            },
+            "route_binding_probe_hit": {
+              "calls_per_guest_frame": 503.468,
+              "cpu_ms_per_guest_frame": 0.21191
+            },
+            "route_binding_probe_miss": {
+              "calls_per_guest_frame": 0.012,
+              "cpu_ms_per_guest_frame": 1e-05
+            },
+            "route_module_probe_hit": {
+              "calls_per_guest_frame": 0.005,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_module_probe_miss": {
+              "calls_per_guest_frame": 0.007,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "binding_lookup": {
+              "calls_per_guest_frame": 0.012,
+              "cpu_ms_per_guest_frame": 0.00459
+            },
+            "binding_cache_create": {
+              "calls_per_guest_frame": 0.012,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_match": {
+              "calls_per_guest_frame": 0.012,
+              "cpu_ms_per_guest_frame": 0.0
+            },
+            "route_binding_hash_mismatch": {
+              "calls_per_guest_frame": 0.0,
+              "cpu_ms_per_guest_frame": 0.0
+            }
+          }
+        }
+      }
+    }
+  }
+}
