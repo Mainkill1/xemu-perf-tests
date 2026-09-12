@@ -1,0 +1,27 @@
+{
+  "schema_version": 1,
+  "status": "NO_VALID_HOST_PRESENT_MEASUREMENT",
+  "product_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+  "snapshot": "vm-20260905015459",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "first_attempt": {
+    "tool": "PresentMon 1.10.0",
+    "outcome": "recording started and stopped; no CSV emitted",
+    "used_for_comparison": false
+  },
+  "second_attempt": {
+    "tool": "PresentMon 2.5.1",
+    "outcome": "107174 ETW events lost; no CSV emitted",
+    "guest_runner_status": "complete",
+    "image_oracle": "PASSED",
+    "private_disk_deleted": true,
+    "raw_guest_result_sha256": "9100d3c3c0f9150e2ae1502df4e1235f07d917f47f58ac238978d7046566fe0b",
+    "result_seed_sha256_after": "c0eab558c8ba853bf37430dc442a11212bec1336e789a82558693b778b7fa357",
+    "expected_seed_sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+    "subsequent_direct_seed_sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+    "used_for_comparison": false
+  },
+  "cleanup": "No xemu/WPR/xperf/PresentMon processes remained after attempt.",
+  "interpretation": "No valid host-present FPS. The separate uninstrumented Vulkan-OpenGL-Vulkan guest-progress return control is unaffected."
+}
