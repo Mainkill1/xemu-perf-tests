@@ -58,7 +58,7 @@ The first candidate PGR2 attempt is **excluded**: PresentMon reported 535,414 lo
 
 The opt-in counter run is diagnostic only and is not pooled with uninstrumented performance cells. Its 246-write window recorded **27,642 direct copies / 213.5 MB** and **58,365 staged copies / 543.2 MB**; median direct and staged copies were 112 and 241 per guest display write. This matches the earlier page-opportunity probe's roughly 31% fresh-page fraction. [Copy-window summary](results/morrowind-vulkan-copy-window.json) identifies the exact raw diagnostic hashes; [wait summary](results/morrowind-vulkan-wait-summary.json) gives sampled timing with instrumentation caveats.
 
-The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. Before a merge, test a true read-then-overwrite case, command-buffer rollover, surfaces, and buffer generation changes through the production path. Morrowind OpenGL remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
+The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. Before a merge, test a true read-then-overwrite case, command-buffer rollover, surfaces, and buffer generation changes through the production path. A current-head Morrowind OpenGL comparison is reported below; paired cross-renderer qualification remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
 
 ## Full current XISO suite, both renderers
 
@@ -126,6 +126,22 @@ The gated source-to-previous-head patch SHA-256 is `b8399582d54e9b41066f2d8a72d0
 | Morrowind Vulkan snapshot | Guest interval p95 / p99 | 48.042–48.822 / 53.874–55.525 ms | 45.704–46.060 / 51.445–53.128 ms | **46.019 / 52.945 ms** |
 
 The gate appears to preserve the Morrowind benefit and recover most of the earlier PGR2 tail loss, but the gated PGR2 p95 remains above both retained parent cells. Different-session ranges and a single gated cell limit the inference. Do not promote this head to a performance pass yet. The [two gated result records](results/activity-gate-initial-results.json) preserve exact source/build/result hashes; the Morrowind image oracle passed and both game runs completed with private-disk cleanup.
+
+### Why Morrowind still progresses slowly
+
+A same-executable, uninstrumented **Vulkan → OpenGL → Vulkan** return control used the current `974f2ae` binary, identical snapshot seed, private-disk initial hash, EEPROM, runner, input sequence, 60-second window, and presentation setting. All three cells reached gameplay, passed the final-image oracle, deleted their private disks, and left no emulator/trace process. The first Vulkan run was launched before the gate commit and retains its raw `d42c81ba32+gate-b8399582` source label; its executable SHA-256 is identical to the committed current-head build. [Compact exact records](results/morrowind-renderer-return-control.json) retain raw-result and control hashes.
+
+| Current-head Morrowind fixed snapshot | Guest display writes/s | Guest interval p95 | Guest interval p99 |
+| --- | ---: | ---: | ---: |
+| Vulkan first | 25.613 | 46.019 ms | 52.945 ms |
+| OpenGL middle | **34.383** | **36.102 ms** | **41.013 ms** |
+| Vulkan return | 25.364 | 46.936 ms | 55.083 ms |
+
+OpenGL's guest progress was **34.90% higher than the mean of the bracketing Vulkan cells**; the Vulkan return changed cadence by only -0.97% from its first cell. This is a robust *guest-progress* gap in this scene, not measured displayed FPS or proof that OpenGL executes its graphics commands faster. Host presentation counts, OpenGL GPU time, and game-wide traversal are not in this capture.
+
+The source and earlier [#86 GPU-timestamp diagnosis](https://github.com/Mainkill1/xemu-perf-tests/blob/evidence/pr85-vertex-surface-freshness/docs/evidence/pr85-vertex-surface-20260912/issue86-deep-diagnosis/REPORT.md) explain the likely chain. Morrowind issues about 1,150 small Vulkan draws and a clear-plus-report pair per guest display write, with zero occlusion queries in the measured #83 window. Vulkan's idle report path finishes the active command buffer before writing the report. On that **older stacked #83 tree**, the report fence wait was 11.216 ms median/write, 96.1% matched elapsed GPU batch time, and 94.8% of GPU batch time was in the main graphics command buffer. The guest's sampled retry loop reads a 16-byte record with the same timestamp/result/completion layout as xemu's report; dynamic DMA-address identity is still unproven. OpenGL's zero-query path writes the record without waiting for a corresponding query result. These different completion policies can explain faster *guest* progress without proving a same-size GPU-work advantage for OpenGL. Publishing Vulkan's completion early would risk violating the guest's GPU-fence expectation.
+
+The graphics workload itself is heavy: the older #83 counters found roughly **353 dirty vertex staging copies and 348 nondraw pass endings per guest display write**, with 95.6% of all pass endings attributed to nondraw work and their per-write counts correlated at 0.999. The current PR removes some of those copies, but most remain ordered staging transfers; #85/#87 exact-parent counters also retain approximately five synchronous submissions and 10.249 ms median sampled fence wait per write on the **previous #87 head**. Descriptor-update timing includes a nested capacity fence wait, so its 8–10 ms region must not be counted as extra descriptor-writing cost. This is why PR #87 improves the fixed scene by about 6% without removing the broader ~25-write/s limit. Exact current-head GPU timestamps and host-present metrics remain the decisive missing measurements.
 
 ## What the Morrowind wait counters actually mean
 
