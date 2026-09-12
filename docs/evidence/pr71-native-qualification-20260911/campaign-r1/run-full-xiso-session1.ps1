@@ -90,6 +90,12 @@ function Invoke-XisoCell(
     )
     if ($IncludeGated) { $arguments += '--enable-xemu-only-tests' }
     if ($validation) { $arguments += '--vulkan-validation' }
+    if ($Build.Role -eq 'previous_main') {
+        # This executable is an exact-tree archive of previous main. The
+        # runner records it as diagnostic-only, while source/tree/executable
+        # identity and correctness gates remain mandatory.
+        $arguments += '--allow-dirty-build'
+    }
 
     $cell = $null
     $failure = $null
@@ -389,8 +395,9 @@ try {
         $existing = Get-Content -LiteralPath $receiptPath -Raw |
             ConvertFrom-Json -AsHashtable
         if ($existing.campaign_id -ne $Campaign.CampaignId -or
-            $existing.status -ne 'failed' -or @($existing.cells).Count -ne 9) {
-            throw "XISO receipt is not the exact nine-cell resume point"
+            $existing.status -ne 'failed' -or @($existing.cells).Count -gt 19 -or
+            $existing.final_cleanup.status -ne 'passed') {
+            throw "XISO receipt is not a clean resumable point"
         }
         $receipt = $existing
         $receipt.status = 'running'
@@ -406,15 +413,25 @@ try {
     }
     Assert-Hash $Campaign.Xiso.Catalog $Campaign.Xiso.CatalogSha256 'maintained catalog'
 
-    if (@($receipt.cells).Count -eq 0) {
+    if (@($receipt.cells).Count -lt 9) {
         $portable = [ordered]@{}
         foreach ($role in @('fixed_baseline', 'previous_main', 'candidate')) {
             $build = $Campaign.Builds[$role]
-            $portable["$role-opengl"] = New-PortableBuild $Campaign $build "xiso-$role-opengl"
-            $portable["$role-vulkan"] = New-PortableBuild $Campaign $build "xiso-$role-vulkan"
+            if (@($receipt.cells).Count -eq 0) {
+                $portable["$role-opengl"] = New-PortableBuild $Campaign $build "xiso-$role-opengl"
+                $portable["$role-vulkan"] = New-PortableBuild $Campaign $build "xiso-$role-vulkan"
+            } else {
+                $portable["$role-opengl"] = Get-PortableBuild $Campaign $build "xiso-$role-opengl"
+                $portable["$role-vulkan"] = Get-PortableBuild $Campaign $build "xiso-$role-vulkan"
+            }
         }
-        $portable['candidate-vulkan-on'] = New-PortableBuild $Campaign `
-            $Campaign.Builds.candidate 'xiso-candidate-vulkan-on' '' 'Enabled' 'On'
+        $portable['candidate-vulkan-on'] = if (@($receipt.cells).Count -eq 0) {
+            New-PortableBuild $Campaign $Campaign.Builds.candidate `
+                'xiso-candidate-vulkan-on' '' 'Enabled' 'On'
+        } else {
+            Get-PortableBuild $Campaign $Campaign.Builds.candidate `
+                'xiso-candidate-vulkan-on' 'Enabled' 'On'
+        }
         $matrix = @(
         @('01-baseline-opengl', 'fixed_baseline', 'opengl', 'none', $false, 'off', 'baseline-candidate', 'fixed_baseline-opengl'),
         @('02-candidate-opengl', 'candidate', 'opengl', 'none', $true, 'off', 'candidate-baseline', 'candidate-opengl'),
@@ -426,20 +443,26 @@ try {
         @('08-candidate-vulkan-on-warm', 'candidate', 'vulkan', 'warm', $true, 'on', 'candidate-baseline', 'candidate-vulkan-on'),
         @('09-baseline-vulkan', 'fixed_baseline', 'vulkan', 'none', $false, 'off', 'baseline-candidate', 'fixed_baseline-vulkan')
         )
-        foreach ($entry in $matrix) {
+        for ($matrixIndex = @($receipt.cells).Count;
+             $matrixIndex -lt $matrix.Count; $matrixIndex++) {
+            $entry = $matrix[$matrixIndex]
             $role = $entry[1]
             $receipt.cells += Invoke-XisoCell $entry[0] $Campaign.Builds[$role] `
                 $portable[$entry[7]] $entry[2] $entry[3] $entry[4] $entry[5] $entry[6]
+            Write-JsonAtomic $receiptPath $receipt
         }
     }
     $gatedIndex = 0
+    $completedGatedCells = [math]::Max(0, @($receipt.cells).Count - 9)
     foreach ($test in $gatedTests) {
         foreach ($backend in @('opengl', 'vulkan')) {
             $gatedIndex++
+            if ($gatedIndex -le $completedGatedCells) { continue }
             $label = ('b{0:d2}-{1}-fixed-baseline-{2}' -f $gatedIndex,
                 $test.stable.Replace('.', '-'), $backend)
             $receipt.cells += Invoke-GatedXisoCell $label `
                 $Campaign.Builds.fixed_baseline $backend $test
+            Write-JsonAtomic $receiptPath $receipt
         }
     }
     $receipt.status = 'passed'

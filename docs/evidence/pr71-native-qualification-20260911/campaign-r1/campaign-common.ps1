@@ -232,12 +232,37 @@ function New-PortableBuild(
         '[tweaks]',
         "vk_hybrid_ubershaders = $hybridValue"
     ) -Encoding utf8
+    Get-PortableBuild $Campaign $Build $Name $ShaderCache $HybridUbershaders
+}
+
+function Get-PortableBuild(
+    [System.Collections.IDictionary]$Campaign,
+    [System.Collections.IDictionary]$Build,
+    [string]$Name,
+    [ValidateSet('Enabled', 'Disabled')][string]$ShaderCache = 'Enabled',
+    [ValidateSet('Off', 'On')][string]$HybridUbershaders = 'Off'
+) {
+    $directory = Join-Path $Campaign.ResultsRoot "profiles\$Name"
+    $xemu = Join-Path $directory 'xemu.exe'
+    $buildInfo = Join-Path $directory 'BUILD_INFO.txt'
+    $config = Join-Path $directory 'xemu.toml'
+    foreach ($path in @($xemu, $buildInfo, $config)) {
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "Incomplete portable profile: $path"
+        }
+    }
     Assert-Hash $xemu $Build.XemuSha256 "$($Build.Role) portable xemu"
+    $info = Read-BuildInfo $buildInfo
+    if ($info.SOURCE_SHA -ne $Build.SourceCommit -or
+        $info.SOURCE_TREE -ne $Build.Tree -or
+        $info.XEMU_SHA256 -ne $Build.XemuSha256) {
+        throw "$($Build.Role) portable build identity mismatch"
+    }
     [ordered]@{
         directory = $directory
         xemu = $xemu
-        build_info = Join-Path $directory 'BUILD_INFO.txt'
-        BuildInfo = Join-Path $directory 'BUILD_INFO.txt'
+        build_info = $buildInfo
+        BuildInfo = $buildInfo
         profile_root = Join-Path $directory 'profile-env'
         role = $Build.Role
         shader_cache = $ShaderCache

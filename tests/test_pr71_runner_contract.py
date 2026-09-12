@@ -146,6 +146,10 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
     assert "ShaderCache" in retail and "cache_shaders" in (CAMPAIGN / "campaign-common.ps1").read_text(encoding="utf-8")
     assert "candidate-vulkan-on-cold" in retail and "candidate-vulkan-on-warm" in retail
     assert "guest-source-commit" in xiso and "guest-source-tree" in xiso
+    assert "'--allow-dirty-build'" in xiso
+    assert "$Build.Role -eq 'previous_main'" in xiso
+    assert "Get-PortableBuild" in xiso
+    assert "$matrixIndex = @($receipt.cells).Count" in xiso
     assert "baseline-candidate" in retail and "candidate-baseline" in retail
     assert "Get-HostAdmission" in (CAMPAIGN / "run-all-session1.ps1").read_text(encoding="utf-8")
     assert "tables_only = $true" in (CAMPAIGN / "write-results.ps1").read_text(encoding="utf-8")
