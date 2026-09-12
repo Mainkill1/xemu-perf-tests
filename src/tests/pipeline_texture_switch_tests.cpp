@@ -71,13 +71,10 @@ static constexpr uint32_t kPaletteDmaBlue = 27;
 static constexpr uint32_t kDefaultDmaA = 3;
 static constexpr uint32_t kDefaultDmaB = 11;
 static constexpr uint32_t kTextureStageStride = 64;
-// The host texture pool is also used by render-to-texture tests, so a cached
-// binding from that pool can overlap an active surface and bypass the clean
-// stage skip for reasons unrelated to DMA remapping. Keep this oracle's three
-// DMA sources in dedicated XBE pages that are never selected as render targets.
-alignas(4096) uint32_t gDmaTextureRed[kTexturePixels];
-alignas(4096) uint32_t gDmaTextureBlue[kTexturePixels];
-alignas(4096) uint32_t gDmaTextureGreen[kTexturePixels];
+// Keep the DMA sources out of the host texture/render-target pool. They still
+// need GPU-addressable backing; ordinary XBE globals do not provide that.
+static constexpr uint32_t kDmaTextureStorageBytes =
+    3 * kLinearTextureBytes;
 static constexpr uint32_t kSamplerMipColors[] = {
     0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF};
 static constexpr uint32_t kBackgroundColor = 0xFF101820;
@@ -277,14 +274,25 @@ void PipelineTextureSwitchTests::Initialize() {
 
   ResetCanonicalTextureBacking();
 
+  dma_texture_storage_ = static_cast<uint32_t *>(MmAllocateContiguousMemoryEx(
+      kDmaTextureStorageBytes, 0, MAXRAM, 0,
+      PAGE_WRITECOMBINE | PAGE_READWRITE));
+  ASSERT(dma_texture_storage_ != nullptr);
+  if (!dma_texture_storage_) {
+    return;
+  }
+  auto *red = dma_texture_storage_;
+  auto *blue = red + kTexturePixels;
+  auto *green = blue + kTexturePixels;
+
   pb_create_dma_ctx(kTextureDmaRed, DMA_CLASS_3,
-                    reinterpret_cast<DWORD>(gDmaTextureRed),
+                    reinterpret_cast<DWORD>(red),
                     kLinearTextureBytes - 1, &texture_dma_red_);
   pb_create_dma_ctx(kTextureDmaBlue, DMA_CLASS_3,
-                    reinterpret_cast<DWORD>(gDmaTextureBlue),
+                    reinterpret_cast<DWORD>(blue),
                     kLinearTextureBytes - 1, &texture_dma_blue_);
   pb_create_dma_ctx(kTextureDmaGreen, DMA_CLASS_3,
-                    reinterpret_cast<DWORD>(gDmaTextureGreen),
+                    reinterpret_cast<DWORD>(green),
                     kLinearTextureBytes - 1, &texture_dma_green_);
   pb_create_dma_ctx(kPaletteDmaRed, DMA_CLASS_3,
                     reinterpret_cast<DWORD>(host_.GetPaletteMemoryForStage(0)),
@@ -344,6 +352,15 @@ void PipelineTextureSwitchTests::Initialize() {
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "sampler_identity_input_kat == expected", __FILE__,
                       __LINE__);
+}
+
+void PipelineTextureSwitchTests::Deinitialize() {
+  host_.WaitForGpu();
+  if (dma_texture_storage_) {
+    MmFreeContiguousMemory(dma_texture_storage_);
+    dma_texture_storage_ = nullptr;
+  }
+  TestSuite::Deinitialize();
 }
 
 void PipelineTextureSwitchTests::SetupTest() {
@@ -1144,17 +1161,27 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
     expected_kat = Fnv1aAddWord(expected_kat, expected);
   }
 
+  ASSERT(dma_texture_storage_ != nullptr);
+  if (!dma_texture_storage_) {
+    return;
+  }
+  auto *red = dma_texture_storage_;
+  auto *blue = red + kTexturePixels;
+  auto *green = blue + kTexturePixels;
   for (uint32_t pixel = 0; pixel < kTexturePixels; ++pixel) {
-    gDmaTextureRed[pixel] = kTextureAColor;
-    gDmaTextureBlue[pixel] = kTextureBColor;
-    gDmaTextureGreen[pixel] = kDiffuseColor;
+    red[pixel] = kTextureAColor;
+    blue[pixel] = kTextureBColor;
+    green[pixel] = kDiffuseColor;
   }
   const uint32_t red_source =
-      reinterpret_cast<uint32_t>(gDmaTextureRed) & 0x03FFFFFF;
+      reinterpret_cast<uint32_t>(red) & 0x03FFFFFF;
   const uint32_t blue_source =
-      reinterpret_cast<uint32_t>(gDmaTextureBlue) & 0x03FFFFFF;
+      reinterpret_cast<uint32_t>(blue) & 0x03FFFFFF;
   const uint32_t green_source =
-      reinterpret_cast<uint32_t>(gDmaTextureGreen) & 0x03FFFFFF;
+      reinterpret_cast<uint32_t>(green) & 0x03FFFFFF;
+  const uint32_t red_source_kat = HashWords(red, kTexturePixels);
+  const uint32_t blue_source_kat = HashWords(blue, kTexturePixels);
+  const uint32_t green_source_kat = HashWords(green, kTexturePixels);
   AssertXemuPerfEqual(0, (red_source | blue_source | green_source) & 0xFFF,
                       XemuPerfAssertion::PIPELINE_TEXTURE_INPUT,
                       "texture_dma_sources_page_aligned", __FILE__, __LINE__);
@@ -1168,6 +1195,10 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
            static_cast<unsigned long>(red_source),
            static_cast<unsigned long>(blue_source),
            static_cast<unsigned long>(green_source));
+  PrintMsg("TEXTURE_DMA_REMAP_SOURCE_KATS %08lx %08lx %08lx\n",
+           static_cast<unsigned long>(red_source_kat),
+           static_cast<unsigned long>(blue_source_kat),
+           static_cast<unsigned long>(green_source_kat));
 
   host_.SetVertexShaderProgram(nullptr);
   host_.SetupFixedFunctionPassthrough();
@@ -1260,6 +1291,9 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   metadata << "\"source_physical\":{\"red\":" << red_source
            << ",\"blue\":" << blue_source << ",\"green\":"
            << green_source << "},";
+  metadata << "\"source_kat\":{\"red\":" << red_source_kat
+           << ",\"blue\":" << blue_source_kat << ",\"green\":"
+           << green_source_kat << "},";
   metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
   metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
   metadata << "\"tile_argb\":[" << actual_tiles[0] << ","

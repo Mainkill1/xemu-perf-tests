@@ -16,6 +16,7 @@ class PipelineTextureSwitchTests : public TestSuite {
                              const Config &config);
 
   void Initialize() override;
+  void Deinitialize() override;
   void SetupTest() override;
 
  private:
@@ -51,6 +52,7 @@ class PipelineTextureSwitchTests : public TestSuite {
   uint32_t input_kat_{0};
   uint32_t sampler_backing_kat_{0};
   uint32_t sampler_input_kat_{0};
+  uint32_t *dma_texture_storage_{nullptr};
   s_CtxDma texture_dma_red_{};
   s_CtxDma texture_dma_blue_{};
   s_CtxDma texture_dma_green_{};
