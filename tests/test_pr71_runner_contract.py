@@ -152,4 +152,8 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
     assert "$matrixIndex = @($receipt.cells).Count" in xiso
     assert "baseline-candidate" in retail and "candidate-baseline" in retail
     assert "Get-HostAdmission" in (CAMPAIGN / "run-all-session1.ps1").read_text(encoding="utf-8")
+    controller = (CAMPAIGN / "run-all-session1.ps1").read_text(encoding="utf-8")
+    assert "resume_started_utc" in controller
+    assert "completedPhases" in controller
+    assert "host_admission" in controller
     assert "tables_only = $true" in (CAMPAIGN / "write-results.ps1").read_text(encoding="utf-8")

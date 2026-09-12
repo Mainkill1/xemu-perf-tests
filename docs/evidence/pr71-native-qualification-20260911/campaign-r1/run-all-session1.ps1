@@ -8,29 +8,46 @@ Assert-NoPlaceholders $Campaign 'PR71 campaign'
 if ([IO.Path]::GetFullPath($PSScriptRoot) -ne [IO.Path]::GetFullPath($Campaign.PackageRoot)) {
     throw "Package path mismatch: expected $($Campaign.PackageRoot), running $PSScriptRoot"
 }
-if (Test-Path -LiteralPath $Campaign.ResultsRoot) {
-    throw "Refusing to overwrite an existing campaign: $($Campaign.ResultsRoot)"
-}
-New-Item -ItemType Directory -Path $Campaign.ResultsRoot -Force | Out-Null
-
-$receipt = [ordered]@{
-    schema_version = 2
-    status = 'running'
-    campaign_id = $Campaign.CampaignId
-    started_utc = [DateTimeOffset]::UtcNow.ToString('o')
-    host_admission = $null
-    builds = @()
-    script_manifest = @()
-    phases = @()
-    error = $null
-    final_cleanup = $null
-}
 $receiptPath = Join-Path $Campaign.ResultsRoot 'campaign-manifest.json'
+$resuming = Test-Path -LiteralPath $Campaign.ResultsRoot
+if ($resuming) {
+    if (-not (Test-Path -LiteralPath $receiptPath -PathType Leaf)) {
+        throw "Campaign results exist without a manifest: $($Campaign.ResultsRoot)"
+    }
+    $receipt = Get-Content -LiteralPath $receiptPath -Raw |
+        ConvertFrom-Json -AsHashtable
+    if ($receipt.campaign_id -ne $Campaign.CampaignId -or
+        $receipt.status -ne 'failed' -or
+        $receipt.final_cleanup.status -ne 'passed') {
+        throw 'Existing campaign is not a clean resumable point.'
+    }
+    $receipt.status = 'running'
+    $receipt.error = $null
+    $receipt.resume_started_utc = [DateTimeOffset]::UtcNow.ToString('o')
+    $receipt.builds = @()
+    $receipt.script_manifest = @()
+} else {
+    New-Item -ItemType Directory -Path $Campaign.ResultsRoot -Force | Out-Null
+    $receipt = [ordered]@{
+        schema_version = 2
+        status = 'running'
+        campaign_id = $Campaign.CampaignId
+        started_utc = [DateTimeOffset]::UtcNow.ToString('o')
+        host_admission = $null
+        builds = @()
+        script_manifest = @()
+        phases = @()
+        error = $null
+        final_cleanup = $null
+    }
+}
 
 try {
     Assert-HostIdle $Campaign 'campaign start'
     # Memory and GPU inventory are admitted once for the whole campaign.
-    $receipt.host_admission = Get-HostAdmission $Campaign
+    if (-not $receipt.host_admission) {
+        $receipt.host_admission = Get-HostAdmission $Campaign
+    }
     foreach ($role in @('fixed_baseline', 'previous_main', 'candidate')) {
         $receipt.builds += Assert-BuildContract $Campaign.Builds[$role]
     }
@@ -44,33 +61,45 @@ try {
     }
     Write-JsonAtomic $receiptPath $receipt
 
-    $phaseStart = [DateTimeOffset]::UtcNow
-    & (Join-Path $PSScriptRoot 'run-full-xiso-session1.ps1') | Out-Null
-    $receipt.phases += [ordered]@{
-        name = 'full_xiso_157'
-        status = 'passed'
-        started_utc = $phaseStart.ToString('o')
-        completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+    $completedPhases = @($receipt.phases | Where-Object status -EQ 'passed' |
+        ForEach-Object name)
+    if ('full_xiso_157' -notin $completedPhases) {
+        $phaseStart = [DateTimeOffset]::UtcNow
+        & (Join-Path $PSScriptRoot 'run-full-xiso-session1.ps1') | Out-Null
+        $receipt.phases += [ordered]@{
+            name = 'full_xiso_157'
+            status = 'passed'
+            started_utc = $phaseStart.ToString('o')
+            completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+        }
+        Write-JsonAtomic $receiptPath $receipt
     }
-    Write-JsonAtomic $receiptPath $receipt
 
-    $phaseStart = [DateTimeOffset]::UtcNow
-    & (Join-Path $PSScriptRoot 'run-retail-session1.ps1') | Out-Null
-    $receipt.phases += [ordered]@{
-        name = 'retail'
-        status = 'passed'
-        started_utc = $phaseStart.ToString('o')
-        completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+    $completedPhases = @($receipt.phases | Where-Object status -EQ 'passed' |
+        ForEach-Object name)
+    if ('retail' -notin $completedPhases) {
+        $phaseStart = [DateTimeOffset]::UtcNow
+        & (Join-Path $PSScriptRoot 'run-retail-session1.ps1') | Out-Null
+        $receipt.phases += [ordered]@{
+            name = 'retail'
+            status = 'passed'
+            started_utc = $phaseStart.ToString('o')
+            completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+        }
+        Write-JsonAtomic $receiptPath $receipt
     }
-    Write-JsonAtomic $receiptPath $receipt
 
-    $phaseStart = [DateTimeOffset]::UtcNow
-    & (Join-Path $PSScriptRoot 'write-results.ps1') | Out-Null
-    $receipt.phases += [ordered]@{
-        name = 'tables_and_acceptance'
-        status = 'passed'
-        started_utc = $phaseStart.ToString('o')
-        completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+    $completedPhases = @($receipt.phases | Where-Object status -EQ 'passed' |
+        ForEach-Object name)
+    if ('tables_and_acceptance' -notin $completedPhases) {
+        $phaseStart = [DateTimeOffset]::UtcNow
+        & (Join-Path $PSScriptRoot 'write-results.ps1') | Out-Null
+        $receipt.phases += [ordered]@{
+            name = 'tables_and_acceptance'
+            status = 'passed'
+            started_utc = $phaseStart.ToString('o')
+            completed_utc = [DateTimeOffset]::UtcNow.ToString('o')
+        }
     }
     $receipt.status = 'passed'
 } catch {
