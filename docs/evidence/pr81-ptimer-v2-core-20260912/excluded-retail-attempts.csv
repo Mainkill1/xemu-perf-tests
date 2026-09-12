@@ -1,0 +1,2 @@
+run_id,workload,renderer,reason,disposition
+pr81-ptimer-snapshot-candidate-r1,pgr2_snapshot,VULKAN,PresentMon lost 311828 ETW events and emitted no CSV,excluded from performance; rerun with PresentMon disabled
