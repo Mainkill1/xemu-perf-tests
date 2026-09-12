@@ -1,0 +1,62 @@
+{
+  "product_head": "5717357917abdd92e7c344d9e4f1b36b6fa61afa",
+  "product_tree": "b0de7c5381392859e82c06a421fd56ac963ae39e",
+  "trace_patch_sha256": "32dabaa5f6a0a305ebea581ce496d0125a00c17096b5cd2e267914ebfc7ad82f",
+  "executable_sha256": "7f50e2225c8f124f334695df45c96cd503cdd5ba37d0e667a60a06ef7799999e",
+  "snapshot": "vm-20260905015459",
+  "guest_progress_metric": "NV2A display-write events per measured 10-second window; not host presents",
+  "report_trace": {
+    "all_stalls": 418,
+    "all_result_events": 418,
+    "measured_stalls": 238,
+    "queue_entries_each": 2,
+    "clear_entries_each": 1,
+    "occlusion_queries_each": 0,
+    "active_queries_each": 0,
+    "median_result_read_us": 0,
+    "max_result_read_us": 1,
+    "measured_stalled_submits": 238,
+    "measured_stalled_fence_wait_median_ms": 10.5865,
+    "measured_stalled_fence_wait_p95_ms": 16.756,
+    "measured_stalled_fence_wait_sum_ms": 2695.729,
+    "measured_flip_stall_fence_wait_median_ms": 1.229,
+    "measured_total_finish_fence_wait_median_ms": 11.73
+  },
+  "runs": {
+    "opengl-comparison": {
+      "renderer": "OPENGL",
+      "display_write_events_per_window_second": 34.66424902676624,
+      "frame_interval_p95_ms": 35.483,
+      "frame_interval_p99_ms": 41.376,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
+    },
+    "vulkan-cpu-etw": {
+      "renderer": "VULKAN",
+      "display_write_events_per_window_second": 23.3872011203149,
+      "frame_interval_p95_ms": 51.722,
+      "frame_interval_p99_ms": 56.186,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
+    },
+    "vulkan-report-trace": {
+      "renderer": "VULKAN",
+      "display_write_events_per_window_second": 23.873966871564573,
+      "frame_interval_p95_ms": 51.241,
+      "frame_interval_p99_ms": 59.017,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
+    },
+    "vulkan-tcg-stats": {
+      "renderer": "VULKAN",
+      "display_write_events_per_window_second": 23.467010077233425,
+      "frame_interval_p95_ms": 51.577,
+      "frame_interval_p99_ms": 64.855,
+      "final_image_validation": "PASSED",
+      "private_hdd_deleted": true
+    }
+  },
+  "raw_trace_sha256": "7a0b9a0142b887872eef10d7e4f690e4c5e78433f7eb9e8270f5e0ad019cbddd",
+  "raw_etl_sha256": "9a5ef50fe716c2b5d49372a480a33985bb7a81a9a9a93ab8718b780dd5248272",
+  "raw_etl_retention": "retained in the test environment; not published due to host-specific contents"
+}

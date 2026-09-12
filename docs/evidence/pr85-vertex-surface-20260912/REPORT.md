@@ -1,5 +1,7 @@
 # Morrowind Vulkan vertex/surface synchronization and report-wait attribution
 
+**Follow-up diagnosis:** [Issue #86's report/TCG trace](issue86-deep-diagnosis/REPORT.md) found a zero-query clear-plus-report pair at every measured Vulkan `STALLED` fence. The measured median was 10.587 ms, while a separate CPU ETW capture found the guest CPU thread running for 9.865 of 10 seconds, with 48.0% of its samples in translated-block lookup. A same-executable OpenGL snapshot reached 34.664 guest display writes/s versus 23.4–23.9 in three Vulkan diagnostic cells. This narrows the renderer gap but does not establish that early report publication would preserve the guest's GPU fence semantics; both product PRs remain drafts.
+
 **Status: diagnostic progress, no accepted performance improvement.** Draft [product PR #85](https://github.com/Mainkill1/xemu/pull/85) removes false vertex-triggered surface readbacks. Draft [PR #83](https://github.com/Mainkill1/xemu/pull/83) is now stacked on #85 and changes only the graphics descriptor-set capacity. It retains the original one-line commit and adds a merge commit; its exact combined tree matches the build tested here. [Issue #84](https://github.com/Mainkill1/xemu/issues/84) tracks the false readback, and [issue #86](https://github.com/Mainkill1/xemu/issues/86) tracks the newly isolated report wait.
 
 | Identity | Value |
