@@ -1,0 +1,33 @@
+[general]
+show_welcome = false
+games_dir = 'C:\xemu-lab\games'
+last_viewed_menu_index = 5
+
+[input.bindings]
+port1_driver = 'usb-xbox-gamepad'
+port1 = 'keyboard'
+
+[display]
+renderer = 'VULKAN'
+setup_nvidia_profile = false
+
+[display.vulkan]
+
+[display.window]
+last_width = 1280
+last_height = 960
+
+[display.debug.video]
+x_pos = 632
+y_pos = 25
+
+[sys.files]
+bootrom_path = 'C:\xemu-lab\XEMU FILES\Boot ROM image\mcpx_1.0.bin'
+flashrom_path = 'C:\xemu-lab\XEMU FILES\BIOS\Complex_4627v1.03.bin'
+eeprom_path = 'C:\Users\codex\AppData\Roaming\xemu\xemu\eeprom.bin'
+hdd_path = 'C:\xemu-lab\XEMU FILES\xbox_hdd.qcow2'
+dvd_path = 'C:\xemu-lab\games\Project Gotham Racing 2 (USA, Asia) (En,Ja,Fr,De,Es,It,Zh,Ko).iso'
+
+
+[display.quality]
+surface_scale = 1

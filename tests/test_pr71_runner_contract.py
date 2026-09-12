@@ -14,6 +14,33 @@ RUNNER = (
     / "docs/evidence/pr71-native-qualification-20260911/tooling/run-suite-pr71.py"
 )
 CAMPAIGN = ROOT / "docs/evidence/pr71-native-qualification-20260911/campaign-r1"
+REVISED_CAMPAIGN = ROOT / "docs/evidence/pr71-native-qualification-20260911/campaign-r2"
+
+
+def test_pr71_revised_campaign_keeps_controls_and_pins_repaired_head():
+    """The rerun must preserve r1 while identifying the new product binary."""
+
+    original = (CAMPAIGN / "campaign-config.ps1").read_text(encoding="utf-8")
+    revised = (REVISED_CAMPAIGN / "campaign-config.ps1").read_text(
+        encoding="utf-8"
+    )
+    for value in (
+        "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+        "5edff26383c6440da35bc92b9fca35f4a404b03b",
+        "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+    ):
+        assert value in original and value in revised
+    assert "pr71-native-qualification-20260911-r1" in original
+    assert "pr71-native-qualification-20260911-r2" in revised
+    for value in (
+        "d21072b39fd3a84b06943977f5f441116f229b2e",
+        "5280daf18730ffd57441bcc80ddbea3d33e84ee9",
+        "e161c4cfe6b7b6af9d91fc7f28afde52efa43e6d899db24f1b0d2a2324e0d2c5",
+        "pr71-282909-release-r1\\xemu.exe",
+    ):
+        assert value in revised
+    assert "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce" in original
+    assert "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce" not in revised
 
 
 def test_pr71_runner_is_syntax_valid_and_declares_qualification_contract():

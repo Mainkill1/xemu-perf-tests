@@ -1,0 +1,93 @@
+{
+  "off": {
+    "guest_frames": 876,
+    "cpu_regions": {
+      "pipeline_prepare": {
+        "calls_per_guest_frame": 4759.925,
+        "cpu_us_per_guest_frame": 10162.103
+      },
+      "bind_shaders": {
+        "calls_per_guest_frame": 4759.925,
+        "cpu_us_per_guest_frame": 4812.648
+      },
+      "select_fragment_route": {
+        "calls_per_guest_frame": 3077.573,
+        "cpu_us_per_guest_frame": 187.018
+      },
+      "pack_uber_controls": {
+        "calls_per_guest_frame": 0.0,
+        "cpu_us_per_guest_frame": 0.0
+      },
+      "module_specialized_create": {
+        "calls_per_guest_frame": 0.007,
+        "cpu_us_per_guest_frame": 1.14
+      },
+      "module_fallback_create": {
+        "calls_per_guest_frame": 0.0,
+        "cpu_us_per_guest_frame": 0.0
+      },
+      "pipeline_fallback_miss": {
+        "calls_per_guest_frame": 0.0,
+        "cpu_us_per_guest_frame": 0.0
+      }
+    }
+  },
+  "on": {
+    "guest_frames": 847,
+    "cpu_regions": {
+      "pipeline_prepare": {
+        "calls_per_guest_frame": 4760.517,
+        "cpu_us_per_guest_frame": 11428.991
+      },
+      "bind_shaders": {
+        "calls_per_guest_frame": 4760.517,
+        "cpu_us_per_guest_frame": 6148.942
+      },
+      "select_fragment_route": {
+        "calls_per_guest_frame": 3077.909,
+        "cpu_us_per_guest_frame": 1574.102
+      },
+      "pack_uber_controls": {
+        "calls_per_guest_frame": 3077.909,
+        "cpu_us_per_guest_frame": 288.334
+      },
+      "module_specialized_create": {
+        "calls_per_guest_frame": 0.007,
+        "cpu_us_per_guest_frame": 1.354
+      },
+      "module_fallback_create": {
+        "calls_per_guest_frame": 0.0,
+        "cpu_us_per_guest_frame": 0.0
+      },
+      "pipeline_fallback_miss": {
+        "calls_per_guest_frame": 0.0,
+        "cpu_us_per_guest_frame": 0.0
+      }
+    }
+  },
+  "identity": {
+    "logical_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+    "source_commit": "a9f856eb56c67ea417b2115d10cbbdf54e141511",
+    "tree": "614caf7b23d72a303fc003c01cf8d73e25d48bc8",
+    "xemu_sha256": "d6a47e9aae5c11bf4eb6c2c7484c2e29893a1937cf2f39b4b35e452380d3d954",
+    "build_source_state": "diagnostic"
+  },
+  "run": {
+    "status": "passed",
+    "diagnostic_only": true,
+    "cells": [
+      {
+        "hybrid_ubershaders": "Off",
+        "status": "passed",
+        "guest_frames": 876,
+        "guest_frame_p99_ms": 44.767
+      },
+      {
+        "hybrid_ubershaders": "On",
+        "status": "passed",
+        "guest_frames": 847,
+        "guest_frame_p99_ms": 47.524
+      }
+    ]
+  }
+}
