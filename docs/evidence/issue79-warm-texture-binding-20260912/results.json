@@ -366,5 +366,1550 @@
       "vk_queue_submit_calls_per_guest_frame": 6.335164835164835,
       "private_hdd_deleted": true
     }
+  ],
+  "morrowind_vulkan_30_second_uninstrumented": [
+    {
+      "run_id": "long-m",
+      "role": "previous_main",
+      "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+      "source_tree": "11981a736703553349357cd89926b443901cadb9",
+      "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+      "status": "complete",
+      "metric": "NV2A display-write increment cadence proxy; not rendered/displayed FPS",
+      "duration_seconds": 30,
+      "display_write_intervals": 730,
+      "frame_interval_average_ms": 41.05040273972605,
+      "frame_interval_p95_ms": 47.74,
+      "frame_interval_p99_ms": 53.009,
+      "frame_interval_max_ms": 58.404,
+      "frame_stall_count": 0,
+      "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+      "private_hdd_deleted": true,
+      "final_image_validation": "PASSED"
+    },
+    {
+      "run_id": "long-c",
+      "role": "candidate",
+      "source_commit": "7bd80f659aff92b58ddacc4d164612730d815a36",
+      "source_tree": "fc44211b2a05723606ca933212d17aae679c8fd9",
+      "executable_sha256": "6de75eecc0b768ea9f041b5920d2d91d0807ae3b14c7720a51ae93ae7be2cacf",
+      "status": "complete",
+      "metric": "NV2A display-write increment cadence proxy; not rendered/displayed FPS",
+      "duration_seconds": 30,
+      "display_write_intervals": 731,
+      "frame_interval_average_ms": 40.95558549931598,
+      "frame_interval_p95_ms": 47.953,
+      "frame_interval_p99_ms": 52.905,
+      "frame_interval_max_ms": 59.921,
+      "frame_stall_count": 0,
+      "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+      "private_hdd_deleted": true,
+      "final_image_validation": "PASSED"
+    }
+  ],
+  "xiso_full": {
+    "source_commit": "7bd80f659aff92b58ddacc4d164612730d815a36",
+    "source_tree": "fc44211b2a05723606ca933212d17aae679c8fd9",
+    "executable_sha256": "6de75eecc0b768ea9f041b5920d2d91d0807ae3b14c7720a51ae93ae7be2cacf",
+    "test_source_commit": "0bb7618aec5ea73355a03bcb176a922ea8b3ec2e",
+    "test_image_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+    "catalog_sha256": "8298d8baa59144caa4fd8715c4709b86e40e47fb5f830539b853fefa2a9f1a29",
+    "renderer": "Vulkan",
+    "status": "FAILED",
+    "record_count": 157,
+    "pass_count": 156,
+    "fail_count": 1,
+    "vuid_count": 0,
+    "functional_hash_validation": "PASSED",
+    "measurement_warning": "Live markers are unavailable; timing is not PR-grade performance evidence.",
+    "records": [
+      {
+        "id": "busy_pfifo.pfifo_saturation",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 100672,
+        "framebuffer_fnv1a64": "1508607624bb8506"
+      },
+      {
+        "id": "busy_pfifo.pgraph_pattern_polling",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 4349422,
+        "framebuffer_fnv1a64": "386d0f085e98c325"
+      },
+      {
+        "id": "cpu_floating_point.sse_scalar",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 497142,
+        "framebuffer_fnv1a64": "6962077c244da325"
+      },
+      {
+        "id": "cpu_floating_point.x87_scalar",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 781796,
+        "framebuffer_fnv1a64": "6962077c244da325"
+      },
+      {
+        "id": "cpu_translation_blocks.direct_loop",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 9735,
+        "framebuffer_fnv1a64": "bd1fc9bf0c318325"
+      },
+      {
+        "id": "cpu_translation_blocks.indirect_dispatch",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 39339,
+        "framebuffer_fnv1a64": "c0426cf669a02325"
+      },
+      {
+        "id": "cpu_translation_blocks.indirect_dispatch_stress",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 786921,
+        "framebuffer_fnv1a64": "fbd507cb0c622325"
+      },
+      {
+        "id": "fill_rate.solid",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1666,
+        "framebuffer_fnv1a64": "08b0f60773aac775"
+      },
+      {
+        "id": "fill_rate.textured",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1730,
+        "framebuffer_fnv1a64": "99b433323df1684d"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.cpu",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 23956,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.pfifo",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 4805,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.alpha_overdraw",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 33164,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.streaming_surface_reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 10967,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.combined",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 72076,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene.full_system",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 72623,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.long_unlocked_scene",
+        "revision": 1,
+        "kind": "group",
+        "outcome": "PASS",
+        "iterations": 0,
+        "guest_average_us": 0,
+        "framebuffer_fnv1a64": "4efd9244c4ad2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 67664,
+        "framebuffer_fnv1a64": "ea21c900993ea325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 113888,
+        "framebuffer_fnv1a64": "151015a16ca46325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_update_reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 2953,
+        "framebuffer_fnv1a64": "44fcd2c900a5a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 8282,
+        "framebuffer_fnv1a64": "37f87c4938cd6325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 66481,
+        "framebuffer_fnv1a64": "4f8b2eab497ca325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.blend_constant_reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 126173,
+        "framebuffer_fnv1a64": "58e80f99c5a56325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 191119,
+        "framebuffer_fnv1a64": "6b9bae4b9c97a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 133089,
+        "framebuffer_fnv1a64": "2b9db92162606325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 627986,
+        "framebuffer_fnv1a64": "32a69ec6dce52325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 1254469,
+        "framebuffer_fnv1a64": "1a65246e1a0ea325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 1249,
+        "framebuffer_fnv1a64": "e30500792076e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath",
+        "revision": 1,
+        "kind": "group",
+        "outcome": "PASS",
+        "iterations": 0,
+        "guest_average_us": 0,
+        "framebuffer_fnv1a64": "e30500792076e325"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.dxt1_same_address_wait",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 15846,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 17042,
+        "framebuffer_fnv1a64": "7d00a74ac56ef6fd"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.dxt1_ring_payload_generations",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 15671,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.dxt1_dirty_once_redraw",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 15423,
+        "framebuffer_fnv1a64": "428c04bbb0a62725"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.rgba8_same_address_wait",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 49969,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.rgba8_same_address_queued",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 48454,
+        "framebuffer_fnv1a64": "0cd28d746bf7a0b7"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.rgba8_ring_payload_generations",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 49175,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.rgba8_dirty_once_redraw",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 16240,
+        "framebuffer_fnv1a64": "428c04bbb0a62725"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.bc2_native_eligible",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 16550,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.bc2_bordered_fallback",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 50392,
+        "framebuffer_fnv1a64": "db28300321744de5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.bc3_native_eligible",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 16718,
+        "framebuffer_fnv1a64": "3403675459d4d3d5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor.bc3_bordered_fallback",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 50300,
+        "framebuffer_fnv1a64": "db28300321744de5"
+      },
+      {
+        "id": "game_load.s3tc_sync_factor",
+        "revision": 1,
+        "kind": "group",
+        "outcome": "PASS",
+        "iterations": 0,
+        "guest_average_us": 0,
+        "framebuffer_fnv1a64": "db28300321744de5"
+      },
+      {
+        "id": "game_load.repeated_display",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 16537,
+        "framebuffer_fnv1a64": "e758dbbf4edc2325"
+      },
+      {
+        "id": "game_load.repeated_display_boosted",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 49955,
+        "framebuffer_fnv1a64": "60315b1c33b6a325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.cpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 13427,
+        "framebuffer_fnv1a64": "c9ffff20249e2325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.pfifo_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 2455,
+        "framebuffer_fnv1a64": "db52eb2ea2ee6325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.gpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 18252,
+        "framebuffer_fnv1a64": "fbd6d6be7f982325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.streaming_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 6111,
+        "framebuffer_fnv1a64": "f94303d175056325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.cpu_pfifo_gpu",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 33935,
+        "framebuffer_fnv1a64": "04157941d1aa6325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.cpu_pfifo_gpu_streaming",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 38804,
+        "framebuffer_fnv1a64": "e6d7900d809f6325"
+      },
+      {
+        "id": "game_load.doax_menu_representative.full_system",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 39916,
+        "framebuffer_fnv1a64": "3ebb8ee340a52325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.cpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 27053,
+        "framebuffer_fnv1a64": "312802588e58a325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.pfifo_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 4847,
+        "framebuffer_fnv1a64": "6251472ce3a6e325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.gpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 36169,
+        "framebuffer_fnv1a64": "30126b41ecb96325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.streaming_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 11276,
+        "framebuffer_fnv1a64": "5b922e3ee1312325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.cpu_pfifo_gpu",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 68057,
+        "framebuffer_fnv1a64": "c94959246d55a325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.cpu_pfifo_gpu_streaming",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 76544,
+        "framebuffer_fnv1a64": "5dbf320b91a86325"
+      },
+      {
+        "id": "game_load.doax_menu_stress.full_system",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 77683,
+        "framebuffer_fnv1a64": "545f7965debce325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.cpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 42495,
+        "framebuffer_fnv1a64": "e086b0a920c42325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.pfifo_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 15154,
+        "framebuffer_fnv1a64": "5bc1b07714da2325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.gpu_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 94482,
+        "framebuffer_fnv1a64": "f8348ac6eeaaa325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.streaming_only",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 4161,
+        "framebuffer_fnv1a64": "f43007e31b972325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.cpu_pfifo_gpu",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 151254,
+        "framebuffer_fnv1a64": "48c0585f003ea325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.cpu_pfifo_gpu_streaming",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 155462,
+        "framebuffer_fnv1a64": "e0430415b6dbe325"
+      },
+      {
+        "id": "game_load.pgr2_ai_backup.full_system",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 155695,
+        "framebuffer_fnv1a64": "cb91c33db5046325"
+      },
+      {
+        "id": "high_vertex_count.arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 100,
+        "guest_average_us": 123,
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      },
+      {
+        "id": "high_vertex_count.inline_arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 48699,
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      },
+      {
+        "id": "high_vertex_count.inline_buffers",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 5,
+        "guest_average_us": 238748,
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      },
+      {
+        "id": "high_vertex_count.inline_elements",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 50,
+        "guest_average_us": 4030,
+        "framebuffer_fnv1a64": "a27c67890c2d9083"
+      },
+      {
+        "id": "pfifo_array_elements.array_element_pgr2",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 940,
+        "framebuffer_fnv1a64": "bbc8b0702ffd0325"
+      },
+      {
+        "id": "pfifo_array_elements.array_element16",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 595,
+        "framebuffer_fnv1a64": "9c884de2a5d32325"
+      },
+      {
+        "id": "pfifo_array_elements.array_element32",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 1028,
+        "framebuffer_fnv1a64": "e079f0cf1a994325"
+      },
+      {
+        "id": "pfifo_packet_boundary.array_element16_overflow",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 16427,
+        "framebuffer_fnv1a64": "4d1756526f052325"
+      },
+      {
+        "id": "pfifo_packet_boundary.array_element32_overflow",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 32146,
+        "framebuffer_fnv1a64": "6eb7071be692a325"
+      },
+      {
+        "id": "pfifo_packet_boundary.inline_array_overflow",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 32507,
+        "framebuffer_fnv1a64": "847da1930526a325"
+      },
+      {
+        "id": "pfifo_packet_boundary.incrementing_inline_fallback",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 114,
+        "framebuffer_fnv1a64": "640439ee8ecd2325"
+      },
+      {
+        "id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 16077,
+        "framebuffer_fnv1a64": "be0f2013c1997ca5"
+      },
+      {
+        "id": "pipeline_texture_switch.clear_texture_normal",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 28193,
+        "framebuffer_fnv1a64": "22ba4f1405cda325"
+      },
+      {
+        "id": "pipeline_texture_switch.palette_only_update",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 21810,
+        "framebuffer_fnv1a64": "467aab2f95cda325"
+      },
+      {
+        "id": "pipeline_texture_switch.sampler_only_identity",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 22029,
+        "framebuffer_fnv1a64": "0b8438c8404da325"
+      },
+      {
+        "id": "pipeline_texture_switch.shader_negative_control",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 19744,
+        "framebuffer_fnv1a64": "f110c8bd6338c325"
+      },
+      {
+        "id": "pipeline_texture_switch.shared_page_overlap",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 19964,
+        "framebuffer_fnv1a64": "83bb59a8648da325"
+      },
+      {
+        "id": "pipeline_texture_switch.texture_switch",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 8,
+        "guest_average_us": 18893,
+        "framebuffer_fnv1a64": "8ae05d31fb00c325"
+      },
+      {
+        "id": "primitive_type.line_loop.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 880,
+        "framebuffer_fnv1a64": "f2158581ac6e3919"
+      },
+      {
+        "id": "primitive_type.line_loop.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 647,
+        "framebuffer_fnv1a64": "f2158581ac6e3919"
+      },
+      {
+        "id": "primitive_type.line_strip.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 669,
+        "framebuffer_fnv1a64": "f2158581ac6e3919"
+      },
+      {
+        "id": "primitive_type.line_strip.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 649,
+        "framebuffer_fnv1a64": "f2158581ac6e3919"
+      },
+      {
+        "id": "primitive_type.lines.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1216,
+        "framebuffer_fnv1a64": "1766a7f93aa72a14"
+      },
+      {
+        "id": "primitive_type.lines.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1188,
+        "framebuffer_fnv1a64": "1766a7f93aa72a14"
+      },
+      {
+        "id": "primitive_type.points.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 890,
+        "framebuffer_fnv1a64": "5b296619f665c070"
+      },
+      {
+        "id": "primitive_type.points.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 898,
+        "framebuffer_fnv1a64": "5b296619f665c070"
+      },
+      {
+        "id": "primitive_type.polygon.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 700,
+        "framebuffer_fnv1a64": "2c4beaa06aba1000"
+      },
+      {
+        "id": "primitive_type.polygon.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 644,
+        "framebuffer_fnv1a64": "2c4beaa06aba1000"
+      },
+      {
+        "id": "primitive_type.quad_strip.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1622,
+        "framebuffer_fnv1a64": "f64b4495347cec73"
+      },
+      {
+        "id": "primitive_type.quad_strip.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1309,
+        "framebuffer_fnv1a64": "f64b4495347cec73"
+      },
+      {
+        "id": "primitive_type.quads.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 2297,
+        "framebuffer_fnv1a64": "114a1419338256e5"
+      },
+      {
+        "id": "primitive_type.quads.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 2289,
+        "framebuffer_fnv1a64": "114a1419338256e5"
+      },
+      {
+        "id": "primitive_type.triangle_fan.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 676,
+        "framebuffer_fnv1a64": "36644f0fd11db166"
+      },
+      {
+        "id": "primitive_type.triangle_fan.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 638,
+        "framebuffer_fnv1a64": "36644f0fd11db166"
+      },
+      {
+        "id": "primitive_type.triangle_strip.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 650,
+        "framebuffer_fnv1a64": "d7b289579fdaa1ab"
+      },
+      {
+        "id": "primitive_type.triangle_strip.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 640,
+        "framebuffer_fnv1a64": "d7b289579fdaa1ab"
+      },
+      {
+        "id": "primitive_type.triangles.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1781,
+        "framebuffer_fnv1a64": "72f05baf369ceb60"
+      },
+      {
+        "id": "primitive_type.triangles.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 1724,
+        "framebuffer_fnv1a64": "72f05baf369ceb60"
+      },
+      {
+        "id": "report_query.clear_boundary",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1906,
+        "framebuffer_fnv1a64": "b5eb7c4b9c8da325"
+      },
+      {
+        "id": "report_query.dma_descriptor_rewrite",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 6121,
+        "framebuffer_fnv1a64": "c0c0fdbececda325"
+      },
+      {
+        "id": "report_query.dma_range_guard",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "FAIL",
+        "iterations": 1,
+        "guest_average_us": 12132297,
+        "framebuffer_fnv1a64": "3f648ce11a4da325"
+      },
+      {
+        "id": "report_query.dma_target_switch",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1915,
+        "framebuffer_fnv1a64": "4c4bd8cd440da325"
+      },
+      {
+        "id": "report_query.fifo_producer_ordering",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 2315,
+        "framebuffer_fnv1a64": "0d907c24a88da325"
+      },
+      {
+        "id": "report_query.multiple_boundaries",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1464,
+        "framebuffer_fnv1a64": "0c966fc9ba4da325"
+      },
+      {
+        "id": "report_query.single_boundary",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1664,
+        "framebuffer_fnv1a64": "60e674c9fecda325"
+      },
+      {
+        "id": "report_query.zero_query",
+        "revision": 2,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1992,
+        "framebuffer_fnv1a64": "23875dfeb40da325"
+      },
+      {
+        "id": "surface.basic",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 38800,
+        "framebuffer_fnv1a64": "5a719d88d8221fb2"
+      },
+      {
+        "id": "surface.cpu_read_after_gpu_write",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 1936,
+        "framebuffer_fnv1a64": "76ea18af98322325"
+      },
+      {
+        "id": "surface.cpu_read_clean_surface",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 100,
+        "guest_average_us": 59,
+        "framebuffer_fnv1a64": "d3267b427820a325"
+      },
+      {
+        "id": "surface.framebuffer_working_set_002",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 2424,
+        "framebuffer_fnv1a64": "9f3b0609a42777d5"
+      },
+      {
+        "id": "surface.framebuffer_working_set_008",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 2486,
+        "framebuffer_fnv1a64": "64cbf95dec8f59e5"
+      },
+      {
+        "id": "surface.framebuffer_working_set_032",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 2543,
+        "framebuffer_fnv1a64": "a6116feb11a28c25"
+      },
+      {
+        "id": "surface.framebuffer_working_set_064",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 2511,
+        "framebuffer_fnv1a64": "a6116feb11a28c25"
+      },
+      {
+        "id": "surface.full_clear_elision_guard",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 100,
+        "guest_average_us": 2967,
+        "framebuffer_fnv1a64": "4f05ccd43f43d495"
+      },
+      {
+        "id": "surface.overlapping_surface_churn_representative",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 100,
+        "guest_average_us": 2931,
+        "framebuffer_fnv1a64": "caf66d4bf5691525"
+      },
+      {
+        "id": "surface.overlapping_surface_churn_stress",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 45710,
+        "framebuffer_fnv1a64": "caf66d4bf5691525"
+      },
+      {
+        "id": "surface.partial_channel_clear_guard",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 100,
+        "guest_average_us": 1943,
+        "framebuffer_fnv1a64": "eb2cb498aa73af25"
+      },
+      {
+        "id": "surface.surface_download_path",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 32725,
+        "framebuffer_fnv1a64": "2b0e8aac0f8838e8"
+      },
+      {
+        "id": "surface.surface_list_lookup_002",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 1777,
+        "framebuffer_fnv1a64": "dce4c9394e7a3f35"
+      },
+      {
+        "id": "surface.surface_list_lookup_008",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 1746,
+        "framebuffer_fnv1a64": "bf1fe5b8fe78a94d"
+      },
+      {
+        "id": "surface.surface_list_lookup_032",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 1892,
+        "framebuffer_fnv1a64": "c6275b91195a5325"
+      },
+      {
+        "id": "surface.surface_list_lookup_128",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 20,
+        "guest_average_us": 2037,
+        "framebuffer_fnv1a64": "c6275b91195a5325"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative.growth",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 31186,
+        "framebuffer_fnv1a64": "c1b304b452852b25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative.plateau",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 26960,
+        "framebuffer_fnv1a64": "730005d86af45b25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative.alias_resize",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 30086,
+        "framebuffer_fnv1a64": "0c26236493b4d325"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative.reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 29079,
+        "framebuffer_fnv1a64": "3ba0d18066aacb25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative.idle_retention",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 713,
+        "framebuffer_fnv1a64": "3a8651789ea0fa25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.representative",
+        "revision": 1,
+        "kind": "group",
+        "outcome": "PASS",
+        "iterations": 0,
+        "guest_average_us": 0,
+        "framebuffer_fnv1a64": "7e188dabb186cb25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress.growth",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 128006,
+        "framebuffer_fnv1a64": "94cdb4bddb0e4b25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress.plateau",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 119419,
+        "framebuffer_fnv1a64": "196f33989be28325"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress.alias_resize",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 133681,
+        "framebuffer_fnv1a64": "84a8d75f1f9d1b25"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress.reuse",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 134106,
+        "framebuffer_fnv1a64": "fb2a6abd1cbfc725"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress.idle_retention",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 4,
+        "guest_average_us": 1732,
+        "framebuffer_fnv1a64": "430711a262877725"
+      },
+      {
+        "id": "surface.vulkan_memory_pressure.stress",
+        "revision": 1,
+        "kind": "group",
+        "outcome": "PASS",
+        "iterations": 0,
+        "guest_average_us": 0,
+        "framebuffer_fnv1a64": "7e188dabb186cb25"
+      },
+      {
+        "id": "tiny_draw.arrays.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 23376,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.arrays.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 23672,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_arrays.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 28605,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_arrays.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 28515,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_buffers.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 29448,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_buffers.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 30157,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_elements.fixed_function",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 23195,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "tiny_draw.inline_elements.vertex_shader",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 23556,
+        "framebuffer_fnv1a64": "acf025546cf667b5"
+      },
+      {
+        "id": "uniform_thrash.uniform_thrash",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 2008,
+        "framebuffer_fnv1a64": "09eb5907ef624c25"
+      },
+      {
+        "id": "vertex_buffer_allocation.mixed.arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 27053,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.mixed.inline_arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 136718,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.mixed.inline_buffers",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 604405,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.mixed.inline_elements",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 35459,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.tiny.arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 100946,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_arrays",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 40313,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_buffers",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 38219,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_elements",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 75917,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.rising_transient_growth",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 1,
+        "guest_average_us": 652949,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      },
+      {
+        "id": "vertex_buffer_allocation.disjoint_same_page",
+        "revision": 1,
+        "kind": "leaf",
+        "outcome": "PASS",
+        "iterations": 10,
+        "guest_average_us": 33058,
+        "framebuffer_fnv1a64": "fdcd25a37910bb25"
+      }
+    ]
+  },
+  "inherited_report_query_control": [
+    {
+      "role": "candidate",
+      "source_commit": "7bd80f659aff92b58ddacc4d164612730d815a36",
+      "source_tree": "fc44211b2a05723606ca933212d17aae679c8fd9",
+      "executable_sha256": "6de75eecc0b768ea9f041b5920d2d91d0807ae3b14c7720a51ae93ae7be2cacf",
+      "build_cleanliness_override": false,
+      "test_source_commit": "0bb7618aec5ea73355a03bcb176a922ea8b3ec2e",
+      "test_image_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+      "outcome": "FAIL",
+      "guest_total_us": 12132297,
+      "framebuffer_fnv1a64": "3f648ce11a4da325",
+      "records": {
+        "a0": {
+          "timestamp": 4822678189205111,
+          "value": 16384,
+          "done": 0
+        },
+        "a1": {
+          "timestamp": 14395694394777257927,
+          "value": 3351758791,
+          "done": 3351758791
+        },
+        "b0": {
+          "timestamp": 17297757509875794211,
+          "value": 3735928559,
+          "done": 2779077210
+        },
+        "b1": {
+          "timestamp": 17297757509875794211,
+          "value": 3735928559,
+          "done": 2779077210
+        }
+      },
+      "range_canaries_intact": true,
+      "vuid_count": 0
+    },
+    {
+      "role": "previous_main",
+      "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+      "source_tree": "11981a736703553349357cd89926b443901cadb9",
+      "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+      "build_cleanliness_override": true,
+      "test_source_commit": "0bb7618aec5ea73355a03bcb176a922ea8b3ec2e",
+      "test_image_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+      "outcome": "FAIL",
+      "guest_total_us": 12053818,
+      "framebuffer_fnv1a64": "3f648ce11a4da325",
+      "records": {
+        "a0": {
+          "timestamp": 4822678189205111,
+          "value": 16384,
+          "done": 0
+        },
+        "a1": {
+          "timestamp": 14395694394777257927,
+          "value": 3351758791,
+          "done": 3351758791
+        },
+        "b0": {
+          "timestamp": 17297757509875794211,
+          "value": 3735928559,
+          "done": 2779077210
+        },
+        "b1": {
+          "timestamp": 17297757509875794211,
+          "value": 3735928559,
+          "done": 2779077210
+        }
+      },
+      "range_canaries_intact": true,
+      "vuid_count": 0
+    }
   ]
 }

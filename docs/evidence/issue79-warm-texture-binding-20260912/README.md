@@ -46,4 +46,28 @@ A third 15-second Morrowind pair, with Vulkan frame telemetry enabled, measured 
 
 These counters show a **wait-ownership shift**: avoiding descriptor changes usually avoids a buffer-space finish, while the next surface-down operation encounters the GPU wait. The total sampled wait remains close. The worst individual display-write intervals in both builds coincide with fence waits; their pipeline-preparation time stays near 2.1–2.7 ms. This supports a batching/wait-location explanation for variable frame tails and does not identify increased shader-binding CPU cost as the Morrowind cause. Matching uses Windows QPC to align the renderer's monotonic frame timestamps with UTC display-write timestamps; the matched frame precedes the corresponding display write by about 7–8 ms, consistently within each run. These diagnostic runs are not uninstrumented performance acceptance.
 
-Next gate: repeat a longer, uninstrumented order-reversed Morrowind pair to decide whether p95 loss persists when the sampled scene window is less sensitive to a few intervals. If it does, isolate the descriptor-signaling change from the disabled-stage/texScale changes; if it does not, retain the observed uncertainty and continue exact-head qualification. No full 157-record XISO suite or PGR2 fresh start is claimed here.
+The longer, **uninstrumented 30-second Morrowind pair** completed on the same executable hashes with `main → candidate` order and 730/731 measured display-write intervals:
+
+| Lower-is-better interval | Previous main | Candidate | Improvement |
+| --- | ---: | ---: | ---: |
+| Mean | 41.050 ms | 40.956 ms | +0.231% |
+| p95 | 47.740 ms | 47.953 ms | -0.446% |
+| p99 | 53.009 ms | 52.905 ms | +0.196% |
+| Maximum | 58.404 ms | 59.921 ms | -2.597% |
+
+Both runs passed active-gameplay admission and had zero intervals ≥75 ms. This longer pair does not reproduce the original >2% p95 loss, but a single pair cannot establish that the tail is universally unchanged. The worst single interval also remains variable. The appropriate disposition is **no reproduced persistent p95 regression in the longer window**, with final acceptance tied to the broader candidate qualification and its retained host conditions. The diagnostic wait-shift evidence remains useful for interpreting future tails; changing synchronization solely to restore the old finish-reason label is not justified.
+
+The fixed published baseline from [PR #70's retained qualification](../pr70-spirv-prewarm-20260910/current-main-qualification/REPORT.md) has Morrowind Vulkan snapshot mean 40.903 ms, p95 47.413 ms, p99 52.773 ms. The 30-second candidate differs by -0.129%, -1.139%, and -0.250% improvement respectively, but that historical comparison has a different run session and window length; the paired previous-main result is the incremental test. No baseline executable was rebuilt.
+
+The candidate's complete **157-record Vulkan XISO** run emitted 156 PASS and one FAIL, with zero reported VUIDs and the configured framebuffer-hash validation passing. The failure is `report_query.dma_range_guard`: the later valid B0 report remains at its sentinel after a rejected A1 destination. An exact-test previous-main control on the retained executable emitted the **same FAIL and byte-for-byte same A0/A1/B0/B1 record values**, also with intact range canaries and zero VUIDs. The parent runner needed `--allow-dirty-build` because its historical manifest says `SOURCE_STATE=clean-archive`; the executable SHA and source tree were verified and the control is used for correctness attribution only, never performance. The product candidate does not change report code. [xemu issue #60](https://github.com/Mainkill1/xemu/issues/60) already documents this inherited Vulkan publication gap and its rejected draft repair; no duplicate issue is needed.
+
+| XISO gate | Candidate | Previous-main control | Attribution |
+| --- | ---: | ---: | --- |
+| Complete 157-record catalog | 156 PASS / 1 FAIL | Not rerun in full | One known report-query failure prevents a suite PASS |
+| `report_query.dma_range_guard` | FAIL | **same FAIL and records** | Inherited from previous main |
+| Six texture-focused leaves | 6 PASS | Existing functional oracle | Changed texture path admitted |
+| Vulkan validation | 0 VUIDs | 0 VUIDs in targeted control | No reported validation issue |
+
+This is **not** a 157/157 qualification claim. The sanitized full 157-row result set and parent-control record are in [results.json](results.json). The guard's ~12-second failure timeout is a correctness-test duration and is excluded from performance conclusions.
+
+Next gate: PGR2 fresh start on the exact head, then review whether the inherited #60 failure is an explicit release gate or an accepted known failure for this focused performance PR. The source patch itself remains separate from that report repair.
