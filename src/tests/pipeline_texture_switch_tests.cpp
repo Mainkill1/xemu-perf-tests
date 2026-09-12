@@ -75,6 +75,11 @@ static constexpr uint32_t kTextureStageStride = 64;
 // need GPU-addressable backing; ordinary XBE globals do not provide that.
 static constexpr uint32_t kDmaTextureStorageBytes =
     3 * kLinearTextureBytes;
+// PBKit frame/depth surfaces live toward the top of a 64 MiB Xbox address
+// space. Keep this allocation in a separate physical window so a retained
+// SurfaceBinding cannot mask the clean-stage DMA remap fast path under test.
+static constexpr uint32_t kDmaTextureLowAddress = 0x01000000;
+static constexpr uint32_t kDmaTextureHighAddress = 0x02FFFFFF;
 static constexpr uint32_t kSamplerMipColors[] = {
     0xFFFF0000, 0xFFFFFF00, 0xFF00FF00, 0xFF00FFFF, 0xFF0000FF};
 static constexpr uint32_t kBackgroundColor = 0xFF101820;
@@ -275,7 +280,8 @@ void PipelineTextureSwitchTests::Initialize() {
   ResetCanonicalTextureBacking();
 
   dma_texture_storage_ = static_cast<uint32_t *>(MmAllocateContiguousMemoryEx(
-      kDmaTextureStorageBytes, 0, MAXRAM, 0,
+      kDmaTextureStorageBytes, kDmaTextureLowAddress,
+      kDmaTextureHighAddress, 0,
       PAGE_WRITECOMBINE | PAGE_READWRITE));
   ASSERT(dma_texture_storage_ != nullptr);
   if (!dma_texture_storage_) {
