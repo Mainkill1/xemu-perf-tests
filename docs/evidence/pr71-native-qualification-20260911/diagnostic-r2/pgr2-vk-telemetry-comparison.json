@@ -1,0 +1,64 @@
+{
+  "schema_version": 1,
+  "kind": "pgr2-vulkan-hybrid-telemetry-diagnostic",
+  "qualification": "diagnostic-only; no performance acceptance claim",
+  "workload": "pgr2_snapshot",
+  "renderer": "vulkan",
+  "telemetry": "XEMU_VK_PERF_LOG",
+  "hybrid_off": {
+    "summary_file": "xemu-vk-perf-summary.json",
+    "shader_cache": "Enabled"
+  },
+  "hybrid_on": {
+    "summary_file": "xemu-vk-perf-summary.json",
+    "shader_cache": "Enabled"
+  },
+  "correlation": {
+    "question": "Does Hybrid On change pipeline_prepare CPU time alongside frame stalls?",
+    "interpretation": "Compare signed On-minus-Off rows; positive duration deltas are adverse."
+  },
+  "rows": [
+    {
+      "metric": "pipeline_prepare_cpu_us_per_guest_frame",
+      "hybrid_off": 9652.075688073395,
+      "hybrid_on": 11045.21387283237,
+      "on_minus_off": 1393.1381847589746,
+      "relative_change_percent": 14.433560508444918
+    },
+    {
+      "metric": "flip_stall_wait_us_per_guest_frame",
+      "hybrid_off": 2210.894495412844,
+      "hybrid_on": 2310.225433526012,
+      "on_minus_off": 99.33093811316758,
+      "relative_change_percent": 4.492794130125116
+    },
+    {
+      "metric": "stalled_wait_us_per_guest_frame",
+      "hybrid_off": 161.11467889908258,
+      "hybrid_on": 111.30751445086705,
+      "on_minus_off": -49.80716444821553,
+      "relative_change_percent": -30.914107136950104
+    },
+    {
+      "metric": "total_wait_us_per_guest_frame",
+      "hybrid_off": 10654.628440366972,
+      "hybrid_on": 11205.203468208092,
+      "on_minus_off": 550.5750278411197,
+      "relative_change_percent": 5.167472811676542
+    },
+    {
+      "metric": "submit_cpu_us_per_guest_frame",
+      "hybrid_off": 273.88532110091745,
+      "hybrid_on": 276.8936416184971,
+      "on_minus_off": 3.008320517579648,
+      "relative_change_percent": 1.0983869108016868
+    },
+    {
+      "metric": "guest_frames",
+      "hybrid_off": 872.0,
+      "hybrid_on": 865.0,
+      "on_minus_off": -7.0,
+      "relative_change_percent": -0.8027522935779817
+    }
+  ]
+}

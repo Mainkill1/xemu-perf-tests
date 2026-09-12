@@ -1,0 +1,58 @@
+{
+  "schema_version": 1,
+  "status": "passed",
+  "diagnostic_only": true,
+  "campaign_id": "pr71-native-qualification-20260911-r1",
+  "workload": "pgr2_snapshot",
+  "renderer": "vulkan",
+  "telemetry": "XEMU_VK_PERF_LOG",
+  "cache_shaders": "Enabled",
+  "candidate": {
+    "role": "candidate",
+    "logical_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+    "source_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+    "tree": "e298704f3704887127965a4d03ac087f0df06b0f",
+    "xemu_sha256": "4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc",
+    "build_info_sha256": "f49f4dea008db1a2e59f2e389eb028369bfeb60321bd823e5885a9352f490bdd"
+  },
+  "cells": [
+    {
+      "hybrid_ubershaders": "Off",
+      "shader_cache": "Enabled",
+      "renderer": "vulkan",
+      "role": "candidate",
+      "logical_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+      "source_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+      "source_tree": "e298704f3704887127965a4d03ac087f0df06b0f",
+      "xemu_sha256": "4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc",
+      "xemu_config_sha256": "07c5e1849f9110e879d8b032f13660a67ad4aefd870a8e210905b1692f8c1e1b",
+      "vk_perf_summary": "xemu-vk-perf-summary.json",
+      "vk_perf_measured": "xemu-vk-perf-measured.jsonl",
+      "guest_frames": 872,
+      "guest_frame_p99_ms": 45.004,
+      "evidence": "runs/hybrid-off",
+      "status": "passed"
+    },
+    {
+      "hybrid_ubershaders": "On",
+      "shader_cache": "Enabled",
+      "renderer": "vulkan",
+      "role": "candidate",
+      "logical_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+      "source_commit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+      "source_tree": "e298704f3704887127965a4d03ac087f0df06b0f",
+      "xemu_sha256": "4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc",
+      "xemu_config_sha256": "c784ca4992956a9f35a9bd7100c34eff8966e806c3ef73f0a861be450263ae24",
+      "vk_perf_summary": "xemu-vk-perf-summary.json",
+      "vk_perf_measured": "xemu-vk-perf-measured.jsonl",
+      "guest_frames": 865,
+      "guest_frame_p99_ms": 47.252,
+      "evidence": "runs/hybrid-on",
+      "status": "passed"
+    }
+  ],
+  "comparison": "pgr2-vk-telemetry-comparison.json",
+  "comparison_markdown": "pgr2-vk-telemetry-comparison.md",
+  "raw_paths": "Run-local paths are intentionally omitted; see each cell evidence directory.",
+  "cleanup": "Each cell invokes automated xemu/trace/HDD cleanup."
+}
