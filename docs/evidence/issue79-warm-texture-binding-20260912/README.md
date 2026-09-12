@@ -70,4 +70,16 @@ The candidate's complete **157-record Vulkan XISO** run emitted 156 PASS and one
 
 This is **not** a 157/157 qualification claim. The sanitized full 157-row result set and parent-control record are in [results.json](results.json). The guard's ~12-second failure timeout is a correctness-test duration and is excluded from performance conclusions.
 
-Next gate: PGR2 fresh start on the exact head, then review whether the inherited #60 failure is an explicit release gate or an accepted known failure for this focused performance PR. The source patch itself remains separate from that report repair.
+PGR2 Vulkan fresh start completed twice per build, with the default fixed input sequence, 5-second warmup and then 60-second or 30-second uninstrumented measured windows. Functional and measurement admission passed; both builds stayed at approximately 30 guest frames/s with zero ≥75-ms stalls. The first pair ran previous main then candidate; the second reversed the order.
+
+| Fresh-start window | Metric | Previous main | Candidate | Improvement |
+| --- | --- | ---: | ---: | ---: |
+| 60 seconds | Mean interval | 33.333 ms | 33.333 ms | ~0.000% |
+| 60 seconds | p95 | 33.625 ms | 33.601 ms | +0.071% |
+| 60 seconds | p99 | 34.095 ms | 34.141 ms | -0.135% |
+| 60 seconds | **Maximum** | **37.799 ms** | **44.508 ms** | **-17.749%** |
+| 30 seconds, reverse order | p95 | 33.631 ms | 33.639 ms | -0.024% |
+| 30 seconds, reverse order | p99 | 34.284 ms | 34.493 ms | -0.610% |
+| 30 seconds, reverse order | **Maximum** | **38.648 ms** | **47.337 ms** | **-22.482%** |
+
+The candidate's largest interval occurs near the **start** of each measured window (frames 8 and 1); the rest of each distribution is much closer. This tail follows the candidate across run order. It is an unresolved **performance HOLD** even though p95/p99 are near neutral and the isolated PGR2 snapshot's pipeline-preparation CPU improved. A 15-second fresh-start telemetry pair is in progress to attribute the early interval before proposing any change. The inherited #60 XISO failure is separately recorded; it does not explain these frame intervals.
