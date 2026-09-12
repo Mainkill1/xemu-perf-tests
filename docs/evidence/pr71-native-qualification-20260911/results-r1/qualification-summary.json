@@ -1,0 +1,187 @@
+{
+  "schema_version": 2,
+  "campaign_id": "pr71-native-qualification-20260911-r1",
+  "status": "HOLD",
+  "interpretation": "Improvement is positive when favorable and negative when adverse.",
+  "reporting": {
+    "tables_only": true,
+    "graphs": false
+  },
+  "shader_controls": {
+    "CacheShaders": true,
+    "CandidateHybridOff": false,
+    "CandidateHybridOn": true,
+    "ImprovementConvention": "positive-good",
+    "Reporting": "tables-only"
+  },
+  "xiso_status": "passed",
+  "retail_status": "passed",
+  "warm_cache_proof": "PASS",
+  "incremental_patch_gate": "HOLD",
+  "cycle_baseline_gate": "HOLD",
+  "incremental_performance_holds": [
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "Off",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -7.92,
+      "Improvement_vs_previous_main": -8.16,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "p95 interval",
+      "Improvement_vs_baseline": -1.75,
+      "Improvement_vs_previous_main": -2.31,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "PASS"
+    },
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "p99 interval",
+      "Improvement_vs_baseline": -1.375,
+      "Improvement_vs_previous_main": -2.312,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "PASS"
+    },
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -40.304,
+      "Improvement_vs_previous_main": -40.616,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "pgr2_full_start",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "Off",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": 1.725,
+      "Improvement_vs_previous_main": -15.48,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "PASS"
+    },
+    {
+      "Workload": "pgr2_full_start",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -13.031,
+      "Improvement_vs_previous_main": -32.82,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "pgr2_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "p99 interval",
+      "Improvement_vs_baseline": -0.016,
+      "Improvement_vs_previous_main": -7.05,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "PASS"
+    },
+    {
+      "Workload": "pgr2_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -430.061,
+      "Improvement_vs_previous_main": -485.925,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    }
+  ],
+  "cycle_baseline_holds": [
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "Off",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -7.92,
+      "Improvement_vs_previous_main": -8.16,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "morrowind_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -40.304,
+      "Improvement_vs_previous_main": -40.616,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "pgr2_full_start",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -13.031,
+      "Improvement_vs_previous_main": -32.82,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    },
+    {
+      "Workload": "pgr2_snapshot",
+      "Renderer": "vulkan",
+      "Candidate_cache": "cold",
+      "Candidate_hybrid": "On",
+      "Metric": "Maximum interval",
+      "Improvement_vs_baseline": -430.061,
+      "Improvement_vs_previous_main": -485.925,
+      "Incremental_gate": "HOLD",
+      "Cycle_gate": "HOLD"
+    }
+  ],
+  "performance_gate_incomplete": [],
+  "generated_utc": "2026-09-12T02:46:19.7563914+00:00",
+  "fixed_baseline": {
+    "Role": "fixed_baseline",
+    "LogicalCommit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "SourceCommit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "Tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "XemuSha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "previous_main": {
+    "Role": "previous_main",
+    "LogicalCommit": "5edff26383c6440da35bc92b9fca35f4a404b03b",
+    "SourceCommit": "a08c4d92916554f55f09231f525cda1f93b55129",
+    "Tree": "11981a736703553349357cd89926b443901cadb9",
+    "XemuSha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3"
+  },
+  "candidate": {
+    "Role": "candidate",
+    "LogicalCommit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+    "SourceCommit": "e6048469f7f461ea8f0c91a4efe98f8331c9b8ce",
+    "Tree": "e298704f3704887127965a4d03ac087f0df06b0f",
+    "XemuSha256": "4df007150dcd5f25436a701c47bba76afb5c43d5a3613de9bd49980f909698dc"
+  },
+  "tables": {
+    "retail_cells": "tables/retail-cells.md",
+    "improvement_comparisons": "tables/improvement-comparisons.md",
+    "cache_proof": "tables/cache-proof.md",
+    "full_xiso": "tables/full-xiso.md"
+  }
+}

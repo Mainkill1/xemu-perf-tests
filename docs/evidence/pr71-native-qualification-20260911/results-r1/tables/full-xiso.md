@@ -1,0 +1,23 @@
+# PR71 complete maintained XISO results and isolated baseline controls
+
+| Role | Renderer | Hybrid | Cache | Records | Non_PASS | Functional_hash | Validation | Cache_hits | Cache_misses | Status |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| fixed_baseline | opengl | off | none | 152 | report_query.dma_range_guard | PASSED | n/a | n/a | n/a | passed |
+| candidate | opengl | off | none | 157 | texture_cubemap_fallback.unbordered_subblock_dxt1, report_query.dma_range_guard | PASSED | n/a | n/a | n/a | passed |
+| previous_main | opengl | off | none | 157 | texture_cubemap_fallback.unbordered_subblock_dxt1, report_query.dma_range_guard | PASSED | n/a | n/a | n/a | passed |
+| previous_main | vulkan | off | none | 157 | report_query.dma_range_guard | PASSED | PASS | n/a | n/a | passed |
+| candidate | vulkan | off | cold | 157 | report_query.dma_range_guard | PASSED | PASS | 10 | 61 | passed |
+| candidate | vulkan | off | warm | 157 | report_query.dma_range_guard | PASSED | PASS | 71 | 0 | passed |
+| candidate | vulkan | on | cold | 157 | report_query.dma_range_guard | PASSED | PASS | 10 | 64 | passed |
+| candidate | vulkan | on | warm | 157 | report_query.dma_range_guard | PASSED | PASS | 74 | 0 | passed |
+| fixed_baseline | vulkan | off | none | 152 | report_query.dma_range_guard | PASSED | PASS | n/a | n/a | passed |
+| fixed_baseline | opengl | off | isolated | 0 | pfifo_packet_boundary.array_element16_overflow:ABORT | isolated control | n/a | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | vulkan | off | isolated | 0 | pfifo_packet_boundary.array_element16_overflow:ABORT | isolated control | recorded per-cell | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | opengl | off | isolated | 0 | pfifo_packet_boundary.array_element32_overflow:ABORT | isolated control | n/a | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | vulkan | off | isolated | 0 | pfifo_packet_boundary.array_element32_overflow:ABORT | isolated control | recorded per-cell | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | opengl | off | isolated | 0 | pfifo_packet_boundary.inline_array_overflow:ABORT | isolated control | n/a | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | vulkan | off | isolated | 0 | pfifo_packet_boundary.inline_array_overflow:ABORT | isolated control | recorded per-cell | n/a | n/a | inherited_pfifo_assert:ABORT |
+| fixed_baseline | opengl | off | isolated | 1 |  | isolated control | n/a | n/a | n/a | completed:PASS |
+| fixed_baseline | vulkan | off | isolated | 1 |  | isolated control | recorded per-cell | n/a | n/a | completed:PASS |
+| fixed_baseline | opengl | off | isolated | 1 | texture_cubemap_fallback.unbordered_subblock_dxt1:FAIL | isolated control | n/a | n/a | n/a | completed:FAIL |
+| fixed_baseline | vulkan | off | isolated | 1 |  | isolated control | recorded per-cell | n/a | n/a | completed:PASS |
