@@ -1420,6 +1420,18 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetupTextureStages();
   host_.PrepareDraw(kBackgroundColor);
+  // PrepareDraw replays the disabled-stage shortcut, which does not write
+  // TEXPALETTE. Explicitly retire every palette offset before the next suite
+  // can enable a stage or select a shorter DMA object.
+  Pushbuffer::Begin();
+  for (uint32_t stage = 0; stage < 4; ++stage) {
+    Pushbuffer::Push(NV097_SET_TEXTURE_PALETTE +
+                         stage * kTextureStageStride,
+                     0);
+  }
+  Pushbuffer::End();
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kDefaultDmaA);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kDefaultDmaB);
   SynchronizeCorrectness(host_);
 
   std::ostringstream metadata;
