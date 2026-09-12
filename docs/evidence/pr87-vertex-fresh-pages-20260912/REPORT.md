@@ -4,7 +4,7 @@
 
 ## Decision from these runs
 
-The original direct-copy head improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, but **PGR2 Vulkan snapshot p95/p99 worsened in both orders**. A trace-only counter probe found that PGR2 marked read pages on nearly every draw while direct copies occurred in only five measured frames. The current head gates that bookkeeping after quiet batches and conservatively stages the first upload when read history is unavailable. One uninstrumented gated run held Morrowind's gain and moved PGR2 p99 near its exact parent; its cross-renderer and full-suite qualification is pending. Keep PR #87 draft until those gates pass.
+The original direct-copy head improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, but **PGR2 Vulkan snapshot p95/p99 worsened in both orders**. A trace-only counter probe found that PGR2 marked read pages on nearly every draw while direct copies occurred in only five measured frames. The current head gates that bookkeeping after quiet batches and conservatively stages the first upload when read history is unavailable. Its same-session PGR2 snapshot pair did not reproduce the old tail loss, and the new 160-record XISO ran on both renderers with only the inherited #60/#82 failures. Exact-current-head performance qualification and remaining vertex-lifetime cases are still pending. Keep PR #87 draft.
 
 These Morrowind values are **NV2A guest display writes per second, not displayed FPS**. The fixed Morrowind snapshot keeps one camera view; the PGR2 fresh boot reaches the race scene without a driven lap. Neither substitutes for a full-race or map-traversal test.
 
@@ -58,7 +58,7 @@ The first candidate PGR2 attempt is **excluded**: PresentMon reported 535,414 lo
 
 The opt-in counter run is diagnostic only and is not pooled with uninstrumented performance cells. Its 246-write window recorded **27,642 direct copies / 213.5 MB** and **58,365 staged copies / 543.2 MB**; median direct and staged copies were 112 and 241 per guest display write. This matches the earlier page-opportunity probe's roughly 31% fresh-page fraction. [Copy-window summary](results/morrowind-vulkan-copy-window.json) identifies the exact raw diagnostic hashes; [wait summary](results/morrowind-vulkan-wait-summary.json) gives sampled timing with instrumentation caveats.
 
-The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. The true read-then-overwrite focused oracle below now passes; command-buffer rollover, surfaces, buffer-generation changes, and full current-head qualification remain before a merge. A current-head Morrowind OpenGL comparison is reported below; paired cross-renderer qualification remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
+The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. The true read-then-overwrite focused oracle and new full 160-record suite are reported below; command-buffer rollover, surfaces, buffer-generation changes, and exact-current-head performance qualification remain before a merge. A current-head Morrowind OpenGL comparison is reported below; paired cross-renderer qualification remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
 
 ### Ordered same-page overwrite oracle on the current head
 
@@ -69,7 +69,18 @@ New XISO source `5b9670e5bbef92ea12a303ecd7a9eef88e956ba3` adds `vertex_buffer_a
 | Vulkan | PASS; 1/1; VUID 0 | PASS; 1/1; VUID 0 | **PASS; 1/1; VUID 0** |
 | OpenGL | PASS; 1/1 | PASS; 1/1 | **PASS; 1/1** |
 
-All six runs produced the same `bbc8caeedc9dff25` framebuffer FNV-1a hash. A separate candidate-only `XEMU_VK_PERF_LOG` diagnostic invocation also passed and recorded **8 direct and 29 staged vertex copies** over its 35-frame focused launch. Those counters show that both production paths were active somewhere in the launch; they do not isolate a specific draw or qualify timing. An initial attempt used the runner's incompatible `--vulkan-lab-counters` format and ended `INFRASTRUCTURE_FAILED`; it is excluded and retained in the [compact six-cell/counter record](results/ordered-same-page-oracle.json). The focused leaf is now covered, while the new 160-record **full suite has not yet run** on this product head.
+All six runs produced the same `bbc8caeedc9dff25` framebuffer FNV-1a hash. A separate candidate-only `XEMU_VK_PERF_LOG` diagnostic invocation also passed and recorded **8 direct and 29 staged vertex copies** over its 35-frame focused launch. Those counters show that both production paths were active somewhere in the launch; they do not isolate a specific draw or qualify timing. An initial attempt used the runner's incompatible `--vulkan-lab-counters` format and ended `INFRASTRUCTURE_FAILED`; it is excluded and retained in the [compact six-cell/counter record](results/ordered-same-page-oracle.json). The full-suite follow-up is below.
+
+### Exact-current-head 160-record full XISO
+
+The unchanged #87 executable then ran the new **160-record** XISO catalog on both renderers. The new `vertex_buffer_allocation.ordered_same_page_overwrite` leaf passed in each full run as well as in the six focused baseline/parent/candidate cells. Both runner-level suite statuses remain **FAILED** because of the same previously tracked leaves; a passing record-count check or functional-hash check does not turn the overall suite into a pass.
+
+| Exact #87 head, 160-record XISO | PASS records | Inherited FAIL records | Functional hash | Vulkan VUIDs | Host wall |
+| --- | ---: | --- | --- | ---: | ---: |
+| Vulkan | 159 / 160 | `report_query.dma_range_guard` (#60) | PASSED | 0 | 115.23 s |
+| OpenGL | 158 / 160 | `report_query.dma_range_guard` (#60); `texture_cubemap_fallback.unbordered_subblock_dxt1` (#82) | PASSED | N/A | 128.24 s |
+
+All 159 older test IDs retained their outcomes. On each renderer, 157 eligible framebuffer hashes matched the prior 159-record catalog; the two successful same-address queued texture-write tests intentionally declare their final framebuffer hashes ineligible for cross-run comparison, while their own oracles passed. The new leaf was the only added ID. This is **functional qualification**, not a performance A/B: the test revision changed, Vulkan validation was active, and the old 159-record result used a different #87 head. [Compact exact-head summary](results/xiso-current-head-160-summary.json) and [all 320 per-test rows](results/xiso-current-head-160-per-test.csv) preserve the outcomes and comparisons. The remaining inherited failures stay assigned to #60 and #82.
 
 ## Full current XISO suite, both renderers
 
@@ -205,6 +216,20 @@ An **exact #85 parent timestamp control** used the same diagnostic patch, build 
 | Total sampled finish-wait median/write | 11.379 ms | 12.161 ms |
 
 The mean and p95 GPU-main directions favor #87, but its median does not, and guest progression went the other way in these intrusive sequential cells. That conflict **does not overturn** the earlier uninstrumented 60-second old-head Morrowind pairs; it does mean this timestamp pair cannot establish an exact-current-head throughput gain or assign the original 5–7% gain solely to GPU pass breaks. The one safe conclusion is the common bottleneck: both exact trees spend substantial time completing the main graphics batch before the guest can proceed. [Parent summary](results/morrowind-parent-gpu-phases-summary.json) and [paired diagnostic identities](results/morrowind-parent-current-gpu-phase-control.json) retain the raw input hashes and adverse result.
+
+### Surface-scale control: pixel fill is not the principal fixed-view limit
+
+I ran a surface-scale **1 → 2 → 1** control on the exact current #87 product source. The three uninstrumented cells used the same executable, snapshot, input sequence and 10-second window. A separate three-cell control used the exact-source four-timestamp diagnostic executable. Each prelaunch config recorded the requested scale, each cell reached gameplay and passed the final-image check, the pinned snapshot seed remained unchanged, and all private disks and processes were cleaned up. This is a scale-sensitivity experiment, not a candidate-versus-baseline performance qualification; scale 2 changes render-target work and the final images are not pixel-identical.
+
+| Surface scale / order | Uninstrumented guest writes/s | Diagnostic guest writes/s | Diagnostic main-GPU median/write | Diagnostic staged / direct vertex copies, median/write |
+| --- | ---: | ---: | ---: | ---: |
+| 1 / first | 24.642 | 25.313 | 7.783 ms | 239 / 112 |
+| 2 / middle | 25.170 | 24.696 | 8.411 ms | 240 / 112 |
+| 1 / return | 25.565 | 24.300 | 8.125 ms | 240 / 112 |
+
+Scale 2 produced **+0.27%** uninstrumented guest cadence and **-0.44%** diagnostic cadence versus the mean of its bracketing scale-1 cells. The diagnostic main-GPU median rose **5.75%**. These short cells cannot establish that scaling has no cost, and their p99 intervals moved inconsistently. They do show that increasing configured surface scale did not reproduce the roughly **35%** OpenGL-versus-Vulkan guest-progress gap in this fixed view. A simple pixel-fill explanation is therefore weak; repeated draws, state changes, vertex-copy pass breaks, and ordered completion remain the stronger source-backed path. The [compact scale-control record](results/morrowind-current-head-scale-control.json) retains source/executable identities, aligned counter counts, raw input hashes and each cell's result.
+
+The older stacked #83 per-draw diagnostic can be read more precisely without treating its intrusive timestamps as product timing: in its exact 222-write window, fragment SPIR-V identity `cfb84803a10888b0` covered **244,659 of 258,254 draws (94.7%)**, **27.1% of fragment invocations**, and **92.5% of the probe's summed per-draw GPU time**. This is a many-small-draw signature, not proof of a slow fragment program. The 1,150-draw and roughly 350 ordered-vertex-copy/pass-break counts were measured on #83; the current #87 counter window still records about **240 staged and 112 direct vertex copies per write**, but has no per-draw query breakdown. Porting the per-draw probe to the exact current head would be needed before assigning that old shader identity a current-head percentage.
 
 ## What the Morrowind wait counters actually mean
 
