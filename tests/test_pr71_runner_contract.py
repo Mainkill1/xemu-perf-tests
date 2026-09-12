@@ -160,3 +160,30 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
     assert "tables_only = $true" in writer
     assert "$phase -eq 'cold'" in writer
     assert "$warmProof.Count -ge 6" in writer
+
+
+def test_pr71_telemetry_diagnostic_isolated_and_sanitized():
+    wrapper = CAMPAIGN / "run-pgr2-vk-telemetry-diagnostic.ps1"
+    analyzer = CAMPAIGN / "compare-pgr2-vk-telemetry.py"
+    assert wrapper.is_file() and analyzer.is_file()
+    wrapper_text = wrapper.read_text(encoding="utf-8")
+    analyzer_text = analyzer.read_text(encoding="utf-8")
+    for literal in (
+        "XEMU_VK_PERF_LOG",
+        "VkTelemetry Enabled",
+        "HybridUbershaders $hybrid",
+        "Pgr2SnapshotSeed",
+        "pipeline_prepare",
+        "Invoke-CampaignCleanup",
+        "outside the active qualification ResultsRoot",
+        "raw_paths",
+    ):
+        assert literal in wrapper_text, literal
+    for literal in (
+        "pipeline_prepare_cpu_us_per_guest_frame",
+        "flip_stall_wait_us_per_guest_frame",
+        "on_minus_off",
+        "summary_file",
+    ):
+        assert literal in analyzer_text, literal
+    py_compile.compile(str(analyzer), doraise=True)
