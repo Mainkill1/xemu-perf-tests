@@ -4,7 +4,7 @@
 
 ## Decision from these runs
 
-The new path is active: in a 10-second opt-in Vulkan Morrowind window, 27,642 of 86,007 vertex copies (32.14%) wrote fresh pages directly rather than staging them. The exact candidate then improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, with better p95 and p99 intervals in each pair. PGR2 full start was effectively tied at its 30-FPS guest cadence. Both games reached gameplay/race scenes, and their measured runs completed and cleaned up private disks. These results support continued qualification, not a merge yet: full XISO, PGR2 snapshot, OpenGL, Vulkan validation, and a targeted ordered-overwrite oracle remain pending.
+The new path is active: in a 10-second opt-in Vulkan Morrowind window, 27,642 of 86,007 vertex copies (32.14%) wrote fresh pages directly rather than staging them. The exact candidate then improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, with better p95 and p99 intervals in each pair. PGR2 full start was effectively tied at its 30-FPS guest cadence. However, **PGR2 Vulkan snapshot p95/p99 worsened in both order-reversed pairs**. Keep PR #87 draft and on performance hold; its Morrowind benefit is insufficient for a merge recommendation.
 
 These Morrowind values are **NV2A guest display writes per second, not displayed FPS**. The fixed Morrowind snapshot keeps one camera view; the PGR2 fresh boot reaches the race scene without a driven lap. Neither substitutes for a full-race or map-traversal test.
 
@@ -58,4 +58,45 @@ The first candidate PGR2 attempt is **excluded**: PresentMon reported 535,414 lo
 
 The opt-in counter run is diagnostic only and is not pooled with uninstrumented performance cells. Its 246-write window recorded **27,642 direct copies / 213.5 MB** and **58,365 staged copies / 543.2 MB**; median direct and staged copies were 112 and 241 per guest display write. This matches the earlier page-opportunity probe's roughly 31% fresh-page fraction. [Copy-window summary](results/morrowind-vulkan-copy-window.json) identifies the exact raw diagnostic hashes; [wait summary](results/morrowind-vulkan-wait-summary.json) gives sampled timing with instrumentation caveats.
 
-The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. Before a merge, test a true read-then-overwrite case, command-buffer rollover, surfaces, and buffer generation changes through the production path. Run the full current XISO suite on Vulkan and OpenGL, PGR2 snapshot, and Morrowind OpenGL; check Vulkan validation. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal. Keep #87 draft until those gates pass.
+The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. Before a merge, test a true read-then-overwrite case, command-buffer rollover, surfaces, and buffer generation changes through the production path. Morrowind OpenGL remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
+
+## Full current XISO suite, both renderers
+
+The unchanged product executable ran the complete current 159-record XISO catalog on each renderer. The test source was `5269072fb1db6b1a7ca3c9679db05bce6e204a38`, image SHA-256 `1e2573d416949ced403426826bf4d8597949468ed117185847f47dfd97b64260`, catalog SHA-256 `a0674f73cef85d43f1dba0ad2059b9fa076841a0f4b1084b59186cf4ffb3871e`, and runner SHA-256 `cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558`. This is a functional run, not a timing comparison. Both overall suite statuses are **FAILED** due previously tracked failures; they must not be called passes.
+
+| Renderer | Passed / total | Failed IDs | Functional hash | Vulkan VUIDs |
+| --- | ---: | --- | --- | ---: |
+| Vulkan | 158 / 159 | `report_query.dma_range_guard` (#60) | PASSED | 0 |
+| OpenGL | 157 / 159 | `report_query.dma_range_guard` (#60); `texture_cubemap_fallback.unbordered_subblock_dxt1` (#82) | PASSED | N/A |
+
+Against the retained prior result catalog, 157 deterministic outcome/framebuffer-hash pairs matched on each renderer. Two successful queued same-address texture-write cases declare framebuffer-hash comparison ineligible; their expected outcomes and internal oracles passed. No unexpected outcome/hash difference was found. [Compact suite summary](results/xiso-full-summary.json) and the [318 per-test rows](results/xiso-full-per-test.csv) preserve the exact comparison. The inherited failures remain real open correctness work.
+
+## PGR2 Vulkan snapshot: performance hold
+
+The 60-second snapshot used the same seed SHA-256 `cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c` and Vulkan base-config SHA-256 `2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0` in all four cells, with 3-second warmup. No opt-in Vulkan telemetry, ETL, or PresentMon was active. All cells completed and produced sufficient guest frames. Positive improvement means better; intervals use `+bad`.
+
+| Order | Metric | Raw + | #85 parent | PR #87 | Improvement % |
+| --- | --- | --- | ---: | ---: | ---: |
+| Parent → candidate | Guest FPS | `+good` | 29.593 | 29.284 | **-1.04%** |
+| Parent → candidate | Guest interval p95 / p99 | `+bad` | 38.951 / 42.350 ms | 40.350 / 44.326 ms | **-3.59% / -4.67%** |
+| Candidate → parent | Guest FPS | `+good` | 29.737 | 29.430 | **-1.03%** |
+| Candidate → parent | Guest interval p95 / p99 | `+bad` | 37.762 / 42.026 ms | 39.701 / 42.981 ms | **-5.13% / -2.27%** |
+
+Both orders show a similar FPS loss and adverse tails, making a simple second-run explanation unlikely. The [four compact result records](results/pgr2-snapshot-vulkan-pairs.json) identify each executable and raw-result hash. This does not yet identify whether the extra time is host-mapped writes, added page checks, changed render-pass structure, or GPU execution; isolate those costs before changing the patch.
+
+## What the Morrowind wait counters actually mean
+
+An additional **counter-only exact-parent control** used the same Morrowind snapshot and runner as the earlier candidate counter window. The parent executable SHA-256 was `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`; its 248-display-write window passed the final-image oracle, deleted its private disk, and left no trace process running. The candidate window contained 246 writes. These short diagnostic windows are not a paired performance qualification. Their sampled waits reveal where execution blocks, not a sum of independently additive CPU costs.
+
+| Per guest display write, median | Exact #85 parent | PR #87 candidate |
+| --- | ---: | ---: |
+| Total sampled finish-fence wait | 12.459 ms | 10.249 ms |
+| `NEED_BUFFER_SPACE` fence wait | 9.523 ms | 7.956 ms |
+| `STALLED` report fence wait | 2.032 ms | 1.714 ms |
+| Vulkan queue submits | 5 | 5 |
+| `update_descriptor_sets()` timed region | 10.118 ms | 8.555 ms |
+| `draw_flush()` timed region | 16.634 ms | 13.127 ms |
+
+`update_descriptor_sets()` calls `pgraph_vk_finish(... NEED_BUFFER_SPACE)` when descriptor or uniform-staging capacity is exhausted. Thus its timed region **includes the nested fence wait**; the 10.118/8.555 ms values are not separate descriptor-writing CPU costs. The exact parent already has one such submission per Morrowind display write. The earlier issue #86 GPU-timestamp probe used stacked #83, whose descriptor-capacity change removed that finish; comparing its 0.5 ms descriptor region to #87 would falsely blame this PR for a pre-existing wait. The current candidate reduces the parent wait in this fixed Morrowind scene, but it neither removes the capacity gate nor proves a universal win. [Parent counters](results/morrowind-parent-counter-control.json) and [candidate counters](results/morrowind-candidate-counter-control.json) retain window hashes, reason counts, and CPU-region values.
+
+The deeper [issue #86 GPU-timestamp report](https://github.com/Mainkill1/xemu-perf-tests/blob/evidence/pr85-vertex-surface-freshness/docs/evidence/pr85-vertex-surface-20260912/issue86-deep-diagnosis/REPORT.md) measured about 1,151 small draws per guest display write and traced a guest retry loop around the Z-pass report completion record. On stacked #83, 94.8% of the sampled GPU batch elapsed in the main graphics command buffer. This explains why a report/descriptor fence can govern guest progression, but it is a different executable; no exact-parent GPU timestamp comparison has yet isolated PR #87's PGR2 regression. The next focused diagnostic should count its pass endings/direct bytes and timestamp the exact-parent/candidate GPU batches in PGR2, then determine whether the Morrowind and PGR2 tradeoff can be corrected without stale vertex data.

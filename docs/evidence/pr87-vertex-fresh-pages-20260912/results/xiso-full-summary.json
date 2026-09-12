@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "product_pr": 87,
+  "product_source_commit": "d42c81ba32e7c299e4a65f70db05e2ba3363cccc",
+  "executable_sha256": "9da192457c4264df3e3025434841c4d72599b47cf673f3a9206416619d24f99b",
+  "test_source_commit": "5269072fb1db6b1a7ca3c9679db05bce6e204a38",
+  "test_image_sha256": "1e2573d416949ced403426826bf4d8597949468ed117185847f47dfd97b64260",
+  "catalog_sha256": "a0674f73cef85d43f1dba0ad2059b9fa076841a0f4b1084b59186cf4ffb3871e",
+  "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+  "timing_qualified": false,
+  "cells": {
+    "vulkan": {
+      "status": "FAILED",
+      "record_count": 159,
+      "pass_count": 158,
+      "fail_ids": [
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_status": "PASSED",
+      "vuid_count": 0,
+      "host_wall_seconds": 117.22866430005524,
+      "raw_summary_sha256": "8d42b715c86681eca5d0691fc7001ad378a9fcfbea0d86de17d89eb9fdf6c8ae",
+      "prior_equal_outcome_framebuffer_hash_count": 157,
+      "prior_hash_ineligible_ids": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued"
+      ],
+      "unexpected_outcome_or_hash_ids": []
+    },
+    "opengl": {
+      "status": "FAILED",
+      "record_count": 159,
+      "pass_count": 157,
+      "fail_ids": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "functional_hash_status": "PASSED",
+      "vuid_count": null,
+      "host_wall_seconds": 133.2378549000714,
+      "raw_summary_sha256": "2ee9d1ffa57a3ded0897783cf698ec4015e633f20a08530665784fa4a43b1bdc",
+      "prior_equal_outcome_framebuffer_hash_count": 157,
+      "prior_hash_ineligible_ids": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued"
+      ],
+      "unexpected_outcome_or_hash_ids": []
+    }
+  }
+}
