@@ -1,6 +1,6 @@
 # Issue #79 / draft PR #80: warm Vulkan texture binding
 
-## Current exact head: `6bf9e98` — focused repair supported, merge decision pending
+## Current exact head: `6bf9e98` — positive incremental merge gate
 
 The current source is `6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc` (tree `2301f1cc976f93e5a943e065c4e12e034f33869f`), built as Windows Release/full LTO with executable SHA-256 `6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6`. Previous main is `5edff26383c6440da35bc92b9fca35f4a404b03b` (retained equivalent-runtime-tree executable `a08c4d9`, SHA-256 `91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3`). Fixed baseline `9f618d6d8c4c446ef023955f3d4de22f661f61a4` was not rebuilt.
 
@@ -33,6 +33,26 @@ Morrowind uses the NV2A display-write interval as a cadence proxy, not displayed
 | Maximum | 55.457 ms | 58.774 ms | -5.98% |
 
 Both runs admitted active gameplay, advanced display writes, validated the final image, and deleted private HDD copies. The p95 direction is no longer adverse in this pair, but one matched pair does not prove a general Morrowind speedup or identify the exact scheduling cause. The current-head uninstrumented 30-second PGR2 fresh start admitted 901 guest frames: mean 33.333 ms, p95 33.566 ms, p99 33.931 ms, maximum 40.642 ms, zero intervals ≥75 ms. This is close to the retained previous-main 30-second run (p95 33.631 ms, p99 34.284 ms); the runs were in different sessions, so the small difference is inconclusive. The current and earlier exact-head source/build/result rows are in [results.json](results.json).
+
+### Order-reversed merge-gate check
+
+The second PGR2 and Morrowind pairs used the same current executable, seed, settings, and measurement procedures with execution order reversed. Positive Improvement % is favorable. A single maximum-interval result is not a stable tail claim; the direction changed with order in both workloads.
+
+| PGR2 Vulkan snapshot order | Binding CPU main → candidate | Binding Improvement % | p95 Improvement % | p99 Improvement % | Maximum Improvement % |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Candidate → main | 4.403 → 4.077 ms/frame | **+7.40%** | +1.82% | +10.40% | -11.13% |
+| Main → candidate | 4.418 → 4.114 ms/frame | **+6.88%** | +1.36% | +0.95% | +2.73% |
+
+The surface-readback wait stayed close between builds in both pairs; binding time excluding that wait improved about 17% in both orders. The current head therefore removes CPU work rather than only moving the wait between named regions.
+
+| Morrowind Vulkan snapshot order | Mean Improvement % | p95 Improvement % | p99 Improvement % | Maximum Improvement % |
+| --- | ---: | ---: | ---: | ---: |
+| Main → candidate | +1.98% | **+4.55%** | +0.89% | -5.98% |
+| Candidate → main | +1.04% | -0.11% | +0.01% | +7.92% |
+
+All four Morrowind cells admitted gameplay, final images validated, and private disks were removed. The candidate's p95/p99 do not repeat the older head's adverse result. The small -0.11% p95 movement in the reverse pair is effectively tied, and the one-run maximum moves in opposite directions across the pairs. These data support a **positive incremental decision versus previous main**, without claiming a general FPS gain.
+
+The retained fixed-baseline Vulkan results were measured in a different session over longer windows. Their two-cell medians are PGR2 snapshot p95/p99 **40.795/44.896 ms**, PGR2 full start **33.482/34.253 ms**, and Morrowind snapshot **47.413/52.773 ms**. Current candidate medians across the two short matched pairs are PGR2 snapshot **40.818/44.944 ms** (about -0.06%/-0.11% versus the historical baseline) and Morrowind **47.122/53.227 ms** (about +0.61%/-0.86%). The current 30-second PGR2 full start is p95/p99 **33.566/33.931 ms** (about -0.25%/+0.94% versus historical baseline medians). These are descriptive cumulative comparisons; unequal windows and run sessions prevent a formal baseline performance PASS. No fixed-baseline executable was rebuilt.
 
 ---
 

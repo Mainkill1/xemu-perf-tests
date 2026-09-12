@@ -2740,6 +2740,105 @@
       },
       "previous_main": "retained earlier exact-workload 30-second run; not matched in this session",
       "fixed_baseline": "retained historical result; no baseline rebuild"
+    },
+    "merge_gate": {
+      "decision": "positive incremental result versus previous main; no repeated frame-tail regression; inherited issue #60 XISO failure remains disclosed",
+      "pgr2_snapshot_reverse_pair": {
+        "order": [
+          "previous_main",
+          "candidate"
+        ],
+        "duration_seconds": 15,
+        "previous_main": {
+          "frames": {
+            "guest_frame_count": 439,
+            "guest_average_ms": 34.20240091116176,
+            "guest_p95_ms": 40.891,
+            "guest_p99_ms": 44.402,
+            "guest_max_ms": 49.502,
+            "guest_stall_count": 0
+          },
+          "vk": {
+            "guest_frames": 439,
+            "telemetry_schema": 5,
+            "bind_textures_ms_per_guest_frame": 4.417835990888383,
+            "surface_download_wait_ms_per_guest_frame": 2.6950797266514805,
+            "binding_residual_ms_per_guest_frame": 1.7227562642369025
+          }
+        },
+        "candidate": {
+          "frames": {
+            "guest_frame_count": 439,
+            "guest_average_ms": 34.11284738040998,
+            "guest_p95_ms": 40.336,
+            "guest_p99_ms": 43.98,
+            "guest_max_ms": 48.153,
+            "guest_stall_count": 0
+          },
+          "vk": {
+            "guest_frames": 439,
+            "telemetry_schema": 5,
+            "bind_textures_ms_per_guest_frame": 4.113621867881549,
+            "surface_download_wait_ms_per_guest_frame": 2.6865922551252845,
+            "binding_residual_ms_per_guest_frame": 1.4270296127562645
+          }
+        }
+      },
+      "morrowind_snapshot_reverse_pair": {
+        "order": [
+          "candidate",
+          "previous_main"
+        ],
+        "duration_seconds": 30,
+        "metric": "NV2A display-write cadence proxy; not displayed FPS",
+        "candidate": {
+          "source_commit": "6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc",
+          "source_tree": "2301f1cc976f93e5a943e065c4e12e034f33869f",
+          "executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+          "status": "complete",
+          "display_write_intervals": 729,
+          "frame_interval_average_ms": 41.124884773662544,
+          "frame_interval_p95_ms": 48.007,
+          "frame_interval_p99_ms": 54.152,
+          "frame_interval_max_ms": 56.964,
+          "frame_stall_count": 0,
+          "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+          "private_hdd_deleted": true,
+          "final_image_validation": "PASSED"
+        },
+        "previous_main": {
+          "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+          "source_tree": "11981a736703553349357cd89926b443901cadb9",
+          "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+          "status": "complete",
+          "display_write_intervals": 721,
+          "frame_interval_average_ms": 41.558226074895984,
+          "frame_interval_p95_ms": 47.954,
+          "frame_interval_p99_ms": 54.159,
+          "frame_interval_max_ms": 61.862,
+          "frame_stall_count": 0,
+          "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+          "private_hdd_deleted": true,
+          "final_image_validation": "PASSED"
+        }
+      },
+      "fixed_baseline_historical": {
+        "source_commit": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+        "reference": "docs/evidence/pr70-spirv-prewarm-20260910/current-main-qualification/retail-cells.json",
+        "note": "two retained Vulkan cells per workload; longer windows and different session than current candidate; descriptive, not a formal paired cumulative gate",
+        "pgr2_snapshot": {
+          "p95_median_ms": 40.7945,
+          "p99_median_ms": 44.896
+        },
+        "pgr2_full_start": {
+          "p95_median_ms": 33.482,
+          "p99_median_ms": 34.2525
+        },
+        "morrowind_snapshot": {
+          "p95_median_ms": 47.413,
+          "p99_median_ms": 52.7725
+        }
+      }
     }
   }
 }
