@@ -1,5 +1,40 @@
 # Issue #79 / draft PR #80: warm Vulkan texture-binding candidate
 
+## Current proposed head: `8ec5e2a` (qualification in progress)
+
+The current proposed patch keeps the clean-stage texture-preparation skip and the DMA-source guard, while restoring previous-main's descriptor/uniform update cadence. The original selective cadence moved a synchronous surface-readback wait into the following bind; order-reversed diagnostics did not show a reliable complete-frame gain. The exact proposed source is `8ec5e2a76475b8380adebf9a9b1df1fe442409a0`, tree `9725e0d04ed94d77838bd9ca5a7edc373b87350c`, Windows Release/full-LTO executable SHA-256 `06bffe5204279a5a0ee4cdf62f5c61e8e0e337cd205a1dee622eb94df31bb42c`. Previous main is `5edff26383c6440da35bc92b9fca35f4a404b03b` (retained executable source `a08c4d9` has the same runtime tree); fixed baseline remains `9f618d6d8c4c446ef023955f3d4de22f661f61a4` and was not rebuilt.
+
+A corrected guest fixture now has a **real negative control**. Test source `74013c3` (XISO SHA-256 `848356eef5f4bede318dcd5fa73c848191f323200c15ba224310c61b5c9ff166`) maps clean stage 0 to separate, GPU-visible DMA pages outside retained surfaces and dirties only stage 1. The vulnerable `b5aea97` renders stale red after remap (actual pixel KAT `3138308333`, expected `2028477935`); previous main and final `8ec5e2a` both PASS. A diagnostic guard probe confirms that vulnerable `b5aea97` reached the clean-stage skip with `dirty=0`, `surface_overlap=0`, old source `0x2ff4000`, and new source `0x2ffc000`. The source/pixel result, rather than a failing test label alone, is the negative-control evidence. The palette-DMA focused leaf also passes on the final build.
+
+The matched schema-5 PGR2 Vulkan snapshot runs used the same seed and telemetry with candidate first, previous main second. Lower is better. Improvement % is `100 × (previous main − candidate) / previous main`; positive is favorable.
+
+| Measured 15-second PGR2 window | Previous main | `8ec5e2a` | Improvement |
+| --- | ---: | ---: | ---: |
+| Texture-binding CPU / guest frame | 4.326 ms | 3.983 ms | **+7.93%** |
+| Surface-readback wait / guest frame | 2.589 ms | 2.565 ms | +0.90% |
+| Binding minus readback wait / guest frame | 1.737 ms | 1.418 ms | **+18.39%** |
+| Mean guest-frame interval | 34.281 ms | 34.108 ms | +0.50% |
+| p95 guest-frame interval | 40.679 ms | 40.027 ms | +1.60% |
+| p99 guest-frame interval | 44.549 ms | 44.919 ms | -0.83% |
+
+This matched run shows CPU work removed without merely relabeling the readback wait. It does not establish a broad frame-tail PASS. The final head's uninstrumented 30-second PGR2 fresh start admitted 900 guest frames at mean 33.333 ms, p95 33.652 ms, p99 34.554 ms, maximum 38.534 ms, with zero intervals ≥75 ms.
+
+The first matched, uninstrumented Morrowind 15-second snapshot pair used the same snapshot and input sequence, candidate first. It records an NV2A display-write cadence proxy, not displayed FPS.
+
+| Morrowind display-write interval | Previous main | `8ec5e2a` | Improvement |
+| --- | ---: | ---: | ---: |
+| Mean | 41.715 ms | 42.076 ms | -0.86% |
+| p95 | 47.679 ms | 48.671 ms | **-2.08%** |
+| p99 | 55.160 ms | 53.989 ms | +2.12% |
+
+Both runs admitted active gameplay and cleaned their private disks. The short p95 signal is adverse, while p99 favors the candidate; a longer paired run is needed before a performance decision.
+
+The first 159-record full XISO image from test source `74013c3` aborted after 78 complete records, immediately after the new palette-DMA leaf passed, at the shared `palette_offset < palette_dma_len` assertion. Previous main reproduced the **same assertion at the same test boundary**, so it is a guest test-sequence problem rather than a PR #80 regression. Test source `457deac` restores non-paletted texture/DMA state at teardown without weakening the pixel oracle. Its XISO SHA-256 is `ecfa6dee7d3f4eb1dcfabf9ab9b29f137c2641d25ad961382da12cd035a5d30e`; a full run still aborted at the same 78-record boundary; further guest-state teardown repair is pending. The separate inherited `report_query.dma_range_guard` failure remains tracked by [xemu#60](https://github.com/Mainkill1/xemu/issues/60).
+
+The machine-readable current-head cells and exact source/build identities are in [results.json](results.json). This PR remains **draft/HOLD** until the latest full XISO and longer Morrowind comparison are resolved. Earlier candidate/diagnostic sections below are retained as historical evidence and do not qualify this head.
+
+---
+
 The first candidate removes redundant texture-binding and fragment-uniform work. It is **on hold**: two short, order-reversed Morrowind snapshot pairs have worse p95 display-write intervals. The cause is not yet attributed. This is an interim, exact-build diagnostic record, not performance acceptance or release qualification.
 
 | Identity | Value |
@@ -98,3 +133,28 @@ Two **uninstrumented** 30-second PGR2 fresh-start pairs at `b5aea97cc9` had oppo
 | candidate → main | 33.642 / 34.086 / 45.441 | 33.730 / 38.556 / 49.771 |
 
 The first executable of each pair had worse p99/max, regardless of identity. The candidate's reverse-pair tail was also adverse. These pairs do not prove a reliable performance gain, and PR #80 remains on hold. Exact per-run rows and source/executable hashes are in `results.json`.
+
+### What the long texture-binding interval contains
+
+The PGR2 Vulkan schema-5 captures can be divided by the recorded per-frame `surface_download` fence wait. `create_texture()` may request a surface download when the texture source overlaps a GPU-authoritative surface, and that download can block while the GPU finishes. The mean wrapper increase in the first main/candidate capture was 1.696 ms per guest frame; the corresponding readback wait increased by 1.652 ms. Six readback submissions occurred per guest frame in each capture.
+
+| Build | `bind_textures` ms/frame | Surface-readback wait ms/frame | Difference | Frame-level correlation |
+| --- | ---: | ---: | ---: | ---: |
+| Previous main, first capture | 2.098 | 1.064 | 1.033 | 0.989 |
+| Initial candidate `7bd80f6` | 3.794 | 2.716 | 1.078 | 0.935 |
+| Previous main, repeat | 2.465 | 1.432 | 1.033 | 0.996 |
+
+All 1,335 measured guest frames in those captures had a surface-readback wait no larger than the texture-binding wrapper duration. The nearly unchanged difference supports wait placement as the leading explanation for the wrapper delay. It does not prove that every readback was nested in the wrapper, nor that the candidate increased GPU work.
+
+Commit `91f033d69b` is a **diagnostic only** override on top of `9ff26f8871`; it restores previous-main's unconditional descriptor/uniform update cadence after a slow bind. The two builds differ only in that cadence. Same-schema 15-second PGR2 captures in both orders found:
+
+| Order | Build | `bind_textures` ms/frame | Readback wait ms/frame | Difference | Total sampled wait ms/frame |
+| --- | --- | ---: | ---: | ---: | ---: |
+| First | `9ff26f` selective cadence | 4.110 | 2.346 | 1.764 | 9.696 |
+| Second | `91f033` prior cadence | 2.945 | 1.224 | 1.721 | 9.350 |
+| First | `91f033` prior cadence | 2.815 | 1.093 | 1.723 | 9.245 |
+| Second | `9ff26f` selective cadence | 3.140 | 1.402 | 1.739 | 9.787 |
+
+The selective cadence moves some observed waiting into the next readback in both orders. Absolute schema-8 microtimed values must not be compared directly with schema-5 previous-main values. Uninstrumented frame results remain the acceptance gate.
+
+The new DMA XISO image from test source `7dc00367` has SHA-256 `d10baeb7daaa885ea62ab3eceec8d3c25718bbe1ebd45f7e0dde4a6ba3269b9c`. Its texture remap leaf passed on `9ff26f`, previous main, **and unpatched `b5aea97`**, so this first version does not distinguish the bug. Its palette remap leaf failed with identical observed KAT on previous main and `9ff26f`; that result is under test-source investigation. Neither leaf currently qualifies the DMA repair. An initial catalog-style test ID was rejected at runner preflight without launching xemu; accepted runs used the exact `Suite::Test` ID.

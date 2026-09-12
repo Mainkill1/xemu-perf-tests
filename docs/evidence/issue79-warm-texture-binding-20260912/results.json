@@ -2366,5 +2366,226 @@
       "vk_telemetry": "disabled",
       "pair_note": "order-reversed second pair; first-run tail visible in both pair orders"
     }
-  ]
+  ],
+  "pgr2_cadence_diagnostic": {
+    "comparison_class": "same-schema diagnostic; not frame-time acceptance",
+    "rows": [
+      {
+        "run_id": "diag9ff-c",
+        "source_sha": "9ff26f88710f458d484b0150f5ae6b0bb44de5ef",
+        "source_tree": "798e50696fd00669007c2c28b2ae1b0e21775c2e",
+        "exe_sha256": "e8a5eae4b59f30fb8e1e87fc4c89e6fb28df508084481706371db2612e31b970",
+        "cadence": "selective",
+        "order_position": 1,
+        "telemetry_schema": 8,
+        "window_seconds": 15,
+        "guest_frames": 451,
+        "guest_p95_ms": 33.547,
+        "guest_p99_ms": 35.215,
+        "guest_max_ms": 45.003,
+        "bind_textures_cpu_ms_per_guest_frame": 4.110210643015521,
+        "surface_download_wait_ms_per_guest_frame": 2.34649667405765,
+        "surface_download_submits_per_guest_frame": 6.0,
+        "total_sampled_wait_ms_per_guest_frame": 9.695611973392461,
+        "need_buffer_space_wait_ms_per_guest_frame": 2.8095565410199557,
+        "submits_per_guest_frame": 10.536585365853659,
+        "diagnostic_only": true
+      },
+      {
+        "run_id": "diag91f-c",
+        "source_sha": "91f033d69b874f7b6d5a916777ff3a7b5ab09725",
+        "source_tree": "a52b55d0b18d85d9db18b734135240a7996a55d6",
+        "exe_sha256": "ba8dd4e64d0ba11e1b49ef5697f81b8da575a6b611135bf1da76eb9900c4344e",
+        "cadence": "previous_main_style",
+        "order_position": 2,
+        "telemetry_schema": 8,
+        "window_seconds": 15,
+        "guest_frames": 451,
+        "guest_p95_ms": 33.64,
+        "guest_p99_ms": 35.692,
+        "guest_max_ms": 37.346,
+        "bind_textures_cpu_ms_per_guest_frame": 2.9448802660753883,
+        "surface_download_wait_ms_per_guest_frame": 1.2242549889135255,
+        "surface_download_submits_per_guest_frame": 6.0,
+        "total_sampled_wait_ms_per_guest_frame": 9.350447893569845,
+        "need_buffer_space_wait_ms_per_guest_frame": 3.393711751662971,
+        "submits_per_guest_frame": 10.674057649667406,
+        "diagnostic_only": true
+      },
+      {
+        "run_id": "diag91frev-c",
+        "source_sha": "91f033d69b874f7b6d5a916777ff3a7b5ab09725",
+        "source_tree": "a52b55d0b18d85d9db18b734135240a7996a55d6",
+        "exe_sha256": "ba8dd4e64d0ba11e1b49ef5697f81b8da575a6b611135bf1da76eb9900c4344e",
+        "cadence": "previous_main_style",
+        "order_position": 1,
+        "telemetry_schema": 8,
+        "window_seconds": 15,
+        "guest_frames": 451,
+        "guest_p95_ms": 33.661,
+        "guest_p99_ms": 36.132,
+        "guest_max_ms": 37.974,
+        "bind_textures_cpu_ms_per_guest_frame": 2.8154345898004434,
+        "surface_download_wait_ms_per_guest_frame": 1.0928270509977827,
+        "surface_download_submits_per_guest_frame": 6.0,
+        "total_sampled_wait_ms_per_guest_frame": 9.244853658536586,
+        "need_buffer_space_wait_ms_per_guest_frame": 3.0919113082039913,
+        "submits_per_guest_frame": 10.598669623059868,
+        "diagnostic_only": true
+      },
+      {
+        "run_id": "diag9ffrev-c",
+        "source_sha": "9ff26f88710f458d484b0150f5ae6b0bb44de5ef",
+        "source_tree": "798e50696fd00669007c2c28b2ae1b0e21775c2e",
+        "exe_sha256": "e8a5eae4b59f30fb8e1e87fc4c89e6fb28df508084481706371db2612e31b970",
+        "cadence": "selective",
+        "order_position": 2,
+        "telemetry_schema": 8,
+        "window_seconds": 15,
+        "guest_frames": 442,
+        "guest_p95_ms": 40.677,
+        "guest_p99_ms": 44.029,
+        "guest_max_ms": 52.179,
+        "bind_textures_cpu_ms_per_guest_frame": 3.140398190045249,
+        "surface_download_wait_ms_per_guest_frame": 1.401739819004525,
+        "surface_download_submits_per_guest_frame": 6.0,
+        "total_sampled_wait_ms_per_guest_frame": 9.786952488687783,
+        "need_buffer_space_wait_ms_per_guest_frame": 2.974389140271493,
+        "submits_per_guest_frame": 10.647058823529411,
+        "diagnostic_only": true
+      }
+    ]
+  },
+  "final_candidate": {
+    "state": "draft_hold_pending_longer_morrowind_and_full_xiso",
+    "product_source_sha": "8ec5e2a76475b8380adebf9a9b1df1fe442409a0",
+    "product_tree": "9725e0d04ed94d77838bd9ca5a7edc373b87350c",
+    "product_executable_sha256": "06bffe5204279a5a0ee4cdf62f5c61e8e0e337cd205a1dee622eb94df31bb42c",
+    "previous_main_source_sha": "5edff26383c6440da35bc92b9fca35f4a404b03b",
+    "previous_main_runtime_tree": "11981a736703553349357cd89926b443901cadb9",
+    "previous_main_executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+    "fixed_baseline_source_sha": "9f618d6d8c4c446ef023955f3d4de22f661f61a4",
+    "fixed_baseline_rebuilt": false,
+    "build": "Windows Release full LTO x86-64-v3, pinned toolchain digest sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+    "host_unit": {
+      "test_xbox_vk_texture_binding": "2 PASS / 2"
+    },
+    "dma_negative_control": {
+      "guest_source_sha": "74013c351795a2b69c8dcbdeb5ab51bd69e126f7",
+      "guest_tree": "74d756336e768bc478a4b6184f103e7fdc44b6bc",
+      "iso_sha256": "848356eef5f4bede318dcd5fa73c848191f323200c15ba224310c61b5c9ff166",
+      "test_id": "PipelineTextureSwitch::pipeline.texture-dma-remap",
+      "expected_pixel_kat": 2028477935,
+      "vulnerable_b5": {
+        "outcome": "FAIL",
+        "actual_pixel_kat": 3138308333,
+        "tiles_argb": [
+          4294901760,
+          4278190335,
+          4294901760,
+          4278190335
+        ]
+      },
+      "previous_main": {
+        "outcome": "PASS",
+        "actual_pixel_kat": 2028477935
+      },
+      "final_candidate": {
+        "outcome": "PASS",
+        "actual_pixel_kat": 2028477935
+      },
+      "guard_probe": {
+        "dirty": false,
+        "source_is_surface": false,
+        "page_dirty": false,
+        "surface_overlap": false,
+        "skip": true,
+        "old_source_hex": "0x2ff4000",
+        "new_source_hex": "0x2ffc000"
+      },
+      "note": "Production final/previous-main builds are distinct from diagnostic b5 guard."
+    },
+    "pgr2_snapshot_matched": {
+      "run_order": [
+        "candidate",
+        "previous_main"
+      ],
+      "duration_seconds": 15,
+      "telemetry_schema": 5,
+      "previous_main": {
+        "frames": {
+          "guest_frame_count": 437,
+          "guest_average_ms": 34.28085812356979,
+          "guest_p95_ms": 40.679,
+          "guest_p99_ms": 44.549,
+          "guest_max_ms": 51.406,
+          "guest_stall_count": 0
+        },
+        "bind_textures_ms_per_guest_frame": 4.326068649885584,
+        "surface_download_wait_ms_per_guest_frame": 2.588732265446224
+      },
+      "candidate": {
+        "frames": {
+          "guest_frame_count": 440,
+          "guest_average_ms": 34.108406818181805,
+          "guest_p95_ms": 40.027,
+          "guest_p99_ms": 44.919,
+          "guest_max_ms": 51.864,
+          "guest_stall_count": 0
+        },
+        "bind_textures_ms_per_guest_frame": 3.98315,
+        "surface_download_wait_ms_per_guest_frame": 2.5653045454545453
+      }
+    },
+    "pgr2_full_start": {
+      "run_id": "final8ec-pgr2-a",
+      "duration_seconds": 30,
+      "candidate": {
+        "guest_frame_count": 900,
+        "guest_average_ms": 33.333321111111076,
+        "guest_p95_ms": 33.652,
+        "guest_p99_ms": 34.554,
+        "guest_max_ms": 38.534,
+        "guest_stall_count": 0
+      },
+      "previous_main": "retained earlier same-workload runs; no rebuild"
+    },
+    "morrowind_snapshot_matched": {
+      "run_order": [
+        "candidate",
+        "previous_main"
+      ],
+      "duration_seconds": 15,
+      "previous_main": {
+        "display_write_intervals": 358,
+        "frame_interval_average_ms": 41.71548324022346,
+        "frame_interval_p95_ms": 47.679,
+        "frame_interval_p99_ms": 55.16,
+        "frame_interval_max_ms": 65.57,
+        "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+        "private_hdd_deleted": true
+      },
+      "candidate": {
+        "display_write_intervals": 356,
+        "frame_interval_average_ms": 42.07628370786515,
+        "frame_interval_p95_ms": 48.671,
+        "frame_interval_p99_ms": 53.989,
+        "frame_interval_max_ms": 58.658,
+        "gameplay_admission": "PASSED: QMP running, Start/B delivered, image transitioned, display writes advanced",
+        "private_hdd_deleted": true
+      },
+      "metric": "NV2A display-write interval proxy, not displayed FPS"
+    },
+    "full_xiso_740": {
+      "candidate": "ABORT after 78 complete records",
+      "previous_main": "same ABORT after 78 complete records",
+      "last_complete_leaf": "pipeline_texture_switch.palette_dma_remap PASS",
+      "next_leaf": "report_query.zero_query",
+      "assertion": "palette_offset < palette_dma_len at pgraph/texture.c:137",
+      "attribution": "same guest fixture/sequence on both product heads; no product regression established",
+      "latest_guest_source_sha": "457deacfd03a82fc2a40613b73e8c0ef77015b1d",
+      "latest_iso_sha256": "ecfa6dee7d3f4eb1dcfabf9ab9b29f137c2641d25ad961382da12cd035a5d30e",
+      "latest_full_suite_status": "ABORT after 78 complete records at same assertion; fixture teardown repair still pending"
+    }
+  }
 }
