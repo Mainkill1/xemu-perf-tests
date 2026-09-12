@@ -2029,5 +2029,342 @@
         34.284
       ]
     }
+  ],
+  "pgr2_clean_stage_diagnostic": {
+    "comparison_class": "unpaired diagnostic; compare calls primarily, not frame performance",
+    "before": {
+      "source_sha": "26b9d96f2c",
+      "source_tree": "4d5bb23382a8b71a9d85981e47c4e1705b6bf3db",
+      "exe_sha256": "cf2a4e6c8c4e73527e33e888f8ed2641e80adb292e08e606da0fdaa99b09beb0",
+      "telemetry_schema": 8,
+      "guest_frames": 450,
+      "metrics": {
+        "draw_flush": {
+          "calls_per_guest_frame": 1924.176,
+          "cpu_ms_per_guest_frame": 13.474
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 1922.442,
+          "cpu_ms_per_guest_frame": 6.841
+        },
+        "bind_textures": {
+          "calls_per_guest_frame": 1922.442,
+          "cpu_ms_per_guest_frame": 4.593
+        },
+        "texture_prepare": {
+          "calls_per_guest_frame": 1663.116,
+          "cpu_ms_per_guest_frame": 4.092
+        },
+        "texture_create_key": {
+          "calls_per_guest_frame": 4125.002,
+          "cpu_ms_per_guest_frame": 0.237
+        },
+        "texture_create_surface": {
+          "calls_per_guest_frame": 4125.002,
+          "cpu_ms_per_guest_frame": 2.729
+        },
+        "texture_create_lookup": {
+          "calls_per_guest_frame": 4125.002,
+          "cpu_ms_per_guest_frame": 0.29
+        },
+        "texture_create_hash": {
+          "calls_per_guest_frame": 4125.002,
+          "cpu_ms_per_guest_frame": 0.228
+        },
+        "texture_create_cache_hit": {
+          "calls_per_guest_frame": 4124.976,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_cache_miss": {
+          "calls_per_guest_frame": 0.027,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_prepare_dirty_stage": {
+          "calls_per_guest_frame": 1803.509,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_prepare_clean_stage": {
+          "calls_per_guest_frame": 2321.493,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_exact_surface": {
+          "calls_per_guest_frame": 496.078,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_no_exact_surface": {
+          "calls_per_guest_frame": 3628.924,
+          "cpu_ms_per_guest_frame": 0.0
+        }
+      },
+      "admission": "completed PGR2 Vulkan fresh start; 5 s warmup, 15 s measured; opt-in diagnostic telemetry"
+    },
+    "after": {
+      "source_sha": "b5aea97cc99742615dd453e5152988af5527d2cb",
+      "source_tree": "7c89fd9d653a24b80a00217da183691f9f987e59",
+      "exe_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+      "telemetry_schema": 8,
+      "guest_frames": 444,
+      "metrics": {
+        "draw_flush": {
+          "calls_per_guest_frame": 1927.554,
+          "cpu_ms_per_guest_frame": 12.656
+        },
+        "pipeline_prepare": {
+          "calls_per_guest_frame": 1926,
+          "cpu_ms_per_guest_frame": 6.19
+        },
+        "bind_textures": {
+          "calls_per_guest_frame": 1926,
+          "cpu_ms_per_guest_frame": 3.915
+        },
+        "texture_prepare": {
+          "calls_per_guest_frame": 1666.104,
+          "cpu_ms_per_guest_frame": 3.409
+        },
+        "texture_create_key": {
+          "calls_per_guest_frame": 2218.158,
+          "cpu_ms_per_guest_frame": 0.131
+        },
+        "texture_create_surface": {
+          "calls_per_guest_frame": 2218.158,
+          "cpu_ms_per_guest_frame": 2.463
+        },
+        "texture_create_lookup": {
+          "calls_per_guest_frame": 2218.158,
+          "cpu_ms_per_guest_frame": 0.193
+        },
+        "texture_create_hash": {
+          "calls_per_guest_frame": 2218.158,
+          "cpu_ms_per_guest_frame": 0.141
+        },
+        "texture_create_cache_hit": {
+          "calls_per_guest_frame": 2218.133,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_cache_miss": {
+          "calls_per_guest_frame": 0.025,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_prepare_dirty_stage": {
+          "calls_per_guest_frame": 1808.065,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_prepare_clean_stage": {
+          "calls_per_guest_frame": 410.092,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_exact_surface": {
+          "calls_per_guest_frame": 498.673,
+          "cpu_ms_per_guest_frame": 0.0
+        },
+        "texture_create_no_exact_surface": {
+          "calls_per_guest_frame": 1719.484,
+          "cpu_ms_per_guest_frame": 0.0
+        }
+      },
+      "admission": "completed PGR2 Vulkan fresh start; 5 s warmup, 15 s measured; opt-in diagnostic telemetry"
+    }
+  },
+  "xiso_targeted_b5aea97": {
+    "candidate_source_sha": "b5aea97cc99742615dd453e5152988af5527d2cb",
+    "candidate_exe_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+    "records": [
+      {
+        "id": "pipeline_texture_switch.texture_switch",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "8ae05d31fb00c325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 29454,
+        "iterations": 8
+      },
+      {
+        "id": "pipeline_texture_switch.shader_negative_control",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "f110c8bd6338c325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 30704,
+        "iterations": 8
+      },
+      {
+        "id": "pipeline_texture_switch.clear_texture_normal",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "22ba4f1405cda325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 29514,
+        "iterations": 8
+      },
+      {
+        "id": "pipeline_texture_switch.sampler_only_identity",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "0b8438c8404da325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 37142,
+        "iterations": 8
+      },
+      {
+        "id": "pipeline_texture_switch.palette_only_update",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "467aab2f95cda325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 40208,
+        "iterations": 1
+      },
+      {
+        "id": "pipeline_texture_switch.shared_page_overlap",
+        "status": "PASSED",
+        "outcome": "PASS",
+        "framebuffer_fnv1a64": "83bb59a8648da325",
+        "oracle_status": "PASSED",
+        "catalog_status": "PASSED",
+        "vuid_count": 0,
+        "xemu_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+        "xiso_sha256": "a8f07817b9f1b22ef93ea54497ddfc9f06d34147d734e4ed26a8bcb69c7e8687",
+        "guest_average_us": 44234,
+        "iterations": 1
+      }
+    ]
+  },
+  "pgr2_clean_stage_uninstrumented_pairs": [
+    {
+      "run_id": "pairb5-m",
+      "role": "previous_main",
+      "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+      "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+      "status": "complete",
+      "launch_mode": "FreshBoot",
+      "duration_seconds": 30,
+      "guest_frame_count": 883,
+      "guest_average_ms": 33.9800973952435,
+      "guest_p95_ms": 40.379,
+      "guest_p99_ms": 43.748,
+      "guest_max_ms": 56.721,
+      "guest_stall_count_75ms": 0,
+      "guest_worst_intervals_ms": [
+        56.721,
+        56.267,
+        49.707,
+        47.753,
+        45.186,
+        44.915,
+        44.866,
+        44.319,
+        43.748,
+        43.251
+      ],
+      "vk_telemetry": "disabled",
+      "pair_note": "order-reversed second pair; first-run tail visible in both pair orders"
+    },
+    {
+      "run_id": "pairb5-c",
+      "role": "candidate",
+      "source_commit": "b5aea97cc99742615dd453e5152988af5527d2cb",
+      "executable_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+      "status": "complete",
+      "launch_mode": "FreshBoot",
+      "duration_seconds": 30,
+      "guest_frame_count": 900,
+      "guest_average_ms": 33.37034666666669,
+      "guest_p95_ms": 33.668,
+      "guest_p99_ms": 36.446,
+      "guest_max_ms": 50.26,
+      "guest_stall_count_75ms": 0,
+      "guest_worst_intervals_ms": [
+        50.26,
+        46.54,
+        43.412,
+        38.899,
+        37.88,
+        37.756,
+        37.368,
+        36.975,
+        36.49,
+        36.446
+      ],
+      "vk_telemetry": "disabled",
+      "pair_note": "order-reversed second pair; first-run tail visible in both pair orders"
+    },
+    {
+      "run_id": "pairb5rev-c",
+      "role": "candidate",
+      "source_commit": "b5aea97cc99742615dd453e5152988af5527d2cb",
+      "executable_sha256": "e4b712c813143259ad93794eae23a96b660116e57fb1922f8534aa11e915cebc",
+      "status": "complete",
+      "launch_mode": "FreshBoot",
+      "duration_seconds": 30,
+      "guest_frame_count": 900,
+      "guest_average_ms": 33.37061333333331,
+      "guest_p95_ms": 33.73,
+      "guest_p99_ms": 38.556,
+      "guest_max_ms": 49.771,
+      "guest_stall_count_75ms": 0,
+      "guest_worst_intervals_ms": [
+        49.771,
+        42.434,
+        41.523,
+        40.654,
+        40.547,
+        40.418,
+        40.268,
+        40.16,
+        40.008,
+        38.556
+      ],
+      "vk_telemetry": "disabled",
+      "pair_note": "order-reversed second pair; first-run tail visible in both pair orders"
+    },
+    {
+      "run_id": "pairb5rev-m",
+      "role": "previous_main",
+      "source_commit": "a08c4d92916554f55f09231f525cda1f93b55129",
+      "executable_sha256": "91ca72bddb6ec21441ffbbf3ef5bdddeda84ab3b7768d1f29081dca07136c4b3",
+      "status": "complete",
+      "launch_mode": "FreshBoot",
+      "duration_seconds": 30,
+      "guest_frame_count": 900,
+      "guest_average_ms": 33.333334444444425,
+      "guest_p95_ms": 33.642,
+      "guest_p99_ms": 34.086,
+      "guest_max_ms": 45.441,
+      "guest_stall_count_75ms": 0,
+      "guest_worst_intervals_ms": [
+        45.441,
+        36.203,
+        35.023,
+        34.351,
+        34.264,
+        34.193,
+        34.191,
+        34.147,
+        34.116,
+        34.086
+      ],
+      "vk_telemetry": "disabled",
+      "pair_note": "order-reversed second pair; first-run tail visible in both pair orders"
+    }
   ]
 }

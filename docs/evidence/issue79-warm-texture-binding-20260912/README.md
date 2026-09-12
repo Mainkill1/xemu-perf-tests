@@ -83,3 +83,18 @@ PGR2 Vulkan fresh start completed twice per build, with the default fixed input 
 | 30 seconds, reverse order | **Maximum** | **38.648 ms** | **47.337 ms** | **-22.482%** |
 
 The candidate's largest interval occurs near the **start** of each measured window (frames 8 and 1); the rest of each distribution is much closer. This tail follows the candidate across run order. It is an unresolved **performance HOLD** even though p95/p99 are near neutral and the isolated PGR2 snapshot's pipeline-preparation CPU improved. A 15-second fresh-start telemetry pair is in progress to attribute the early interval before proposing any change. The inherited #60 XISO failure is separately recorded; it does not explain these frame intervals.
+
+### Clean-stage diagnostic follow-up
+
+At diagnostic head `26b9d96f2c`, texture preparation called `create_texture()` about 4,125 times per guest frame, including about 2,321 clean-stage calls. The narrow clean-stage skip at `b5aea97cc9` reduced this to about 2,218 calls per guest frame in an unpaired 15-second PGR2 capture. Both captures used opt-in Vulkan telemetry. This establishes eliminated work, not an end-to-end speedup.
+
+Six focused texture XISO leaves passed at `b5aea97cc9`, with zero reported VUIDs and the expected framebuffer hashes. A read-only review then found that a changed DMA A/B source could evade the skip on a clean stage. Commit `9ff26f8871` adds DMA-change invalidation and a current-source check; this later head requires its own production-path DMA test and performance assessment. The same-handle RAMIN descriptor rewrite remains an inherited fast-path gap when no other stage triggers a slow bind.
+
+Two **uninstrumented** 30-second PGR2 fresh-start pairs at `b5aea97cc9` had opposite execution orders and zero intervals ≥75 ms:
+
+| Order | Previous-main p95 / p99 / max (ms) | Candidate p95 / p99 / max (ms) |
+| --- | ---: | ---: |
+| main → candidate | 40.379 / 43.748 / 56.721 | 33.668 / 36.446 / 50.260 |
+| candidate → main | 33.642 / 34.086 / 45.441 | 33.730 / 38.556 / 49.771 |
+
+The first executable of each pair had worse p99/max, regardless of identity. The candidate's reverse-pair tail was also adverse. These pairs do not prove a reliable performance gain, and PR #80 remains on hold. Exact per-run rows and source/executable hashes are in `results.json`.
