@@ -58,7 +58,18 @@ The first candidate PGR2 attempt is **excluded**: PresentMon reported 535,414 lo
 
 The opt-in counter run is diagnostic only and is not pooled with uninstrumented performance cells. Its 246-write window recorded **27,642 direct copies / 213.5 MB** and **58,365 staged copies / 543.2 MB**; median direct and staged copies were 112 and 241 per guest display write. This matches the earlier page-opportunity probe's roughly 31% fresh-page fraction. [Copy-window summary](results/morrowind-vulkan-copy-window.json) identifies the exact raw diagnostic hashes; [wait summary](results/morrowind-vulkan-wait-summary.json) gives sampled timing with instrumentation caveats.
 
-The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. Before a merge, test a true read-then-overwrite case, command-buffer rollover, surfaces, and buffer generation changes through the production path. A current-head Morrowind OpenGL comparison is reported below; paired cross-renderer qualification remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
+The remaining 68% of copies still take the ordered staging path. The optimization only bypasses a copy when the page has not been read by an earlier recorded draw in the active command buffer. The true read-then-overwrite focused oracle below now passes; command-buffer rollover, surfaces, buffer-generation changes, and full current-head qualification remain before a merge. A current-head Morrowind OpenGL comparison is reported below; paired cross-renderer qualification remains pending. There is no evidence yet that the patch improves a driven PGR2 lap or Morrowind map traversal.
+
+### Ordered same-page overwrite oracle on the current head
+
+New XISO source `5b9670e5bbef92ea12a303ecd7a9eef88e956ba3` adds `vertex_buffer_allocation.ordered_same_page_overwrite`. It draws from a vertex page, drains the guest FIFO without declaring GPU completion, overwrites that same page, draws again, then asserts the first and second colors at distinct pixels. The pinned builder produced a **160-record** XISO (SHA-256 `3146ad9da3a8ae8e8185699083c6888f312e9ad2a4707bded2a1c265b75db7a3`) and catalog (SHA-256 `98224982dd86f27cf3e8b87a2b17d34aed3c2f2d2e76b8e70a0c5c72b46899e9`). Host tests and catalog consistency passed. The fixed baseline was run with its retained runtime-equivalent `c17591d59c27` executable; no baseline rebuild was needed.
+
+| Focused one-leaf correctness | Fixed baseline | Exact #85 parent | Current #87 |
+| --- | --- | --- | --- |
+| Vulkan | PASS; 1/1; VUID 0 | PASS; 1/1; VUID 0 | **PASS; 1/1; VUID 0** |
+| OpenGL | PASS; 1/1 | PASS; 1/1 | **PASS; 1/1** |
+
+All six runs produced the same `bbc8caeedc9dff25` framebuffer FNV-1a hash. A separate candidate-only `XEMU_VK_PERF_LOG` diagnostic invocation also passed and recorded **8 direct and 29 staged vertex copies** over its 35-frame focused launch. Those counters show that both production paths were active somewhere in the launch; they do not isolate a specific draw or qualify timing. An initial attempt used the runner's incompatible `--vulkan-lab-counters` format and ended `INFRASTRUCTURE_FAILED`; it is excluded and retained in the [compact six-cell/counter record](results/ordered-same-page-oracle.json). The focused leaf is now covered, while the new 160-record **full suite has not yet run** on this product head.
 
 ## Full current XISO suite, both renderers
 
