@@ -19,6 +19,14 @@ Set-StrictMode -Version Latest
 $Campaign = & (Join-Path $PSScriptRoot 'campaign-config.ps1')
 . (Join-Path $PSScriptRoot 'campaign-common.ps1')
 Assert-NoPlaceholders $Campaign 'PR71 diagnostic campaign'
+$campaignManifest = Join-Path $Campaign.ResultsRoot 'campaign-manifest.json'
+if (-not (Test-Path -LiteralPath $campaignManifest -PathType Leaf)) {
+    throw 'The active qualification campaign has no completion manifest; defer this diagnostic.'
+}
+$campaignState = Get-Content -LiteralPath $campaignManifest -Raw | ConvertFrom-Json
+if ($campaignState.status -ne 'passed') {
+    throw "The active qualification campaign is not complete (status $($campaignState.status)); defer this diagnostic."
+}
 
 $diagRoot = if ($DiagnosticRoot) {
     [IO.Path]::GetFullPath($DiagnosticRoot)

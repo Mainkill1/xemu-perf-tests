@@ -176,6 +176,8 @@ def test_pr71_telemetry_diagnostic_isolated_and_sanitized():
         "pipeline_prepare",
         "Invoke-CampaignCleanup",
         "outside the active qualification ResultsRoot",
+        "campaign-manifest.json",
+        "defer this diagnostic",
         "raw_paths",
     ):
         assert literal in wrapper_text, literal
