@@ -1,10 +1,10 @@
 # PR #87: fresh vertex-page writes, focused qualification
 
-**Product:** [Mainkill1/xemu#87](https://github.com/Mainkill1/xemu/pull/87), draft. **Tracking:** [issue #86](https://github.com/Mainkill1/xemu/issues/86). This report measures the exact PR head `d42c81ba32e7c299e4a65f70db05e2ba3363cccc` (tree `1ad8945162e2a8403d63e5f7588dc8d8c2f0827e`; Windows executable SHA-256 `9da192457c4264df3e3025434841c4d72599b47cf673f3a9206416619d24f99b`) against its exact #85 parent `2163208fdc49c7f6b4834bce98e6a11b494d4241` (executable SHA-256 `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`). The fixed cycle baseline is `9f618d6d8c4c446ef023955f3d4de22f661f61a4`; it was not rebuilt.
+**Product:** [Mainkill1/xemu#87](https://github.com/Mainkill1/xemu/pull/87), draft. **Tracking:** [issue #86](https://github.com/Mainkill1/xemu/issues/86). The current PR head is `974f2ae63b166f64aa2ea6a77963c77481e28969` (tree `4d49acf74c5069b0cf03a995c7867f55554ac028`, Windows executable SHA-256 `6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0`). Earlier full-suite and paired results in this report qualify the previous PR head `d42c81ba32e7c299e4a65f70db05e2ba3363cccc` (tree `1ad8945162e2a8403d63e5f7588dc8d8c2f0827e`; executable SHA-256 `9da192457c4264df3e3025434841c4d72599b47cf673f3a9206416619d24f99b`) against exact #85 parent `2163208fdc49c7f6b4834bce98e6a11b494d4241` (executable SHA-256 `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`). The fixed cycle baseline is `9f618d6d8c4c446ef023955f3d4de22f661f61a4`; it was not rebuilt.
 
 ## Decision from these runs
 
-The new path is active: in a 10-second opt-in Vulkan Morrowind window, 27,642 of 86,007 vertex copies (32.14%) wrote fresh pages directly rather than staging them. The exact candidate then improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, with better p95 and p99 intervals in each pair. PGR2 full start was effectively tied at its 30-FPS guest cadence. However, **PGR2 Vulkan snapshot p95/p99 worsened in both order-reversed pairs**. Keep PR #87 draft and on performance hold; its Morrowind benefit is insufficient for a merge recommendation.
+The original direct-copy head improved **guest display-write cadence** in two order-reversed 60-second Morrowind snapshot pairs by **+6.51% and +5.43%**, but **PGR2 Vulkan snapshot p95/p99 worsened in both orders**. A trace-only counter probe found that PGR2 marked read pages on nearly every draw while direct copies occurred in only five measured frames. The current head gates that bookkeeping after quiet batches and conservatively stages the first upload when read history is unavailable. One uninstrumented gated run held Morrowind's gain and moved PGR2 p99 near its exact parent; its cross-renderer and full-suite qualification is pending. Keep PR #87 draft until those gates pass.
 
 These Morrowind values are **NV2A guest display writes per second, not displayed FPS**. The fixed Morrowind snapshot keeps one camera view; the PGR2 fresh boot reaches the race scene without a driven lap. Neither substitutes for a full-race or map-traversal test.
 
@@ -101,6 +101,31 @@ A separate 20-second parent→candidate diagnostic pair used the same PGR2 snaps
 | Total sampled finish wait / guest frame | 10.756 ms | 10.564 ms |
 
 The 0.382 ms higher draw-flush total is consistent with overhead in a very frequent path, and the saved vertex traffic is too rare to amortize much work in this scene. The timed regions can nest and include fence waits, so their differences must not be added. The short diagnostic pair did **not** reproduce the longer uninstrumented p95 regression; instrumentation and window length limit its performance interpretation. It also did not include GPU timestamps or pass-ending reason counters, so page tracking is a **leading hypothesis**, not a measured sole cause. A minimal next test is an isolated bookkeeping gate that retains the old staged path whenever prior page reads were not tracked; compare the same parent/candidate PGR snapshot and Morrowind scene before accepting it. [Compact counter control](results/pgr2-snapshot-vulkan-counter-control.json) preserves the exact executable and input hashes.
+
+### Read-mark work and current activity gate
+
+A trace-only build on previous head `d42c81ba32` counted the exact read-page operations without changing renderer decisions. Its diagnostic patch SHA-256 was `d4d9acba3105bec49a258826ff3aab52cfe7db234c1228ff4958cbb1a716b0f2`, executable SHA-256 `8a137e00a8bde2f437d11a7e92f0168087025a1197e8aa013daa6c4b71aba6fd`. This counter test is not an FPS comparison.
+
+| Trace-only window | PGR2 snapshot, 584 guest frames | Morrowind snapshot, 246 display writes |
+| --- | ---: | ---: |
+| Draws whose vertex read pages were marked | 2,761,147 (~4,728/frame) | 284,101 (~1,151/write) |
+| Vertex pages marked | 3,814,841 (~6,532/frame) | 429,090 (~1,744/write) |
+| Direct vertex copies | 62 total | 27,649 total (~112/write) |
+| Frames/writes containing any vertex upload | 5 / 584 | Every measured write |
+
+The current `974f2ae` activity gate starts conservatively: without prior read tracking, an active-batch vertex update uses the old ordered staging path. A batch that updates vertex data enables read tracking for subsequent batches; 16 completed batches without updates retire it. It still clears the read map only after the submission fence. This avoids treating an untracked page as a proven fresh page. The gate changes buffer/draw/renderer state only; no shader, texture, or OpenGL path was changed. [Trace-only counts](results/read-mark-opportunity-control.json) provide raw input hashes and window identities.
+
+The gated source-to-previous-head patch SHA-256 is `b8399582d54e9b41066f2d8a72d020218440e693129a9062013c84b4eb3cf515`; the Windows builder verified that exact patch, completed successfully, and returned to its clean original source. One uninstrumented 60-second cell per game on the new executable gave:
+
+| Workload | Metric | Retained #85 parent range | Previous #87 range | Gated #87 current head |
+| --- | --- | ---: | ---: | ---: |
+| PGR2 Vulkan snapshot | Guest FPS | 29.593–29.737 | 29.284–29.430 | **29.585** |
+| PGR2 Vulkan snapshot | Guest interval p95 | 37.762–38.951 ms | 39.701–40.350 ms | **39.368 ms** |
+| PGR2 Vulkan snapshot | Guest interval p99 | 42.026–42.350 ms | 42.981–44.326 ms | **42.471 ms** |
+| Morrowind Vulkan snapshot | Guest display writes/s | 24.016–24.215 | 25.529–25.579 | **25.615** |
+| Morrowind Vulkan snapshot | Guest interval p95 / p99 | 48.042–48.822 / 53.874–55.525 ms | 45.704–46.060 / 51.445–53.128 ms | **46.019 / 52.945 ms** |
+
+The gate appears to preserve the Morrowind benefit and recover most of the earlier PGR2 tail loss, but the gated PGR2 p95 remains above both retained parent cells. Different-session ranges and a single gated cell limit the inference. Do not promote this head to a performance pass yet. The [two gated result records](results/activity-gate-initial-results.json) preserve exact source/build/result hashes; the Morrowind image oracle passed and both game runs completed with private-disk cleanup.
 
 ## What the Morrowind wait counters actually mean
 

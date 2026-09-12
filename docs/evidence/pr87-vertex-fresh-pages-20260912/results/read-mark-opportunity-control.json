@@ -1,0 +1,39 @@
+{
+  "schema_version": 1,
+  "product_source_commit": "d42c81ba32e7c299e4a65f70db05e2ba3363cccc",
+  "trace_only_patch_sha256": "d4d9acba3105bec49a258826ff3aab52cfe7db234c1228ff4958cbb1a716b0f2",
+  "diagnostic_executable_sha256": "8a137e00a8bde2f437d11a7e92f0168087025a1197e8aa013daa6c4b71aba6fd",
+  "instrumentation": "Aggregate page-mark counters; diagnostic timing is not performance qualification",
+  "cells": [
+    {
+      "workload": "PGR2 Vulkan snapshot",
+      "guest_frames": 584,
+      "duration_seconds": 20,
+      "result_status": "complete",
+      "raw_result_sha256": "bf33b50f4767956b6f9bd7928ae9342bc9dc811de7b5a9fc339ba342046e03ac",
+      "raw_perf_sha256": "ae034952b220d57f06b9a7afbd40ef718b99d006990b5cb7447c4a201496ba01",
+      "read_mark_draws": 2761147,
+      "read_mark_ranges": 2924083,
+      "read_mark_pages": 3814841,
+      "direct_vertex_copies": 62,
+      "staged_vertex_copies": 61,
+      "frames_with_any_vertex_copy": 5
+    },
+    {
+      "workload": "Morrowind Vulkan snapshot",
+      "guest_display_writes": 246,
+      "duration_seconds": 10,
+      "result_status": "complete",
+      "final_image_status": "PASSED",
+      "private_disk_deleted": true,
+      "raw_result_sha256": "d70d5a199e7a3d2094fbfd2a26c7c6eed6f050c50dbf6c021defcd0c3628d9a9",
+      "raw_perf_sha256": "c4645cee71c823fd598cb75c923aefb1bd699068164d0da9ea8890e52c9afa27",
+      "raw_flips_sha256": "70138752300cef456e8f1499fca10fc3ed13e356d3d3ad2e4ef344dc06facf3a",
+      "read_mark_draws": 284101,
+      "read_mark_ranges": 284101,
+      "read_mark_pages": 429090,
+      "direct_vertex_copies": 27649,
+      "staged_vertex_copies": 57465
+    }
+  ]
+}
