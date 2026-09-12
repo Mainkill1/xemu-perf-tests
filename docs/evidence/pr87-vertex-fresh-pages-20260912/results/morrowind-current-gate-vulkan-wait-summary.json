@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "full_run_frames": 413,
+  "window_frames": 229,
+  "perf_input_sha256": "7f3654f3d5e9d7e2ed89da3148fef93355861cd7b1f9b4a8d58cdb7048fa5d3a",
+  "flips_input_sha256": "2e1beb4fa36c741106bbe141710db33be16bf311f9271a8dcdbd5a4ef761c2ab",
+  "median_total_sampled_finish_wait_us_per_frame": 13243,
+  "p95_total_sampled_finish_wait_us_per_frame": 17541.199999999997,
+  "queue_submits_median_per_frame": 5,
+  "reasons": {
+    "vertex_buffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0
+    },
+    "surface_create": {
+      "submits": 2,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 518
+    },
+    "surface_down": {
+      "submits": 1,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 1586
+    },
+    "need_buffer_space": {
+      "submits": 230,
+      "frames_with_submit": 229,
+      "median_wait_us_per_frame": 10324,
+      "p95_wait_us_per_frame": 13235.0,
+      "sum_sampled_wait_us": 2280830
+    },
+    "framebuffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0
+    },
+    "presenting": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0
+    },
+    "flip_stall": {
+      "submits": 228,
+      "frames_with_submit": 228,
+      "median_wait_us_per_frame": 602,
+      "p95_wait_us_per_frame": 1500.3999999999999,
+      "sum_sampled_wait_us": 180736
+    },
+    "flush": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0
+    },
+    "stalled": {
+      "submits": 229,
+      "frames_with_submit": 229,
+      "median_wait_us_per_frame": 1987,
+      "p95_wait_us_per_frame": 3398.3999999999996,
+      "sum_sampled_wait_us": 494680
+    },
+    "texture_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0
+    }
+  },
+  "cpu_regions": {
+    "draw_begin_surface_update": {
+      "median_us_per_frame": 129,
+      "p95_us_per_frame": 149.0
+    },
+    "draw_flush": {
+      "median_us_per_frame": 15426,
+      "p95_us_per_frame": 18402.8
+    },
+    "pipeline_prepare": {
+      "median_us_per_frame": 2123,
+      "p95_us_per_frame": 2272.6
+    },
+    "bind_textures": {
+      "median_us_per_frame": 550,
+      "p95_us_per_frame": 617.0
+    },
+    "texture_upload": {
+      "median_us_per_frame": 0,
+      "p95_us_per_frame": 0.0
+    },
+    "update_descriptor_sets": {
+      "median_us_per_frame": 10907,
+      "p95_us_per_frame": 13835.8
+    }
+  }
+}

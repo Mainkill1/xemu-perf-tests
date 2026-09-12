@@ -145,6 +145,31 @@ The source and earlier [#86 GPU-timestamp diagnosis](https://github.com/Mainkill
 
 The graphics workload itself is heavy: the older #83 counters found roughly **353 dirty vertex staging copies and 348 nondraw pass endings per guest display write**, with 95.6% of all pass endings attributed to nondraw work and their per-write counts correlated at 0.999. The current PR removes some of those copies, but most remain ordered staging transfers; #85/#87 exact-parent counters also retain approximately five synchronous submissions and 10.249 ms median sampled fence wait per write on the **previous #87 head**. Descriptor-update timing includes a nested capacity fence wait, so its 8–10 ms region must not be counted as extra descriptor-writing cost. This is why PR #87 improves the fixed scene by about 6% without removing the broader ~25-write/s limit. Exact current-head GPU timestamps and host-present metrics remain the decisive missing measurements.
 
+### Current-head wait and slow-interval attribution
+
+One additional **10-second diagnostic run** used exact current PR #87 head `974f2ae63b166f64aa2ea6a77963c77481e28969`, executable SHA-256 `6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0`, the pinned Morrowind snapshot and the same runner. Its 229 counter records matched 229 display-write events in the measurement window; the final-image check passed, the private HDD was deleted, and no xemu/trace process remained. Vulkan opt-in counters add overhead, so its 22.879 writes/s and interval values **must not be compared as a performance result** to the uninstrumented 60-second cells. [Exact wait summary](results/morrowind-current-gate-vulkan-wait-summary.json) and [frame association](results/morrowind-current-gate-frame-association.json) include input checksums and method.
+
+| Current head, median per measured display write | Result |
+| --- | ---: |
+| `NEED_BUFFER_SPACE` submissions | 230 in 229 writes |
+| `NEED_BUFFER_SPACE` sampled fence wait | **10.324 ms** |
+| `STALLED` report sampled fence wait | 1.987 ms |
+| Total sampled finish-fence wait | **13.243 ms** |
+| Vulkan queue submissions | 5 |
+| Direct vertex copies / staged copies | 112 / 243 |
+| Direct vertex bytes / staged bytes | 0.868 / 2.269 MB |
+
+The current 1,024-descriptor branch still submits early at `NEED_BUFFER_SPACE`; the stacked #83 capacity experiment eliminated that submission but moved the long wait to `STALLED` without improving the measured frame path. This new exact-head run confirms the capacity wait remains, rather than assuming the older #83 wait label applies to #87. The direct-copy path is active on almost every measured write, but roughly two-thirds of vertex copies still require ordered staging.
+
+I aligned each counter frame by ordinal to its guest display-write timestamp and compared the fastest and slowest 10% of the **228 intervals wholly inside** the window. Medians are descriptive; the groups are not matched experiments.
+
+| Diagnostic interval group | Guest interval | Capacity wait | Report wait | Total sampled wait | Direct / staged copies |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| Fastest 22 | 36.977 ms | 6.871 ms | 1.157 ms | 8.345 ms | 112 / 240.5 |
+| Slowest 22 | **54.093 ms** | **12.631 ms** | **3.253 ms** | **16.409 ms** | 113 / 247.5 |
+
+Across these intervals, Spearman rank correlation with guest interval was **0.816** for sampled capacity wait, **0.679** for sampled report wait, and **0.832** for total sampled finish wait; staged-copy count correlated **0.361**. Correlation does not prove that shortening a fence makes the whole interval shorter, and the sampled waits are not an exhaustive time budget. It does show that the slow tail co-occurs with longer GPU-completion waits while vertex-copy counts remain broadly similar. The existing older-tree GPU timestamps explain why this wait is plausibly GPU-batch execution rather than descriptor CPU work; current-head timestamps and a dynamic guest-read/report-DMA match are still needed to close that attribution.
+
 ## What the Morrowind wait counters actually mean
 
 An additional **counter-only exact-parent control** used the same Morrowind snapshot and runner as the earlier candidate counter window. The parent executable SHA-256 was `fdafe9acae32f1a189eff6cd270bdd6443571b7e33f870efaf9bfa1b2a22f0dc`; its 248-display-write window passed the final-image oracle, deleted its private disk, and left no trace process running. The candidate window contained 246 writes. These short diagnostic windows are not a paired performance qualification. Their sampled waits reveal where execution blocks, not a sum of independently additive CPU costs.

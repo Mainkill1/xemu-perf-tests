@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "metric": "NV2A display-write intervals, not presented FPS",
+  "measurement_seconds": 10.0091723,
+  "aligned_intervals": 228,
+  "instrumentation": "opt-in sampled Vulkan counters; not a performance comparison",
+  "original_host_inputs_sha256": {
+    "perf_log": "e0de44f442be9c6de80548c8d174a7371252c0d45fe128ee8581ce6b10e39e37",
+    "guest_flips": "f0e3da24b905f12beef93394428a66c56a65fe5896d70aa630346a07c2e2e29f",
+    "result": "8d8cdfa47432b40128e1e2385016acb21bff52ded8356b982042d97c76aba803"
+  },
+  "normalization": "Downloaded PowerShell text added a blank final line; blank lines removed before parsing. Original host files remain retained.",
+  "fastest_decile_medians": {
+    "interval_ms": 36.977000000000004,
+    "need_buffer_wait_ms": 6.871,
+    "report_wait_ms": 1.157,
+    "total_sampled_wait_ms": 8.3445,
+    "direct_copies": 112.0,
+    "staged_copies": 240.5,
+    "draw_flush_ms": 11.852,
+    "pipeline_prepare_ms": 2.107
+  },
+  "slowest_decile_medians": {
+    "interval_ms": 54.093,
+    "need_buffer_wait_ms": 12.631499999999999,
+    "report_wait_ms": 3.2525000000000004,
+    "total_sampled_wait_ms": 16.409,
+    "direct_copies": 113.0,
+    "staged_copies": 247.5,
+    "draw_flush_ms": 17.9795,
+    "pipeline_prepare_ms": 2.1915
+  },
+  "spearman_guest_interval_vs": {
+    "need_buffer_wait_ms": 0.8161481174747471,
+    "report_wait_ms": 0.6785901594948406,
+    "total_sampled_wait_ms": 0.8320253807933181,
+    "direct_copies": 0.2590740705764644,
+    "staged_copies": 0.3614743432881846,
+    "draw_flush_ms": 0.8204907277289469,
+    "pipeline_prepare_ms": 0.20877375992280578
+  }
+}
