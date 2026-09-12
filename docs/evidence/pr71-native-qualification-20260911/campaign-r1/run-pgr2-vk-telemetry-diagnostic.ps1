@@ -11,6 +11,7 @@ active qualification campaign has completed.
 [CmdletBinding()]
 param(
     [string]$DiagnosticRoot = '',
+    [string]$BuildOverrideRoot = '',
     [ValidateRange(15, 120)][int]$DurationSeconds = 30
 )
 $ErrorActionPreference = 'Stop'
@@ -43,8 +44,68 @@ if (Test-Path -LiteralPath $diagRoot) {
 }
 New-Item -ItemType Directory -Path $diagRoot -Force | Out-Null
 
-$build = $Campaign.Builds.candidate
+function Resolve-DiagnosticBuild {
+    if (-not $hasBuildOverride) {
+        return $Campaign.Builds.candidate
+    }
+    $overrideRoot = [IO.Path]::GetFullPath($BuildOverrideRoot)
+    if ($overrideRoot.StartsWith(
+            [IO.Path]::GetFullPath($Campaign.ResultsRoot),
+            [StringComparison]::OrdinalIgnoreCase)) {
+        throw 'BuildOverrideRoot must be outside the active qualification ResultsRoot.'
+    }
+    $overrideExe = Join-Path $overrideRoot 'xemu.exe'
+    $overrideInfoPath = Join-Path $overrideRoot 'BUILD_INFO.txt'
+    foreach ($path in @($overrideExe, $overrideInfoPath)) {
+        if (-not (Test-Path -LiteralPath $path -PathType Leaf)) {
+            throw "Build override is missing required artifact: $path"
+        }
+    }
+    $info = Read-BuildInfo $overrideInfoPath
+    foreach ($name in @('SOURCE_SHA', 'SOURCE_TREE', 'XEMU_SHA256', 'SOURCE_STATE')) {
+        if (-not $info.Contains($name) -or [string]::IsNullOrWhiteSpace([string]$info[$name])) {
+            throw "Build override BUILD_INFO lacks required $name"
+        }
+    }
+    if ($info.SOURCE_SHA -notmatch '^[0-9a-f]{40}$' -or
+        $info.SOURCE_TREE -notmatch '^[0-9a-f]{40}$' -or
+        $info.XEMU_SHA256 -notmatch '^[0-9a-f]{64}$') {
+        throw 'Build override BUILD_INFO has malformed source/tree/executable identity.'
+    }
+    if ($info.SOURCE_STATE -ne 'diagnostic') {
+        throw "Build override SOURCE_STATE must be diagnostic, observed '$($info.SOURCE_STATE)'."
+    }
+    foreach ($name in @('QUALIFICATION_STATUS', 'RELEASE_STATUS', 'RELEASE_QUALIFIED', 'CLASSIFICATION')) {
+        if ($info.Contains($name) -and [string]$info[$name] -match '(?i)release|qualif|pass') {
+            throw "Build override has release-qualified status in BUILD_INFO: $name=$($info[$name])"
+        }
+    }
+    if ($info.Contains('LOGICAL_COMMIT') -and
+        $info.LOGICAL_COMMIT -ne $Campaign.Builds.candidate.LogicalCommit) {
+        throw 'Build override logical commit does not match the PR71 candidate.'
+    }
+    $actualHash = Get-Sha256 $overrideExe
+    if ($actualHash -ne $info.XEMU_SHA256) {
+        throw "Build override executable hash mismatch: expected $($info.XEMU_SHA256), observed $actualHash"
+    }
+    [ordered]@{
+        Role = 'candidate'
+        LogicalCommit = $Campaign.Builds.candidate.LogicalCommit
+        SourceCommit = $info.SOURCE_SHA
+        Tree = $info.SOURCE_TREE
+        Xemu = $overrideExe
+        XemuSha256 = $info.XEMU_SHA256
+        BuildInfo = $overrideInfoPath
+        SourceState = 'diagnostic'
+        OverrideRoot = $overrideRoot
+    }
+}
+
+$hasBuildOverride = -not [string]::IsNullOrWhiteSpace($BuildOverrideRoot)
+$build = Resolve-DiagnosticBuild
 $buildReceipt = Assert-BuildContract $build
+$buildReceipt.build_source_state = if ($hasBuildOverride) { 'diagnostic' } else { 'staged-candidate' }
+$buildReceipt.build_override = $hasBuildOverride
 $capture = Join-Path $PSScriptRoot 'capture-pgr2-native-pr71.ps1'
 $analyzer = Join-Path $PSScriptRoot 'compare-pgr2-vk-telemetry.py'
 $python = $Campaign.Xiso.Python
@@ -122,6 +183,8 @@ try {
                 source_commit = $build.SourceCommit
                 source_tree = $build.Tree
                 xemu_sha256 = $build.XemuSha256
+                source_state = $buildReceipt.build_source_state
+                build_override = $hasBuildOverride
                 xemu_config_sha256 = $raw.xemu_config_sha256
                 vk_perf_summary = Split-Path -Leaf $raw.vk_perf_summary
                 vk_perf_measured = Split-Path -Leaf $raw.vk_perf_measured
@@ -160,6 +223,8 @@ try {
         telemetry = 'XEMU_VK_PERF_LOG'
         cache_shaders = 'Enabled'
         candidate = $buildReceipt
+        build_override = $hasBuildOverride
+        build_source_state = $buildReceipt.build_source_state
         cells = $cells
         comparison = 'pgr2-vk-telemetry-comparison.json'
         comparison_markdown = 'pgr2-vk-telemetry-comparison.md'

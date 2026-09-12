@@ -1,8 +1,12 @@
 [CmdletBinding()]
-param([string]$DiagnosticRoot = '')
+param(
+    [string]$BuildOverrideRoot = '',
+    [string]$DiagnosticRoot = '',
+    [ValidateRange(15, 120)][int]$DurationSeconds = 30
+)
 $ErrorActionPreference = 'Stop'
 if ($PSVersionTable.PSVersion.Major -lt 7) {
-    throw 'Interactive diagnostic dispatch requires PowerShell 7 (pwsh).'
+    throw 'dispatch-pgr2-vk-telemetry-diagnostic.ps1 requires PowerShell 7 (pwsh).'
 }
 $labRoot = $env:XEMU_LAB_ROOT
 if ([string]::IsNullOrWhiteSpace($labRoot)) {
@@ -17,14 +21,18 @@ $powershell = [powershell]::Create()
 $powershell.Runspace = $runspace
 try {
     [void]$powershell.AddScript({
-        param([string]$value)
-        $env:XEMU_LAB_ROOT = $value
+        param([string]$Value)
+        $env:XEMU_LAB_ROOT = $Value
     }).AddArgument($labRoot)
     [void]$powershell.AddStatement()
-    [void]$powershell.AddCommand((Join-Path $PSScriptRoot 'run-pgr2-vk-telemetry-diagnostic.ps1'))
-    if ($DiagnosticRoot) {
-        [void]$powershell.AddParameter('DiagnosticRoot', $DiagnosticRoot)
-    }
+    [void]$powershell.AddScript({
+        param([string]$Script, [string]$Override, [string]$Root, [int]$Seconds)
+        $arguments = @('-DurationSeconds', $Seconds)
+        if ($Override) { $arguments += @('-BuildOverrideRoot', $Override) }
+        if ($Root) { $arguments += @('-DiagnosticRoot', $Root) }
+        & $Script @arguments
+    }).AddArgument((Join-Path $PSScriptRoot 'run-pgr2-vk-telemetry-diagnostic.ps1')) `
+        .AddArgument($BuildOverrideRoot).AddArgument($DiagnosticRoot).AddArgument($DurationSeconds)
     $output = $powershell.Invoke()
     foreach ($line in @($output)) { [Console]::WriteLine([string]$line) }
     if ($powershell.HadErrors) {

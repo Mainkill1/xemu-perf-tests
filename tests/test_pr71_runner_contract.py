@@ -165,9 +165,11 @@ def test_pr71_campaign_package_contract_is_complete_without_running_cells():
 def test_pr71_telemetry_diagnostic_isolated_and_sanitized():
     wrapper = CAMPAIGN / "run-pgr2-vk-telemetry-diagnostic.ps1"
     analyzer = CAMPAIGN / "compare-pgr2-vk-telemetry.py"
-    assert wrapper.is_file() and analyzer.is_file()
+    dispatch = CAMPAIGN / "dispatch-pgr2-vk-telemetry-diagnostic.ps1"
+    assert wrapper.is_file() and analyzer.is_file() and dispatch.is_file()
     wrapper_text = wrapper.read_text(encoding="utf-8")
     analyzer_text = analyzer.read_text(encoding="utf-8")
+    dispatch_text = dispatch.read_text(encoding="utf-8")
     for literal in (
         "XEMU_VK_PERF_LOG",
         "VkTelemetry Enabled",
@@ -179,8 +181,14 @@ def test_pr71_telemetry_diagnostic_isolated_and_sanitized():
         "campaign-manifest.json",
         "defer this diagnostic",
         "raw_paths",
+        "BuildOverrideRoot",
+        "SOURCE_STATE",
+        "diagnostic",
+        "release-qualified",
     ):
         assert literal in wrapper_text, literal
+    for literal in ("BuildOverrideRoot", "run-pgr2-vk-telemetry-diagnostic.ps1", "GuiTestConsole"):
+        assert literal in dispatch_text, literal
     for literal in (
         "pipeline_prepare_cpu_us_per_guest_frame",
         "flip_stall_wait_us_per_guest_frame",
