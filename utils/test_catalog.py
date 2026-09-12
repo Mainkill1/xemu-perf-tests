@@ -93,6 +93,18 @@ def entries():
         "pipeline.shared-page-overlap",
         "Validates two overlapping cached texture bindings in sequence after one shared-page write, then verifies unchanged-draw steady state.",
         ("texture", "gpu", "correctness", "hardware-safe")))
+    out.append(leaf(
+        "pipeline_texture_switch.texture_dma_remap",
+        "pipeline_texture_switch", "PipelineTextureSwitch",
+        "pipeline.texture-dma-remap",
+        "Remaps clean stage 0's texture DMA source while stage 1 receives an unrelated sampler write; checks both rendered stages.",
+        ("texture", "gpu", "correctness", "hardware-safe")))
+    out.append(leaf(
+        "pipeline_texture_switch.palette_dma_remap",
+        "pipeline_texture_switch", "PipelineTextureSwitch",
+        "pipeline.palette-dma-remap",
+        "Remaps clean stage 0's palette DMA source while stage 1 receives an unrelated sampler write; checks both rendered stages.",
+        ("texture", "gpu", "correctness", "hardware-safe")))
     simple("report_query", "ReportQuery", [
         ("zero_query", "report.zero-query"),
         ("single_boundary", "report.single-boundary"),
@@ -342,6 +354,10 @@ def failure_diagnosis(test):
             "A palette-only write did not update the indexed texture or caused repeated uploads on unchanged redraws. Check palette dirty-page tracking, combined content hashes, retry state, and dirty-hint retirement.",
         "pipeline_texture_switch.shared_page_overlap":
             "Validating the first overlapping cached texture lost the second binding's dirty state or unchanged redraws kept revalidating. Check per-binding overlap marking, page dirty-bit clearing, content hashes, and dirty-hint retirement.",
+        "pipeline_texture_switch.texture_dma_remap":
+            "Clean stage 0 sampled its old DMA target after stage 1's unrelated sampler write admitted the slow bind. Check DMA-context invalidation, resolved source identity, and stage-local descriptor state.",
+        "pipeline_texture_switch.palette_dma_remap":
+            "Clean stage 0 sampled its old palette after stage 1's unrelated sampler write admitted the slow bind. Check palette DMA-context invalidation, palette source identity, and stage-local binding state.",
         "report_query.zero_query":
             "A disabled-ZPASS report did not publish a complete zero-valued record after ordered GPU and host-report completion. Check explicit ZPASS disable, query initialization, report completion, and timestamp/value/done stores.",
         "report_query.single_boundary":

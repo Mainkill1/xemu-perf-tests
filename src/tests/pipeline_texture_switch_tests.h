@@ -2,6 +2,7 @@
 #define XEMU_PERF_TESTS_PIPELINE_TEXTURE_SWITCH_TESTS_H
 
 #include <cstdint>
+#include <pbkit/pbkit.h>
 
 #include "test_suite.h"
 
@@ -32,6 +33,8 @@ class PipelineTextureSwitchTests : public TestSuite {
   void RunClearTextureNormal();
   void RunPaletteOnlyUpdate();
   void RunSharedPageOverlap();
+  void RunTextureDmaRemap();
+  void RunPaletteDmaRemap();
   void ResetCanonicalTextureBacking() const;
   void ConfigureTexturePipeline() const;
   void ConfigurePalettePipeline() const;
@@ -48,6 +51,11 @@ class PipelineTextureSwitchTests : public TestSuite {
   uint32_t input_kat_{0};
   uint32_t sampler_backing_kat_{0};
   uint32_t sampler_input_kat_{0};
+  s_CtxDma texture_dma_red_{};
+  s_CtxDma texture_dma_blue_{};
+  s_CtxDma texture_dma_green_{};
+  s_CtxDma palette_dma_red_{};
+  s_CtxDma palette_dma_blue_{};
 };
 
 #endif  // XEMU_PERF_TESTS_PIPELINE_TEXTURE_SWITCH_TESTS_H
