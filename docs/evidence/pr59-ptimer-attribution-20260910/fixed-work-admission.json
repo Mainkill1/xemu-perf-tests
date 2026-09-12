@@ -1,0 +1,52 @@
+{
+  "status": "INSTALLED_ADMISSION_GAP_REPRODUCED",
+  "method": "Execute the actual extracted validator functions with synthetic result records; no emulator launch or fixed-work timing",
+  "sources": {
+    "installed": "169ec960a057dc66dfe38bf5dea814894e2d8677fc903a3c8db49283086087c7",
+    "reviewed_pr14": "fa6f714ee31a89eaabc44719f2b1057b9c75869c2264e5acaf78f81e74b4b608"
+  },
+  "rows": [
+    {
+      "source": "installed",
+      "test": "absent_metadata",
+      "outcome": "rejected",
+      "error": "RuntimeError: output-only oracle BusyPfifo::PgraphPatternPolling.metadata is missing"
+    },
+    {
+      "source": "installed",
+      "test": "wrong_hash",
+      "outcome": "rejected",
+      "error": "RuntimeError: output-only oracle mismatch for BusyPfifo::PgraphPatternPolling.framebuffer_fnv1a64: expected '386d0f085e98c325', got '0000000000000000'"
+    },
+    {
+      "source": "installed",
+      "test": "unexpected_metadata",
+      "outcome": "rejected",
+      "error": "AttributeError: 'NoneType' object has no attribute 'items'"
+    },
+    {
+      "source": "reviewed_pr14",
+      "test": "absent_metadata",
+      "outcome": "accepted",
+      "error": null
+    },
+    {
+      "source": "reviewed_pr14",
+      "test": "wrong_hash",
+      "outcome": "rejected",
+      "error": "RuntimeError: output-only oracle mismatch for BusyPfifo::PgraphPatternPolling.framebuffer_fnv1a64: expected '386d0f085e98c325', got '0000000000000000'"
+    },
+    {
+      "source": "reviewed_pr14",
+      "test": "unexpected_metadata",
+      "outcome": "rejected",
+      "error": "RuntimeError: output-only oracle mismatch for BusyPfifo::PgraphPatternPolling.metadata: expected the member to be absent"
+    }
+  ],
+  "remaining": [
+    "Reviewed PR14 code is not installed by this audit",
+    "Pair forwarding, artifact/catalog binding and native baseline calibration still require qualification",
+    "Whole-process CPU is implemented by the retained runner; per-thread fixed-work CPU is not established"
+  ],
+  "tracker": "https://github.com/Mainkill1/xemu-perf-tests/pull/14"
+}

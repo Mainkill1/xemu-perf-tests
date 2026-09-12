@@ -1,0 +1,746 @@
+[
+  {
+    "run_id": "pr59-attr-r1-pilot-01-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 535822336,
+        "sha256": "448659a58081f1bab2445b8bdca2556a86f8b41e3c4ed3a43af3ec4788245fe6"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590885,
+        "sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 14924,
+        "sha256": "13fdf4f5a6823ef6d5469573fa80c66ac050b9cec1779f55e1bc7662fba0ce04"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 449,
+        "sha256": "0c6ba093ee9f2412a28dac50651bc421da82748c8d2096ead73dca78720dfa31"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-pilot-02-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 510656512,
+        "sha256": "68572dc4abce5d65c0cf7501ba7afdcdccf7fccc74f2c356ef7a5303fdbad6a2"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590980,
+        "sha256": "fdd021f29f3c93af13f838cf58a1aae74a319fa06f01a24b4cae2b46b1a1286f"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 14872,
+        "sha256": "5091a987289f014c6ac792ed78b7515255a6d7e89672e969136162114ed4791a"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 449,
+        "sha256": "9778de8ee3447853b71671e7f526b8d4fe3b604d5bcf98420b7a95474bdafdcf"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-pilot-03-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 483393536,
+        "sha256": "1a783959db9790e106effd4280ebdf1da2a0c7d504e884cd2624ac5a71d47767"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590532,
+        "sha256": "93a724bd23d50c89b016746ba777cf5cc78bf8a1b771d66ca3c97d96b11a7599"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 14872,
+        "sha256": "05f8eb8683c265e4020d91398f19320bddd5422a4a835d836aa2562eeaf7ec4c"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 446,
+        "sha256": "2d1d4968baf1bd8060e21b901a31c933028202ca0f2b102ee20eca96607b4bb1"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-pilot-04-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 486539264,
+        "sha256": "22354658651d26f825945cd66e60d6e327fde5ee022f21c38a4bb062fb6da3f5"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "8bf2ce0a202d0bbfe22246572f49058be82376460face5062983bc3b0b620844"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 15184,
+        "sha256": "d181132ff30bfa20c30aae0f8550da8270e34da47eaf59dabc476be0131795ac"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 449,
+        "sha256": "db6614e4bbbcb52ca1740d800deb4cedf97db35ef5f9a7739fed4b420988420d"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 0,
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-01-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2044723200,
+        "sha256": "8202fae3fbfb32742441052e6eede254de2bea5b614493898a25f338404ff939"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91777,
+        "sha256": "a1038e17133c1fa0dad414b0d8ffaad1be4a2ee9836cff0368653a86b121108d"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "7b60561e059605a02cb9c8482f152d634c7c3b8c961137bc0e12860dfc022a58"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "8b988ee66c8515723ace26368b3ea3289878dd57d91ec5fcce662cafeb2c8394"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-02-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2039480320,
+        "sha256": "05b82b732e45d600b0d72727904e0963c03a9b698ce7d673d8701cc5e633cc6c"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 88648,
+        "sha256": "70f703a847db52b84c5a15574b7196d9d6328ecb192cd09f1cfe25264bb369ad"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "b8c3cc22715646067627666a039dce78bcf921948a94b157df432580c00787be"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "7ce05bf3f57f519694b264fc606c952e252c268bf21c120b7e5a325ce0ad6132"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-03-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1882193920,
+        "sha256": "ba3f278da281386f86cb0786c36d7c67d0d49d2ee12bf303d42a39bbc3df25b1"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590977,
+        "sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 90474,
+        "sha256": "33b0ab853e2f4569423b7b022f5fe15fd30a754a28d53bf5632366e06bd75f1d"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "d55a0b24fca8acc3574ed9a676b28cf6446d4351326a4f8d8dbfc34185b7d50d"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "1a17c29ac7b19892bc43d7513e91a8c0b5256c195e6f00b2a20e39fb28850ca0"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-04-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1884291072,
+        "sha256": "6a6e1804c12915bcb205d211dfc8120307b643f176455e5242231f7733a9f7a4"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590977,
+        "sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 90577,
+        "sha256": "d66ba7965b0b1c20190935eebacd31cf44509fa326f63cd242e4cfddeb1febd9"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "a7f864e14d906ec6eb53960179080cfb58f899cf20dfa565ecff94954fac7a33"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "6b5c7abe9b4fa094cde9f4b509ad075c4e8f1ebe8c7728de611f0076b69b9353"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-05-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1886388224,
+        "sha256": "3b40735918f693cbacee2c6b4da959964d8889180e96addda8698aa8ea76998f"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590882,
+        "sha256": "1584db49fe4f34253bd2f565568019e2750d9c97b49ce890545b755e89ff0a93"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91585,
+        "sha256": "8f6b8552a1d8ee81728b80ff51e93d983ff0f428d1c49f27301a8f19db44d360"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "163799e47c6a425f6130dbe9b808e5cd8edb22ad5daf4c1edb9a92144a49a343"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "b67678ba2482151bcec2e1a98b6ce26daae78a6aa6ea0673cac627e8355c0857"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-06-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1887436800,
+        "sha256": "f2aaa9238a24ab60ee4256249b40e767e830e615d91cd8942077e988ac7b3e44"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590977,
+        "sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89937,
+        "sha256": "bcc572cd582cb226911ada57747a432cb61d132f6d9b263e9f35c18eff7c261b"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "aff7358fbf281590e1070212b5041f0ff0f3701652af3ecf2b26b4948cd54c24"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "e53125d3f5a8db64e690f2f9e92e25608852cce28cbc23a89ec33a4cd14b5c7a"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-07-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2039480320,
+        "sha256": "c34ac47a700bbb48db6f5c0c366ba6fb3b69163b2dccbec79e958601a5f978e1"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590885,
+        "sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89867,
+        "sha256": "f58ef3c23b0016873cb9b6d7bf546f7ac7cb5e3a5146f6005bb95ea76ed48c66"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "ddb8b1d35fae061ce24cc94120bed85cf038005ee2a7b5182e5ff814a71ba693"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "c5b9791231078d8f1d75bfbe06073a7094ae9995e8394d7ca4b1ec1316fe44da"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-08-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2039480320,
+        "sha256": "be9259394ad9a2e184856b5c1ed40573be77af53b45ecdbc4725cce58f069764"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590885,
+        "sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89339,
+        "sha256": "36873e902ec77d41401d32dc31dd4ff7e4bb886021423f0e06cd03de99830a53"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "4b166a9261cd9aa6d079836fe0c662284977a5c48e3a2b0aa1ee6176ea240aba"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "75251d2b2349362b0fbe6a67014f844865e35d9ae6ff80e56600c2bfa8701be0"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-09-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2059403264,
+        "sha256": "2b331fbad664b6c80bab9d546ce224e8a0c13aae6cea838c990f3bb7174aa934"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89817,
+        "sha256": "0bc784d8852cdec6865d1f353c88850581f4f93f27a6863c741e4a1c44f16352"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 452,
+        "sha256": "43dfa4249177d29502cbdcacc77c005ecbc3d25621bab3a804da01fd8abc2b46"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "c3d6236cd3891beceaaea6c024488ee9f79ef18f417d9451746dc45ee0405dec"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-10-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2033188864,
+        "sha256": "810c2d7bd5e881aa9b827c422193142fc01389fb2761a842736edfc373dcd05b"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 88703,
+        "sha256": "d6a39f54f18fb7301d8472ed999a8993ada1e53156016b1d1066d7eb7ff8c705"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "ec1b6cc8c8ae97e5fb8e2ac40adebaa4c76d02fac53226f272c0b7e291671e36"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "417eb31394c870f1b689fd29d1a83dee6ac857e23bf91a490d05a07d96d0b626"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-11-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1889533952,
+        "sha256": "abd60223f13fddf5114716cc19c20a05a7b2117d4f77ca6e4cd7c018c04f6f20"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590977,
+        "sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89675,
+        "sha256": "19d2b7ab991ceaa823b61345ec8e98bd6a2741a3394cc99c55171c43157ed6ab"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "14880d9bcdb6fc862055356c26d7134ac0e5a32c7879700438a7a7f0e054814b"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "67cf050c8ec053ed78c00f88a1e29055266096dbc0fb94f3268b77c7522223c6"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-12-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1881145344,
+        "sha256": "b1ba3c2ac29b5cca0fa5dbde4939a74ff33310647eea43c7187ef195cda67d20"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590865,
+        "sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91161,
+        "sha256": "ffec14f7cd085f88b7dd4c3e07732cec9fcbe2cf1ae64df454284c72202ef804"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 449,
+        "sha256": "e74c6dbe87c7f35ee82a5abc177a71c5417f3a1f9d91a395a1460bee4bc19b43"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "ac7fd426d87b8b98915907a04db89774d06c3b84225d6af340c385e6cd82ec54"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-13-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1880096768,
+        "sha256": "84fc207b2bd1d5a245c450f61512bdc5a361c5846fc8c40398cc4c7f3197b3e6"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590865,
+        "sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 90896,
+        "sha256": "9ee977f24587008e90bd1cfa8d5f345b7dd43d02e1cf21473d134ed18f237f54"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "7d9f29a05ed83c3e345b9408280ce97c506101c8029b2f6d314ef1cdb06dce65"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "b0e9cb902e4ccfb455b4278f86660443a2556bba5e791f6599be8e60ad3ffaf6"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-14-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1879048192,
+        "sha256": "c4afd66f3d9e9a8d0601e05c6dc4f61d15355a6eb69dbd5beed1c784f5047c97"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590382,
+        "sha256": "53d87e7f7803a1439fe57d00a969a0431ebb89805cc3469fd9c8bc1d3c8da052"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91905,
+        "sha256": "33fd8f095bf647880426f6695ade0ba953bd1af651fe77ac13947b3673dd6f7f"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "152ca3e0d7dfaffbf1712384135b506e7b55bf0fdaa49a9161365d688e467082"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "601fe953f391d0adeadf1f35e28576adeba8bbe72c6b61b88d9ec0c744c2101b"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-15-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2038431744,
+        "sha256": "381d9d2c7d482b218f35568572ee409d87776b63361b79ead78a2b83555e83c0"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590885,
+        "sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 88756,
+        "sha256": "d5cb876ed67ab5c00d528d53724ac1ac2c2afb6abe99642a9be6625dbd3dcf98"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "b03493d6a2aae6d42059335affec6e78965be7e2f49d4d82537d513c374ca1e7"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "208183e4610e77eb2121f94435c6b3f8917fd31376e3bf28063a55876347dc6d"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-16-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2036334592,
+        "sha256": "328c35040c37c7d626b5fb90601a1afdaa257f393f44c81a7d17eb3e51f906df"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590753,
+        "sha256": "08a915931f23a2b3407e922322e871fe2f869b1314bfbe9f334b32b42559f055"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 89123,
+        "sha256": "7d8e15be6dda44c11bfa0734502eee17b470a3e4742b915c77a04c243edb0fee"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 448,
+        "sha256": "39f117d24955f4c88ab7217399b51cb7f9f14a4fa71752cf56c207d2997f649d"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "242fded572c171e1990f7dda986259004c8674458cd106e6df7af79b57909b44"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-17-opengl-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2040528896,
+        "sha256": "4dfb66061535f8f757b88f8cbf84454ea6912343198147494bdeadacd1d9d15c"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590746,
+        "sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 90720,
+        "sha256": "66578a71a9277c6079a608fbe44101ec9d54332584be0e1dd99126f0441ca641"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 452,
+        "sha256": "316f462877fec9c302ab154e413e7a84bf2fb32003b5fc4d92cf7ce0fcfd11c8"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "006b136c2176698a8d2b58e00acd8e6bdfdaf5060e30b14950ac54949601428e"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-18-opengl-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 2044723200,
+        "sha256": "1c6930448d9cbd77c674ced0e09a7f0f3042da052fd968ef92bf1f4321400d7c"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590980,
+        "sha256": "fdd021f29f3c93af13f838cf58a1aae74a319fa06f01a24b4cae2b46b1a1286f"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91301,
+        "sha256": "5c862617da831a5d2cf709a524611e71f8d0b6d5589371f93156bc4c81d5ac67"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 450,
+        "sha256": "1e726d34245ce61b5d9474c9bb8486206c5a08bc2dfc6abbdc099601b8099952"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8322,
+        "sha256": "d163fa5b1bd29b0d0f1b5d9358a6f5b3379295cc0c433fccce90e61214878e82"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-19-vulkan-am",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1886388224,
+        "sha256": "3f5dd9475f1972ce62a55670160e9a1da7d234394f9cc22ea1609e70d1d35a41"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590977,
+        "sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 90788,
+        "sha256": "0b80ddd7817604789b588720175a7d9662dd79302c4cb1005756b90654bddd19"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "5867081c17d57cb0ea04f15fc69e12dd4ef1317e24732da4b23de0f1bc78cf8d"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "7b3e3957d245e48158e141d14d1b6f42b1e22c7e2f4a323c68949914ccc46446"
+      }
+    ]
+  },
+  {
+    "run_id": "pr59-attr-r1-20-vulkan-b",
+    "retention": "Original capture retained on test host under this unique run id",
+    "artifacts": [
+      {
+        "name": "pgr2-cpuscheduler.etl",
+        "bytes": 1879048192,
+        "sha256": "0e2cda1f043080fb062f8bf243b871b783c0e289cc77f03344c2afd032637d04"
+      },
+      {
+        "name": "capture-start.png",
+        "bytes": 1590865,
+        "sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485"
+      },
+      {
+        "name": "xemu-frames-measured.csv",
+        "bytes": 91739,
+        "sha256": "fb8ccf3a81b765f7f72f79e22af160800693c833d9bb25457caa06feac451189"
+      },
+      {
+        "name": "frame-time-summary.json",
+        "bytes": 451,
+        "sha256": "172584305f956e8a02f4b425a4c44b6be442b4a0307863f36d2e40ac03ac4b52"
+      },
+      {
+        "name": "nvidia-gpu.csv",
+        "bytes": 8324,
+        "sha256": "3ae2d1e828ba4727dc35515f2f1afc230a894bdbda8c16fbd5e40cca7712381c"
+      }
+    ]
+  }
+]

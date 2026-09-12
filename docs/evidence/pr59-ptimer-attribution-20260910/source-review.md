@@ -1,0 +1,97 @@
+# PTIMER source review: scheduler and IRQ attribution
+
+## Scope and immutable source identities
+
+| Role | Checkout/ref | Object ID | Relationship |
+|---|---|---|---|
+| Reviewed head | the product checkout, `0043629b` | `0043629b0bc13d2b34a1bf3c1008171ad8eecb8f` | Current `fix/ptimer-main-qualification` HEAD; adds characterization tests only to runtime. |
+| Runtime candidate | `8da17c3e` | `8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b` | Parent of head; adds one pre-expiry re-enable test only. |
+| Requested base | `c17591d5` | `c17591d59c270b352b72e648f5ed65e4b2a3e77e` | Ancestor of runtime candidate. |
+
+All product inspection was read-only. `git diff --check c17591d5..0043629b` completed with no output. The checkout was clean when inspected. No product build, runtime experiment, remote-test access, publication, or product edit was performed.
+
+## Reproducible source probes
+
+Commands below are written relative to the product checkout; private checkout paths are normalized for publication.
+
+| Command | Purpose |
+|---|---|
+| `git rev-parse 0043629b 8da17c3e c17591d5` | Pin the three reviewed objects. |
+| `git merge-base --is-ancestor c17591d5 8da17c3e; git merge-base --is-ancestor 8da17c3e 0043629b` | Confirm both ancestor relations (each returned 0). |
+| `git diff --no-ext-diff c17591d5..8da17c3e -- hw/xbox/nv2a/ptimer.c hw/xbox/nv2a/nv2a.c hw/xbox/nv2a/nv2a_int.h hw/xbox/nv2a/pramdac.c tests/unit/test-xbox-nv2a-ptimer.c` | Separate the runtime implementation from later test-only commits. |
+| `git show --format= --no-ext-diff 0043629b -- tests/unit/test-xbox-nv2a-ptimer.c` | Inspect the later characterization fixture. |
+| `nl -ba hw/xbox/nv2a/ptimer.c | sed -n '58,388p'` | Inspect reset, schedule, callback, post-load, read, and write paths. |
+| `nl -ba util/qemu-timer.c | sed -n '388,459p;504,588p'` | Inspect deletion/modification/list-run behavior. |
+| `nl -ba hw/xbox/nv2a/nv2a.c | sed -n '25,61p'` | Inspect IRQ recomputation. |
+| `nl -ba util/aio-win32.c | sed -n '323,419p'; nl -ba util/main-loop.c | sed -n '160,178p'; nl -ba util/event_notifier-win32.c | sed -n '17,48p'` | Trace the Windows wait/notification claim. |
+| `nl -ba util/main-loop.c | sed -n '534,629p'; nl -ba util/qemu-timer.c | sed -n '299,363p'` | Trace the actual `_WIN32` main-loop polling path, including the XBOX near-deadline spin and `g_poll` timeout conversion. |
+| `nl -ba system/physmem.c | sed -n '3416,3429p'; nl -ba hw/xbox/nv2a/nv2a.c | sed -n '116,151p;360,373p'; nl -ba util/main-loop.c | sed -n '360,389p;645,686p'` | Establish BQL and PTIMER ownership. |
+| `nl -ba tests/unit/ptimer-test-stubs.c | sed -n '37,120p'; nl -ba tests/unit/test-xbox-nv2a-ptimer.c | sed -n '43,57p;74,97p;635,738p'` | Establish what the deterministic fixture can and cannot attribute. |
+| `git show c17591d5:hw/xbox/nv2a/ptimer.c; git show c17591d5:hw/xbox/nv2a/nv2a.c; git show c17591d5:include/qemu/host-utils.h` | Verify baseline ACK IRQ behavior and the `muldiv64()` intermediate width. |
+
+## Findings
+
+| Claim | Source conclusion | Evidence and limit |
+|---|---|---|
+| ACK unconditionally performs same-deadline requeue | **Partly confirmed.** Every `NV_PTIMER_INTR_0` write first reconciles elapsed state, clears requested pending bits, and calls `schedule_qemu_timer()` with no predicate at `hw/xbox/nv2a/ptimer.c:322-345`. It reaches `timer_mod()` only when armed, source-running, and PTIMER alarm interrupt enabled (`:207-235`). Thus a normal enabled, armed ACK does execute a new scheduler calculation even when the existing future alarm has not changed. | `timer_mod()` always deletes then reinserts under `active_timers_lock` (`util/qemu-timer.c:446-458`); it has no equal-deadline fast path. The candidate deadline is recalculated from a fresh clock sample, so source does **not** prove exact equality for every ACK. The existing `alarm-assert-ack` test checks status/IRQ but does not assert pre/post deadline equality or count `timer_mod` (`tests/unit/test-xbox-nv2a-ptimer.c:74-97`). The assertion should be “unconditional qualifying ACK reschedule attempt,” not a proven universal literal-same-deadline requeue. |
+| An absent timer deletion is free | **Refuted.** The disabled/masked/unarmed branch always invokes `timer_del()` (`hw/xbox/nv2a/ptimer.c:207-213`). `timer_del()` takes the timer-list mutex and `timer_del_locked()` linearly traverses `active_timers`, even when the PTIMER is absent (`util/qemu-timer.c:388-442`). It does not notify/rearm. | Cost is O(number of active timers in the list), plus lock acquisition; no claim about material wall-time cost is possible without counters. This is distinct from `timer_mod`, which does delete plus sorted insertion. |
+| PTIMER ACK broadly recomputes IRQ state | **Broad behavior is confirmed, but it is not new on the ACK path.** At baseline `c17591d5`, `NV_PTIMER_INTR_0` clears pending bits and then calls `nv2a_update_irq()` once (`hw/xbox/nv2a/ptimer.c:254-258` at that ref). At `0043629b`, the ACK still reaches one final updater call through the unconditional epilogue at `:388`; its placement follows the new pre-write reconciliation. The updater itself recomputes PFIFO, PCRTC, PGRAPH, and PTIMER contributions, updates PMC bits, then calls `pci_irq_assert()` or `pci_irq_deassert()` (`hw/xbox/nv2a/nv2a.c:25-60`). | The new breadth concern is for other PTIMER writes that now reach the unconditional epilogue (including rate/time writes), and for changes in what reconciliation has made pending before the existing ACK updater. It is not an added second `nv2a_update_irq()` call per ACK. The source proves fan-out, not wall-time cost or downstream short-circuiting; the unit fixture substitutes a PTIMER-only helper (`tests/unit/test-xbox-nv2a-ptimer.c:18-27`). |
+| A PTIMER requeue necessarily causes a Windows wait/wake | **Overstated; two distinct conditional paths exist.** **Main loop:** `main_loop_wait()` selects `timerlistgroup_deadline_ns(&main_loop_tlg)` then calls the `_WIN32` `os_host_main_loop_wait()` (`util/main-loop.c:645-686, 534-629`). That path merges the GLib timeout with the timer timeout and calls `qemu_poll_ns()`. When built without `CONFIG_PPOLL` and with `XBOX`, a positive timeout below 1,250,000 ns is busy-waited, then changed to zero; otherwise `g_poll()` receives `qemu_timeout_ns_to_ms(timeout)`, which rounds nonzero nanoseconds upward to milliseconds (`util/qemu-timer.c:302-363`). This is the relevant Windows/XBOX timer-deadline path. **AIO notifier:** separately, `aio_poll()` waits in `WaitForMultipleObjects()` on AIO handles (`util/aio-win32.c:323-419`). A timer modification notifies only on head insertion (`util/qemu-timer.c:406-458`), and can then reach `qemu_notify_event()`/a BH and `SetEvent()` when notifier state permits (`util/main-loop.c:160-178`; `util/async.c:464-480`; `util/event_notifier-win32.c:35-38`). | Source does not show that XBOX is built without `CONFIG_PPOLL`, so the 1.25 ms spin is conditional on that configuration, though the XBOX block is present. Nor does it show GLib's internal Windows primitive for `g_poll()`. A timer rearm is not itself a `WaitForMultipleObjects` call or wake: head position, timer-list callback configuration, `icount`, `ctx->notified`, and `ctx->notify_me` decide whether the separate AIO path signals. `timer_del()` alone has no notifier call. |
+| Baseline PTIMER arithmetic was narrow 64-bit multiplication | **Refuted.** Baseline `ptimer_get_absolute_clock()` and `ptimer_ticks_to_ns()` use `muldiv64()` (`c17591d5:hw/xbox/nv2a/ptimer.c:83-108`). Its factors are typed `uint64_t, uint32_t, uint32_t`; with `CONFIG_INT128` it computes `(__int128_t)a * b / c`, and without it it uses two 32-bit partial products (`include/qemu/host-utils.h:53-125` at the same ref). The documented intermediate is 96-bit. | The helper still returns `uint64_t`, accepts only 32-bit multiplier/divisor factors, and baseline passes `pramdac.core_clock_freq` (stored as `uint64_t`) to the 32-bit multiplier parameter. Therefore it is not evidence of an ordinary 64-bit multiply overflow, but it does not establish correct behavior for a core frequency above `UINT32_MAX` or a quotient beyond 64 bits. The later runtime code's explicit `mulu64`/`divu128` path has a different, wider intermediate model; do not attribute timing changes to width without a targeted arithmetic test. |
+
+## Ownership and synchronization assessment
+
+The proposed optimization must be PTIMER-local and must not inspect `QEMUTimer` internals without an ownership proof.
+
+1. The production PTIMER block is not configured lockless: `blocktable` creates ordinary read/write `MemoryRegionOps` for PTIMER (`hw/xbox/nv2a/nv2a.c:116-143`), while only PGRAPH is explicitly configured with `memory_region_set_lockless_read` (`:146-151, 366-372`). `prepare_mmio_access()` acquires BQL for non-lockless MMIO (`system/physmem.c:3416-3429`).
+2. The normal main-loop path reacquires BQL after host polling before `qemu_clock_run_all_timers()` executes callbacks (`util/main-loop.c:360-389, 645-686`). `ptimer_alarm_fired()` has no extra device lock (`hw/xbox/nv2a/ptimer.c:237-247`). This supports BQL serialization of ordinary PTIMER MMIO and its default-timer callback. The PGRAPH worker explicitly takes BQL before calling the shared IRQ updater (`hw/xbox/nv2a/pgraph/pgraph.c:224-230, 933-939`), reinforcing that `NV2AState`/IRQ mutation depends on this serialization.
+3. QEMU's timer API is individually thread-safe (`include/qemu/timer.h:616-678`), but that does not make `d->ptimer.*` state safe from an arbitrary thread. A local cache therefore requires either the existing BQL invariant to be documented/asserted at every writer and callback, or a new device lock that covers both guest state and cache. Do not introduce an unlocked raw `timer->expire_time` comparison: list insertion/removal holds `active_timers_lock`, and the public read helpers are not a substitute for ownership of device state.
+4. There are only two production direct timer deletions in PTIMER source—reset and the inactive schedule branch—and the other production timer accesses are in the same file. This makes a PTIMER-owned derived scheduling cache feasible if reset, post-load, and callback consumption all invalidate it. Migration must treat the cache as derived: historical v4 uses restored `timer_pending()` to reconstruct `alarm_armed` (`hw/xbox/nv2a/ptimer.c:249-259`), so the first post-load schedule must force reconciliation/rearm rather than trusting a zero-initialized cache.
+
+### Safe shape, if measurement later justifies implementation
+
+Maintain a derived PTIMER-local state such as `{ bool host_timer_known; bool host_timer_queued; int64_t host_timer_deadline; }`, never persisted in VMState. Compute the desired state exactly as current `schedule_qemu_timer()` does.
+
+* If desired is queued and local state is known/queued with the same computed deadline, return without `timer_mod`.
+* If desired is inactive and local state is known/not-queued, return without `timer_del`.
+* Otherwise call existing `timer_mod`/`timer_del` and update the cache only after the call. At entry to `ptimer_alarm_fired`, mark the host timer not queued because `timerlist_run_timers()` has already removed it and set `expire_time = -1` before callback dispatch (`util/qemu-timer.c:549-580`).
+* `ptimer_reset` must invalidate and mark not-queued after its delete. `ptimer_post_load` must mark unknown before its first schedule; all restore versions must force the current one-time rearm/delete. Do the same at any future external deletion/migration teardown.
+* Retain current pre-write reconciliation, ACK clear order, IRQ update, and exact deadline arithmetic. This is a scheduling side-effect optimization only; it must not turn elapsed alarm observation into an ACK-side semantic change.
+
+This remains a **conditional recommendation**, pending counters. The BQL proof applies to ordinary paths inspected here; any new caller from a non-BQL worker invalidates the cache premise and needs explicit locking or a timer-core API.
+
+### ACK-specific short circuit versus a computed-deadline cache
+
+The ACK path admits a narrower possible short circuit that the generic computed-deadline cache does not provide. `ptimer_write()` already calls `ptimer_latch_overdue_alarm()` before W1C (`hw/xbox/nv2a/ptimer.c:322-341`). If that reconciliation reports **no epoch advance**, an ACK changes only `pending_interrupts`; it does not change `alarm_armed`, the alarm time, clock ratio/source, or interrupt-enable state that determine whether a host callback is required. If a PTIMER-owned state proves the required future host timer is still queued, the ACK may return after the existing final IRQ recomputation without calling `schedule_qemu_timer()` at all. That skips the clock sample and wide deadline calculation as well as queue work.
+
+This has stricter preconditions than “the last computed deadline matched”: the code must retain a valid local proof that the timer is queued, invalidate it before/at callback consumption, reset, and post-load as above, and take the normal scheduler path whenever pre-W1C reconciliation advanced an epoch, the required timer is absent/unknown, or any scheduling input can have changed. It must preserve the current W1C order and final IRQ update. By comparison, the generic cache described above still computes the desired deadline before discovering equality, so it removes `timer_mod`/`timer_del` work but not the scheduling arithmetic. The ACK-specific option is therefore potentially more valuable but cannot be implemented from a raw `timer_pending()`/`expire_time` read without the same BQL-local ownership proof.
+
+## Exact counter/probe plan (instrumentation first; no semantics change)
+
+Add temporary trace/counter probes, not the no-op branch, and retain raw counts with a source/build identity for each run.
+
+| Layer | Exact counters/events | Why it resolves the open claim |
+|---|---|---|
+| `hw/xbox/nv2a/ptimer.c`, `schedule_qemu_timer` | Pass an enum reason from each call site: callback, post-load, core-clock, INTR read reconciliation, ACK, INTR enable, numerator, denominator, ALARM, TIME_0, TIME_1. Count `schedule_enter`, desired queued/inactive, `was_pending`, candidate deadline equal/different from the immediately preceding locally recorded PTIMER deadline, `timer_mod_call`, `timer_del_call`, and inactive delete while locally known absent. Record the candidate and previous deadline in trace mode. | Separates qualifying ACKs from other scheduling and quantifies truly redundant modify/delete attempts. It also avoids reporting a “same deadline” premise without evidence. The locally recorded previous deadline is diagnostic state, not a raw unsynchronized QEMUTimer read. |
+| `util/qemu-timer.c`, temporary generic probe keyed by `QEMUTimer *` | For the PTIMER timer pointer, count `timer_del_locked` search length/found, `timer_mod` delete search length, insertion position, `rearm` result, and `timerlist_notify`. | Proves the actual list work and whether an ACK attempt reached a wake-notification opportunity. PTIMER-local counters alone cannot see `rearm`. |
+| `hw/xbox/nv2a/nv2a.c`, `nv2a_update_irq` | Count entries by caller reason (pass reason only from PTIMER for attribution); record PMC pending before/after, per-engine contribution changes, PCI assert/deassert call count, and trace-emission count. | Distinguishes “called broadly” from actual IRQ-state transitions and identifies the share attributable to PTIMER ACKs. |
+| Windows AIO/event notifier only | Count first blocking `WaitForMultipleObjects` calls/return code/timeout, `aio_notify` coalesced versus `event_notifier_set`, and `event_notifier_test_and_clear`. Correlate with the timer-core probe by monotonic sequence ID. | Establishes actual wake behavior without inferring it from source. Do not equate timer rearm counts with waits or wakeups. |
+| Windows/XBOX main loop | At the `_WIN32` `os_host_main_loop_wait()` → `qemu_poll_ns()` boundary, count incoming timer deadline, GLib deadline, selected deadline, `<1.25 ms` spin use, rounded `g_poll` timeout, and poll return. Emit build configuration (`XBOX`, `CONFIG_PPOLL`) with the capture. | Separates the main-loop deadline behavior from AIO notifier/`WaitForMultipleObjects`; it establishes whether the XBOX spin and millisecond rounding were actually in the measured binary. |
+
+Counters must report `unknown`/not-collected fields as absent, never as zero. Keep them diagnostic-only and remove or gate them after attribution.
+
+## Test plan for a later implementation
+
+1. Extend the deterministic NV2A unit fixture with explicit `timer_mod`/`timer_del` call counters and a record of the requested deadline. Add an enabled alarm callback → same-virtual-time W1C ACK test that first proves the candidate equality, then (only after the local cache implementation) expects zero additional modify/delete calls while preserving pending clear, IRQ deassertion, alarm epoch, and final deadline.
+2. Cover the non-no-op boundaries: pre-expiry mask/unmask, masked ACK that materializes an elapsed epoch before clear, stopped numerator/denominator/core clock, ALARM and TIME register reprogramming, numerator/denominator/core/PLL rate changes, timebase-forward characterization paths, callback consumption, reset, and v3/v4/v5 post-load. These must each force exactly the needed rearm/delete or cache invalidation.
+3. Keep the current 45 timebase-observation characterization cases from `0043629b` (`tests/unit/test-xbox-nv2a-ptimer.c:613-757`) as regression checks; their comment correctly says they do not establish hardware's synchronous-IRQ behavior.
+4. Add a production-path integration run with instrumentation enabled. Exercise a reproducible guest workload that generates PTIMER IRQ/ACK traffic, collect scheduler/IRQ/timer-core counters, and, on Windows, collect the AIO/notifier counters in the same run. Validate that callback, ACK, and post-load execution occurs with BQL held in a debug build. Compare only matched run order and report counter coverage alongside timing; a missing Windows counter remains unknown.
+5. Only if the counters show repeated equal-deadline attempts or absent deletes at a material rate, add the local derived cache described above, rerun all deterministic tests plus matched integration captures, and verify no change to guest-visible PTIMER/IRQ sequence.
+
+## Bounded next action
+
+Do not alter PTIMER scheduling yet. Root should use the conclusions above to keep any performance attribution conditional, then choose a **diagnostic-only** counter patch/production capture before proposing the derived-cache no-op. The existing unit suite is sufficient for semantic regression once enhanced, but its stub timer implementation (`tests/unit/ptimer-test-stubs.c:53-96`) does not model sorted insertion, mutex cost, rearm notification, or Windows waits and cannot establish the performance claim by itself.
+
+## Retained candidate build configuration check
+
+After the source audit, the retained configured build at `8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b` was read without rebuilding. It has `CONFIG_PPOLL` undefined and `CONFIG_WIN32` defined; its `util/qemu-timer.c` compile entry contains `-DXBOX=1`. Thus the discussed XBOX polling fallback is compiled in this candidate configuration. [poll-build-config.json](poll-build-config.json) records the configuration/header and command identities. This establishes configuration, not the frequency or cost of that path in the captures.
