@@ -1,0 +1,58 @@
+{
+  "status": "REJECTED_PARTIAL_VULKAN_TELEMETRY",
+  "candidate_commit": "0ba4dc0772f262ac8658c025cb0c0ccd0bfe7316",
+  "candidate_tree": "3c81d4e9f6f0e8a97fd1ad66a530ba337fe90b20",
+  "executable_sha256": "df26cdbd64abc2d146e5550c2cf094eff527db557c271015af2a58ac2db016c5",
+  "renderer": "VULKAN",
+  "workload_launches": {
+    "VULKAN": 1,
+    "OPENGL": 0
+  },
+  "failure": "telemetry JSONL has one schema record, zero frame records, and zero deferred_capture terminal records",
+  "raw_artifacts": {
+    "vulkan_perf_jsonl_sha256": "5fc717eb47e15825c2d15b12b563ef0a18c73a5b1268cfe10713e77120fcc563",
+    "runner_result_sha256": "e9d40694b46a3cdc4e5c6991aaa417da620b004bd7ef9441b064e05899b8c1e9",
+    "stderr_sha256": "ed163c4777b1817b11fa30cf18ddfb0ffd097e26ec73ed9ba1b3aa4dfff0f252",
+    "final_image_sha256": "24c65dcc3688c5e643c00d0eb9f5e2ee782a56a5c650eb90cada5ee3888a75e8"
+  },
+  "base": "bd1fecb93353272dda2a810991e28945de35b665",
+  "base_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+  "draft_pr": "https://github.com/Mainkill1/xemu/pull/57",
+  "baseline_rebuilt": false,
+  "baseline_rerun": false,
+  "xiso_suite_changed": false,
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_options": {
+    "optimization": "2",
+    "debug": true,
+    "b_lto": true,
+    "strip": false,
+    "qom_cast_debug": true,
+    "b_ndebug": "false",
+    "x86_version": "3"
+  },
+  "instrumentation": {
+    "XEMU_VK_PERF_DEFERRED": "1",
+    "XEMU_VK_PERF_FULL_TIMING": "1",
+    "XEMU_VK_PERF_LOG": "fresh per-run output path"
+  },
+  "host": {
+    "os": "Windows 10 Pro 19045",
+    "cpu": "AMD Ryzen 9 6900HX",
+    "gpu": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+    "driver": "32.0.15.8195"
+  },
+  "validation": {
+    "source_review": "approved for diagnostic experiment before native execution",
+    "build": "pass",
+    "native_telemetry": "rejected",
+    "vulkan_scene": "expected outdoor scene; automated nonblack check passed",
+    "opengl": "not launched after Vulkan telemetry rejection",
+    "cleanup": "no owned process or private HDD remains; seed unchanged"
+  },
+  "file_hashes": {
+    "vulkan-schema-only.jsonl": "5fc717eb47e15825c2d15b12b563ef0a18c73a5b1268cfe10713e77120fcc563",
+    "vulkan-run.json": "861b88da67573b31060bc6f539955609ba661d9e9e20ce9e9dc80eb85597213d"
+  }
+}

@@ -1,0 +1,10 @@
+TAP version 14
+# random seed: R02Sc9f59f5ff6094af58b42d0f0130c9e89
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+# Start of fractional-deadline tests
+**
+ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:278:test_fractional_deadline: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == 5): (0 == 5)
+not ok /xbox/nv2a/ptimer/fractional-deadline/ratio-1-2 - ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:278:test_fractional_deadline: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == 5): (0 == 5)
+Bail out!

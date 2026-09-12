@@ -1,0 +1,41 @@
+{
+  "status": "SYNTHETIC_HELPER_CONTROLS_PASS",
+  "source": "8baac6af9a7d980f8ee449c6bc3cc783690c15a9",
+  "tree": "20a588366a559f47f02d07da188b21c947f61faf",
+  "review_base": "4df1501ec9e4b30256ec83b1dcd09753c79c10a7",
+  "powershell_version": "7.6.5",
+  "runs": 1,
+  "workload_launches": 0,
+  "wpr_captures": 0,
+  "command": "pwsh -NoProfile -File ./utils/capture-lifecycle/test-capture-lifecycle.ps1",
+  "output": "capture-lifecycle controls passed",
+  "source_hashes": {
+    "capture-lifecycle.ps1": "c4e365de2d0d89cfc7b292558af28c387c55d4ae5fbedaffd7f0ae31ed3a62cf",
+    "test-capture-lifecycle.ps1": "a78638ea4e6908e692198cfa2b522faadc3f9e7c9f91a56a73060a78be9323f3"
+  },
+  "fixture_cleanup": "owned unique temporary fixture removed by test finally",
+  "synthetic_helper_remaining": false,
+  "memory_recurrence": {
+    "cause": "stale owned artifact-reader serialized raw PowerShell content objects",
+    "observation_utc": "2026-09-09T20:19:50.3716008Z",
+    "available_physical_before_bytes": 554012672,
+    "committed_before_bytes": 62690856960,
+    "commit_limit_before_bytes": 64233172992,
+    "stale_helper_private_bytes": 56030289920,
+    "stale_helper_working_set_bytes": 11238125568,
+    "close_main_window_succeeded": false,
+    "cleanup": "guarded Stop-Process termination after bounded unsuccessful close; exited",
+    "post_utc": "2026-09-09T20:21:42.3665510Z",
+    "available_physical_after_bytes": 14009647104,
+    "committed_after_bytes": 7365410816,
+    "commit_limit_after_bytes": 22329012224,
+    "wpr_recording": false,
+    "tracked_workload_recorder_exporters_remaining": 0,
+    "shared_gui_server_preserved": true
+  },
+  "remaining_gates": [
+    "Caller durable completed-run and validation receipts",
+    "Caller anchor ordering and failure-resistant cleanup",
+    "Exact-launcher controls and native gameplay qualification; not established by helper tests"
+  ]
+}

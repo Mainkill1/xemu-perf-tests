@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S1dccd663dcb0f34e031202a4b15f14c3
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+**
+ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:315:test_deadline_range: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == INT64_MAX): (0 == 9223372036854775807)
+not ok /xbox/nv2a/ptimer/deadline-range - ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:315:test_deadline_range: assertion failed (timer_expire_time_ns(&d.ptimer.timer) == INT64_MAX): (0 == 9223372036854775807)
+Bail out!

@@ -1,0 +1,22 @@
+{
+  "repo": "xemu",
+  "number": 14,
+  "headline": "Integrate: the repaired OpenGL cubemap stride calculation passes the direct guest control; Vulkan's inherited expanded-suite failure is resolved by PR #15.",
+  "scope": "The timing table measures repaired PR #14 head eb338262714ef0b1e23fd60a2c168300443377ac against pre-repair PR #14 head 330cb0d86fe946b795330b629c3e0844c2c10d51. PGR2 uses two 60-second ABBA runs per build and renderer; Morrowind uses one 10-second snapshot per build and renderer. All cadence values are NV2A display-write rates, not rendered FPS.",
+  "rows": [
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"OpenGL","baseline":30.006,"candidate":29.993,"baseline_display":"30.006","candidate_display":"29.993","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"OpenGL","baseline":40.104,"candidate":39.773,"baseline_display":"40.104","candidate_display":"39.773","note":"Lower is favorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"OpenGL","baseline":43.120,"candidate":42.331,"baseline_display":"43.120","candidate_display":"42.331","note":"Lower is favorable."},
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"Vulkan","baseline":30.011,"candidate":30.007,"baseline_display":"30.011","candidate_display":"30.007","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"Vulkan","baseline":39.891,"candidate":38.585,"baseline_display":"39.891","candidate_display":"38.585","note":"Lower is favorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":41.751,"candidate":41.204,"baseline_display":"41.751","candidate_display":"41.204","note":"Lower is favorable."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"Vulkan","baseline":27.582,"candidate":27.345,"baseline_display":"27.582","candidate_display":"27.345","note":"One 10-second snapshot pair; NV2A display-write rate, not rendered FPS."},
+    {"metric":"Morrowind p95 frame interval","unit":"ms","renderer":"Vulkan","baseline":42.173,"candidate":44.595,"baseline_display":"42.173","candidate_display":"44.595","note":"One 10-second snapshot pair; higher is unfavorable."}
+  ],
+  "missing": ["CPU, GPU, and RAM measurements were not reported.", "No independent post-PR #15 timing run is represented here."],
+  "evidence": [
+    {"label":"qualification report","url":"https://github.com/Mainkill1/xemu/blob/269a3f3ed135605288bea311d1c6e61e6a5effda/evidence/eng-2026-523-pr14-small-cubemap-stride/qualification/REPORT.md"},
+    {"label":"qualification summary","url":"https://github.com/Mainkill1/xemu/blob/269a3f3ed135605288bea311d1c6e61e6a5effda/evidence/eng-2026-523-pr14-small-cubemap-stride/qualification/QUALIFICATION-SUMMARY.json"}
+  ],
+  "diagram": "flowchart LR\n A[Duplicate face-size loop can produce zero stride] --> B[Shared checked texture length]\n B --> C[Six bordered cubemap faces use distinct valid spans]"
+}

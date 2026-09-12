@@ -1,0 +1,49 @@
+{
+  "repo": "xemu-perf-tests",
+  "number": 9,
+  "headline": "Tooling: one synthetic helper run passed; caller responsibilities remain",
+  "scope": "Helper8baac6af stacked on evidence4df1501. Counts below are validation activity, not performance or universal lifecycle coverage.",
+  "rows": [
+    {
+      "metric": "Synthetic helper runs passed",
+      "unit": "runs",
+      "renderer": "PowerShell7.6.5",
+      "baseline": null,
+      "candidate": 1,
+      "baseline_display": "Not measured",
+      "candidate_display": "1",
+      "note": ""
+    },
+    {
+      "metric": "Caller OpenGL smoke completed",
+      "unit": "runs",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": 1,
+      "baseline_display": "Not measured",
+      "candidate_display": "1",
+      "note": "Separate3db2bbfe caller evidence, not standalone helper qualification"
+    },
+    {
+      "metric": "Caller Vulkan capacity capture completed",
+      "unit": "runs",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 1,
+      "baseline_display": "Not measured",
+      "candidate_display": "1",
+      "note": "Separate3db2bbfe caller evidence, not standalone helper qualification"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Save immutable clock anchor] --> B[Run owned capture]\n B --> C[Resolve closed launch artifacts]\n C --> D[Caller restores environment and closes owned helpers]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/capture-lifecycle-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "No runtime speed or resource comparison.",
+    "Future callers still require bounded failure cleanup and durable receipts."
+  ]
+}

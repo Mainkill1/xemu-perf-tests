@@ -1,0 +1,132 @@
+{
+  "repo": "xemu",
+  "number": 48,
+  "headline": "Correctness controls only: PTIMER arithmetic and v4/v5 snapshot checks pass; performance and current-main merge approval are absent.",
+  "scope": "No performance comparison was collected. Rows are source-labelled validation coverage and snapshot activity, not speed or current-main qualification. Review base 5151c3887a3fb8b401d3cf6940c59be77ee4a088; tested combined source 45c773a22fdcdbf9a28e8be78dfb3f5aae9c8c7d includes PR #50's paused-save repair and produced executable cc7c9aa3bfc04415b2b06a899123b1321d75049f7795006993a11ac9b8a3062f. Current report head cd5af56967f6d4e5c521de3d98bfe64a6872b7f9 does not turn combined evidence into isolated #48 evidence or authorize a current-main merge.",
+  "rows": [
+    {
+      "metric": "Timer correctness suite under Wine",
+      "unit": "cases",
+      "renderer": "Not applicable",
+      "baseline": null,
+      "candidate": 23,
+      "baseline_display": "Not applicable",
+      "candidate_display": "23/23 PASS",
+      "note": "Compiler-wide and software-wide variants both passed"
+    },
+    {
+      "metric": "Forward-clock arithmetic coverage",
+      "unit": "cases per variant",
+      "renderer": "Not applicable",
+      "baseline": null,
+      "candidate": 34560,
+      "baseline_display": "Not applicable",
+      "candidate_display": "34,560 each PASS",
+      "note": "Independent cases in each of the compiler-wide and software-wide variants"
+    },
+    {
+      "metric": "Native timer correctness suite",
+      "unit": "cases",
+      "renderer": "Not applicable",
+      "baseline": null,
+      "candidate": 23,
+      "baseline_display": "Not applicable",
+      "candidate_display": "23/23 PASS",
+      "note": "Exact combined Windows executable"
+    },
+    {
+      "metric": "Snapshot ownership stress",
+      "unit": "attempts",
+      "renderer": "Ownership test driver",
+      "baseline": null,
+      "candidate": 150,
+      "baseline_display": "Not applicable",
+      "candidate_display": "150/150 PASS",
+      "note": "Deterministic ownership attempts"
+    },
+    {
+      "metric": "Original snapshot attempt display writes",
+      "unit": "events",
+      "renderer": "Vulkan \u00b7 initial v4",
+      "baseline": null,
+      "candidate": 278,
+      "baseline_display": "Not a baseline",
+      "candidate_display": "278",
+      "note": "Activity count only"
+    },
+    {
+      "metric": "Original snapshot attempt display writes",
+      "unit": "events",
+      "renderer": "Vulkan \u00b7 new v5 round-trip",
+      "baseline": null,
+      "candidate": 279,
+      "baseline_display": "Not a baseline",
+      "candidate_display": "279",
+      "note": "Activity count only"
+    },
+    {
+      "metric": "Original snapshot attempt display writes",
+      "unit": "events",
+      "renderer": "Vulkan \u00b7 live old-v4 reload",
+      "baseline": null,
+      "candidate": 0,
+      "baseline_display": "Not a baseline",
+      "candidate_display": "0 \u00b7 FAIL",
+      "note": "Retained failure: stage remained at reconnect prompt"
+    },
+    {
+      "metric": "Follow-up snapshot activity",
+      "unit": "events",
+      "renderer": "Vulkan \u00b7 initial v4 / v5 / old-v4",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Original: 278 / 279 / 0",
+      "candidate_display": "Follow-up: 276 / 276 / 283",
+      "note": "Keyboard reconnection and foreground handling both changed; not an isolated comparison"
+    },
+    {
+      "metric": "Performance qualification",
+      "unit": "status",
+      "renderer": "Both renderers",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Not measured",
+      "candidate_display": "Pending",
+      "note": "Fixed-work callback/wakeup comparison remains tracked in #40"
+    }
+  ],
+  "missing": [
+    "No FPS, cadence comparison, p95/p99, CPU, GPU, RAM, VRAM, power, callback-lateness or wakeup measurement is claimed.",
+    "These correctness controls do not qualify performance or approve merging #48 onto current main.",
+    "Native ARM coverage is absent.",
+    "NV2A snapshot versions 1\u20133 and the wider state matrix remain unqualified.",
+    "The successful follow-up changed two input conditions and cannot isolate the original failed stage."
+  ],
+  "evidence": [
+    {
+      "label": "Arithmetic report and recipe",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/README.md"
+    },
+    {
+      "label": "Arithmetic negative-control results",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/results.csv"
+    },
+    {
+      "label": "Alarm acknowledgment reconciliation",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/RECONCILIATION.md"
+    },
+    {
+      "label": "Masked alarm and PLL report",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/MASKED-ALARMS.md"
+    },
+    {
+      "label": "Combined native qualification",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/COMBINED-QUALIFICATION.md"
+    },
+    {
+      "label": "Successful follow-up rows",
+      "url": "https://github.com/Mainkill1/xemu/blob/cd5af56967f6d4e5c521de3d98bfe64a6872b7f9/docs/performance/ptimer-deadlines/reconnect-results.csv"
+    }
+  ],
+  "diagram": "flowchart LR\n    A[Guest programs alarm or NVPLL] --> B[Sample clock once]\n    B --> C[Reconcile elapsed guest alarm state]\n    C --> D[Compute phase-aware future deadline]\n    D --> E{Masked or stopped?}\n    E -->|Yes| F[Keep guest alarm armed and cancel host callback]\n    E -->|No| G[Schedule host callback]\n    F --> H[Polling or unmask recovers pending IRQ]"
+}

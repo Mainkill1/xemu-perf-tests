@@ -1,0 +1,44 @@
+[
+  {
+    "renderer": "VULKAN",
+    "metric": "cadence",
+    "baseline": 23.723115829141207,
+    "candidate": 24.269445893522185,
+    "relative_change_percent": 2.302943965353288
+  },
+  {
+    "renderer": "VULKAN",
+    "metric": "p95",
+    "baseline": 47.99,
+    "candidate": 48.369,
+    "relative_change_percent": 0.7897478641383576
+  },
+  {
+    "renderer": "VULKAN",
+    "metric": "p99",
+    "baseline": 57.134,
+    "candidate": 56.928,
+    "relative_change_percent": -0.36055588616236056
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "cadence",
+    "baseline": 32.798426877284314,
+    "candidate": 34.12681685268284,
+    "relative_change_percent": 4.050163687327797
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "p95",
+    "baseline": 38.098,
+    "candidate": 35.759,
+    "relative_change_percent": -6.139429891332875
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "p99",
+    "baseline": 42.848,
+    "candidate": 41.092,
+    "relative_change_percent": -4.098207617625094
+  }
+]

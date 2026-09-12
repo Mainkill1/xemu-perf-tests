@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 7,
+  "headline": "Historical Vulkan optimization evidence: copy the draw-required remapped vertex range; retain the unfavorable Morrowind sample.",
+  "scope": "Exact historical pair baseline c07094a to candidate/current head 2c29241. Isolated OpenGL and full-XISO comparisons were not run; later descendant XISO is survival evidence only.",
+  "rows": [
+    {
+      "metric": "Inline-elements median",
+      "unit": "us",
+      "renderer": "Vulkan",
+      "baseline": 3723.5,
+      "candidate": 3601.0,
+      "baseline_display": "3,723.5",
+      "candidate_display": "3,601.0",
+      "note": "16x focused run; no live guest markers, not PR-grade"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.745,
+      "candidate": 19.702,
+      "baseline_display": "18.745",
+      "candidate_display": "19.702",
+      "note": "20-second guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 71.957,
+      "candidate": 66.752,
+      "baseline_display": "71.957",
+      "candidate_display": "66.752",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 78.859,
+      "candidate": 72.969,
+      "baseline_display": "78.859",
+      "candidate_display": "72.969",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 19.041,
+      "candidate": 18.643,
+      "baseline_display": "19.041",
+      "candidate_display": "18.643",
+      "note": "60-second guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "Morrowind p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 61.222,
+      "candidate": 65.764,
+      "baseline_display": "61.222",
+      "candidate_display": "65.764",
+      "note": "unfavorable single sample"
+    }
+  ],
+  "missing": [
+    "The 512x parent run hit a known upstream Vulkan device-loss assertion; bounded 64x comparison used.",
+    "No isolated OpenGL or exact-head full-XISO performance qualification."
+  ],
+  "evidence": [
+    {
+      "label": "original PR evidence",
+      "url": "https://github.com/Mainkill1/xemu/pull/7"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Draw reads remapped vertex subset] --> B[Copy full remapped buffer]\n A --> C[Compute required range]\n C --> D[Copy only required vertices]"
+}

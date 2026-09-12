@@ -1,0 +1,11 @@
+{
+  "schema": 2,
+  "status": "INCOMPLETE_NOT_ACCEPTED",
+  "artifacts": {
+    "REPORT.md": "d07eca4d055d27f926bba22573fd3e7a01c0eb1a900007388b43334b84680a3f",
+    "attempt-1.json": "0575b6a80038220be6311c3ebacefa4d250381bc3eded8a55e48aab29c17025f",
+    "attempt-2.json": "9fc7cc1819fe182fa0b18a5b8e439245a87ed93473a240b87f304f4ec1c558a7",
+    "pgr2-snapshot.json": "d13c11af88432a01b2305bb3f101d06f3870f3df6578f149b550f02c4d9b3c99",
+    "pgr2-fresh.json": "73f12427c0ccfe84b76f88756993f4c90d05f79c5f9ac6c395fd639cdeec7c26"
+  }
+}

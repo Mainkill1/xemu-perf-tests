@@ -1,0 +1,44 @@
+[
+  {
+    "renderer": "VULKAN",
+    "metric": "display_write_interval_cadence_per_second",
+    "baseline": 23.723115829141207,
+    "candidate": 24.63213508342984,
+    "delta_percent": 3.831786940786275
+  },
+  {
+    "renderer": "VULKAN",
+    "metric": "frame_interval_p95_ms",
+    "baseline": 47.99,
+    "candidate": 47.619,
+    "delta_percent": -0.7730777245259501
+  },
+  {
+    "renderer": "VULKAN",
+    "metric": "frame_interval_p99_ms",
+    "baseline": 57.134,
+    "candidate": 55.64,
+    "delta_percent": -2.6149053103231013
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "display_write_interval_cadence_per_second",
+    "baseline": 32.798426877284314,
+    "candidate": 34.254405116497985,
+    "delta_percent": 4.439170953720528
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "frame_interval_p95_ms",
+    "baseline": 38.098,
+    "candidate": 37.712,
+    "delta_percent": -1.0131765447005003
+  },
+  {
+    "renderer": "OPENGL",
+    "metric": "frame_interval_p99_ms",
+    "baseline": 42.848,
+    "candidate": 41.896,
+    "delta_percent": -2.2218073188946974
+  }
+]

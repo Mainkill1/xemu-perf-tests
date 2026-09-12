@@ -1,0 +1,141 @@
+{
+  "schema": 1,
+  "status": "BASELINE_OBSERVATION_ONLY",
+  "scope": "Two completed retained-baseline PGR2 FreshBoot cells; no candidate comparison or performance acceptance.",
+  "baseline": {
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "comparison_main_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "shared_inputs": {
+    "fresh_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+    "fresh_boot_adapter_sha256": "f598318d989dcd87e4a23e685ce2dbb90d470d7b2e4fc741ebf5cda6520233f0",
+    "capture_sha256": "c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38",
+    "launcher_sha256": "d1938ccbdb9235f668e873a306442540093cda86883c67ddf2835d034b580279",
+    "bios_delay_seconds": 10,
+    "warmup_seconds": 30
+  },
+  "runs": [
+    {
+      "id": "ptimer-main-c17591d5-pgr2-fresh-opengl-r1-20260909",
+      "renderer": "OPENGL",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "duration_seconds": 60,
+      "launch_mode": "FreshBoot",
+      "input_hashes": {
+        "base_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656",
+        "launch_config_sha256": "0e17739144d998cb80c1c07114b2e56f17f4043c4487c1c5d88df9318fce2402",
+        "native_dispatcher_sha256": "28c446592d03ba5023202b00b43735f3012e1af4e94445dd9f823ed20a68b027"
+      },
+      "source_output_hashes": {
+        "complete_receipt_sha256": "df7caa6d6f58755d29306c0230bd9d09f73cda89553508fc98dd56e4b43dd31c",
+        "wrapper_identity_sha256": "4804cd7c836214e7171f6141fb02b4b1c1ed52fe04f5982bbfa226b4cabf639e",
+        "frame_summary_sha256": "c5e8cb1f98d4e3b5a8106ae7530b77faf4ebab9839d7fcaed79f6b8412a7a98d",
+        "analysis_filter_sha256": "fc736c48fb9d4091134c135c4b5ae4d4e5be7b62874842b5a93757d6c3b37e3d",
+        "hdd_lifecycle_sha256": "592f5aa116f9bef415fdb412f494a67db91caec55e32fade47d03eeab92f4b36",
+        "capture_start_sha256": "52bff975e004c74b065949aa42f6fa00600f27bf181404f60f7bf480141b73b5"
+      },
+      "guest_frames": {
+        "source": "complete frames selected by QPC timestamp",
+        "count": 1800,
+        "average_ms": 33.34260111111114,
+        "p95_ms": 33.822,
+        "p99_ms": 36.059,
+        "stall_threshold_ms": 75,
+        "stall_count": 0
+      },
+      "guest_flip_cadence": {
+        "source": "XEMU_FLIP_LOG",
+        "frame_count": 1656,
+        "elapsed_us": 55216663,
+        "rate_per_second": 29.99094675460558,
+        "not_rendered_fps": true
+      },
+      "host_presentation": {
+        "source": "PresentMon",
+        "sample_count": 3596,
+        "average_ms": 16.66732377641826,
+        "rate_per_second": 59.99763449815792,
+        "p95_ms": 19.0856,
+        "p99_ms": 19.7391,
+        "not_guest_fps": true
+      },
+      "integrity": {
+        "config_policy_validated": true,
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "seed_unchanged_after_clone": true,
+        "seed_unchanged_final": true,
+        "private_hdd_cleanup": "complete"
+      }
+    },
+    {
+      "id": "ptimer-main-c17591d5-pgr2-fresh-vulkan-r1-20260909",
+      "renderer": "VULKAN",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "duration_seconds": 60,
+      "launch_mode": "FreshBoot",
+      "input_hashes": {
+        "base_config_sha256": "ee47218c846e75c7dbcc9e88fddb09053f96b73dd606e3b516a33fadb07b167e",
+        "launch_config_sha256": "20e1150e46e8b4ea96535d0d98f7813e58a5e282a5322c5a9c86e60131d501cd",
+        "native_dispatcher_sha256": "9efca75209df8aae64012c335c1ceec531ba45c7442496265cdeb55cda52422a"
+      },
+      "source_output_hashes": {
+        "complete_receipt_sha256": "1df84a3abe0a4677a52f3ec916d7a033ae571453a5df90f1f2464d079d55f15d",
+        "wrapper_identity_sha256": "2edd79e5d550a6ef2a704b2efe2798c31e36752da34bdea94e5436657266e59d",
+        "frame_summary_sha256": "5e5ab199ebc65cbbb5cedceb6c2edbef5b252ab1c2d6da9dde626148c01a3f8f",
+        "analysis_filter_sha256": "e8dea7a785376031f7606d8fff08a25a5497dabf837c889abf738ab80bb39254",
+        "hdd_lifecycle_sha256": "26ca6e904c259bbe39a49d69c1023c79cfa922b2a009348de4f7acbccaf2fb3f",
+        "capture_start_sha256": "2c97fbe1c5aa2e22be642930aabf9a79c32e6299493c816ccdc32c1259b8fc06"
+      },
+      "guest_frames": {
+        "source": "complete frames selected by QPC timestamp",
+        "count": 1801,
+        "average_ms": 33.333300943919966,
+        "p95_ms": 33.412,
+        "p99_ms": 34.497,
+        "stall_threshold_ms": 75,
+        "stall_count": 0
+      },
+      "guest_flip_cadence": {
+        "source": "XEMU_FLIP_LOG",
+        "frame_count": 1654,
+        "elapsed_us": 55133367,
+        "rate_per_second": 29.99998168078507,
+        "not_rendered_fps": true
+      },
+      "host_presentation": {
+        "source": "PresentMon",
+        "sample_count": 3595,
+        "average_ms": 16.667276745479814,
+        "rate_per_second": 59.997803796664094,
+        "p95_ms": 22.8483,
+        "p99_ms": 24.5361,
+        "not_guest_fps": true
+      },
+      "integrity": {
+        "config_policy_validated": true,
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "seed_unchanged_after_clone": true,
+        "seed_unchanged_final": true,
+        "private_hdd_cleanup": "complete"
+      }
+    }
+  ],
+  "limits": [
+    "The capture shows boot-to-race UI only: starting-grid/race HUD, a stationary 0 MPH car, blank or dashed lap clock, and no pause overlay. It does not demonstrate racing progression.",
+    "Guest frames, guest flip cadence, and host presentation cadence are distinct measures. Neither cadence is rendered FPS.",
+    "The optional profiling-symbol capture records source_ownership_valid=false because it had no matching PDB/build manifest. The separately published baseline release preserves the source/tree/binary identity, embedded DWARF/COFF, full source, function mapping, and its documented line-resolution limit.",
+    "Raw receipts, captures, traces, logs, game assets, and private-disk material remain outside this publication."
+  ]
+}

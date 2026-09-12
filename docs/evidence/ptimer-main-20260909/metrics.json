@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 59,
+  "headline": "Native timer controls and GL/VK smoke pass; fixed-work performance gate pending",
+  "scope": "Main bd1fecb9 / retained3489fdcc versus 8da17c3e /6fb3dcdd. One non-contemporaneous pair per renderer. Display-write cadence is not rendered FPS; no causal speedup or 2% acceptance claimed.",
+  "rows": [
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 23.723115829141207,
+      "candidate": 24.63213508342984,
+      "baseline_display": "23.723116",
+      "candidate_display": "24.632135",
+      "note": "Observed +3.832%; single non-contemporaneous pair, not causal proof"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 47.99,
+      "candidate": 47.619,
+      "baseline_display": "47.990000",
+      "candidate_display": "47.619000",
+      "note": "Observed -0.773%; single non-contemporaneous pair, not causal proof"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 57.134,
+      "candidate": 55.64,
+      "baseline_display": "57.134000",
+      "candidate_display": "55.640000",
+      "note": "Observed -2.615%; single non-contemporaneous pair, not causal proof"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 32.798426877284314,
+      "candidate": 34.254405116497985,
+      "baseline_display": "32.798427",
+      "candidate_display": "34.254405",
+      "note": "Observed +4.439%; single non-contemporaneous pair, not causal proof"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 38.098,
+      "candidate": 37.712,
+      "baseline_display": "38.098000",
+      "candidate_display": "37.712000",
+      "note": "Observed -1.013%; single non-contemporaneous pair, not causal proof"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 42.848,
+      "candidate": 41.896,
+      "baseline_display": "42.848000",
+      "candidate_display": "41.896000",
+      "note": "Observed -2.222%; single non-contemporaneous pair, not causal proof"
+    }
+  ],
+  "missing": [
+    "Real v4/v5 stream sequence and baseline negative controls pending.",
+    "Fixed-work performance/resource gate pending; these cells do not pass the 2% gate.",
+    "Full XISO/PGR2 qualification remains pending; baseline unchanged."
+  ],
+  "evidence": [
+    {
+      "label": "Candidate draft",
+      "url": "https://github.com/Mainkill1/xemu/pull/59"
+    }
+  ]
+}

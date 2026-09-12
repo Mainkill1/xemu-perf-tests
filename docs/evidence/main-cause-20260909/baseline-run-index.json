@@ -1,0 +1,74 @@
+[
+  {
+    "run": "2026-09-03-153040-perf-full-suite-unknown",
+    "status": "PASSED",
+    "message": "",
+    "backend": "vulkan",
+    "profile": "full-suite",
+    "summary_sha256": "f463b5d74f7665245d71416fc6a396c5f773cadc8130a4886efc887ab9c05540",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 106.67894179999712
+  },
+  {
+    "run": "2026-09-03-163732-perf-full-suite-unknown",
+    "status": "PASSED",
+    "message": "",
+    "backend": "vulkan",
+    "profile": "full-suite",
+    "summary_sha256": "9701ec5666b4466be00384e90891c95f2fddf3f1387a659e5902f204894e29dd",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 117.25453530000232
+  },
+  {
+    "run": "2026-09-03-165416-perf-BusyPfifo-PFIFOSaturation-unknown",
+    "status": "PASSED",
+    "message": "",
+    "backend": "vulkan",
+    "profile": "BusyPfifo::PFIFOSaturation",
+    "summary_sha256": "ea47a3bdafd71e7ee1f2f60ef00eade9bd27ff9d12c3177dc5a76fedbd0cb870",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 5.192866700002924
+  },
+  {
+    "run": "2026-09-03-165903-perf-full-suite-unknown",
+    "status": "PASSED",
+    "message": "",
+    "backend": "vulkan",
+    "profile": "full-suite",
+    "summary_sha256": "2f828f7979f4d4991a49c3e882d4b5dfc4065af1b1d10fbcdf16579d875f9284",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 102.2522178000072
+  },
+  {
+    "run": "2026-09-03-170950-perf-full-suite-unknown",
+    "status": "FAILED",
+    "message": "guest emitted non-PASS benchmark outcomes: report_query.clear_boundary='FAIL'",
+    "backend": "vulkan",
+    "profile": "full-suite",
+    "summary_sha256": "767b6c325249c7d7fb8773e1b8a8f9372ce3e5b901405a85ead97ce9e7c435fb",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 101.2401503000001
+  },
+  {
+    "run": "2026-09-03-172856-perf-BusyPfifo-PFIFOSaturation-unknown",
+    "status": "PASSED",
+    "message": "",
+    "backend": "vulkan",
+    "profile": "BusyPfifo::PFIFOSaturation",
+    "summary_sha256": "fc3a8541e202deb82c2d0035f868fdc35a32d8bd6e3600a77458f0ce65a48e12",
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578",
+    "validation": "PASSED",
+    "vuid_count": 0,
+    "host_wall_seconds": 5.201731199995265
+  }
+]

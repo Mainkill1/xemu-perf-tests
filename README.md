@@ -129,6 +129,8 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 
 ## Documentation and release evidence
 
+- [Main-based Morrowind counters and retained baseline results](docs/evidence/main-cause-20260909/REPORT.md)
+- [Isolated APU snapshot-load repair results](docs/evidence/main-apu-load-20260909/REPORT.md)
 - [Test architecture and layout](docs/test-system.md)
 - [Operator workflows](docs/running-tests.md)
 - [Generated catalog](docs/generated/test-catalog.md)
@@ -879,3 +881,11 @@ which would be populated via
 ```c++
   shader->shader->SetUniformF(0, -1.f, 1.5f, 0.f, 1.f);
 ```
+
+[Main dispatcher/state diagnostic, September 9](docs/evidence/main-cause-state-20260909/REPORT.md): paired GL/VK counter captures and preserved source identities. Diagnostic counts, not performance acceptance.
+
+[Main returned-PC diagnostic, September 9](docs/evidence/main-cause-return-20260909/REPORT.md): interrupt-shadow polling-loop attribution and reproducible numeric samples.
+
+[STI shadow-entry candidate results](docs/evidence/sti-shadow-entry-20260909/REPORT.md): held after paired focused captures; Vulkan benefit and IRQ qualification remain unestablished.
+
+[Unchanged-main Vulkan trace](docs/evidence/main-vulkan-profile-20260909/REPORT.md): PFIFO timing, bounded leaf costs and process-GPU overlap; wait cause remains pending. [Reusable WPA analysis tools](utils/wpa-attribution/README.md).

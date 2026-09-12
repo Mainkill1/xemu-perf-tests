@@ -1,0 +1,366 @@
+{
+  "schema_version": 1,
+  "purpose": "periodic XEMU_RETURN samples; not benchmark acceptance",
+  "performance_acceptance": false,
+  "sample_period": 4093,
+  "window": {
+    "start_utc_us": 1788952235367343,
+    "end_utc_us": 1788952255372720
+  },
+  "records_in_window": 20,
+  "tid": 11024,
+  "first_record_utc_us": 1788952236256022,
+  "last_record_utc_us": 1788952255261616,
+  "overflow_first": 0,
+  "overflow_last": 0,
+  "overflow_delta": 0,
+  "sampled_total_delta": 39262,
+  "sampled_plus_overflow_delta": 39262,
+  "projected_return_null_delta": 160699366,
+  "cause_snapshots_used": {
+    "first_utc_us": 1788952236131810,
+    "last_utc_us": 1788952255134043
+  },
+  "cause_return_null_delta": 160697881,
+  "projected_minus_cause_delta": 1485,
+  "period_phase_bound_abs_lt": 4093,
+  "period_phase_bound_pass": true,
+  "comparison": "Same-thread CAUSE snapshots immediately preceding the first and last in-window RETURN snapshots. Sample totals (including overflow) multiplied by the 4093 period match NULL return counts within one sampling period; periodic sampling remains potentially biased.",
+  "top_sites": [
+    {
+      "pc": 2147594287,
+      "pc_hex": "0x8001b02f",
+      "flags": 541067960,
+      "count": 19614,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 7
+    },
+    {
+      "pc": 2147594288,
+      "pc_hex": "0x8001b030",
+      "flags": 541067952,
+      "count": 19609,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2452358,
+      "pc_hex": "0x00256b86",
+      "flags": 541065392,
+      "count": 4,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 6
+    },
+    {
+      "pc": 2147594307,
+      "pc_hex": "0x8001b043",
+      "flags": 541067952,
+      "count": 4,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 7
+    },
+    {
+      "pc": 2147569458,
+      "pc_hex": "0x80014f32",
+      "flags": 541065400,
+      "count": 3,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 56
+    },
+    {
+      "pc": 2147566470,
+      "pc_hex": "0x80014386",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2147585328,
+      "pc_hex": "0x80018d30",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 5
+    },
+    {
+      "pc": 2147585373,
+      "pc_hex": "0x80018d5d",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 4
+    },
+    {
+      "pc": 2147585556,
+      "pc_hex": "0x80018e14",
+      "flags": 541067952,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 12
+    },
+    {
+      "pc": 2147683972,
+      "pc_hex": "0x80030e84",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    }
+  ],
+  "all_sites": [
+    {
+      "pc": 2147594287,
+      "pc_hex": "0x8001b02f",
+      "flags": 541067960,
+      "count": 19614,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 7
+    },
+    {
+      "pc": 2147594288,
+      "pc_hex": "0x8001b030",
+      "flags": 541067952,
+      "count": 19609,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2452358,
+      "pc_hex": "0x00256b86",
+      "flags": 541065392,
+      "count": 4,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 6
+    },
+    {
+      "pc": 2147594307,
+      "pc_hex": "0x8001b043",
+      "flags": 541067952,
+      "count": 4,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 7
+    },
+    {
+      "pc": 2147569458,
+      "pc_hex": "0x80014f32",
+      "flags": 541065400,
+      "count": 3,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 56
+    },
+    {
+      "pc": 2147566470,
+      "pc_hex": "0x80014386",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2147585328,
+      "pc_hex": "0x80018d30",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 5
+    },
+    {
+      "pc": 2147585373,
+      "pc_hex": "0x80018d5d",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 4
+    },
+    {
+      "pc": 2147585556,
+      "pc_hex": "0x80018e14",
+      "flags": 541067952,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 12
+    },
+    {
+      "pc": 2147683972,
+      "pc_hex": "0x80030e84",
+      "flags": 541065392,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2147683972,
+      "pc_hex": "0x80030e84",
+      "flags": 541067952,
+      "count": 2,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 1146673,
+      "pc_hex": "0x00117f31",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 10
+    },
+    {
+      "pc": 2454755,
+      "pc_hex": "0x002574e3",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 6
+    },
+    {
+      "pc": 2454923,
+      "pc_hex": "0x0025758b",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 3165736,
+      "pc_hex": "0x00304e28",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 8
+    },
+    {
+      "pc": 3206056,
+      "pc_hex": "0x0030eba8",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 49
+    },
+    {
+      "pc": 3206766,
+      "pc_hex": "0x0030ee6e",
+      "flags": 541130928,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 2
+    },
+    {
+      "pc": 3210517,
+      "pc_hex": "0x0030fd15",
+      "flags": 541130928,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 2
+    },
+    {
+      "pc": 3395406,
+      "pc_hex": "0x0033cf4e",
+      "flags": 541130928,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 111
+    },
+    {
+      "pc": 3525594,
+      "pc_hex": "0x0035cbda",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 2
+    },
+    {
+      "pc": 2147565913,
+      "pc_hex": "0x80014159",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 3
+    },
+    {
+      "pc": 2147566470,
+      "pc_hex": "0x80014386",
+      "flags": 541067952,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 6
+    },
+    {
+      "pc": 2147569458,
+      "pc_hex": "0x80014f32",
+      "flags": 541067960,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 56
+    },
+    {
+      "pc": 2147585543,
+      "pc_hex": "0x80018e07",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 3
+    },
+    {
+      "pc": 2147593893,
+      "pc_hex": "0x8001aea5",
+      "flags": 541067952,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    },
+    {
+      "pc": 2147594421,
+      "pc_hex": "0x8001b0b5",
+      "flags": 541067960,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 7
+    },
+    {
+      "pc": 2147595640,
+      "pc_hex": "0x8001b578",
+      "flags": 541065392,
+      "count": 1,
+      "first_tb_pc": 0,
+      "first_tb_pc_hex": "0x00000000",
+      "first_tb_size": 1
+    }
+  ]
+}

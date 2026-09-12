@@ -1,0 +1,132 @@
+{
+  "repo": "xemu",
+  "number": 25,
+  "headline": "Ready for review as an optional, default-Off Windows CPU-efficiency setting; it does not fix PGR2 Vulkan lag.",
+  "scope": "Same-build Off versus On measurements were collected on implementation 0edb216c23ab071042bb26005267d0c3816337cd. The wait implementation, UI/config wiring and focused tests are byte-identical in production source a0bb1187b4f49e7a790c770b0ced487d32eca99a, tree 4fef93d9750edee89485cea20698adf51773273a; that source only removes the dormant validation marker receiver. Production executable SHA-256 is 9df0a0f15d596c9e04ba2581ad4567271ac8679e4640b9d4328149beae320e60. Current PR head a2a444a85f29dab215bbd646ce1a32a690a9fd1b adds documentation. Cadence is an NV2A guest display-write proxy, not rendered FPS; lag rows are means of two run-level measurements per mode.",
+  "rows": [
+    {
+      "metric": "XISO mean host CPU",
+      "unit": "%",
+      "renderer": "Vulkan",
+      "baseline": 17.486,
+      "candidate": 13.056,
+      "baseline_display": "17.486% Off",
+      "candidate_display": "13.056% On",
+      "note": "25.33% lower host CPU; higher is not better for this metric"
+    },
+    {
+      "metric": "XISO mean host CPU",
+      "unit": "%",
+      "renderer": "OpenGL",
+      "baseline": 16.486,
+      "candidate": 10.97,
+      "baseline_display": "16.486% Off",
+      "candidate_display": "10.970% On",
+      "note": "33.46% lower host CPU"
+    },
+    {
+      "metric": "XISO leaf-test total",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 94000.433,
+      "candidate": 94733.571,
+      "baseline_display": "94,000.433 ms Off",
+      "candidate_display": "94,733.571 ms On",
+      "note": "Unfavorable +0.78% timing movement retained"
+    },
+    {
+      "metric": "XISO leaf-test total",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 127419.523,
+      "candidate": 129058.48,
+      "baseline_display": "127,419.523 ms Off",
+      "candidate_display": "129,058.480 ms On",
+      "note": "Unfavorable +1.29% timing movement retained"
+    },
+    {
+      "metric": "Lag snapshot display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 26.264,
+      "candidate": 26.428,
+      "baseline_display": "26.264/s Off",
+      "candidate_display": "26.428/s On",
+      "note": "Guest display-write proxy; Vulkan remains below 27/s"
+    },
+    {
+      "metric": "Lag snapshot display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 29.471,
+      "candidate": 29.777,
+      "baseline_display": "29.471/s Off",
+      "candidate_display": "29.777/s On",
+      "note": "Guest display-write proxy"
+    },
+    {
+      "metric": "Lag snapshot p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 46.187,
+      "candidate": 46.13,
+      "baseline_display": "46.187 ms Off",
+      "candidate_display": "46.130 ms On",
+      "note": "Average of run-level p95 values, not a pooled percentile"
+    },
+    {
+      "metric": "Lag snapshot p95 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 41.192,
+      "candidate": 40.345,
+      "baseline_display": "41.192 ms Off",
+      "candidate_display": "40.345 ms On",
+      "note": "Average of run-level p95 values"
+    },
+    {
+      "metric": "Lag snapshot p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 51.553,
+      "candidate": 51.281,
+      "baseline_display": "51.553 ms Off",
+      "candidate_display": "51.281 ms On",
+      "note": "Average of run-level p99 values, not a pooled percentile"
+    },
+    {
+      "metric": "Lag snapshot p99 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 45.788,
+      "candidate": 44.81,
+      "baseline_display": "45.788 ms Off",
+      "candidate_display": "44.810 ms On",
+      "note": "Average of run-level p99 values"
+    }
+  ],
+  "missing": [
+    "No demonstrated PGR2 Vulkan lag fix; the measured Vulkan lag snapshot remains effectively neutral and below 27 display writes/s.",
+    "No universal power saving is established; the Vulkan board-power pair moved from 20.854 W Off to 21.425 W On.",
+    "The graph is representative; the existing PR body retains PGR2 CPU, device GPU, board power and all per-test rows."
+  ],
+  "evidence": [
+    {
+      "label": "Complete report and grouped results",
+      "url": "https://github.com/Mainkill1/xemu/blob/a2a444a85f29dab215bbd646ce1a32a690a9fd1b/docs/performance/windows-short-wait/README.md"
+    },
+    {
+      "label": "Lag snapshot per-run results",
+      "url": "https://github.com/Mainkill1/xemu/blob/a2a444a85f29dab215bbd646ce1a32a690a9fd1b/docs/performance/windows-short-wait/lag-toggle/results.csv"
+    },
+    {
+      "label": "Vulkan XISO per-test rows",
+      "url": "https://github.com/Mainkill1/xemu/blob/a2a444a85f29dab215bbd646ce1a32a690a9fd1b/docs/performance/windows-short-wait/toggle-vulkan/per-test.csv"
+    },
+    {
+      "label": "OpenGL XISO per-test rows",
+      "url": "https://github.com/Mainkill1/xemu/blob/a2a444a85f29dab215bbd646ce1a32a690a9fd1b/docs/performance/windows-short-wait/toggle-opengl/per-test.csv"
+    }
+  ],
+  "diagram": "flowchart LR\n    A[Sub-millisecond deadline] --> B{Setting enabled and timer available?}\n    B -->|No| C[Compatibility polling]\n    B -->|Yes| D[Arm persistent high-resolution timer]\n    D --> E[Wait on timer plus original handles]\n    E --> F[Return only original handle readiness]\n    D -. timer failure .-> C"
+}

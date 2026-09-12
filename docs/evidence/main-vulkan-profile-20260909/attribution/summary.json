@@ -1,0 +1,248 @@
+{
+  "range_s": [
+    "21.7960615",
+    "41.8051073"
+  ],
+  "view_duration_s": "20.0090458",
+  "target": {
+    "pid": 6568,
+    "tid": 5992
+  },
+  "input_hashes": {
+    "sampled": "c74598ed563713cded5f8e374a3ec0090ce63fc35f357a191369ea7055d8f00d",
+    "precise": "10cb50b1872781e903f8f05ea71632c7ee3554112ef84713af7f858c4c2abb60",
+    "gpu": "aad4029ca3030092545c65d9fde9692a234e76afd45f674ac0571fa5a01bcfb9"
+  },
+  "sampled_cpu": {
+    "rows": 4183,
+    "count": 4183,
+    "weight_ms": "4179.020500",
+    "first_timestamp_s": "21.822465900",
+    "last_timestamp_s": "41.804467200",
+    "leaf_summary_sha256": "ffefc02ce5bbcbb09009a6e74e6f8e283c5d2a063cb40e2facc6c28b61b0affd",
+    "top_leaf_groups": [
+      {
+        "leaf_class": "external_module",
+        "leaf": "nvoglv64.dll",
+        "begin_rva": "",
+        "end_rva_exclusive": "",
+        "samples": "810",
+        "weight_ms": "809.550400",
+        "sample_weight_percent": "19.371774"
+      },
+      {
+        "leaf_class": "external_module",
+        "leaf": "msvcrt.dll",
+        "begin_rva": "",
+        "end_rva_exclusive": "",
+        "samples": "558",
+        "weight_ms": "557.516200",
+        "sample_weight_percent": "13.340834"
+      },
+      {
+        "leaf_class": "external_module",
+        "leaf": "ntoskrnl.exe",
+        "begin_rva": "",
+        "end_rva_exclusive": "",
+        "samples": "492",
+        "weight_ms": "492.140600",
+        "sample_weight_percent": "11.776458"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "tlb_reset_dirty_range_all",
+        "begin_rva": "0x0011e4d0",
+        "end_rva_exclusive": "0x0011e83b",
+        "samples": "408",
+        "weight_ms": "407.983000",
+        "sample_weight_percent": "9.762647"
+      },
+      {
+        "leaf_class": "external_module",
+        "leaf": "ntdll.dll",
+        "begin_rva": "",
+        "end_rva_exclusive": "",
+        "samples": "245",
+        "weight_ms": "244.695600",
+        "sample_weight_percent": "5.855334"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pfifo_thread",
+        "begin_rva": "0x00275260",
+        "end_rva_exclusive": "0x00275f8c",
+        "samples": "109",
+        "weight_ms": "108.875600",
+        "sample_weight_percent": "2.605290"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "create_pipeline",
+        "begin_rva": "0x00297ea0",
+        "end_rva_exclusive": "0x0029b3c1",
+        "samples": "103",
+        "weight_ms": "102.970800",
+        "sample_weight_percent": "2.463994"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_method",
+        "begin_rva": "0x001dc380",
+        "end_rva_exclusive": "0x001dca7d",
+        "samples": "92",
+        "weight_ms": "91.399700",
+        "sample_weight_percent": "2.187108"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_vk_mark_textures_possibly_dirty",
+        "begin_rva": "0x002ab850",
+        "end_rva_exclusive": "0x002ab959",
+        "samples": "91",
+        "weight_ms": "90.737800",
+        "sample_weight_percent": "2.171270"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "apply_uniform_updates.lto_priv.0",
+        "begin_rva": "0x002ab3d0",
+        "end_rva_exclusive": "0x002ab56b",
+        "samples": "89",
+        "weight_ms": "89.034400",
+        "sample_weight_percent": "2.130509"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "update_uniform_rows.lto_priv.0",
+        "begin_rva": "0x002aae70",
+        "end_rva_exclusive": "0x002ab3c6",
+        "samples": "83",
+        "weight_ms": "83.043600",
+        "sample_weight_percent": "1.987155"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_vk_flush_draw",
+        "begin_rva": "0x0029d950",
+        "end_rva_exclusive": "0x0029e4fe",
+        "samples": "65",
+        "weight_ms": "64.168700",
+        "sample_weight_percent": "1.535496"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "lru_try_lookup",
+        "begin_rva": "0x002968c0",
+        "end_rva_exclusive": "0x00296b42",
+        "samples": "52",
+        "weight_ms": "52.000000",
+        "sample_weight_percent": "1.244311"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_method_inc",
+        "begin_rva": "0x001d4840",
+        "end_rva_exclusive": "0x001d49cb",
+        "samples": "51",
+        "weight_ms": "50.830000",
+        "sample_weight_percent": "1.216314"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_method_non_inc",
+        "begin_rva": "0x001d4360",
+        "end_rva_exclusive": "0x001d46e2",
+        "samples": "46",
+        "weight_ms": "46.005400",
+        "sample_weight_percent": "1.100866"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "qemu_mutex_lock_impl",
+        "begin_rva": "0x003dc060",
+        "end_rva_exclusive": "0x003dc181",
+        "samples": "41",
+        "weight_ms": "41.000300",
+        "sample_weight_percent": "0.981098"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "XXH3_accumulate_512_avx2.lto_priv.0",
+        "begin_rva": "0x006fd540",
+        "end_rva_exclusive": "0x006fd58e",
+        "samples": "40",
+        "weight_ms": "40.004100",
+        "sample_weight_percent": "0.957260"
+      },
+      {
+        "leaf_class": "external_module",
+        "leaf": "vulkan-1.dll",
+        "begin_rva": "",
+        "end_rva_exclusive": "",
+        "samples": "39",
+        "weight_ms": "38.846900",
+        "sample_weight_percent": "0.929570"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_glsl_set_psh_uniform_values",
+        "begin_rva": "0x0028be10",
+        "end_rva_exclusive": "0x0028c2e6",
+        "samples": "35",
+        "weight_ms": "34.998800",
+        "sample_weight_percent": "0.837488"
+      },
+      {
+        "leaf_class": "xemu_exact",
+        "leaf": "pgraph_NV097_SET_MODEL_VIEW_MATRIX_int_handler",
+        "begin_rva": "0x001d3fb0",
+        "end_rva_exclusive": "0x001d3ffa",
+        "samples": "33",
+        "weight_ms": "33.000000",
+        "sample_weight_percent": "0.789659"
+      }
+    ],
+    "limit": "sample weight only; unresolved caller frames prevent causal attribution"
+  },
+  "precise_cpu": {
+    "rows": 19133,
+    "running_s": "4.4943294",
+    "running_percent": "22.461488",
+    "off_cpu_s": "15.514716400",
+    "wait_s": "15.439872300",
+    "ready_s": "0.074844100",
+    "raw_waits_column_s": "15.4414606",
+    "raw_ready_column_s": "0.0748616",
+    "ready_boundary": "exported WPA Ready Time (s), used as the absolute wait-to-ready boundary; this packet does not distinguish an observed ReadyThread event from a WPA-synthesized boundary",
+    "ready_before_last_out_rounding_rows": 52,
+    "ready_before_last_out_rounding_total_us": "13.900000000",
+    "ready_before_last_out_rounding_max_us": "1.100000000"
+  },
+  "process_gpu": {
+    "rows": 9652,
+    "summed_gpu_time_s": "8.4875398",
+    "execution_union_s": "7.577454700",
+    "by_type": {
+      "BLT": {
+        "rows": 1200,
+        "time_s": "0.1766484"
+      },
+      "Render": {
+        "rows": 8452,
+        "time_s": "8.3108914"
+      }
+    },
+    "by_submitting_tid": {
+      "4612": {
+        "rows": 5035,
+        "time_s": "1.8918509"
+      },
+      "5992": {
+        "rows": 4617,
+        "time_s": "6.5956889"
+      }
+    },
+    "gpu_union_intersection_with_pfifo_wait_s": "7.024453600",
+    "limit": "temporal overlap only; no fence, utilization, copy, wait-cause, or FPS claim"
+  }
+}

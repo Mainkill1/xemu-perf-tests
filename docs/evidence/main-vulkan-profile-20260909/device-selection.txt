@@ -1,0 +1,2 @@
+GL_RENDERER: NVIDIA GeForce RTX 3070 Ti Laptop GPU/PCIe/SSE2
+Selected physical device: NVIDIA GeForce RTX 3070 Ti Laptop GPU

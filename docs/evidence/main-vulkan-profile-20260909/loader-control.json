@@ -1,0 +1,24 @@
+{
+  "purpose": "discriminate global WPA preset-state failure from task-profile failure",
+  "etl_sha256": "58a8bbeb4d837aeb5d6309f4ef884fc01d939d52c648706a63f642f79c6ac1c1",
+  "input_range_ns": [
+    21796061500,
+    41805107300
+  ],
+  "profile": "installed DiagnoseDroppedEvents.wpaprofile",
+  "profile_sha256": "053b5a018613fba3811642275f8e66679b21073b30ff32935f55469d4618d211",
+  "tool_sha256": "2b0271d58b3bddd9bb0409671a62636a6cf7650a644c3a19d6475f6152fa7ffb",
+  "exit_code": 0,
+  "my_presets_before": false,
+  "my_presets_after": false,
+  "same_missing_presets_warning": true,
+  "csv_file": "loader-control-header.csv",
+  "csv_sha256": "c5085113845cc14a0b12a821b87316fea63591736ec0eba8edc7af63d7c9725b",
+  "csv_bytes": 80,
+  "data_rows": 0,
+  "conclusion": "MyPresets absence/warning is not a fatal global loader requirement in this environment",
+  "limitation": "Loader-only control; no PFIFO/GPU attribution. This control omits symbol flags used in r3, which remain a separate variable for isolating the task-profile failure.",
+  "owned_processes_remaining": 0,
+  "start_utc": "2026-09-09T12:57:14.0902023Z",
+  "end_utc": "2026-09-09T12:57:46.9216478Z"
+}

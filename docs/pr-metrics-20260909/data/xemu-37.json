@@ -1,0 +1,85 @@
+{
+  "repo": "xemu",
+  "number": 37,
+  "headline": "Draft UI/configuration change: seven performance controls are centralized in Settings → Advance, but native menu and gameplay qualification are still pending.",
+  "scope": "No performance comparison exists for this combined build, so validation counts are shown instead of speed metrics. Tested implementation b8cafd6d2e2ec651a1708b80c6e571bc15f64212, tree 44ef8117b776b44558052bf9565f5843f62b8d1c, produced executable b2aac86bb56f50ec030b711cb0e8ba0cd6f147145fe5b7c81d4c81ca2a011ae2. Current head 1636d1ef9ffee4a1734a5187760e5805dea7c232 adds documentation. Other PRs' measurements do not qualify this exact combined source.",
+  "rows": [
+    {
+      "metric": "Performance controls mapped",
+      "unit": "settings",
+      "renderer": "Shared UI",
+      "baseline": null,
+      "candidate": 7,
+      "baseline_display": "Existing locations",
+      "candidate_display": "7 controls in Advance",
+      "note": "Source review found seven unchanged setting/flag mappings"
+    },
+    {
+      "metric": "Packet/reservation validation",
+      "unit": "modes",
+      "renderer": "Shared backend",
+      "baseline": null,
+      "candidate": 24,
+      "baseline_display": "Not applicable",
+      "candidate_display": "24 modes PASS",
+      "note": "Includes On/Off reservation fallbacks; focused driver coverage, not gameplay"
+    },
+    {
+      "metric": "Generated configuration/runtime test",
+      "unit": "status",
+      "renderer": "Windows",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Not applicable",
+      "candidate_display": "PASS",
+      "note": "Defaults, saved-Off round trip, migration, live switching, independence and restart policy"
+    },
+    {
+      "metric": "Native menu/game qualification",
+      "unit": "status",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Not measured",
+      "candidate_display": "Pending",
+      "note": "Rendered UI and gameplay have not been qualified"
+    },
+    {
+      "metric": "Native menu/game qualification",
+      "unit": "status",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Not measured",
+      "candidate_display": "Pending",
+      "note": "All controls individually Off also remain pending"
+    },
+    {
+      "metric": "Performance comparison",
+      "unit": "status",
+      "renderer": "Both renderers",
+      "baseline": null,
+      "candidate": null,
+      "baseline_display": "Not measured",
+      "candidate_display": "Not measured",
+      "note": "Do not reuse individual feature PR measurements for this combined build"
+    }
+  ],
+  "missing": [
+    "No cadence, p95, p99, CPU, GPU, RAM, VRAM or power measurement was collected for this exact combined build.",
+    "Native rendered-menu and gameplay qualification is pending on both renderers.",
+    "Every option individually Off is pending.",
+    "All seven options default On on this branch; standalone #25 qualifies the Windows wait option as default Off, so final policy requires explicit review."
+  ],
+  "evidence": [
+    {
+      "label": "Settings behavior and validation history",
+      "url": "https://github.com/Mainkill1/xemu/blob/1636d1ef9ffee4a1734a5187760e5805dea7c232/docs/performance/tweaks.md"
+    },
+    {
+      "label": "Exact build and validation manifest",
+      "url": "https://github.com/Mainkill1/xemu/blob/1636d1ef9ffee4a1734a5187760e5805dea7c232/docs/performance/advance-build-manifest.json"
+    }
+  ],
+  "diagram": "flowchart LR\n    A[Seven existing performance controls] --> B[Settings → Advance]\n    B --> C[Standard Boolean toggles]\n    C --> D{Application policy}\n    D -->|Live controls| E[Update atomic runtime state]\n    D -->|Buffer growth or S3TC| F[Save value and show restart pending]\n    B --> G[About moves to sidebar index 8]"
+}
