@@ -19,16 +19,18 @@ The Win64 Release build passed for all three exact heads. The production-header 
 
 ## Complete XISO comparison
 
-All cells used the same image, catalog, runner revision, scale 1, zero warmup iterations, and per-iteration completion. Vulkan validation was active only for correctness; these one-off medians are directional observations, not performance acceptance. **Improvement % is positive when a lower duration is better (`+bad`).** [All 322 per-test rows](results/comparison.csv) retain raw medians, outcomes, comparison-eligible hashes, and Improvement %.
+All cells used the same image, catalog, runner revision, scale 1, zero warmup iterations, and per-iteration completion. Vulkan validation was active only for correctness; these one-off medians are directional observations, not performance acceptance. **Improvement % is positive when a lower duration is better (`+bad`).** [All 322 per-test rows](results/comparison.csv) retain raw medians, outcomes, comparison-eligible hashes, and Improvement % for #85 → #87 → #89.
 
-| Renderer | Parent pass | Candidate pass | New three-generation oracle | Eligible outcome/hash changes | VUIDs | Timed passing leaves | Median Improvement vs parent |
-| --- | ---: | ---: | --- | ---: | ---: | ---: | ---: |
-| Vulkan | 160/161 | 160/161 | PASS | 0 | 0 | 155 | **-0.23%** |
-| OpenGL | 159/161 | 159/161 | PASS | 0 | N/A | 154 | **-0.56%** |
+| Renderer | #85 / #87 / #89 passes | Three-generation oracle | Eligible outcome/hash changes | VUIDs | Timed leaves | #87 vs #85 median Improvement | #89 vs #87 median Improvement |
+| --- | ---: | --- | ---: | ---: | ---: | ---: | ---: |
+| Vulkan | 160/161 each | PASS at all heads | 0 at both steps | 0 at all heads | 155 | **-0.14%** | **-0.23%** |
+| OpenGL | 159/161 each | PASS at all heads | 0 at both steps | N/A | 154 | **+1.17%** | **-0.56%** |
 
-The inherited `report_query.dma_range_guard` failure remains on both renderers; OpenGL also retains `texture_cubemap_fallback.unbordered_subblock_dxt1`. Two same-address queued texture leaves can produce different framebuffer hashes because their unsynchronized per-draw source generation is intentionally undefined. The catalog marks those two leaves comparison-ineligible; their outcomes still match. Every **eligible** hash matches. The [comparison script](compare_xiso_161.py) reads the normalized data and applies that eligibility rule.
+The inherited `report_query.dma_range_guard` failure remains on both renderers; OpenGL also retains `texture_cubemap_fallback.unbordered_subblock_dxt1`. Two same-address queued texture leaves can produce different framebuffer hashes because their unsynchronized per-draw source generation is intentionally undefined. The catalog marks those two leaves comparison-ineligible; their outcomes still match. Every **eligible** hash matches at both steps. The [comparison script](compare_xiso_161.py) reads the normalized data and applies that eligibility rule. #87's OpenGL code path is unchanged, so its isolated +1.17% suite median is not proof of a renderer benefit; the opposite small movement in the next step illustrates the noise in one-off XISO timings.
 
 The retained baseline executable was also attempted with the new 161-record ISO on each renderer, without rebuilding it. Both attempts reached its existing PFIFO inline-packet assertion during the suite and emitted an incomplete guest JSON result (zero accepted records). No 161-record baseline timing or outcome is claimed. Historical fixed-baseline game metrics remain separate, and baseline comparisons must use genuinely comparable work.
+
+The exact pre-#85 `main` commit is `9148241de690617ac0a21a26b41858585c1e3cab`, distinct from that fixed baseline. A one-time comparison build was attempted on the dedicated builder, but the host's full root filesystem prevented Docker from creating a container snapshot. It produced no executable or test result. The attempted files in temporary storage were removed and the shared source checkout was verified at its original commit. Therefore #85 versus immediate previous `main` remains unqualified; historical older-head rows must not fill this gap.
 
 ## Morrowind fixed-scene snapshot
 
@@ -79,6 +81,7 @@ The single worse maximum needs replication or attribution before it can be calle
 | --- | --- |
 | Exact-head Morrowind snapshot ABBA | Complete; both orders favor #89; controlled traversal remains pending |
 | Exact-head PGR2 full start and snapshot | Complete; full start effectively neutral at the cap; snapshot p95/p99 favorable, one-run maximum adverse |
+| #85 versus immediate previous `main` | Pending exact-main build and matched qualification; dedicated builder currently has no root filesystem space for Docker |
 | #85 direct surface/bounds oracles; #87 rollover; #89 forced finish, stale fallback, and reset | Pending targeted proof |
 | Linux/macOS build matrix and submitted independent review | Pending; GitHub reports no checks on these draft heads |
 | Complete performance verdict | Pending paired retail runs; single XISO medians are slightly adverse |

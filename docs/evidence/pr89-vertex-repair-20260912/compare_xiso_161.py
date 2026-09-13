@@ -52,13 +52,17 @@ def main():
         baseline_path = args.results / f"{renderer}-baseline-normalized.json"
         if baseline_path.exists():
             inputs["baseline"] = load(baseline_path)
+        pr85_path = args.results / f"{renderer}-pr85-normalized.json"
+        if pr85_path.exists():
+            inputs["pr85"] = load(pr85_path)
         if len({frozenset(x) for x in inputs.values()}) != 1:
             raise ValueError(f"{renderer}: catalog IDs differ")
-        timed = {role: [] for role in inputs if role != "candidate"}
+        timed = {role: [] for role in ("parent", "baseline", "pr85_parent")}
         unexpected = {role: [] for role in timed}
         for test_id in sorted(inputs["candidate"]):
             candidate = inputs["candidate"][test_id]
             baseline = inputs.get("baseline", {}).get(test_id)
+            pr85 = inputs.get("pr85", {}).get(test_id)
             parent = inputs["parent"][test_id]
             statuses = {}
             improvements = {}
@@ -71,19 +75,33 @@ def main():
                     unexpected[role].append(test_id)
                 if improvements[role] is not None:
                     timed[role].append(improvements[role])
+            if pr85 is None:
+                pr85_parent_status, pr85_parent_improvement = "NOT_COMPARABLE", None
+            else:
+                pr85_parent_status, pr85_parent_improvement = compare(pr85, parent)
+                if pr85_parent_status in ("OUTCOME_CHANGED", "HASH_CHANGED"):
+                    unexpected["pr85_parent"].append(test_id)
+                if pr85_parent_improvement is not None:
+                    timed["pr85_parent"].append(pr85_parent_improvement)
             rows.append({
                 "renderer": renderer,
                 "test_id": test_id,
                 "kind": candidate["kind"],
                 "baseline_outcome": baseline["outcome"] if baseline else "",
+                "pr85_outcome": pr85["outcome"] if pr85 else "",
                 "parent_outcome": parent["outcome"],
                 "candidate_outcome": candidate["outcome"],
                 "candidate_vs_baseline": statuses["baseline"],
+                "parent_vs_pr85": pr85_parent_status,
                 "candidate_vs_parent": statuses["parent"],
                 "raw_direction": "+bad" if improvements["parent"] is not None else "",
                 "baseline_median_us": baseline.get("median_us") or "" if baseline else "",
+                "pr85_median_us": pr85.get("median_us") or "" if pr85 else "",
                 "parent_median_us": parent.get("median_us") or "",
                 "candidate_median_us": candidate.get("median_us") or "",
+                "improvement_parent_vs_pr85_pct": (
+                    f"{pr85_parent_improvement:+.2f}"
+                    if pr85_parent_improvement is not None else ""),
                 "improvement_vs_baseline_pct": (
                     f"{improvements['baseline']:+.2f}"
                     if improvements["baseline"] is not None else ""),
@@ -91,6 +109,7 @@ def main():
                     f"{improvements['parent']:+.2f}"
                     if improvements["parent"] is not None else ""),
                 "baseline_hash": baseline.get("framebuffer_fnv1a64") or "" if baseline else "",
+                "pr85_hash": pr85.get("framebuffer_fnv1a64") or "" if pr85 else "",
                 "parent_hash": parent.get("framebuffer_fnv1a64") or "",
                 "candidate_hash": candidate.get("framebuffer_fnv1a64") or "",
             })
@@ -98,8 +117,12 @@ def main():
             "records": 161,
             "candidate_vs_parent_unexpected": unexpected["parent"],
             "candidate_vs_baseline_unexpected": unexpected["baseline"] if baseline_path.exists() else None,
+            "parent_vs_pr85_unexpected": unexpected["pr85_parent"] if pr85_path.exists() else None,
             "timed_parent_leaves": len(timed["parent"]),
             "median_improvement_vs_parent_pct": statistics.median(timed["parent"]),
+            "timed_pr85_parent_leaves": len(timed["pr85_parent"]),
+            "median_improvement_parent_vs_pr85_pct": (
+                statistics.median(timed["pr85_parent"]) if pr85_path.exists() else None),
             "timed_baseline_leaves": len(timed["baseline"]) if baseline_path.exists() else 0,
             "median_improvement_vs_baseline_pct": (
                 statistics.median(timed["baseline"]) if baseline_path.exists() else None),
