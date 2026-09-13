@@ -27,9 +27,9 @@ class CatalogPlanContractTests(unittest.TestCase):
 
     catalog = json.loads((ROOT / "resources/catalog.json").read_text(encoding="utf-8"))
     tests = catalog["tests"]
-    self.assertEqual(catalog["leaf_count"], 156)
+    self.assertEqual(catalog["leaf_count"], 157)
     self.assertEqual(catalog["group_count"], 5)
-    self.assertEqual(len(tests), 161)
+    self.assertEqual(len(tests), 162)
     self.assertEqual(len({test["id"] for test in tests}), len(tests))
     self.assertEqual(len({test["legacy_ids"][0] for test in tests}), len(tests))
     self.assertTrue(all(re.fullmatch(r"[a-z0-9_.]+", test["id"]) for test in tests))

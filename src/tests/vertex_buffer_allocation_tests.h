@@ -37,6 +37,7 @@ class VertexBufferAllocationTests : public TestSuite {
   void TestDisjointSamePageVertexUpdates();
   void TestOrderedSamePageVertexOverwrite();
   void TestThreeGenerationVertexOverwrite();
+  void TestGpuSurfaceVertexAttributeReadback();
   void TestRisingTransientBufferGrowth();
   void FinishProfileWithOracle(const std::string &name, DrawMode mode,
                                const TestHost::ProfileResults &results,

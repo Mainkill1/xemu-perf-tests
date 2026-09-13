@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:97cf21ecd573f12cf915a88247252b9459baf93e89db20807b3f0e7ae3974981` contains 156 leaves and 5 groups.
+Catalog `sha256:058c64d43ad5729acfd777d70de38e299c9999272e0b2c37d76d8b691494db6a` contains 157 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -165,3 +165,4 @@ Catalog `sha256:97cf21ecd573f12cf915a88247252b9459baf93e89db20807b3f0e7ae3974981
 | `vertex_buffer_allocation.rising_transient_growth` | leaf | `Vertex buffer allocation::XemuRisingTransientBufferGrowth` |
 | `vertex_buffer_allocation.ordered_same_page_overwrite` | leaf | `Vertex buffer allocation::XemuVertexRamOrderedSamePageOverwrite` |
 | `vertex_buffer_allocation.three_generation_overwrite` | leaf | `Vertex buffer allocation::XemuVertexRamThreeGenerations` |
+| `vertex_buffer_allocation.gpu_surface_vertex_attribute_readback` | leaf | `Vertex buffer allocation::XemuGpuSurfaceVertexAttributeReadback` |

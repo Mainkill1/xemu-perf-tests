@@ -252,6 +252,12 @@ def entries():
         "XemuVertexRamThreeGenerations",
         "Rewrites one queued vertex allocation twice and checks all three draw generations.",
         ("vertex", "correctness", "xemu-only")))
+    out.append(leaf(
+        "vertex_buffer_allocation.gpu_surface_vertex_attribute_readback",
+        "vertex_buffer_allocation", "Vertex buffer allocation",
+        "XemuGpuSurfaceVertexAttributeReadback",
+        "Uses a GPU-authored surface as a stride-zero diffuse vertex attribute and checks readback before CPU decoding.",
+        ("vertex", "surface", "correctness", "xemu-only")))
     return out
 
 
@@ -416,6 +422,8 @@ def failure_diagnosis(test):
             "A later CPU write changed an earlier recorded draw, the later draw read stale vertices, or the intervening FIFO drain completed GPU work. Check read-page tracking, mapped-write eligibility, ordered staging, and submission lifetime.",
         "vertex_buffer_allocation.three_generation_overwrite":
             "A queued draw consumed a later vertex generation. Check version selection, immutable inline staging, read-page tracking, and command-buffer retirement between rewrites.",
+        "vertex_buffer_allocation.gpu_surface_vertex_attribute_readback":
+            "A GPU-authored diffuse value was not visible to CPU vertex-attribute decoding. Check surface overlap detection, readback ordering, dirty ranges, and the stride-zero uniform value.",
     }
     if test_id in exact:
         return exact[test_id]
