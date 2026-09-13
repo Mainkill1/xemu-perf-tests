@@ -167,12 +167,15 @@ prove GPU-surface readback into vertex memory.
 
 ## Pending exact-head gates
 
+The [GPU-surface-to-vertex oracle](SURFACE-VERTEX-ORACLE.md) now supplies a direct main→#85 Vulkan failure/pass control. The same test exposes an inherited OpenGL failure on both main and #89; that separate renderer issue does not qualify a new regression in this stack.
+
 | Gate | Current state |
 | --- | --- |
 | 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; the relevant timing outlier was not reproduced in ABBA controls |
 | #89 three-generation guest oracle and version-selection observation | Complete on current head; 1,028 selections, matching output, zero VUIDs |
 | PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start cap-neutral; fixed Morrowind scene positive; PGR2 snapshot adverse in two orders; traversal pending |
-| Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
+| Direct #85 GPU-surface-to-vertex readback | Complete: main Vulkan blue/FAIL; #85 and #89 Vulkan red/PASS, zero VUIDs |
+| #89 forced finish between version selection and copy, staging rollover, stale fallback/reset | Pending focused guest proof |
 | Cross-platform build/review | Pending |
 
 The [previous stack report](REPORT.md) retains its historical measurements
