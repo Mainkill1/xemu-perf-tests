@@ -1,3 +1,5 @@
+> **Historical exact heads:** #87 `b3b99fb` and #89 `150d74a` have been superseded by an idle read-page-clear repair. See [current qualification](IDLE-CLEAR.md). The measurements below retain their original source identities.
+
 # Reconciled #85 → #87 → #89 stack: exact-head qualification
 
 **Status: draft; no merge verdict yet.** The corrected stack preserves the
