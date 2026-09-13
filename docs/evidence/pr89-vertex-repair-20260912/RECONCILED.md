@@ -104,13 +104,31 @@ small interval changes below do not establish a throughput gain or regression.
 | #87 → #89 | 33.628 / 34.061 ms | 33.669 / 33.855 ms | -0.12% / +0.61% |
 | Main → #89 | 33.525 / 33.904 ms | 33.669 / 33.855 ms | -0.43% / +0.14% |
 
+## Morrowind fixed-scene snapshot: #89 versus #87
+
+The [four exact-head cells](results/reconciled-morrowind-87-89.json) used the
+same Vulkan snapshot, seed, Start/B input sequence, and 60-second measurement.
+All passed scene validation and deleted their private HDD copies. Guest
+display-write cadence is a guest-progression proxy, not displayed FPS.
+
+| Run order | #87 / #89 writes per second | Cadence Improvement | #87 / #89 p95 | p95 Improvement | #87 / #89 p99 | p99 Improvement |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| #87 → #89 | 25.028 / 26.320 | **+5.16%** | 45.886 / 44.871 ms | **+2.21%** | 53.045 / 50.440 ms | **+4.91%** |
+| #89 → #87 | 25.151 / 26.360 | **+4.81%** | 46.213 / 44.050 ms | **+4.68%** | 53.557 / 51.108 ms | **+4.57%** |
+
+This is a repeatable positive result for the fixed scene on the current
+reconciled heads. The end-image hashes differ as guest progression differs;
+all end images passed the runner's scene checks, while XISO supplies the
+matching-pixel oracles. A controlled map traversal has not been captured, so
+these figures should not be described as a whole-game FPS gain.
+
 ## Pending exact-head gates
 
 | Gate | Current state |
 | --- | --- |
 | 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; the relevant timing outlier was not reproduced in ABBA controls |
 | #89 three-generation guest oracle and version-selection observation | Pending current-head result; previous-head test passed |
-| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start complete and cap-neutral; matched snapshots pending |
+| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start cap-neutral; fixed Morrowind scene repeatably positive; PGR2 snapshot and traversal pending |
 | Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
 | Cross-platform build/review | Pending |
 
