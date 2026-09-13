@@ -38,4 +38,4 @@ An initial `-loadvm` startup A/B also completed, but it did **not** exercise the
 
 Do not enable full renderer reinitialization on snapshot restore. A future snapshot-specific repair should first define the UI framebuffer release/rendezvous contract so VM stop cannot wait on an owner that cannot progress. Separately, test whether any pre-restore GPU-surface readback is needed before RAM is replaced; the current source ordering makes that a candidate risk, but this experiment did not prove VRAM corruption. Preserve normal post-load dirty-state restoration and test any narrower change with a live reload, not only startup `-loadvm`.
 
-The source and bounded logs are linked from the research PR. `results.json` retains the compact machine-readable outcome. No game media, snapshot disk, screenshot pixels, private paths, or trace files are published here.
+The [research PR #92](https://github.com/Mainkill1/xemu/pull/92) retains the source and bounded trace excerpts. `results.json` retains the compact machine-readable outcome. No game media, snapshot disk, screenshot pixels, private paths, or raw trace files are published here.
