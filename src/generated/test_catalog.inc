@@ -160,6 +160,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "XemuVertexRamDisjointSamePage", "Runs the XemuVertexRamDisjointSamePage workload and records its deterministic result.", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.ordered_same_page_overwrite", 1, "vertex_buffer_allocation", "XemuVertexRamOrderedSamePageOverwrite", "Draws, drains the FIFO without GPU completion, overwrites the same vertex page, and checks both ordered colors.", "Vertex buffer allocation", "XemuVertexRamOrderedSamePageOverwrite", "XemuVertexRamOrderedSamePageOverwrite", TestKind::LEAF, 0, 0},
+  {"vertex_buffer_allocation.three_generation_overwrite", 1, "vertex_buffer_allocation", "XemuVertexRamThreeGenerations", "Rewrites one queued vertex allocation twice and checks all three draw generations.", "Vertex buffer allocation", "XemuVertexRamThreeGenerations", "XemuVertexRamThreeGenerations", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:2b419c84464cbcd251a53253002a8a0fe9a2ddced05ea896e24b0ed4ca996aac";
+static constexpr const char *kTestCatalogId = "sha256:97cf21ecd573f12cf915a88247252b9459baf93e89db20807b3f0e7ae3974981";

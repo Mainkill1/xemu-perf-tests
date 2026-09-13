@@ -246,6 +246,12 @@ def entries():
         "XemuVertexRamOrderedSamePageOverwrite",
         "Draws, drains the FIFO without GPU completion, overwrites the same vertex page, and checks both ordered colors.",
         ("vertex", "correctness", "xemu-only")))
+    out.append(leaf(
+        "vertex_buffer_allocation.three_generation_overwrite",
+        "vertex_buffer_allocation", "Vertex buffer allocation",
+        "XemuVertexRamThreeGenerations",
+        "Rewrites one queued vertex allocation twice and checks all three draw generations.",
+        ("vertex", "correctness", "xemu-only")))
     return out
 
 
@@ -408,6 +414,8 @@ def failure_diagnosis(test):
             "A just-below, exact-capacity, repeated-small-growth, or large-growth phase failed. Check required-size arithmetic, paired buffer capacities, mapping restoration, command-buffer completion, and post-growth draw offsets.",
         "vertex_buffer_allocation.ordered_same_page_overwrite":
             "A later CPU write changed an earlier recorded draw, the later draw read stale vertices, or the intervening FIFO drain completed GPU work. Check read-page tracking, mapped-write eligibility, ordered staging, and submission lifetime.",
+        "vertex_buffer_allocation.three_generation_overwrite":
+            "A queued draw consumed a later vertex generation. Check version selection, immutable inline staging, read-page tracking, and command-buffer retirement between rewrites.",
     }
     if test_id in exact:
         return exact[test_id]
@@ -723,6 +731,7 @@ def render():
         "surface.surface_download_path",
         "vertex_buffer_allocation.disjoint_same_page",
         "vertex_buffer_allocation.ordered_same_page_overwrite",
+        "vertex_buffer_allocation.three_generation_overwrite",
         "tiny_draw.inline_buffers.vertex_shader",
     ]
     profiles = {

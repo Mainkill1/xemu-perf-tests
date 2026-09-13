@@ -16,6 +16,8 @@ static constexpr char kDisjointSamePageTest[] =
     "XemuVertexRamDisjointSamePage";
 static constexpr char kOrderedSamePageOverwriteTest[] =
     "XemuVertexRamOrderedSamePageOverwrite";
+static constexpr char kThreeGenerationOverwriteTest[] =
+    "XemuVertexRamThreeGenerations";
 static constexpr char kRisingTransientGrowthTest[] =
     "XemuRisingTransientBufferGrowth";
 static constexpr uint32_t kGeometrySeed = 0x5642414CU;
@@ -204,6 +206,8 @@ VertexBufferAllocationTests::VertexBufferAllocationTests(TestHost &host, std::st
       [this]() { TestDisjointSamePageVertexUpdates(); };
   tests_[kOrderedSamePageOverwriteTest] =
       [this]() { TestOrderedSamePageVertexOverwrite(); };
+  tests_[kThreeGenerationOverwriteTest] =
+      [this]() { TestThreeGenerationVertexOverwrite(); };
   tests_[kRisingTransientGrowthTest] =
       [this]() { TestRisingTransientBufferGrowth(); };
 }
@@ -362,6 +366,95 @@ void VertexBufferAllocationTests::TestOrderedSamePageVertexOverwrite() {
                       __LINE__);
   host_.FinishDraw(suite_name_, kOrderedSamePageOverwriteTest, results);
   host_.ClearVertexBuffer();
+}
+
+void VertexBufferAllocationTests::TestThreeGenerationVertexOverwrite() {
+  static constexpr uint32_t kAttributes =
+      TestHost::POSITION | TestHost::DIFFUSE;
+  static constexpr uint32_t kWarmupDraws = 2050;
+  static constexpr uint32_t kBackground = 0xFF182028U;
+  static constexpr uint32_t kColors[] = {
+      0xFFFF0000U, 0xFF00FF00U, 0xFF0000FFU};
+  static constexpr float kLeft[] = {64.f, 192.f, 320.f};
+
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
+  host_.SetVertexShaderProgram(std::make_shared<PassthroughVertexShader>());
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+
+  /* Reuse the exact same four-vertex allocation for each generation. The
+   * separate screen tiles make an old draw's accidental consumption of a
+   * later generation visible in the final framebuffer. Reserve contiguous
+   * guest memory first so this small allocation stays away from the XISO's
+   * active scanout surfaces; an overlapping surface correctly disables the
+   * version path and would make this a fallback-only oracle. */
+  auto padding_buffer = host_.AllocateVertexBuffer(65536);
+  auto buffer = host_.AllocateVertexBuffer(4);
+  buffer->SetPositionIncludesW(true);
+  host_.SetVertexBuffer(buffer);
+  host_.PrepareDraw(kBackground);
+  auto write_quad = [&buffer](float left, float red, float green, float blue) {
+    auto vertex = buffer->Lock();
+    const float positions[4][2] = {
+        {left, 64.f}, {left + 48.f, 64.f},
+        {left + 48.f, 112.f}, {left, 112.f}};
+    for (uint32_t corner = 0; corner < 4; ++corner, ++vertex) {
+      vertex->SetPosition(positions[corner][0], positions[corner][1], 0.f);
+      vertex->SetDiffuse(red, green, blue, 1.f);
+    }
+    buffer->Unlock();
+  };
+
+  const auto results = Profile(kThreeGenerationOverwriteTest, 1, [&] {
+    host_.PrepareDraw(kBackground);
+    /* Each changed draw dirties one 4 KiB source page. Crossing the 8 MiB
+     * staging capacity retires the earlier batch and activates read-page
+     * tracking; there is no GPU wait between that retirement and the three
+     * visible generations. The warmup tile is outside every oracle pixel. */
+    for (uint32_t warmup = 0; warmup < kWarmupDraws; ++warmup) {
+      write_quad(16.f, warmup & 1U, !(warmup & 1U), 0.f);
+      host_.DrawArrays(kAttributes, TestHost::PRIMITIVE_QUADS);
+      while (pb_busy()) {
+      }
+    }
+    for (uint32_t generation = 0; generation < 3; ++generation) {
+      write_quad(kLeft[generation], generation == 0, generation == 1,
+                 generation == 2);
+      host_.DrawArrays(kAttributes, TestHost::PRIMITIVE_QUADS);
+      if (generation != 2) {
+        while (pb_busy()) {
+        }
+      }
+    }
+    host_.WaitForGpu();
+  });
+
+  const auto *const base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  auto read_argb = [base, pitch](uint32_t x, uint32_t y) {
+    const auto *const pixel = base + y * pitch + x * sizeof(uint32_t);
+    return (static_cast<uint32_t>(pixel[3]) << 24) |
+           (static_cast<uint32_t>(pixel[2]) << 16) |
+           (static_cast<uint32_t>(pixel[1]) << 8) |
+           static_cast<uint32_t>(pixel[0]);
+  };
+  SetXemuPerfEventContext(0xB089U, 3U);
+  for (uint32_t generation = 0; generation < 3; ++generation) {
+    AssertXemuPerfEqual(
+        kColors[generation], read_argb(static_cast<uint32_t>(
+            kLeft[generation]) + 24U, 88U),
+        static_cast<XemuPerfAssertion>(0x310U + generation),
+        "draw retained its own vertex generation", __FILE__, __LINE__);
+  }
+  AssertXemuPerfEqual(kBackground, read_argb(152U, 88U),
+                      XemuPerfAssertion::VERTEX_ORDERED_BACKGROUND,
+                      "gap retained background", __FILE__, __LINE__);
+  host_.FinishDraw(suite_name_, kThreeGenerationOverwriteTest, results);
+  host_.ClearVertexBuffer();
+  padding_buffer.reset();
 }
 
 static std::shared_ptr<VertexBuffer> CreateGeometry(

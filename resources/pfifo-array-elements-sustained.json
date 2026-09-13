@@ -8,8 +8,8 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:ecd93a73a05e0b59b0c4ad4302f6922f17e998f5c5844830af8e8a6e2d0dc95f",
-    "catalog_id": "sha256:2b419c84464cbcd251a53253002a8a0fe9a2ddced05ea896e24b0ed4ca996aac",
+    "plan_id": "sha256:380a53e152733ee3427826985558f1f466fd4ac869857bbe9134707fd3e19393",
+    "catalog_id": "sha256:97cf21ecd573f12cf915a88247252b9459baf93e89db20807b3f0e7ae3974981",
     "selected_leaf_count": 3,
     "tests": [
       {
