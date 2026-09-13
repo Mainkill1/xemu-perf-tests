@@ -1,0 +1,52 @@
+{
+  "schema_version": 1,
+  "result": "NEGATIVE_EXPERIMENT",
+  "product_base": "9148241de690617ac0a21a26b41858585c1e3cab",
+  "research_head": "3e658fced88117f871a3bf7275bcb33cbb5ceeb1",
+  "platform": "Windows 22H2, Vulkan, NVIDIA RTX 3070 Ti Laptop GPU",
+  "runs": [
+    {
+      "id": "morrowind-live-off",
+      "reinit": false,
+      "executable_sha256": "796bf9b1adbe3073f62dc79bdf51b04f7aaf3e5841ad8a5bd057dfbcd4b3a2ef",
+      "qmp_status": "running",
+      "post_reload_result": "controller reconnect overlay; fewer than two guest display writes in 15 seconds",
+      "private_disk_removed": true
+    },
+    {
+      "id": "morrowind-live-on",
+      "reinit": true,
+      "executable_sha256": "796bf9b1adbe3073f62dc79bdf51b04f7aaf3e5841ad8a5bd057dfbcd4b3a2ef",
+      "qmp_status": "running",
+      "renderer_reinit_completed": true,
+      "post_reload_result": "same controller reconnect overlay; fewer than two guest display writes in 15 seconds",
+      "private_disk_removed": true
+    },
+    {
+      "id": "pgr2-live-off",
+      "reinit": false,
+      "executable_sha256": "796bf9b1adbe3073f62dc79bdf51b04f7aaf3e5841ad8a5bd057dfbcd4b3a2ef",
+      "qmp_status": "running",
+      "final_image_validation": "PASSED",
+      "display_write_cadence_per_second": 29.97123295644786,
+      "frame_interval_p95_ms": 41.056,
+      "frame_interval_p99_ms": 45.133,
+      "private_disk_removed": true
+    },
+    {
+      "id": "pgr2-live-on",
+      "reinit": true,
+      "executable_sha256": "796bf9b1adbe3073f62dc79bdf51b04f7aaf3e5841ad8a5bd057dfbcd4b3a2ef",
+      "post_reload_result": "QMP timeout before renderer reinit completion",
+      "private_disk_removed": true
+    },
+    {
+      "id": "pgr2-live-on-stage-trace",
+      "reinit": true,
+      "executable_sha256": "fa24eda7bc50d39e5f57c84e568c03ab70d1408f5ea5e420daffe81b4a300845",
+      "last_stage": "waiting for framebuffer_in_use to clear after renderer flush",
+      "post_reload_result": "QMP timeout before renderer finalize/init",
+      "private_disk_removed": true
+    }
+  ]
+}
