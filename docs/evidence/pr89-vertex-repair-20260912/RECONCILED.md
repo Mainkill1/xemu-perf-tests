@@ -141,12 +141,22 @@ pass an external build manifest or PDB; they did verify the executable hash
 before each launch. The exact-source build audit separately attests source,
 link, and executable identities. This is not evidence of a wrong executable.
 
+## Current-head three-generation version-path oracle
+
+The [focused XISO result](results/reconciled-three-generation.json) passed on
+#89 `150d74ac55` with the same framebuffer oracle, zero Vulkan VUIDs, and
+**1,028 version selections/draws** recorded by opt-in telemetry. It exercised
+three overwritten generations after a staging rollover. This is diagnostic
+correctness evidence; its instrumented duration is excluded from performance
+comparisons. It does not directly force a finish between selection and copy or
+prove GPU-surface readback into vertex memory.
+
 ## Pending exact-head gates
 
 | Gate | Current state |
 | --- | --- |
 | 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; the relevant timing outlier was not reproduced in ABBA controls |
-| #89 three-generation guest oracle and version-selection observation | Pending current-head result; previous-head test passed |
+| #89 three-generation guest oracle and version-selection observation | Complete on current head; 1,028 selections, matching output, zero VUIDs |
 | PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start cap-neutral; fixed Morrowind scene positive; PGR2 snapshot adverse in two orders; traversal pending |
 | Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
 | Cross-platform build/review | Pending |

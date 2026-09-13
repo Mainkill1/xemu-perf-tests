@@ -1,0 +1,17 @@
+{
+  "schema_version": 1,
+  "product_source": "150d74ac5525be769e4f44ab35718eb2607a8eec",
+  "product_executable_sha256": "29eac8120cce296e312ba85147109ca5d6b62755d6326d36d4c0358a44231d25",
+  "test_source": "9270fbab40bb8beb3cc5c9ce2ca32ce10e960e29",
+  "test_image_sha256": "e9b7996a2521a1b35c36fae074027240944dcc4d8625c131ee3d05d8367cb430",
+  "test_id": "Vertex buffer allocation::XemuVertexRamThreeGenerations",
+  "renderer": "VULKAN",
+  "status": "PASSED",
+  "record_count": 1,
+  "functional_hash_status": "PASSED",
+  "vulkan_vuid_count": 0,
+  "vertex_version_selected_ranges": 1028,
+  "vertex_version_draws": 1028,
+  "vertex_version_bytes": 131584,
+  "scope": "Three visible generations with same-page overwrite and prior staging rollover; opt-in telemetry is diagnostic, not a timing comparison."
+}
