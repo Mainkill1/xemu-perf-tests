@@ -2,6 +2,9 @@
 
 **Status:** Draft. [Product PR #89](https://github.com/Mainkill1/xemu/pull/89) is stacked on repaired [#87](https://github.com/Mainkill1/xemu/pull/87) and [#85](https://github.com/Mainkill1/xemu/pull/85). This report supersedes the **source identities**, not the retained historical measurements, in the [earlier PR #89 report](../pr89-vulkan-vertex-versions-20260912/REPORT.md).
 
+**Live stack note:** #85 has an experimental overlap-cache commit
+`9e97dcb9b3a419a930c54688008f281b32de1d42` (tree `8bfcc40a1a447ac31f1e1eb2b1f99c4527622724`), built after a complete tracked-file hash check as Win64 O2/LTO executable SHA-256 `f8faf95af8b222794447aa4cbe8bad871f8903ba23e06701150d7d5a74c1d1b7`. Its new unit passed; performance and full-suite qualification are pending. #87 and #89 have **not** been rebased onto it. All #85/#87/#89 result rows below still refer to the exact pre-cache heads in the identity table. [The prior-head CPU attribution](CPU-ATTRIBUTION.md) explains why this bounded experiment was selected.
+
 | Role | Source commit | Tree | Win64 executable SHA-256 |
 | --- | --- | --- | --- |
 | #85 correctness parent | `8d9245ddeb5f13d23a5e3f2aafdb5144c4bdad30` | `4330ee6b527dc43b910d0038476f50c26b6b4267` | `0c0e11d66e5a2b0b75fad38c8bb5acf88b5291b1115a47c6ba501f262fce313d` |
@@ -84,7 +87,7 @@ The [separate PGR2 snapshot ABBA control](results/pr85-pgr2-snapshot-abba.json) 
 | Main → #85 | 38.848 ms | 39.781 ms | **-2.40%** | 42.354 ms | 43.410 ms | **-2.49%** |
 | #85 → main | 38.882 ms | 39.357 ms | **-1.22%** | 42.761 ms | 43.296 ms | **-1.25%** |
 
-The repeated adverse p95/p99 direction holds #85's performance gate. Neither the [build audit](BUILD-AUDIT.md) nor these timing cells identifies the runtime operation responsible. The extra per-sync surface-overlap scan and early readback are source-level hypotheses for focused attribution.
+The repeated adverse p95/p99 direction holds #85's performance gate. A [focused sampled-CPU capture](CPU-ATTRIBUTION.md) found about **+0.123 ms/guest frame** of self CPU in `sync_vertex_ram_buffer` and **+0.069 ms/guest frame** in vertex-attribute binding. Optimized instruction pointers place much of the added sync work in the active-surface overlap traversal. This identifies added CPU work, but the traced timing direction differed from untraced ABBA; it does not assign the full p95/p99 regression to that traversal.
 
 ## PGR2 full start
 
