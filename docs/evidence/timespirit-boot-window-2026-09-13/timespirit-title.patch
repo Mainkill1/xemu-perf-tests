@@ -1,0 +1,236 @@
+--- a/src/main.c
++++ b/src/main.c
+@@ -71,10 +71,10 @@
+     const uint8_t *uv_data;
+     const uint8_t *index_data;
+     const uint8_t *appendage_weight_data;
++    uint16_t *appendage_influence_mask;
+     const uint8_t *core_weight_data;
+     const uint8_t *frame_data;
+     size_t frame_stride;
+-    RenderVertex *vertices;
+     RenderVertex *unique_vertices;
+     ShatterTriangle *shatter_triangles;
+     float spring_angle[APPENDAGE_BONE_COUNT][2];
+@@ -140,13 +140,14 @@
+ typedef struct DanceOption {
+     const char *path;
+     const char *label;
++    const char *menu_label;
+ } DanceOption;
+ static const DanceOption dance_options[] = {
+-    {"D:\\original.tsva", "Original Collection"},
+-    {"D:\\dance1.tsva", "Club Dance"},
+-    {"D:\\dance2.tsva", "Urban A"},
+-    {"D:\\dance3.tsva", "Urban B"},
+-    {"D:\\dance4.tsva", "CC0 Loop"},
++    {"D:\\original.tsva", "Original Collection", "ORIGINAL"},
++    {"D:\\dance1.tsva", "Club Dance", "CLUB"},
++    {"D:\\dance2.tsva", "Urban A", "URBAN A"},
++    {"D:\\dance3.tsva", "Urban B", "URBAN B"},
++    {"D:\\dance4.tsva", "CC0 Loop", "CC0 LOOP"},
+ };
+ #define DANCE_OPTION_COUNT \
+     ((int)(sizeof(dance_options) / sizeof(dance_options[0])))
+@@ -2443,22 +2444,28 @@
+                appendage_weight_bytes + core_weight_bytes +
+                frame_bytes * header.frame_count;
+     if (required > file_size) return 0;
+-    if (dance_cache.vertices &&
++    if (dance_cache.unique_vertices &&
+         (header.index_count != dance_cache.header.index_count ||
+          header.vertex_count != dance_cache.header.vertex_count)) {
+         return 0;
+     }
+-    if (!dance_cache.vertices) {
+-        dance_cache.vertices = MmAllocateContiguousMemoryEx(
+-            header.index_count * sizeof(RenderVertex), 0, MAXRAM, 0, 0x404);
++    if (!dance_cache.appendage_influence_mask)
++        dance_cache.appendage_influence_mask = malloc(
++            header.vertex_count * sizeof(uint16_t));
++    if (!dance_cache.appendage_influence_mask) return 0;
++    if (!dance_cache.unique_vertices) {
+         dance_cache.unique_vertices = MmAllocateContiguousMemoryEx(
+             header.vertex_count * sizeof(RenderVertex), 0, MAXRAM, 0, 0x404);
+     }
+     if (!resident->shatter_triangles)
+         resident->shatter_triangles = malloc(
+             (header.index_count / 3) * sizeof(ShatterTriangle));
+-    if (!dance_cache.vertices || !dance_cache.unique_vertices ||
++    if (!dance_cache.unique_vertices ||
+         !resident->shatter_triangles) return 0;
++    for (size_t index = 0; index < header.index_count; ++index) {
++        if (read_u16_le(file_data + sizeof(DanceCacheHeader) + uv_bytes +
++                        index * 2) >= header.vertex_count) return 0;
++    }
+ 
+     dance_cache.header = header;
+     dance_cache.file_data = file_data;
+@@ -2471,6 +2478,14 @@
+         ? dance_cache.appendage_weight_data + appendage_weight_bytes : NULL;
+     dance_cache.frame_data = dance_cache.appendage_weight_data +
+                              appendage_weight_bytes + core_weight_bytes;
++    for (size_t vertex = 0; vertex < header.vertex_count; ++vertex) {
++        const uint8_t *weights = dance_cache.appendage_weight_data +
++            vertex * APPENDAGE_WEIGHT_BYTES;
++        uint16_t mask = 0;
++        for (int bone = 0; bone < APPENDAGE_BONE_COUNT; ++bone)
++            if (weights[bone]) mask |= (uint16_t)(1u << bone);
++        dance_cache.appendage_influence_mask[vertex] = mask;
++    }
+     dance_cache.frame_stride = frame_bytes;
+     dance_cache.shatter_triangles = resident->shatter_triangles;
+     memset(dance_cache.spring_angle, 0, sizeof(dance_cache.spring_angle));
+@@ -2818,6 +2833,8 @@
+     float result_normal[3];
+     int bone;
+     int axis;
++    uint16_t active_mask = dance_cache.appendage_influence_mask[vertex_index];
++    if (!active_mask) return;
+     memcpy(base_position, vertex->position, sizeof(base_position));
+     memcpy(base_normal, vertex->normal, sizeof(base_normal));
+     memcpy(result_position, base_position, sizeof(result_position));
+@@ -2827,13 +2844,14 @@
+        vertex is transformed rigidly through every parent and blended once by
+        its original Unity bone weight, avoiding the repeated partial rotations
+        that flattened ears and produced tail hinges. */
+-    for (bone = 0; bone < APPENDAGE_BONE_COUNT; ++bone) {
++    while (active_mask) {
++        bone = __builtin_ctz(active_mask);
++        active_mask &= active_mask - 1;
+         float weight = weights[bone] / 255.0f;
+         float transformed_position[3];
+         float transformed_normal[3];
+         int chain_start;
+         int joint;
+-        if (weight <= 0.001f) continue;
+         memcpy(transformed_position, base_position,
+                sizeof(transformed_position));
+         memcpy(transformed_normal, base_normal, sizeof(transformed_normal));
+@@ -2931,17 +2949,6 @@
+         ShatterTriangle *shatter =
+             &dance_cache.shatter_triangles[output_index / 3];
+         uint32_t corner;
+-        for (corner = 0; corner < 3; ++corner) {
+-            uint32_t stream_index = output_index + corner;
+-            uint16_t vertex_index = read_u16_le(
+-                dance_cache.index_data + stream_index * 2);
+-            RenderVertex *out = &dance_cache.vertices[stream_index];
+-            *out = dance_cache.unique_vertices[vertex_index];
+-
+-            /* Eye pixels are authored in Spirit_Body_BaseMap and these are
+-               the production mesh's own UVs.  Unity does not add, offset or
+-               camera-mask a second eye surface, so neither do we. */
+-        }
+         {
+             float selector_position[3];
+             float over[3];
+@@ -2951,12 +2958,15 @@
+                    sizeof(selector_position));
+             memcpy(over, shatter->over, sizeof(over));
+             if (pose_mode) {
+-                RenderVertex *seed =
+-                    &dance_cache.vertices[output_index + 1];
++                const RenderVertex *seed =
++                    &dance_cache.unique_vertices[read_u16_le(
++                        dance_cache.index_data + (output_index + 1) * 2)];
+                 memset(selector_position, 0, sizeof(selector_position));
+                 for (corner = 0; corner < 3; ++corner) {
+-                    RenderVertex *body =
+-                        &dance_cache.vertices[output_index + corner];
++                    const RenderVertex *body =
++                        &dance_cache.unique_vertices[read_u16_le(
++                            dance_cache.index_data +
++                            (output_index + corner) * 2)];
+                     for (axis = 0; axis < 3; ++axis)
+                         selector_position[axis] +=
+                             body->position[axis] / 3.0f;
+@@ -2975,8 +2985,10 @@
+                 float face_normal[3] = {0.0f, 0.0f, 0.0f};
+                 float offset[3];
+                 for (corner = 0; corner < 3; ++corner) {
+-                    RenderVertex *body =
+-                        &dance_cache.vertices[output_index + corner];
++                    const RenderVertex *body =
++                        &dance_cache.unique_vertices[read_u16_le(
++                            dance_cache.index_data +
++                            (output_index + corner) * 2)];
+                     for (axis = 0; axis < 3; ++axis)
+                         face_normal[axis] += body->normal[axis];
+                 }
+@@ -2993,8 +3005,10 @@
+                     }
+                 }
+                 for (corner = 0; corner < 3; ++corner) {
+-                    RenderVertex *body =
+-                        &dance_cache.vertices[output_index + corner];
++                    const RenderVertex *body =
++                        &dance_cache.unique_vertices[read_u16_le(
++                            dance_cache.index_data +
++                            (output_index + corner) * 2)];
+                     RenderVertex *wave_out =
+                         &wave_vertices[wave_vertex_count++];
+                     RenderVertex *under_out =
+@@ -3077,6 +3091,38 @@
+                        sizeof(RenderVertex), &vertices[0].uv[0]);
+ }
+ 
++/* A non-incrementing ELEMENT16 packet consumes two ordered mesh indices per
++   word. Keep each pbkit block below its 128-DWORD recommended size. */
++static void draw_indexed_batched(const uint8_t *indices, uint32_t count)
++{
++    uint32_t start = 0;
++    uint32_t *p = pb_begin();
++    p = pb_push1(p, NV097_SET_BEGIN_END,
++                 NV097_SET_BEGIN_END_OP_TRIANGLES);
++    pb_end(p);
++    while (start + 1 < count) {
++        uint32_t batch = count - start;
++        if (batch > 240) batch = 240;
++        batch &= ~1u;
++        p = pb_begin();
++        pb_push(p, 0x40000000 | NV097_ARRAY_ELEMENT16, batch / 2);
++        ++p;
++        memcpy(p, indices + (size_t)start * 2, (size_t)batch * 2);
++        p += batch / 2;
++        pb_end(p);
++        start += batch;
++    }
++    if (start < count) {
++        p = pb_begin();
++        p = pb_push1(p, 0x40000000 | NV097_ARRAY_ELEMENT32,
++                     read_u16_le(indices + (size_t)start * 2));
++        pb_end(p);
++    }
++    p = pb_begin();
++    p = pb_push1(p, NV097_SET_BEGIN_END, NV097_SET_BEGIN_END_OP_END);
++    pb_end(p);
++}
++
+ static void draw_arrays_batched(uint32_t count)
+ {
+     uint32_t start = 0;
+@@ -3548,9 +3594,9 @@
+     for (index = 0; index < 3; ++index)
+         pb_print("%c %s\n", index == menu_selection ? '>' : ' ',
+                  menu_items[index]);
+-    pb_print("%c ANIMATION: %s\n",
++    pb_print("%c ANIM: %s\n",
+              menu_selection == MAIN_MENU_ANIMATION ? '>' : ' ',
+-             dance_options[animation_cursor].label);
++             dance_options[animation_cursor].menu_label);
+ }
+ 
+ int main(void)
+@@ -3741,8 +3787,9 @@
+ 
+         send_matrices();
+         bind_texture(&body_texture);
+-        bind_vertices(dance_cache.vertices);
+-        draw_arrays_batched(dance_cache.header.index_count);
++        bind_vertices(dance_cache.unique_vertices);
++        draw_indexed_batched(dance_cache.index_data,
++                             dance_cache.header.index_count);
+ 
+         if (underwave_vertex_count) {
+             bind_texture(&underwave_texture);
