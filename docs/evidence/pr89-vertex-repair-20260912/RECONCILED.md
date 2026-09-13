@@ -122,13 +122,32 @@ all end images passed the runner's scene checks, while XISO supplies the
 matching-pixel oracles. A controlled map traversal has not been captured, so
 these figures should not be described as a whole-game FPS gain.
 
+## PGR2 Vulkan snapshot: #89 versus #87
+
+The [four exact-head cells](results/reconciled-pgr2-snapshot-87-89.json) used
+the same snapshot, B-3 input, and 30-second warmup/60-second measurement.
+All completed functionally. Telemetry and ETW were off for timing.
+
+| Run order | #87 / #89 mean | Mean Improvement | #87 / #89 p95 | p95 Improvement | #87 / #89 p99 | p99 Improvement |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| #87 → #89 | 33.819 / 34.027 ms | **-0.61%** | 38.916 / 39.877 ms | **-2.47%** | 42.386 / 44.536 ms | **-5.07%** |
+| #89 → #87 | 33.807 / 33.841 ms | **-0.10%** | 38.968 / 39.391 ms | **-1.09%** | 42.388 / 43.513 ms | **-2.65%** |
+
+The adverse p95/p99 directions repeat in opposite run orders, while the
+maximum changes direction. This is a merge blocker pending attribution and a
+repair. The PGR2 full-start 30-frame cap does not resolve snapshot tails.
+The runner marked `source_ownership_valid=false` because these calls did not
+pass an external build manifest or PDB; they did verify the executable hash
+before each launch. The exact-source build audit separately attests source,
+link, and executable identities. This is not evidence of a wrong executable.
+
 ## Pending exact-head gates
 
 | Gate | Current state |
 | --- | --- |
 | 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; the relevant timing outlier was not reproduced in ABBA controls |
 | #89 three-generation guest oracle and version-selection observation | Pending current-head result; previous-head test passed |
-| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start cap-neutral; fixed Morrowind scene repeatably positive; PGR2 snapshot and traversal pending |
+| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start cap-neutral; fixed Morrowind scene positive; PGR2 snapshot adverse in two orders; traversal pending |
 | Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
 | Cross-platform build/review | Pending |
 
