@@ -1,4 +1,4 @@
-> **Historical exact heads:** #87 `b3b99fb` and #89 `150d74a` have been superseded by an idle read-page-clear repair. See [current qualification](IDLE-CLEAR.md). The measurements below retain their original source identities.
+> **Source-equivalent current heads:** #87 `1d4524a6df` has the same Git tree as tested `b3b99fb`; #89 `cbb3b4372f` has the same Git tree as tested `150d74a`. A guarded idle-bitmap-clear experiment was [tested and reverted](IDLE-CLEAR.md). The exact tested executable hashes below remain the comparison artifacts; the adverse PGR2 tail is unresolved.
 
 # Reconciled #85 → #87 → #89 stack: exact-head qualification
 
