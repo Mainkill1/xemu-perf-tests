@@ -1,0 +1,32 @@
+{
+  "vulkan": {
+    "records": 161,
+    "candidate_vs_parent_unexpected": [],
+    "candidate_vs_baseline_unexpected": null,
+    "parent_vs_pr85_unexpected": [],
+    "pr85_vs_main_unexpected": [],
+    "timed_parent_leaves": 155,
+    "median_improvement_vs_parent_pct": -0.2347700457500602,
+    "timed_pr85_parent_leaves": 155,
+    "median_improvement_parent_vs_pr85_pct": -0.13634358583630748,
+    "timed_main_pr85_leaves": 155,
+    "median_improvement_pr85_vs_main_pct": -0.9879227624022122,
+    "timed_baseline_leaves": 0,
+    "median_improvement_vs_baseline_pct": null
+  },
+  "opengl": {
+    "records": 161,
+    "candidate_vs_parent_unexpected": [],
+    "candidate_vs_baseline_unexpected": null,
+    "parent_vs_pr85_unexpected": [],
+    "pr85_vs_main_unexpected": [],
+    "timed_parent_leaves": 154,
+    "median_improvement_vs_parent_pct": -0.5617922400319639,
+    "timed_pr85_parent_leaves": 154,
+    "median_improvement_parent_vs_pr85_pct": 1.165341968495055,
+    "timed_main_pr85_leaves": 154,
+    "median_improvement_pr85_vs_main_pct": -1.1025023318683171,
+    "timed_baseline_leaves": 0,
+    "median_improvement_vs_baseline_pct": null
+  }
+}

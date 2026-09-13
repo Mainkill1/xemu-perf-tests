@@ -1,0 +1,32 @@
+{
+  "schema_version": 1,
+  "scope": "One matched PGR2 Vulkan snapshot diagnostic pair. Opt-in counters perturb timing and are used only for path attribution.",
+  "rows": [
+    {
+      "role": "pr87",
+      "executable_sha256": "54b879eb2602c57504e97f2899ee73b91aa22debca4373465896a40b6d8a57e2",
+      "guest_frames": 1766,
+      "version_draws": 0,
+      "version_selected_ranges": 0,
+      "version_bytes": 0,
+      "vertex_staging_copies": 0,
+      "vertex_staged_bytes": 0,
+      "draw_flush_cpu_us_per_guest_frame": 20181.35730464326,
+      "pipeline_prepare_cpu_us_per_guest_frame": 8893.766704416761,
+      "gpu_wait_us_per_guest_frame": 10704.488674971688
+    },
+    {
+      "role": "pr89",
+      "executable_sha256": "29eac8120cce296e312ba85147109ca5d6b62755d6326d36d4c0358a44231d25",
+      "guest_frames": 1767,
+      "version_draws": 0,
+      "version_selected_ranges": 0,
+      "version_bytes": 0,
+      "vertex_staging_copies": 0,
+      "vertex_staged_bytes": 0,
+      "draw_flush_cpu_us_per_guest_frame": 19712.437464629314,
+      "pipeline_prepare_cpu_us_per_guest_frame": 9023.82456140351,
+      "gpu_wait_us_per_guest_frame": 10653.189586870401
+    }
+  ]
+}

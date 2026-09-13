@@ -1,0 +1,15 @@
+{
+  "test_source": "57c2438c3d46c8f99bc18004f1fd34a5d9ed82b9",
+  "xiso_sha256": "6a57961a7312bb8ec125181ac5e642d194835df382cbb900c81efaf9765536cd",
+  "catalog_sha256": "ea881a43ec71cc37f74e5863e00f0cf4caea94e32933a5a15063e179e743ddfb",
+  "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+  "expected_drawn_pixel": "FFFF0000",
+  "expected_background_pixel": "FF182028",
+  "cells": [
+    {"renderer":"vulkan","source":"9148241de690617ac0a21a26b41858585c1e3cab","executable_sha256":"6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6","outcome":"FAIL","drawn_pixel":"FF0000FF","background_pixel":"FF182028","new_vuids":0},
+    {"renderer":"vulkan","source":"0883fb63009c6cc804681cbdb39e4454b44d8456","executable_sha256":"e9d763da0e027f9cc21b66c090e7e9199c10bd3846a49c89277c2a07bf34b17b","outcome":"PASS","drawn_pixel":"FFFF0000","background_pixel":"FF182028","new_vuids":0},
+    {"renderer":"vulkan","source":"150d74ac5525be769e4f44ab35718eb2607a8eec","executable_sha256":"29eac8120cce296e312ba85147109ca5d6b62755d6326d36d4c0358a44231d25","outcome":"PASS","drawn_pixel":"FFFF0000","background_pixel":"FF182028","new_vuids":0},
+    {"renderer":"opengl","source":"9148241de690617ac0a21a26b41858585c1e3cab","executable_sha256":"6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6","outcome":"FAIL","drawn_pixel":"FF0000FF","background_pixel":"FF182028"},
+    {"renderer":"opengl","source":"150d74ac5525be769e4f44ab35718eb2607a8eec","executable_sha256":"29eac8120cce296e312ba85147109ca5d6b62755d6326d36d4c0358a44231d25","outcome":"FAIL","drawn_pixel":"FF0000FF","background_pixel":"FF182028"}
+  ]
+}
