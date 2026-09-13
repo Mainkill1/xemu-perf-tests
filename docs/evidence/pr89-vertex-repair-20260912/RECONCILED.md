@@ -54,9 +54,18 @@ figures come from one non-interleaved suite pass per candidate head and are
 
 The directly relevant `vertex_buffer_allocation.ordered_same_page_overwrite`
 leaf measured 5.135 ms on #87 and 15.624 ms on #89 in those single passes
-(-204.26% Improvement). It has only one timing sample per head, so a
-focused repeated parent/candidate control is required before deciding
-whether the version path adds a real regression. Its output and hash matched.
+(-204.26% Improvement). Its output and hash matched. A [focused ABBA control](results/reconciled-ordered-same-page.json)
+repeated that exact test with both one and five guest iterations per cell:
+
+| Guest iterations/cell | #87 first / #89 first | #89 second / #87 second | Paired Improvement % |
+| --- | ---: | ---: | ---: |
+| 1 | 15.993 / 16.598 ms | 16.546 / 17.402 ms | -3.78% / +4.92% |
+| 5 | 16.400 / 16.427 ms | 16.474 / 16.535 ms | -0.16% / +0.37% |
+
+All eight focused cells passed the same framebuffer hash with zero VUIDs.
+The 5.135 ms #87 full-suite observation did not repeat, and the one-iteration
+paired direction reverses. This **does not establish a #89 timing regression**
+on that leaf. It also does not establish a measurable improvement there.
 
 ## #85 versus current main: PGR2 snapshot
 
@@ -80,13 +89,28 @@ improvement or a merge pass. PGR2 full start, Morrowind, the focused XISO
 timing control, and the combined #89 comparison remain necessary for the
 final verdict.
 
+## PGR2 full start
+
+The [four exact-head cells](results/reconciled-pgr2-full.json) used the same
+fresh-boot seed, config, race-start path, 30-second warmup, and 120-second
+measurement without tracing. All completed functional and measurement checks
+with 3,601–3,603 guest frames. The game stayed at its 30-frame cap, so the
+small interval changes below do not establish a throughput gain or regression.
+
+| Step | Reference p95 / p99 | Candidate p95 / p99 | p95 / p99 Improvement |
+| --- | ---: | ---: | ---: |
+| Main → #85 | 33.525 / 33.904 ms | 33.646 / 33.869 ms | -0.36% / +0.10% |
+| #85 → #87 | 33.646 / 33.869 ms | 33.628 / 34.061 ms | +0.05% / -0.57% |
+| #87 → #89 | 33.628 / 34.061 ms | 33.669 / 33.855 ms | -0.12% / +0.61% |
+| Main → #89 | 33.525 / 33.904 ms | 33.669 / 33.855 ms | -0.43% / +0.14% |
+
 ## Pending exact-head gates
 
 | Gate | Current state |
 | --- | --- |
-| 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; one relevant timing outlier needs paired control |
+| 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; the relevant timing outlier was not reproduced in ABBA controls |
 | #89 three-generation guest oracle and version-selection observation | Pending current-head result; previous-head test passed |
-| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Pending matched current-head cells |
+| PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Full start complete and cap-neutral; matched snapshots pending |
 | Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
 | Cross-platform build/review | Pending |
 
