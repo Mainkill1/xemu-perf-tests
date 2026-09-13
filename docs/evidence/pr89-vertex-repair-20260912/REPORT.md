@@ -2,8 +2,13 @@
 
 **Status:** Draft. [Product PR #89](https://github.com/Mainkill1/xemu/pull/89) is stacked on repaired [#87](https://github.com/Mainkill1/xemu/pull/87) and [#85](https://github.com/Mainkill1/xemu/pull/85). This report supersedes the **source identities**, not the retained historical measurements, in the [earlier PR #89 report](../pr89-vulkan-vertex-versions-20260912/REPORT.md).
 
-**Live stack note:** #85 has an experimental overlap-cache commit
-`9e97dcb9b3a419a930c54688008f281b32de1d42` (tree `8bfcc40a1a447ac31f1e1eb2b1f99c4527622724`), built after a complete tracked-file hash check as Win64 O2/LTO executable SHA-256 `f8faf95af8b222794447aa4cbe8bad871f8903ba23e06701150d7d5a74c1d1b7`. Its new unit passed, but [the focused PGR2 result](CACHE-EXPERIMENT.md) is mixed and does not qualify it for merge. #87 and #89 have **not** been rebased onto it. All #85/#87/#89 result rows below still refer to the exact pre-cache heads in the identity table. [The prior-head CPU attribution](CPU-ATTRIBUTION.md) explains why this bounded experiment was selected.
+**Current stack note:** #85 `0883fb6300`, #87 `b3b99fb883`, and #89
+`150d74ac55` now form a reconciled draft stack. Their exact builds and
+current PGR2 results are in the [new qualification record](RECONCILED.md).
+The cache-only experiment was reverted; [its mixed result](CACHE-EXPERIMENT.md)
+remains published. All #85/#87/#89 result rows **below** still refer to the
+earlier exact heads in the identity table. [The prior-head CPU attribution](CPU-ATTRIBUTION.md)
+explains why the redundant surface work was investigated.
 
 | Role | Source commit | Tree | Win64 executable SHA-256 |
 | --- | --- | --- | --- |
