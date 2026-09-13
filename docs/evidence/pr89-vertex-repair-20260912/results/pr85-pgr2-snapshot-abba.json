@@ -1,0 +1,38 @@
+{
+  "metric": "guest-frame interval, milliseconds",
+  "improvement_formula": "100 * (main - pr85) / main; positive is favorable",
+  "comparison_source": "main tree 2301f1cc976f93e5a943e065c4e12e034f33869f versus PR85 8d9245ddeb5f13d23a5e3f2aafdb5144c4bdad30",
+  "renderer": "Vulkan",
+  "warmup_seconds": 30,
+  "measurement_seconds": 60,
+  "pairs": [
+    {
+      "order": "main then PR85",
+      "main_executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+      "pr85_executable_sha256": "0c0e11d66e5a2b0b75fad38c8bb5acf88b5291b1115a47c6ba501f262fce313d",
+      "main_frames": 1781,
+      "pr85_frames": 1771,
+      "main_p95_ms": 38.848,
+      "pr85_p95_ms": 39.781,
+      "p95_improvement_percent": -2.402,
+      "main_p99_ms": 42.354,
+      "pr85_p99_ms": 43.410,
+      "p99_improvement_percent": -2.493,
+      "functional_status": "complete"
+    },
+    {
+      "order": "PR85 then main",
+      "main_executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6",
+      "pr85_executable_sha256": "0c0e11d66e5a2b0b75fad38c8bb5acf88b5291b1115a47c6ba501f262fce313d",
+      "main_frames": 1774,
+      "pr85_frames": 1774,
+      "main_p95_ms": 38.882,
+      "pr85_p95_ms": 39.357,
+      "p95_improvement_percent": -1.222,
+      "main_p99_ms": 42.761,
+      "pr85_p99_ms": 43.296,
+      "p99_improvement_percent": -1.251,
+      "functional_status": "complete"
+    }
+  ]
+}
