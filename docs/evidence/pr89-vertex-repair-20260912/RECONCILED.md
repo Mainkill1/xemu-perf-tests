@@ -29,6 +29,35 @@ The #85 fetch-span unit passed 2/2 on Win64. The reconciled #87 fetch-span
 unit passed 2/2. Reconciled #89 passed fetch-span 2/2 and version-policy 3/3.
 These are policy/bounds checks, not substitutes for the complete guest suite.
 
+## Complete 161-record XISO
+
+All six exact candidate/renderer cells used the same image
+`e9b7996a2521a1b35c36fae074027240944dcc4d8625c131ee3d05d8367cb430`
+and catalog `6bd53cf672ba80051dfb677f187da76e362a399412b1acd005c920829a7bbdd5`.
+The main controls are retained from the same runner/image revision. The
+[per-test comparator](compare_xiso_reconciled.py), [322-row table](results/reconciled-comparison.csv),
+[summary](results/reconciled-comparison-summary.json), and each normalized
+record set make outcome, hash, and time comparisons reproducible.
+
+| Renderer | Main / #85 / #87 / #89 passes | Unexpected outcome or eligible hash changes | #85 vs main median timed Improvement | #87 vs #85 | #89 vs #87 | #89 vs main |
+| --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| Vulkan | 160 / 160 / 160 / 160 | 0 | -0.36% | +0.19% | -0.79% | -1.00% |
+| OpenGL | 159 / 159 / 159 / 159 | 0 | +0.32% | +0.10% | -0.52% | -0.29% |
+
+Vulkan reported zero VUIDs on all three candidate heads. The inherited
+`report_query.dma_range_guard` failed on both renderers; OpenGL also retained
+`texture_cubemap_fallback.unbordered_subblock_dxt1`. No new XISO outcome or
+eligible framebuffer hash changed at either stacked step. Positive
+**Improvement %** means a lower duration. The table's median timed-leaf
+figures come from one non-interleaved suite pass per candidate head and are
+**directional observations**, not performance acceptance.
+
+The directly relevant `vertex_buffer_allocation.ordered_same_page_overwrite`
+leaf measured 5.135 ms on #87 and 15.624 ms on #89 in those single passes
+(-204.26% Improvement). It has only one timing sample per head, so a
+focused repeated parent/candidate control is required before deciding
+whether the version path adds a real regression. Its output and hash matched.
+
 ## #85 versus current main: PGR2 snapshot
 
 The [four complete cells](results/pr85-direct-pgr2-abba.json) used the same
@@ -47,14 +76,15 @@ The prior #85 head was worse than main by -2.40% and -1.22% at p95, and
 -2.49% and -1.25% at p99 in opposite orders. The direct repair removes most
 of that repeated adverse signal, but its new p95 remains slightly adverse in
 both orders. This is **near-neutral**, not a proven standalone performance
-improvement or a merge pass. PGR2 full start, Morrowind, the full XISO, and
-the combined #89 comparison remain necessary for the final verdict.
+improvement or a merge pass. PGR2 full start, Morrowind, the focused XISO
+timing control, and the combined #89 comparison remain necessary for the
+final verdict.
 
 ## Pending exact-head gates
 
 | Gate | Current state |
 | --- | --- |
-| 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Running on the test host; previous-stack results do not qualify these heads |
+| 161-record XISO on #85/#87/#89, Vulkan and OpenGL | Complete; identical eligible outcomes/hashes; one relevant timing outlier needs paired control |
 | #89 three-generation guest oracle and version-selection observation | Pending current-head result; previous-head test passed |
 | PGR2 full start/snapshot and Morrowind snapshot at #87 → #89 | Pending matched current-head cells |
 | Direct #85 GPU-surface-to-vertex and #89 finish/rollover/stale-fallback tests | Pending focused guest proof |
