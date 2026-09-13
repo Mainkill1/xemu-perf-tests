@@ -1,4 +1,4 @@
-> **Source-equivalent current heads:** #87 `1d4524a6df` has the same Git tree as tested `b3b99fb`; #89 `cbb3b4372f` has the same Git tree as tested `150d74a`. A guarded idle-bitmap-clear experiment was [tested and reverted](IDLE-CLEAR.md). The exact tested executable hashes below remain the comparison artifacts; the adverse PGR2 tail is unresolved.
+> **Source-equivalent current heads:** #87 `1d4524a6df` has the same Git tree as tested `b3b99fb`; #89 `cbb3b4372f` has the same Git tree as tested `150d74a`. A guarded idle-bitmap-clear experiment was [tested and reverted](IDLE-CLEAR.md). The exact tested executable hashes below remain the comparison artifacts; the adverse PGR2 tail is [under investigation](PGR2-TAIL-DIAG.md).
 
 # Reconciled #85 → #87 → #89 stack: exact-head qualification
 
