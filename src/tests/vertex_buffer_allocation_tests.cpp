@@ -435,16 +435,22 @@ void VertexBufferAllocationTests::TestGpuSurfaceVertexAttributeReadback() {
            (static_cast<uint32_t>(pixel[1]) << 8) |
            static_cast<uint32_t>(pixel[0]);
   };
+  const uint32_t drawn_pixel = read_argb(88, 88);
+  const uint32_t background_pixel = read_argb(152, 88);
+  std::ostringstream metadata;
+  metadata << "{\"drawn_pixel\":" << drawn_pixel
+           << ",\"background_pixel\":" << background_pixel << "}";
   SetXemuPerfEventContext(0xB085U, 0x53565244U);
-  AssertXemuPerfEqual(kExpectedColor, read_argb(88, 88),
+  AssertXemuPerfEqual(kExpectedColor, drawn_pixel,
                       static_cast<XemuPerfAssertion>(0x320U),
                       "GPU-authored diffuse value reached vertex decode",
                       __FILE__, __LINE__);
-  AssertXemuPerfEqual(kBackground, read_argb(152, 88),
+  AssertXemuPerfEqual(kBackground, background_pixel,
                       XemuPerfAssertion::VERTEX_ORDERED_BACKGROUND,
                       "untouched region retained background",
                       __FILE__, __LINE__);
-  host_.FinishDraw(suite_name_, kGpuSurfaceVertexReadbackTest, results);
+  host_.FinishDraw(suite_name_, kGpuSurfaceVertexReadbackTest,
+                   results, metadata.str());
   host_.ClearVertexAttributeStrideOverride(TestHost::DIFFUSE);
   host_.ClearVertexBuffer();
 }
