@@ -15,7 +15,7 @@ The pinned GCC 16.1.0 Win64 image was `sha256:09fdc183a88b493bf3a98d0d00b03aca4d
 
 A diagnostic PGR2 snapshot pair on previous heads [#87 `b3b99fb` and #89 `150d74a`](results/diagnostic-pgr2-version-path.json) recorded zero vertex-version selections/draws and zero vertex-staging copies in both cells. The adverse #89 p99 therefore was **not** shown to be caused by actual version copying. The PGR2 scene did have roughly 17 command buffers per guest frame; the unguarded read-bitmap clear ran after their completion regardless of whether tracking was active. This is source-confirmed redundant work, not yet a measured causal explanation for the full tail difference.
 
-The previous #85 → #87 PGR2 snapshot ABBA comparison used 30-second warmup and 60-second Vulkan measurement. Positive Improvement % is better for lower guest-frame interval.
+The [previous #85 → #87 PGR2 snapshot ABBA cells](results/pre-idle-clear-pr85-pr87-pgr2.json) used 30-second warmup and 60-second Vulkan measurement. Positive Improvement % is better for lower guest-frame interval.
 
 | Run order | #85 / old #87 p95 | p95 Improvement | #85 / old #87 p99 | p99 Improvement |
 | --- | ---: | ---: | ---: | ---: |
