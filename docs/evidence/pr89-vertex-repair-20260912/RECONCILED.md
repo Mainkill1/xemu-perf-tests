@@ -141,6 +141,18 @@ pass an external build manifest or PDB; they did verify the executable hash
 before each launch. The exact-source build audit separately attests source,
 link, and executable identities. This is not evidence of a wrong executable.
 
+## PGR2 path attribution
+
+A [matched opt-in diagnostic pair](results/diagnostic-pgr2-version-path.json)
+recorded **zero vertex-version draws or selected ranges on both #87 and #89**
+for this PGR2 snapshot, and zero vertex-staging copies. The new version-copy
+path therefore was not exercised in the scene with the adverse p99 result.
+The diagnostic `draw_flush` CPU total was about 20.18 ms/frame on #87 and
+19.71 ms/frame on #89; this does not support a simple claim that #89 spent
+more total CPU in that measured region. Instrumented timings are excluded
+from performance acceptance. The adverse uninstrumented p99 remains an
+unresolved qualification signal, not a demonstrated version-copy cost.
+
 ## Current-head three-generation version-path oracle
 
 The [focused XISO result](results/reconciled-three-generation.json) passed on
