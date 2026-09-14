@@ -59,7 +59,8 @@ The exact release binaries do not emit the optional live-marker path requested
 by this runner. Its compatibility waiver allowed complete correctness and
 hash capture, but **guest timing is not PR-grade performance evidence**.
 The per-test values and outcomes are retained in [xiso-per-test.csv](xiso-per-test.csv);
-they should not be read as qualified speed comparisons. Vulkan validation was
+it includes positive-good improvement calculations for comparable PASS leaves,
+but they should not be read as qualified speed comparisons. Vulkan validation was
 not enabled in this timing run, so zero reported VUIDs would have no meaning.
 
 ## Retail frame pacing
@@ -91,8 +92,15 @@ PGR2 full-start and Morrowind snapshot comparisons are pending. The first
 full-start main control was spotchecked during its measured window and then
 interrupted, so it is excluded. A separate short main preflight exited with
 `VK_ERROR_DEVICE_LOST`; a 20-second exact PR #105 preflight completed. Neither
-is treated as a matched performance cell. FPS and frame intervals come from
-guest frame and flip logs; PresentMon is host presentation context only.
+is treated as a matched performance cell. In the repeated full-start campaign,
+both the first main and PR #104 runs exited before measurement with
+`VK_ERROR_DEVICE_LOST`. These are functional failures, not zero-FPS samples.
+The first exact PR #105 120-second full-start cell completed 3,602 guest frames
+at a 33.333 ms mean interval, 33.842 ms p99, 40.383 ms maximum, and no
+intervals at or above 75 ms. It is one candidate cell, not a paired comparison.
+The campaign continues with the remaining controls. FPS and frame
+intervals come from guest frame and flip logs; PresentMon is host presentation
+context only.
 
 ## Disposition
 
