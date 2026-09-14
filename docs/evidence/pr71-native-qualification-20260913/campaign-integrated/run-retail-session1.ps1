@@ -13,6 +13,15 @@ $root = Join-Path $Campaign.ResultsRoot 'retail'
 $capture = Join-Path $PSScriptRoot 'capture-pgr2-native-pr71.ps1'
 $morrowindCellRunner = Join-Path $PSScriptRoot 'run-morrowind-qualification-cell-exact-isolated.ps1'
 
+function Assert-NoXemuLabTrace([string]$Label) {
+    $sessions = @(& logman query -ets 2>&1)
+    if ($LASTEXITCODE -ne 0) { throw "${Label}: cannot inspect ETW sessions" }
+    $active = @($sessions | Where-Object { [string]$_ -match '^\s*XemuLab-' })
+    if ($active.Count) {
+        throw "${Label}: stale XemuLab ETW session: $($active -join '; ')"
+    }
+}
+
 function Invoke-Pgr2Cell(
     [string]$Label,
     [string]$Workload,
@@ -25,6 +34,7 @@ function Invoke-Pgr2Cell(
     [ValidateSet('baseline-candidate', 'candidate-baseline')][string]$RunOrder = 'baseline-candidate'
 ) {
     Assert-HostIdle $Campaign "before $Label"
+    Assert-NoXemuLabTrace $Label
     $cacheBefore = Get-SpirvCacheReceipt $Portable.directory
     if ($Renderer -eq 'OPENGL' -and $cacheBefore) {
         throw "$Label OpenGL profile contains a Vulkan cache"
@@ -395,6 +405,7 @@ try {
     }
     New-Item -ItemType Directory -Path $root -Force | Out-Null
     Assert-HostIdle $Campaign 'retail campaign start'
+    Assert-NoXemuLabTrace 'retail campaign start'
     Assert-AutoGpuConfig $Campaign.Retail.Pgr2OpenGlConfig
     Assert-AutoGpuConfig $Campaign.Retail.Pgr2VulkanConfig
     # This qualification focuses on fresh PGR2 progression and Morrowind.
