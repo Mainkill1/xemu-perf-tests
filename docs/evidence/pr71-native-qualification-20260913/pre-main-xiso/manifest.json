@@ -1,0 +1,31 @@
+{
+  "campaign_id": "pr71-fa009-qualification-20260913",
+  "xiso": {
+    "sha256": "a91fdcc7b87e609a98075dfe9b6225edccb00d6036cfed6a4d7ea644b53d7400",
+    "catalog_id": "sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5",
+    "records": 159,
+    "registered_full_run_records": 154,
+    "gated_leaf_records": 5
+  },
+  "full_suite_cells": 9,
+  "per_test_rows": 1421,
+  "comparison_rows": 1908,
+  "fixed_baseline_gated_rows": 10,
+  "input_sha256": {
+    "campaign.json": "a5352926c0aefd2e9a696540128f86eecece9a903632086e421b22628eee12e3",
+    "01-baseline-opengl.json": "967ab8a55731bd1d2028ac712a9a74657f130df4e3a401d446bf642b3c28bf13",
+    "02-candidate-opengl.json": "5771cfb3cde79e98b0c8080533eec9098e3539d8ed2999cc127808a91f69e76f",
+    "03-previous-opengl.json": "a5e116b3f71b0d358ac6c85bf63c79f50b6b1d7ce73145e691f230f52f8bab6f",
+    "04-previous-vulkan.json": "2c9669b016db419e85f3daa379038c16776188ba64f4a57e15eb24695951178f",
+    "05-candidate-vulkan-off-cold.json": "917c5e10293a7635a41260016423dd3a33ce81adff3280dd4a88cfcda3331cca",
+    "06-candidate-vulkan-off-warm.json": "8a36c0d448b641f430049f5d6d2c41e6ce7389e8813a9c851e8b5c8a87e102fd",
+    "07-candidate-vulkan-on-cold.json": "a41d173fbda72f7d65ffefe3cf98c17d2b342a2b7f1b037f3da8fb58a6e6a876",
+    "08-candidate-vulkan-on-warm.json": "ac97b382b72c25b1dd361f325164c13c750286015b5ee7d0fec96b932d97704b",
+    "09-baseline-vulkan.json": "db23d4b5667783350c74d4d7db7b5ce155ac17636ada662e1ee83efa633708d0"
+  },
+  "output_sha256": {
+    "per-test.csv": "bfe691c029d1aeddf25127eeea53bc47f525e699e437032a063149d3a53be502",
+    "per-test-improvement.csv": "ec04ba0fa801392d7ba3b8726ce886720c1256d6bf302b4aa7e8ba4afa99bff0",
+    "fixed-baseline-gated-controls.csv": "a71b244aa4eb2749b13bb0a176906485355f030f628c8c15d5126e23d23f74ee"
+  }
+}
