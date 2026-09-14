@@ -1,0 +1,20 @@
+{
+  "TestSourceCommit": "0044091f59ca148ab3c0bc919add10729bfe0fe3",
+  "TestSourceTree": "b2dcfae1164d8a2d741be766ee43e6e767c14310",
+  "ImageSha256": "a91fdcc7b87e609a98075dfe9b6225edccb00d6036cfed6a4d7ea644b53d7400",
+  "ImageBytes": 3670016,
+  "CatalogSha256": "a0674f73cef85d43f1dba0ad2059b9fa076841a0f4b1084b59186cf4ffb3871e",
+  "CatalogId": "sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5",
+  "RecordCount": 159,
+  "LeafCount": 154,
+  "GroupCount": 5,
+  "RegisteredRecordCount": 154,
+  "RegisteredLeafCount": 149,
+  "ExpectedOpenGlNonPass": [
+    "report_query.dma_range_guard",
+    "texture_cubemap_fallback.unbordered_subblock_dxt1"
+  ],
+  "ExpectedVulkanNonPass": [
+    "report_query.dma_range_guard"
+  ]
+}
