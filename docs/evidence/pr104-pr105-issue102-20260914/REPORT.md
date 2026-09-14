@@ -15,9 +15,8 @@ diagnostic branch and is not a product-performance candidate.
 
 The retained baseline executable was built from source `c17591d59c270b352b72e648f5ed65e4b2a3e77e`, the runtime source at that baseline. It has not been rebuilt for this investigation.
 Older baseline frame-time receipts used 1× scale and different warmup/input
-timing. Their values are not used as matched controls here. The existing
-baseline executable is scheduled for new same-settings captures after the
-main/PR bracket.
+timing. Their values are not used as matched controls here. The retained
+baseline executable was run twice with the same settings in this campaign.
 
 The Windows test host has a Ryzen 9 6900HX and NVIDIA RTX 3070 Ti Laptop GPU.
 It is **not** the RTX 3090 host on which
@@ -67,8 +66,9 @@ not enabled in this timing run, so zero reported VUIDs would have no meaning.
 
 The PGR2 snapshot bracket is complete in this order: main, #104, #105,
 #105, #104, main. Each cell uses a 30-second warmup and a 60-second measured
-window. The values below are the mean of two per-run FPS or interval values;
-the individual cells are in [retail-per-run.csv](retail-per-run.csv).
+window. The retained baseline was captured twice with matching settings. The
+values below are the mean of two per-run values; individual cells are in
+[retail-per-run.csv](retail-per-run.csv).
 
 | PGR2 snapshot | Raw + | Main | PR #104 | Improvement vs main | PR #105 | Improvement vs main | Improvement vs #104 |
 | --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
@@ -76,6 +76,14 @@ the individual cells are in [retail-per-run.csv](retail-per-run.csv).
 | Mean interval, ms | `+bad` | 33.994 | 33.703 | +0.85% | 33.780 | +0.63% | -0.23% |
 | p95, ms | `+bad` | 39.255 | 38.721 | +1.36% | 39.028 | +0.58% | -0.79% |
 | p99, ms | `+bad` | 43.558 | 42.184 | +3.15% | 43.073 | +1.11% | **-2.11%** |
+
+| PR #105 vs fixed baseline, PGR2 snapshot | Baseline | PR #105 | Improvement |
+| --- | ---: | ---: | ---: |
+| FPS | 29.452 | 29.589 | +0.46% |
+| Mean interval, ms | 33.948 | 33.780 | +0.50% |
+| p95, ms | 40.179 | 39.028 | +2.87% |
+| p99, ms | 43.460 | 43.073 | +0.89% |
+| Maximum, ms | 56.929 | 91.994 | **-61.59%** |
 
 The first and last main controls diverged substantially (29.801 versus
 29.022 FPS; p99 42.059 versus 45.057 ms). This run-order movement prevents a
@@ -88,32 +96,76 @@ GPU command attribution was captured, so the isolated 126 ms event remains
 unexplained. Its existence and the #105-vs-#104 p99 result prevent a
 performance PASS at this stage.
 
-Morrowind snapshot comparisons are pending. The first
-full-start main control was spotchecked during its measured window and then
+The Morrowind snapshot bracket also completed in main, #104, #105, #105,
+#104, main order, with two same-settings baseline controls. The fixed camera
+showed the same active scene on screenshot inspection; this is not a map
+traversal. GPU telemetry for the six main/#104/#105 runs stayed at P0 and
+1785 MHz, with 43.63–44.03% GPU utilization. The candidate's mean FPS is
+slightly below main and 2.72% below #104; its p99 is essentially equal.
+
+| Morrowind snapshot, two-run mean | Raw + | Baseline | Main | PR #104 | PR #105 | Improvement vs main | Improvement vs #104 | Improvement vs baseline |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| FPS | `+good` | 28.500 | 28.312 | 28.963 | 28.175 | -0.49% | **-2.72%** | -1.14% |
+| Mean interval, ms | `+bad` | 35.068 | 35.336 | 34.534 | 35.487 | -0.43% | **-2.76%** | -1.19% |
+| p95, ms | `+bad` | 50.002 | 49.998 | 49.962 | 50.002 | -0.01% | -0.08% | 0.00% |
+| p99, ms | `+bad` | 50.040 | 50.046 | 50.034 | 50.049 | -0.01% | -0.03% | -0.02% |
+| Maximum, ms | `+bad` | 50.931 | 50.450 | 50.413 | 58.519 | **-15.99%** | **-16.08%** | **-14.90%** |
+
+The first full-start main control was spotchecked during its measured window and then
 interrupted, so it is excluded. A separate short main preflight exited with
 `VK_ERROR_DEVICE_LOST`; a 20-second exact PR #105 preflight completed. Neither
 is treated as a matched performance cell. In the repeated full-start campaign,
 both main runs and both PR #104 runs exited before measurement with
 `VK_ERROR_DEVICE_LOST`. These are functional failures, not zero-FPS samples.
 
-| PGR2 full start, two runs per role | Main | PR #104 | PR #105 |
-| --- | ---: | ---: | ---: |
-| Completed 120-second captures | 0 / 2 | 0 / 2 | **2 / 2** |
-| Pre-measurement Vulkan device loss | 2 / 2 | 2 / 2 | **0 / 2** |
-| Guest frames per completed capture | N/A | N/A | 3,602 / 3,602 |
-| p99 interval, ms | N/A | N/A | 33.842 / 33.800 |
-| Maximum interval, ms | N/A | N/A | 40.383 / 41.000 |
-| Guest intervals ≥75 ms | N/A | N/A | 0 / 0 |
+| PGR2 full start, two runs per role | Baseline | Main | PR #104 | PR #105 |
+| --- | ---: | ---: | ---: | ---: |
+| Completed 120-second captures | 2 / 2 | 0 / 2 | 0 / 2 | **2 / 2** |
+| Pre-measurement Vulkan device loss | 0 / 2 | 2 / 2 | 2 / 2 | **0 / 2** |
+| Guest frames per completed capture | 3,602 / 3,602 | N/A | N/A | 3,602 / 3,602 |
+| p99 interval, ms | 34.326 / 34.332 | N/A | N/A | 33.842 / 33.800 |
+| Maximum interval, ms | 36.540 / 35.400 | N/A | N/A | 40.383 / 41.000 |
+| Guest intervals ≥75 ms | 0 / 0 | N/A | N/A | 0 / 0 |
 
-There is no matched full-start FPS comparison because neither main nor PR #104
-survived to measurement on this host. The campaign continues with Morrowind.
+There is no matched full-start FPS comparison against previous main or PR #104
+because neither survived to measurement on this host. Relative to the retained
+baseline, PR #105's two-run mean p99 improved +1.48%, while its maximum was
+13.13% worse. Both ran at the game's roughly 30 FPS cap.
 FPS and frame intervals come from guest frame and flip logs; PresentMon is host
 presentation context only.
 
+### Full-start boot and loading
+
+The launcher sets frame/flip/event log paths before starting xemu. The exact
+PR #105 and baseline full-start controls had persistent shader cache disabled.
+Frame logging began about 24.7–24.9 seconds before the first scripted key;
+host presentation telemetry starts later, at the steady-state window. The
+phase split uses the monotonic frame timestamps anchored to that window and
+actual input event timestamps. Compact per-run results are in
+[cold-load-per-run.csv](cold-load-per-run.csv). The pre-input phase includes
+boot and menu idle, input navigation includes scripted menu work and loading,
+and the final phase is the 120-second in-game window.
+
+| Full-start phase, two runs | Baseline | PR #105 | Interpretation |
+| --- | ---: | ---: | --- |
+| First logged frame to first input | 24.885 / 24.880 s | 24.722 / 24.791 s | Small difference; not a material boot improvement |
+| First to last scripted input | 36.826 / 36.878 s | 36.782 / 36.802 s | Essentially unchanged |
+| Largest no-frame interval during input/navigation | 3474.992 / 3470.012 ms | 3496.479 / 3487.001 ms | **Loading pause not improved** |
+| Post-input warmup p99 | 42.446 / 42.100 ms | 42.334 / 37.637 ms | Mixed, small sample |
+| In-game capture p99 | 34.326 / 34.332 ms | 33.842 / 33.800 ms | +1.48% two-run mean improvement |
+
+The approximately 3.5-second no-frame gap is a loading event, not an
+identified shader compilation. The tested configuration has shader caching
+off, but the trace does not attribute the gap to a particular operation.
+
 ## Disposition
 
-Pending the remaining paired retail measurements, same-settings baseline
-controls, and classification of the XISO query failures. The earlier RTX 3090
-played-race survival result applies to a
-different diagnostic executable. A clean build and hash match on this host do
-not establish that the 3090 device loss is fixed.
+**HOLD, not a clean performance PASS.** PR #105 survived two full-start runs
+that crashed on previous main and PR #104, and its PGR2 snapshot and full-start
+p99 values are near or better than the retained baseline. The single 126.409 ms
+snapshot spike, Morrowind slowdown against #104, and real XISO report-query
+non-PASS outcomes remain. The earlier RTX 3090 played-race survival result
+applies to a different diagnostic executable. This clean binary has not been
+proven on the original RTX 3090 host. PR #104's specific copy validation
+repair is supported, but its device loss remains. PR #103 remains a diagnostic
+branch, not a performance candidate.
