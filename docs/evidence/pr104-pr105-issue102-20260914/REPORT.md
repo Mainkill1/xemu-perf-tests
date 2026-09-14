@@ -14,6 +14,10 @@ diagnostic branch and is not a product-performance candidate.
 | Fixed cycle baseline | `9f618d6d8c4c446ef023955f3d4de22f661f61a4` | `3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b` |
 
 The retained baseline executable was built from source `c17591d59c270b352b72e648f5ed65e4b2a3e77e`, the runtime source at that baseline. It has not been rebuilt for this investigation.
+Older baseline frame-time receipts used 1× scale and different warmup/input
+timing. Their values are not used as matched controls here. The existing
+baseline executable is scheduled for new same-settings captures after the
+main/PR bracket.
 
 The Windows test host has a Ryzen 9 6900HX and NVIDIA RTX 3070 Ti Laptop GPU.
 It is **not** the RTX 3090 host on which
@@ -60,13 +64,40 @@ not enabled in this timing run, so zero reported VUIDs would have no meaning.
 
 ## Retail frame pacing
 
-Pending completion of the paired PGR2 snapshot, PGR2 full-start, and
-Morrowind snapshot campaign. FPS and frame intervals come from guest frame
-and flip logs; PresentMon is host presentation context only.
+The PGR2 snapshot bracket is complete in this order: main, #104, #105,
+#105, #104, main. Each cell uses a 30-second warmup and a 60-second measured
+window. The values below are the mean of two per-run FPS or interval values;
+the individual cells are in [retail-per-run.csv](retail-per-run.csv).
+
+| PGR2 snapshot | Raw + | Main | PR #104 | Improvement vs main | PR #105 | Improvement vs main | Improvement vs #104 |
+| --- | --- | ---: | ---: | ---: | ---: | ---: | ---: |
+| FPS | `+good` | 29.412 | 29.665 | +0.86% | 29.589 | +0.60% | -0.26% |
+| Mean interval, ms | `+bad` | 33.994 | 33.703 | +0.85% | 33.780 | +0.63% | -0.23% |
+| p95, ms | `+bad` | 39.255 | 38.721 | +1.36% | 39.028 | +0.58% | -0.79% |
+| p99, ms | `+bad` | 43.558 | 42.184 | +3.15% | 43.073 | +1.11% | **-2.11%** |
+
+The first and last main controls diverged substantially (29.801 versus
+29.022 FPS; p99 42.059 versus 45.057 ms). This run-order movement prevents a
+clean main-versus-candidate improvement claim from this bracket alone. The
+per-run maximum intervals are main **61.583/54.446 ms**, PR #104
+**48.891/52.663 ms**, and PR #105 **57.579/126.409 ms**. The last #105 cell
+has one frame at or above 75 ms; the others have none. A nearby host
+presentation gap and GPU-active interval were observed, but no scheduler or
+GPU command attribution was captured, so the isolated 126 ms event remains
+unexplained. Its existence and the #105-vs-#104 p99 result prevent a
+performance PASS at this stage.
+
+PGR2 full-start and Morrowind snapshot comparisons are pending. The first
+full-start main control was spotchecked during its measured window and then
+interrupted, so it is excluded. A separate short main preflight exited with
+`VK_ERROR_DEVICE_LOST`; a 20-second exact PR #105 preflight completed. Neither
+is treated as a matched performance cell. FPS and frame intervals come from
+guest frame and flip logs; PresentMon is host presentation context only.
 
 ## Disposition
 
-Pending paired retail measurements and classification of the XISO query
-failures. The earlier RTX 3090 played-race survival result applies to a
+Pending the remaining paired retail measurements, same-settings baseline
+controls, and classification of the XISO query failures. The earlier RTX 3090
+played-race survival result applies to a
 different diagnostic executable. A clean build and hash match on this host do
 not establish that the 3090 device loss is fixed.
