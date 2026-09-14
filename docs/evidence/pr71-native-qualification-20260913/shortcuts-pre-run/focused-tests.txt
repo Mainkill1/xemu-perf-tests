@@ -1,5 +1,5 @@
 TAP version 14
-# random seed: R02Sb857ed6e4d45d5ce5ad3d71c2bc295f9
+# random seed: R02Se363f3254459dc39fe37e362baa4edbf
 1..18
 # Start of xbox tests
 # Start of vk tests
@@ -28,7 +28,7 @@ ok 18 /xbox/vk/ubershader/runtime/snapshot-invalidation
 # End of vk tests
 # End of xbox tests
 TAP version 14
-# random seed: R02S929293460765694c2930c2cb9c4ae9a8
+# random seed: R02S8e08b19e6c13ebe1d02a08f19aade22a
 1..9
 # Start of xbox tests
 # Start of vk tests
@@ -46,7 +46,7 @@ ok 9 /xbox/vk/hybrid-compiler/stop-active-required
 # End of vk tests
 # End of xbox tests
 TAP version 14
-# random seed: R02Sdb52c9d99ed0a55c81ae1466ed47d797
+# random seed: R02Sff98d90d8501e25366396d7806528f4c
 1..8
 # Start of vk tests
 # Start of hybrid-pipeline tests

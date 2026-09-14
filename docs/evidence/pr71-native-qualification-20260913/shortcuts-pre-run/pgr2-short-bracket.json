@@ -1,0 +1,38 @@
+[
+  {
+    "cell": "hybrid-off",
+    "status": "complete",
+    "guest_frames": 876,
+    "mean_ms": 34.250859589041056,
+    "p95_ms": 40.869,
+    "p99_ms": 46.342,
+    "max_ms": 57.388,
+    "stalls": 0,
+    "config_sha256": "374d4bdedb0f3f0b6cfb335ff994047be7dd792f1ca5531de9d4de88dea7fe1c",
+    "executable_sha256": "6e8053816aef10597d7f0f4c597c348c5deada28acafb4247327bc80d137f116"
+  },
+  {
+    "cell": "hybrid-on",
+    "status": "complete",
+    "guest_frames": 868,
+    "mean_ms": 34.55779262672813,
+    "p95_ms": 40.801,
+    "p99_ms": 44.548,
+    "max_ms": 96.517,
+    "stalls": 1,
+    "config_sha256": "9b8cb2fcfafde316f4eb18f01686a356193961b5decafd7492c1434c4cb7c09c",
+    "executable_sha256": "6e8053816aef10597d7f0f4c597c348c5deada28acafb4247327bc80d137f116"
+  },
+  {
+    "cell": "hybrid-on-shortcut",
+    "status": "complete",
+    "guest_frames": 871,
+    "mean_ms": 34.447344431687675,
+    "p95_ms": 41.429,
+    "p99_ms": 45.921,
+    "max_ms": 55.714,
+    "stalls": 0,
+    "config_sha256": "309ddd0a2d1e0ced505b8a60f9cb59ac95dfb4ddfa9036de0cd3aac2ed2a049a",
+    "executable_sha256": "6e8053816aef10597d7f0f4c597c348c5deada28acafb4247327bc80d137f116"
+  }
+]
