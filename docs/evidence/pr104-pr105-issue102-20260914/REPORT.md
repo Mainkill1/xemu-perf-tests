@@ -88,19 +88,27 @@ GPU command attribution was captured, so the isolated 126 ms event remains
 unexplained. Its existence and the #105-vs-#104 p99 result prevent a
 performance PASS at this stage.
 
-PGR2 full-start and Morrowind snapshot comparisons are pending. The first
+Morrowind snapshot comparisons are pending. The first
 full-start main control was spotchecked during its measured window and then
 interrupted, so it is excluded. A separate short main preflight exited with
 `VK_ERROR_DEVICE_LOST`; a 20-second exact PR #105 preflight completed. Neither
 is treated as a matched performance cell. In the repeated full-start campaign,
-both the first main and PR #104 runs exited before measurement with
+both main runs and both PR #104 runs exited before measurement with
 `VK_ERROR_DEVICE_LOST`. These are functional failures, not zero-FPS samples.
-The first exact PR #105 120-second full-start cell completed 3,602 guest frames
-at a 33.333 ms mean interval, 33.842 ms p99, 40.383 ms maximum, and no
-intervals at or above 75 ms. It is one candidate cell, not a paired comparison.
-The campaign continues with the remaining controls. FPS and frame
-intervals come from guest frame and flip logs; PresentMon is host presentation
-context only.
+
+| PGR2 full start, two runs per role | Main | PR #104 | PR #105 |
+| --- | ---: | ---: | ---: |
+| Completed 120-second captures | 0 / 2 | 0 / 2 | **2 / 2** |
+| Pre-measurement Vulkan device loss | 2 / 2 | 2 / 2 | **0 / 2** |
+| Guest frames per completed capture | N/A | N/A | 3,602 / 3,602 |
+| p99 interval, ms | N/A | N/A | 33.842 / 33.800 |
+| Maximum interval, ms | N/A | N/A | 40.383 / 41.000 |
+| Guest intervals ≥75 ms | N/A | N/A | 0 / 0 |
+
+There is no matched full-start FPS comparison because neither main nor PR #104
+survived to measurement on this host. The campaign continues with Morrowind.
+FPS and frame intervals come from guest frame and flip logs; PresentMon is host
+presentation context only.
 
 ## Disposition
 
