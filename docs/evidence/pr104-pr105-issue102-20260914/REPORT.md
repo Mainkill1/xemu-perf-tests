@@ -169,3 +169,8 @@ applies to a different diagnostic executable. This clean binary has not been
 proven on the original RTX 3090 host. PR #104's specific copy validation
 repair is supported, but its device loss remains. PR #103 remains a diagnostic
 branch, not a performance candidate.
+
+The later [PGR2 race-to-menu corruption report](https://github.com/Mainkill1/xemu/issues/106)
+is a separate correctness gate. These captures end in active gameplay; none
+exit a race and inspect the resulting menu. Their passing scene checks and
+matching XISO hashes cannot qualify that transition.
