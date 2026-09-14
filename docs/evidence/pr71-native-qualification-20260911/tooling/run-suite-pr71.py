@@ -1993,6 +1993,7 @@ def xemu_config_addend(
     gpu_uuid: str | None = None,
     shader_cache: bool = True,
     hybrid_ubershaders: bool = False,
+    shader_fastpath: bool = False,
 ) -> str:
     device_selection = f"device_uuid = '{gpu_uuid}'\n" if gpu_uuid else ""
     return f"""
@@ -2001,6 +2002,7 @@ cache_shaders = {str(shader_cache).lower()}
 
 [tweaks]
 vk_hybrid_ubershaders = {str(hybrid_ubershaders).lower()}
+vk_shader_fastpath = {str(shader_fastpath).lower()}
 
 [display]
 renderer = '{backend.upper()}'
@@ -4083,6 +4085,12 @@ def parse_args() -> argparse.Namespace:
         help="Explicit PR71 tweaks.vk_hybrid_ubershaders setting",
     )
     parser.add_argument(
+        "--shader-fastpath",
+        choices=("off", "on"),
+        default="off",
+        help="Explicit PR71 tweaks.vk_shader_fastpath setting",
+    )
+    parser.add_argument(
         "--gpu-uuid",
         choices=(
             "00000000350000000000000000000000",
@@ -4310,6 +4318,10 @@ def parse_args() -> argparse.Namespace:
         parser.error("Hybrid ubershaders On is reserved for the PR71 candidate")
     if args.hybrid_ubershaders == "on" and args.experiment_role != "candidate":
         parser.error("Hybrid ubershaders On requires --experiment-role candidate")
+    if args.shader_fastpath == "on" and args.comparison_role != "candidate":
+        parser.error("Shader fast path On is reserved for the PR71 candidate")
+    if args.shader_fastpath == "on" and args.experiment_role != "candidate":
+        parser.error("Shader fast path On requires --experiment-role candidate")
     if (
         args.comparison_role == "fixed_baseline"
         and args.experiment_role != "baseline"
@@ -4575,6 +4587,11 @@ def main() -> int:
             "value": args.hybrid_ubershaders == "on",
             "restart_required": True,
         },
+        "pr71_shader_fastpath": {
+            "setting": "tweaks.vk_shader_fastpath",
+            "value": args.shader_fastpath == "on",
+            "restart_required": False,
+        },
     }
     source_short = build_info.get("SOURCE_SHA", "unknown")[:12]
     stamp = datetime.now().strftime("%Y-%m-%d-%H%M%S")
@@ -4681,6 +4698,7 @@ def main() -> int:
             args.gpu_uuid if args.backend == "vulkan" else None,
             shader_cache=args.shader_cache == "on",
             hybrid_ubershaders=args.hybrid_ubershaders == "on",
+            shader_fastpath=args.shader_fastpath == "on",
         )
         if args.mode == "official-smoke":
             test = TestXBE(env, run_dir, XEMUTEST_DATA / "TestXBE")
@@ -5028,6 +5046,7 @@ def main() -> int:
         "PR71 controls: "
         f"perf.cache_shaders={args.shader_cache}, "
         f"tweaks.vk_hybrid_ubershaders={args.hybrid_ubershaders}, "
+        f"tweaks.vk_shader_fastpath={args.shader_fastpath}, "
         f"cache_phase={args.cache_phase}"
     )
     if args.vulkan_lab_counters:
