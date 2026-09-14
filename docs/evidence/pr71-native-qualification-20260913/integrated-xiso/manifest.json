@@ -1,0 +1,33 @@
+{
+  "campaign_id": "pr71-4f0a-qualification-20260913",
+  "xiso": {
+    "sha256": "a91fdcc7b87e609a98075dfe9b6225edccb00d6036cfed6a4d7ea644b53d7400",
+    "catalog_id": "sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5",
+    "records": 159,
+    "registered_full_run_records": 154,
+    "gated_leaf_records": 5
+  },
+  "full_suite_cells": 11,
+  "per_test_rows": 1739,
+  "comparison_rows": 3180,
+  "fixed_baseline_gated_rows": 10,
+  "input_sha256": {
+    "campaign.json": "4db04278298eebc44263a1fd7cc481c3a66f01911a0531811fbe3f848631a585",
+    "01-baseline-opengl.json": "66b755b48b4a5e87cbc58a977c6a229ad8ec0a5ea66137e78e73b0bb4db39b48",
+    "02-candidate-opengl.json": "c6159c340cfad2b12f6388e84299a73d74109e481cb7c6f051c1ab84b4f70338",
+    "03-previous-opengl.json": "7ae881c4584b283c4def32bd3503f58a1d893271d40ea1efead6843bacd3c7ce",
+    "04-previous-vulkan.json": "377c28c440c42f2e24abeb29f9520350a0a6ddcc269cceb962dd935b7fe53610",
+    "05-candidate-vulkan-off-cold.json": "cb7f79b6750153bc3c0542aa66a69455326b703e5c78ce4dc8a38a505d2711f3",
+    "06-candidate-vulkan-off-warm.json": "e7930c3abbf4b2b832f176a0a9b846ab743c926038b0187a3cd598b78a0bde36",
+    "07-candidate-vulkan-on-cold.json": "319c43e068e9ec66615aa9675fe44555c399fb1218207a7d8d4913a7d44f0f2a",
+    "08-candidate-vulkan-on-warm.json": "8c21ea6fb0ee244cba68b38c6c2491b309f90f2b9a2590365720b65226615619",
+    "09-baseline-vulkan.json": "a96af2fe37c82885336e20229748a766b7bd7899598690ebc68a57ab1ab562dc",
+    "10-candidate-vulkan-fast-cold.json": "b9e7f1b6136065de6f0ed6c19efb7b1a7c1fced7374b9cb8c5646924d05883dd",
+    "11-candidate-vulkan-fast-warm.json": "28f47c1c82c2fa10f4f39529c353babdda843b775f23a214eb05bdec217aad3f"
+  },
+  "output_sha256": {
+    "per-test.csv": "d807645d2ff06cc400f398906001b66497fbb810cb5a8364ed44f31a966a9c03",
+    "per-test-improvement.csv": "f011abef760d8275b550edf550ff17384d7a166730413684e42dd7d5aa83dc45",
+    "fixed-baseline-gated-controls.csv": "a71b244aa4eb2749b13bb0a176906485355f030f628c8c15d5126e23d23f74ee"
+  }
+}
