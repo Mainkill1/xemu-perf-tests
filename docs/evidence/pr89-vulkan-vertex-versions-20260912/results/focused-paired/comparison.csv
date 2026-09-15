@@ -1,0 +1,13 @@
+test_id,raw_direction,parent_1_median_us,candidate_1_median_us,pair_1_improvement_pct,candidate_2_median_us,parent_2_median_us,pair_2_improvement_pct,median_of_cells_improvement_pct,outcome_and_hash_stable
+vertex_buffer_allocation.tiny.inline_arrays,+bad,71057,68696,+3.32,70151,64470,-8.81,-2.45,True
+game_load.cross_title_hotpath.blend_constant_reuse,+bad,99936,99955,-0.02,99973,99963,-0.01,-0.01,True
+game_load.cross_title_hotpath.gpu_wait_control,+bad,1144,1116,+2.45,1126,1132,+0.53,+1.49,True
+game_load.cross_title_hotpath.pgr2_lagspot_inline_elements,+bad,100285,100076,+0.21,99947,102571,+2.56,+1.40,True
+game_load.cross_title_hotpath.pgr2_small_draws,+bad,126684,123121,+2.81,125694,126416,+0.57,+1.69,True
+game_load.cross_title_hotpath.pipeline_state_churn,+bad,66633,53371,+19.90,66637,66501,-0.20,+9.86,True
+game_load.cross_title_hotpath.queued_vertex_cpu_writes,+bad,166570,161162,+3.25,162144,159547,-1.63,+0.86,True
+game_load.cross_title_hotpath.s3tc_streaming_fenced_draws,+bad,923604,916696,+0.75,916720,1071665,+14.46,+8.11,True
+game_load.cross_title_hotpath.scaled_surface_pressure,+bad,325404,355165,-9.15,351577,330786,-6.29,-7.70,True
+game_load.cross_title_hotpath.surface_reuse,+bad,6638,6455,+2.76,6464,6686,+3.32,+3.04,True
+game_load.cross_title_hotpath.texture_binding_reuse,+bad,133255,133331,-0.06,133330,133287,-0.03,-0.04,True
+game_load.cross_title_hotpath.texture_update_reuse,+bad,2838,2818,+0.70,3292,2809,-17.19,-8.20,True

@@ -1,0 +1,378 @@
+[
+  {
+    "name": "tiny-parent-1",
+    "test_id": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+    "exe": "parent",
+    "exe_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 1,
+    "records": [
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_arrays",
+        "outcome": "PASS",
+        "median_us": 71057,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      }
+    ]
+  },
+  {
+    "name": "tiny-candidate-1",
+    "test_id": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+    "exe": "candidate",
+    "exe_sha256": "594a2bed93e3ee8b2e28430608c465a187ed5958bcaa11c97852d45caeeeafe6",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 1,
+    "records": [
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_arrays",
+        "outcome": "PASS",
+        "median_us": 68696,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      }
+    ]
+  },
+  {
+    "name": "tiny-candidate-2",
+    "test_id": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+    "exe": "candidate",
+    "exe_sha256": "594a2bed93e3ee8b2e28430608c465a187ed5958bcaa11c97852d45caeeeafe6",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 1,
+    "records": [
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_arrays",
+        "outcome": "PASS",
+        "median_us": 70151,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      }
+    ]
+  },
+  {
+    "name": "tiny-parent-2",
+    "test_id": "Vertex buffer allocation::TinyAlloc-inlinearrays",
+    "exe": "parent",
+    "exe_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 1,
+    "records": [
+      {
+        "id": "vertex_buffer_allocation.tiny.inline_arrays",
+        "outcome": "PASS",
+        "median_us": 64470,
+        "framebuffer_fnv1a64": "377e6c029807f325"
+      }
+    ]
+  },
+  {
+    "name": "hotpath-parent-1",
+    "test_id": "GameLoadComposite::09-CrossTitleHotpath",
+    "exe": "parent",
+    "exe_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 12,
+    "records": [
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "outcome": "PASS",
+        "median_us": 166570,
+        "framebuffer_fnv1a64": "a4937a1329aaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws",
+        "outcome": "PASS",
+        "median_us": 126684,
+        "framebuffer_fnv1a64": "1ef31277b5fc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_update_reuse",
+        "outcome": "PASS",
+        "median_us": 2838,
+        "framebuffer_fnv1a64": "e88e6c501ab56325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse",
+        "outcome": "PASS",
+        "median_us": 6638,
+        "framebuffer_fnv1a64": "c3aa84780c6e2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn",
+        "outcome": "PASS",
+        "median_us": 66633,
+        "framebuffer_fnv1a64": "48c5d70fb7dc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.blend_constant_reuse",
+        "outcome": "PASS",
+        "median_us": 99936,
+        "framebuffer_fnv1a64": "9a8c756b37b7e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+        "outcome": "PASS",
+        "median_us": 133255,
+        "framebuffer_fnv1a64": "78dffcc619e8e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "outcome": "PASS",
+        "median_us": 100285,
+        "framebuffer_fnv1a64": "8ef6f44ca5eaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "outcome": "PASS",
+        "median_us": 325404,
+        "framebuffer_fnv1a64": "e8d9270583ac6325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "outcome": "PASS",
+        "median_us": 923604,
+        "framebuffer_fnv1a64": "265970d0a241a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control",
+        "outcome": "PASS",
+        "median_us": 1144,
+        "framebuffer_fnv1a64": "a05f41f1b0662325"
+      }
+    ]
+  },
+  {
+    "name": "hotpath-candidate-1",
+    "test_id": "GameLoadComposite::09-CrossTitleHotpath",
+    "exe": "candidate",
+    "exe_sha256": "594a2bed93e3ee8b2e28430608c465a187ed5958bcaa11c97852d45caeeeafe6",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 12,
+    "records": [
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "outcome": "PASS",
+        "median_us": 161162,
+        "framebuffer_fnv1a64": "a4937a1329aaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws",
+        "outcome": "PASS",
+        "median_us": 123121,
+        "framebuffer_fnv1a64": "1ef31277b5fc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_update_reuse",
+        "outcome": "PASS",
+        "median_us": 2818,
+        "framebuffer_fnv1a64": "e88e6c501ab56325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse",
+        "outcome": "PASS",
+        "median_us": 6455,
+        "framebuffer_fnv1a64": "c3aa84780c6e2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn",
+        "outcome": "PASS",
+        "median_us": 53371,
+        "framebuffer_fnv1a64": "48c5d70fb7dc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.blend_constant_reuse",
+        "outcome": "PASS",
+        "median_us": 99955,
+        "framebuffer_fnv1a64": "9a8c756b37b7e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+        "outcome": "PASS",
+        "median_us": 133331,
+        "framebuffer_fnv1a64": "78dffcc619e8e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "outcome": "PASS",
+        "median_us": 100076,
+        "framebuffer_fnv1a64": "8ef6f44ca5eaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "outcome": "PASS",
+        "median_us": 355165,
+        "framebuffer_fnv1a64": "e8d9270583ac6325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "outcome": "PASS",
+        "median_us": 916696,
+        "framebuffer_fnv1a64": "265970d0a241a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control",
+        "outcome": "PASS",
+        "median_us": 1116,
+        "framebuffer_fnv1a64": "a05f41f1b0662325"
+      }
+    ]
+  },
+  {
+    "name": "hotpath-candidate-2",
+    "test_id": "GameLoadComposite::09-CrossTitleHotpath",
+    "exe": "candidate",
+    "exe_sha256": "594a2bed93e3ee8b2e28430608c465a187ed5958bcaa11c97852d45caeeeafe6",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 12,
+    "records": [
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "outcome": "PASS",
+        "median_us": 162144,
+        "framebuffer_fnv1a64": "a4937a1329aaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws",
+        "outcome": "PASS",
+        "median_us": 125694,
+        "framebuffer_fnv1a64": "1ef31277b5fc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_update_reuse",
+        "outcome": "PASS",
+        "median_us": 3292,
+        "framebuffer_fnv1a64": "e88e6c501ab56325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse",
+        "outcome": "PASS",
+        "median_us": 6464,
+        "framebuffer_fnv1a64": "c3aa84780c6e2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn",
+        "outcome": "PASS",
+        "median_us": 66637,
+        "framebuffer_fnv1a64": "48c5d70fb7dc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.blend_constant_reuse",
+        "outcome": "PASS",
+        "median_us": 99973,
+        "framebuffer_fnv1a64": "9a8c756b37b7e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+        "outcome": "PASS",
+        "median_us": 133330,
+        "framebuffer_fnv1a64": "78dffcc619e8e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "outcome": "PASS",
+        "median_us": 99947,
+        "framebuffer_fnv1a64": "8ef6f44ca5eaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "outcome": "PASS",
+        "median_us": 351577,
+        "framebuffer_fnv1a64": "e8d9270583ac6325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "outcome": "PASS",
+        "median_us": 916720,
+        "framebuffer_fnv1a64": "265970d0a241a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control",
+        "outcome": "PASS",
+        "median_us": 1126,
+        "framebuffer_fnv1a64": "a05f41f1b0662325"
+      }
+    ]
+  },
+  {
+    "name": "hotpath-parent-2",
+    "test_id": "GameLoadComposite::09-CrossTitleHotpath",
+    "exe": "parent",
+    "exe_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+    "exit_code": 0,
+    "status": "PASSED",
+    "record_count": 12,
+    "records": [
+      {
+        "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes",
+        "outcome": "PASS",
+        "median_us": 159547,
+        "framebuffer_fnv1a64": "a4937a1329aaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_small_draws",
+        "outcome": "PASS",
+        "median_us": 126416,
+        "framebuffer_fnv1a64": "1ef31277b5fc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_update_reuse",
+        "outcome": "PASS",
+        "median_us": 2809,
+        "framebuffer_fnv1a64": "e88e6c501ab56325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.surface_reuse",
+        "outcome": "PASS",
+        "median_us": 6686,
+        "framebuffer_fnv1a64": "c3aa84780c6e2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pipeline_state_churn",
+        "outcome": "PASS",
+        "median_us": 66501,
+        "framebuffer_fnv1a64": "48c5d70fb7dc2325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.blend_constant_reuse",
+        "outcome": "PASS",
+        "median_us": 99963,
+        "framebuffer_fnv1a64": "9a8c756b37b7e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.texture_binding_reuse",
+        "outcome": "PASS",
+        "median_us": 133287,
+        "framebuffer_fnv1a64": "78dffcc619e8e325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.pgr2_lagspot_inline_elements",
+        "outcome": "PASS",
+        "median_us": 102571,
+        "framebuffer_fnv1a64": "8ef6f44ca5eaa325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.scaled_surface_pressure",
+        "outcome": "PASS",
+        "median_us": 330786,
+        "framebuffer_fnv1a64": "e8d9270583ac6325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.s3tc_streaming_fenced_draws",
+        "outcome": "PASS",
+        "median_us": 1071665,
+        "framebuffer_fnv1a64": "265970d0a241a325"
+      },
+      {
+        "id": "game_load.cross_title_hotpath.gpu_wait_control",
+        "outcome": "PASS",
+        "median_us": 1132,
+        "framebuffer_fnv1a64": "a05f41f1b0662325"
+      }
+    ]
+  }
+]

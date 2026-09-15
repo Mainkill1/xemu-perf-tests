@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "order": "parent then candidate",
+  "workload": "PGR2 fresh boot, 30-second warmup, 120-second measured race scene; no played lap",
+  "cells": [
+    {
+      "role": "parent",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "launch_mode": "FreshBoot",
+      "renderer": "VULKAN",
+      "duration_seconds": 120,
+      "warmup_seconds": 30,
+      "game": "PGR2",
+      "guest_frame_count": 3602,
+      "guest_frame_average_ms": 33.33332037756811,
+      "guest_frame_p95_ms": 33.658,
+      "guest_frame_p99_ms": 33.836,
+      "guest_frame_max_ms": 35.889,
+      "guest_frame_stall_count": 0,
+      "average_fps": 29.999994109155068,
+      "fps_source": "XEMU_FLIP_LOG",
+      "xemu_sha256": "ea6d5dc552d71817bd7acc9ad025420ac2d087031b69c2cebd3f944db1995ed0",
+      "base_config_sha256": "2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0",
+      "hdd_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "not_responding_samples": 0,
+      "focus_loss_samples": 0,
+      "guest_frame_boundary": "complete frames selected by QPC timestamp"
+    },
+    {
+      "role": "candidate",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "launch_mode": "FreshBoot",
+      "renderer": "VULKAN",
+      "duration_seconds": 120,
+      "warmup_seconds": 30,
+      "game": "PGR2",
+      "guest_frame_count": 3601,
+      "guest_frame_average_ms": 33.33333268536524,
+      "guest_frame_p95_ms": 33.586,
+      "guest_frame_p99_ms": 33.968,
+      "guest_frame_max_ms": 34.631,
+      "guest_frame_stall_count": 0,
+      "average_fps": 30.00001308114922,
+      "fps_source": "XEMU_FLIP_LOG",
+      "xemu_sha256": "f2317a7ac7eb1009ccf9788ad76c6ed4c2dc9bdc0b6df986b5828eebb9e405dc",
+      "base_config_sha256": "2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0",
+      "hdd_seed_sha256": "8b4f7c81be6ece5db3fc98d683d86d0515db43b2447e8dff14bfd9b45078c606",
+      "not_responding_samples": 0,
+      "focus_loss_samples": 0,
+      "guest_frame_boundary": "complete frames selected by QPC timestamp"
+    }
+  ],
+  "improvement_percent": {
+    "guest_frame_average_ms": -0.0,
+    "guest_frame_p95_ms": 0.214,
+    "guest_frame_p99_ms": -0.39,
+    "guest_frame_max_ms": 3.505
+  }
+}

@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "workload": "PGR2 Vulkan snapshot B-3; 30-second warmup and 30-second WPR CpuScheduler diagnostic window",
+  "classification": "diagnostic trace, not performance acceptance",
+  "raw_traces": "retained off-repository; no public raw ETL or private game assets",
+  "rows": [
+    {
+      "role": "pr87",
+      "current_source_commit": "1d4524a6df0fac5822c7c8d0393a4ef5f6f16d6a",
+      "tested_executable_sha256": "54b879eb2602c57504e97f2899ee73b91aa22debca4373465896a40b6d8a57e2",
+      "guest_frames": 885,
+      "p99_interval_ms": 44.022,
+      "maximum_interval_ms": 49.964,
+      "trace_lost_buffers": 0,
+      "trace_lost_events": 0,
+      "sampled_xemu_self_cpu_ms_per_guest_frame": 47.91010101694984,
+      "sampled_pfifo_all_module_cpu_ms_per_guest_frame": 16.405697514124537,
+      "sampled_tcg_all_module_cpu_ms_per_guest_frame": 30.964439322034348,
+      "sampled_functions_ms_per_guest_frame": {
+        "sync_vertex_ram_buffer": 0.13860350282485875,
+        "remap_unaligned_attributes": 0.11955446327683616,
+        "pgraph_vk_download_surfaces_in_range_if_dirty": 0.19234768361581933,
+        "pgraph_vk_flush_draw_internal": 0.3104688135593221
+      }
+    },
+    {
+      "role": "pr89",
+      "current_source_commit": "cbb3b4372f756ad6bc6e6a725de36be84742b7bd",
+      "tested_executable_sha256": "29eac8120cce296e312ba85147109ca5d6b62755d6326d36d4c0358a44231d25",
+      "guest_frames": 877,
+      "p99_interval_ms": 44.12,
+      "maximum_interval_ms": 50.086,
+      "trace_lost_buffers": 0,
+      "trace_lost_events": 0,
+      "sampled_xemu_self_cpu_ms_per_guest_frame": 48.1376347776521,
+      "sampled_pfifo_all_module_cpu_ms_per_guest_frame": 16.084374344355943,
+      "sampled_tcg_all_module_cpu_ms_per_guest_frame": 31.535063283922916,
+      "sampled_functions_ms_per_guest_frame": {
+        "sync_vertex_ram_buffer": 0.1483968072976055,
+        "remap_unaligned_attributes": 0.08620467502850626,
+        "pgraph_vk_download_surfaces_in_range_if_dirty": 0.25178734321550733,
+        "pgraph_vk_flush_draw_internal": 0.3340291904218929
+      }
+    }
+  ]
+}
