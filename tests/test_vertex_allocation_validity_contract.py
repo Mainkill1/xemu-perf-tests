@@ -120,12 +120,18 @@ class VertexAllocationValidityContractTests(unittest.TestCase):
         )
 
     def test_contract_rejects_missing_wait_or_retention(self) -> None:
+        signature = (
+            "void VertexBufferAllocationTests::TestMixedSizes("
+            "const std::string &name, DrawMode draw_mode)"
+        )
+        function_start = SOURCE.index(signature)
         for old in (
             "retained_buffers.emplace_back(vertex_buffer);",
             "host_.WaitForGpu();",
         ):
             with self.subTest(removed=old):
-                mutated = SOURCE.replace(old, "/* removed */", 1)
+                prefix, function_and_after = SOURCE[:function_start], SOURCE[function_start:]
+                mutated = prefix + function_and_after.replace(old, "/* removed */", 1)
                 with self.assertRaises(AssertionError):
                     assert_retention_contract(mutated)
 

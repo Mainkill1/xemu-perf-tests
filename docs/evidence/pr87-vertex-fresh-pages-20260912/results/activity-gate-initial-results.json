@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "product_pr": 87,
+  "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "build": "Windows O2/full-LTO/x86-64-v3 DWARF/assert",
+  "instrumentation": "No opt-in Vulkan telemetry, ETL or PresentMon; one candidate cell per game in this session",
+  "cells": [
+    {
+      "workload": "PGR2 Vulkan snapshot",
+      "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+      "source_patch_sha256": "b8399582d54e9b41066f2d8a72d020218440e693129a9062013c84b4eb3cf515",
+      "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+      "raw_result_sha256": "17c8f24ce58abfbd07364b7197998dcc0806dc137aeb506bb5510fbd531705d6",
+      "status": "complete",
+      "renderer": "VULKAN",
+      "snapshot": "vm-20260907142321",
+      "duration_seconds": 60,
+      "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+      "base_config_sha256": "2fe22ca7513a0b72df9e83e88809b81a4a591595cb7b67d7613bacd5125be0a0",
+      "guest_frame_count": 1777,
+      "guest_fps": 29.585119039999462,
+      "guest_interval_p95_ms": 39.368,
+      "guest_interval_p99_ms": 42.471,
+      "guest_interval_max_ms": 52.787,
+      "guest_stall_count": 0,
+      "functional_status": "complete",
+      "measurement_status": "complete"
+    },
+    {
+      "workload": "Morrowind Vulkan snapshot",
+      "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+      "source_patch_sha256": "b8399582d54e9b41066f2d8a72d020218440e693129a9062013c84b4eb3cf515",
+      "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+      "raw_result_sha256": "2dc4e0b73425b599af4706e1899f222c2d1087a78b1dc03d40e00b046caa04ee",
+      "status": "complete",
+      "renderer": "VULKAN",
+      "snapshot": "vm-20260905015459",
+      "duration_seconds": 60,
+      "guest_display_writes": 1537,
+      "guest_display_writes_per_second": 25.61452898775067,
+      "guest_interval_p95_ms": 46.019,
+      "guest_interval_p99_ms": 52.945,
+      "final_image_status": "PASSED",
+      "private_disk_deleted": true,
+      "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad"
+    }
+  ]
+}

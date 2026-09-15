@@ -1,0 +1,109 @@
+{
+  "schema_version": 1,
+  "purpose": "Trace-only render-pass vs ordered-copy GPU interval attribution on exact PR87 source",
+  "product_source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "diagnostic_patch_sha256": "affc23a35342a794fac77822e49b7e7e843a82630028c2973909d5b5acb4f147",
+  "diagnostic_executable_sha256": "b448bde92ea90ce88d37c85b6f29245a34ae7dd966f4479b836565e674dc36ba",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "window_seconds": 10.0051531,
+  "guest_display_writes": 243,
+  "guest_display_writes_per_window_second": 24.287484416405384,
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true,
+  "seed_sha256_after": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "gpu_timestamp_valid_bits": 64,
+  "gpu_timestamp_period_ns": 1,
+  "query_pairs_per_submit_capacity": {
+    "render_pass": 256,
+    "ordered_copy": 256
+  },
+  "all_reasons": {
+    "gpu_main_ns": 2317986304,
+    "render_pass_span_ns": 1711547744,
+    "render_pass_share_of_main_percent": 73.838,
+    "ordered_copy_span_ns": 375501280,
+    "ordered_copy_share_of_main_percent": 16.199,
+    "unclassified_main_ns": 230937280,
+    "unclassified_share_percent": 9.963,
+    "timed_render_passes": 61718,
+    "timed_ordered_copies": 57702,
+    "pass_query_overflows": 0,
+    "copy_query_overflows": 0
+  },
+  "reasons": {
+    "surface_create": {
+      "submits": 2,
+      "gpu_main_ns": 301056,
+      "render_pass_span_ns": 228416,
+      "ordered_copy_span_ns": 46784,
+      "render_pass_share_of_main_percent": 75.872,
+      "copy_share_of_main_percent": 15.54,
+      "timed_render_passes": 8,
+      "timed_ordered_copies": 6,
+      "pass_query_overflows": 0,
+      "copy_query_overflows": 0,
+      "frames_pass_plus_copy_exceeds_main": 0
+    },
+    "surface_down": {
+      "submits": 1,
+      "gpu_main_ns": 145408,
+      "render_pass_span_ns": 141312,
+      "ordered_copy_span_ns": 0,
+      "render_pass_share_of_main_percent": 97.183,
+      "copy_share_of_main_percent": 0.0,
+      "timed_render_passes": 3,
+      "timed_ordered_copies": 0,
+      "pass_query_overflows": 0,
+      "copy_query_overflows": 0,
+      "frames_pass_plus_copy_exceeds_main": 0
+    },
+    "need_buffer_space": {
+      "submits": 244,
+      "gpu_main_ns": 2060081664,
+      "render_pass_span_ns": 1527529536,
+      "ordered_copy_span_ns": 348672192,
+      "render_pass_share_of_main_percent": 74.149,
+      "copy_share_of_main_percent": 16.925,
+      "timed_render_passes": 55080,
+      "timed_ordered_copies": 54338,
+      "pass_query_overflows": 0,
+      "copy_query_overflows": 0,
+      "frames_pass_plus_copy_exceeds_main": 0
+    },
+    "flip_stall": {
+      "submits": 242,
+      "gpu_main_ns": 34754560,
+      "render_pass_span_ns": 32749600,
+      "ordered_copy_span_ns": 475392,
+      "render_pass_share_of_main_percent": 94.231,
+      "copy_share_of_main_percent": 1.368,
+      "timed_render_passes": 826,
+      "timed_ordered_copies": 100,
+      "pass_query_overflows": 0,
+      "copy_query_overflows": 0,
+      "frames_pass_plus_copy_exceeds_main": 0
+    },
+    "stalled": {
+      "submits": 243,
+      "gpu_main_ns": 222703616,
+      "render_pass_span_ns": 150898880,
+      "ordered_copy_span_ns": 26306912,
+      "render_pass_share_of_main_percent": 67.758,
+      "copy_share_of_main_percent": 11.813,
+      "timed_render_passes": 5801,
+      "timed_ordered_copies": 3258,
+      "pass_query_overflows": 0,
+      "copy_query_overflows": 0,
+      "frames_pass_plus_copy_exceeds_main": 0
+    }
+  },
+  "private_inputs_sha256": {
+    "diagnostic_counter_stream": "f9bc1d078eb60e1fe84004663a95f341f64930ce734084bbf3de2b64fa46733e",
+    "guest_display_write_stream": "2d6d2c2a130c696fe3ad9ac73969e179b1844396ef82850c28e84c8f0c0fc4d6",
+    "run_result": "332a161862cedfed81a00241fcfb05552cca903d16ee2dc55e7c0960a3c1d733"
+  },
+  "method": "Align counter rows and guest-write events by ordinal, select the recorded UTC measurement interval. Timestamp each render pass before vkCmdBeginRenderPass and after vkCmdEndRenderPass; timestamp each ordered staged copy after the previous pass ends and after its barriers/copy. The two pair classes do not overlap. Sum main GPU batch timestamps as denominator; fence completion precedes query retrieval.",
+  "limits": "One fixed-camera Vulkan snapshot; per-pass timestamps and retrieval are intrusive. The spans classify elapsed GPU command intervals in this diagnostic build, not shader ALU time, removable production time, host-presented FPS, or a product A/B. The outside-pair remainder may include other commands, synchronization and timestamp overhead."
+}
