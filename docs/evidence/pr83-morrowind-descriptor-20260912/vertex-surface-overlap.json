@@ -1,0 +1,70 @@
+{
+  "status": "complete",
+  "source_commit": "9148241de690617ac0a21a26b41858585c1e3cab",
+  "diagnostic_executable_sha256": "eab068f690cbc85996e02cd606cc3b44ab3e6545cbab0df7e914671329c688e7",
+  "diagnostic_patch_sha256": "2b1c6ffda68cff24c6fadfca8de93edbf9012c0ac99118cf33d1556313459a04",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "trace_sha256": "f693b7fd977f9cef6c5a69606e85a65ba71b0e421f4edf0beafdaaf81a1cbb74",
+  "result_sha256": "9046bcac304ca65d98aee592d9f05aea8f25b6ce6fede32a52f33529fc3eea8c",
+  "guest_flips_in_window": 238,
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true,
+  "event_counts_full_run": {
+    "nv2a_pgraph_flip_increment_write": 417,
+    "nv2a_pgraph_surface_download": 627,
+    "nv2a_pgraph_surface_invalidated": 2,
+    "nv2a_pgraph_surface_range_download": 626,
+    "nv2a_pgraph_surface_render_to_texture": 4768,
+    "nv2a_pgraph_surface_upload": 13,
+    "nv2a_pgraph_vertex_sync_request": 7906
+  },
+  "event_counts_measurement_window": {
+    "nv2a_pgraph_flip_increment_write": 238,
+    "nv2a_pgraph_surface_download": 424,
+    "nv2a_pgraph_surface_invalidated": 2,
+    "nv2a_pgraph_surface_range_download": 423,
+    "nv2a_pgraph_surface_render_to_texture": 3220,
+    "nv2a_pgraph_surface_upload": 2,
+    "nv2a_pgraph_vertex_sync_request": 5358
+  },
+  "raw_requests_full_run": 7906,
+  "raw_requests_intersecting_any_recorded_surface": 0,
+  "surface_ranges": [
+    {
+      "surface_start_hex": "0x2e24f00",
+      "surface_size_bytes": 65536,
+      "aligned_requests_full_run": 2680,
+      "actual_raw_overlaps_full_run": 0,
+      "minimum_raw_gap_bytes": 104,
+      "page_overlap_bytes": [
+        3840
+      ],
+      "downloads_full_run": 312,
+      "downloads_measurement_window": 211
+    },
+    {
+      "surface_start_hex": "0x2e65180",
+      "surface_size_bytes": 65536,
+      "aligned_requests_full_run": 5216,
+      "actual_raw_overlaps_full_run": 0,
+      "minimum_raw_gap_bytes": 148,
+      "page_overlap_bytes": [
+        384
+      ],
+      "downloads_full_run": 313,
+      "downloads_measurement_window": 211
+    },
+    {
+      "surface_start_hex": "0x2e7d380",
+      "surface_size_bytes": 65536,
+      "aligned_requests_full_run": 10,
+      "actual_raw_overlaps_full_run": 0,
+      "minimum_raw_gap_bytes": 104,
+      "page_overlap_bytes": [
+        3200
+      ],
+      "downloads_full_run": 1,
+      "downloads_measurement_window": 1
+    }
+  ]
+}
