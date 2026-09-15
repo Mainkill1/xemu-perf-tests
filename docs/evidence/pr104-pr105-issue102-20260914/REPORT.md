@@ -93,8 +93,8 @@ per-run maximum intervals are main **61.583/54.446 ms**, PR #104
 has one frame at or above 75 ms; the others have none. A nearby host
 presentation gap and GPU-active interval were observed, but no scheduler or
 GPU command attribution was captured, so the isolated 126 ms event remains
-unexplained. Its existence and the #105-vs-#104 p99 result prevent a
-performance PASS at this stage.
+unexplained. Its existence and the #105-vs-#104 p99 result prevent claiming a
+repeatable performance improvement from this correctness patch.
 
 The Morrowind snapshot bracket also completed in main, #104, #105, #105,
 #104, main order, with two same-settings baseline controls. The fixed camera
@@ -160,20 +160,26 @@ off, but the trace does not attribute the gap to a particular operation.
 
 ## Disposition
 
-**HOLD, not a clean performance PASS.** PR #105 survived two full-start runs
-that crashed on previous main and PR #104, and its PGR2 snapshot and full-start
-p99 values are near or better than the retained baseline. The single 126.409 ms
-snapshot spike, Morrowind slowdown against #104, and real XISO report-query
-non-PASS outcomes remain. The earlier RTX 3090 played-race survival result
-applies to a different diagnostic executable. This clean binary has not been
-proven on the original RTX 3090 host. PR #104's specific copy validation
-repair is supported, but its device loss remains. PR #103 remains a diagnostic
-branch, not a performance candidate.
+**READY TO INTEGRATE as a correctness repair; no broad performance gain is
+claimed.** PR #105 survived two full-start runs that crashed on previous main
+and PR #104. Its PGR2 snapshot and full-start p99 values are near or better than
+the retained baseline. The isolated snapshot maximum and Morrowind movement
+against #104 remain noisy descriptive results: candidate FPS stays within 1.2%
+of main and the retained baseline, while #104 itself moved more than 2% above
+both. The focused source paths preserve valid ubershader behavior and add only
+a VMA-managed visibility operation that is skipped for coherent memory.
+
+The XISO report-query non-PASS outcomes are retained, but exact-head repeats
+show they do not follow either patch. PR #104's copy validation repair has
+landed separately. PR #103 remains diagnostic history.
 
 The later [PGR2 race-to-menu corruption report](https://github.com/Mainkill1/xemu/issues/106)
-is a separate correctness gate. These captures end in active gameplay; none
-exit a race and inspect the resulting menu. Their passing scene checks and
-matching XISO hashes cannot qualify that transition.
+was exercised directly after these captures. The symptom appears on PR #105
+with every Vulkan setting combination tested and on the retained cycle
+baseline with Hybrid and the shortcut off. It is therefore a real pre-existing
+Vulkan transition defect, not a PR #105 regression. [Normalized transition
+evidence](race-menu-transition/README.md) remains linked to #106 for its own
+repair.
 
 ## September 15 exact-head review repeat
 
