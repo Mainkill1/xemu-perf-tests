@@ -1,0 +1,35 @@
+{
+  "schema_version": 1,
+  "source_commit": "5717357917abdd92e7c344d9e4f1b36b6fa61afa+vertex-reasons",
+  "executable_sha256": "365885cd0733251958f37f288c08631d6d7ed8bfa9523a70e199c43030f010e7",
+  "diagnostic_patch_sha256": "d20b9e98e2f16a511e73db27a37d24d415524146ac738344bb0e69b6e32ae9b3",
+  "perf_input_sha256": "c27337a4a4d1b68a02fa52d94e636248d266e9449838984f3aa93a01966fe9f4",
+  "flip_input_sha256": "bd7b7832a0486c49c38a633e26ed728832a73003675fed48db47fe37efd8468a",
+  "result_input_sha256": "4c879b9e9ec2b9fd50f5dfb093f087ae0cfd58bc681bbe646e71eb9bcf8f17b5",
+  "window_display_writes": 240,
+  "pass_begins": 85341,
+  "pass_end_totals": {
+    "finish": 480,
+    "nondraw": 81568,
+    "surface": 1791,
+    "framebuffer": 0,
+    "query": 0,
+    "clear": 1502
+  },
+  "pass_end_total": 85341,
+  "pass_end_nondraw_share": 0.9557891283205024,
+  "vertex_staging_copy_total": 82719,
+  "vertex_staging_bytes_total": 725204992,
+  "vertex_staging_copies_median_per_write": 353.0,
+  "nondraw_pass_end_median_per_write": 348.0,
+  "vertex_copy_nondraw_end_pearson": 0.9985830409452162,
+  "texture_upload_calls_total": 19,
+  "final_image_validation": "PASSED",
+  "private_hdd_deleted": true,
+  "vertex_sync_reasons": {
+    "memory_dirty": 82720,
+    "surface_only": 0,
+    "both": 0,
+    "clean": 194601
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "source": "QMP info jit, same diagnostic executable, Vulkan Morrowind snapshot",
+  "first_utc": "2026-09-12T14:57:03.7745209Z",
+  "second_utc": "2026-09-12T14:57:09.7829879Z",
+  "first": {
+    "tb_count": 22355,
+    "direct_jump_count": 13100,
+    "tb_flush_count": 0,
+    "tb_invalidate_count": 4102,
+    "tb_hash_avg_chain_buckets": 1.016
+  },
+  "second": {
+    "tb_count": 24667,
+    "direct_jump_count": 13858,
+    "tb_flush_count": 0,
+    "tb_invalidate_count": 7508,
+    "tb_hash_avg_chain_buckets": 1.025
+  },
+  "delta": {
+    "tb_count": 2312,
+    "tb_invalidate_count": 3406,
+    "elapsed_seconds": 6.008467
+  }
+}
