@@ -1,0 +1,10 @@
+--- run-suite.py
++++ run-suite-pr81-optin.py
+@@ -4334,6 +4334,7 @@
+             )
+             if args.full_suite:
+                 suite_config["settings"]["skip_tests_by_default"] = False
++                suite_config["settings"]["enable_xemu_only_tests"] = True
+             test = PerfTestExecutor(
+                 env,
+                 run_dir,
