@@ -1,0 +1,272 @@
+[
+  {
+    "repeat": "1",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.561",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.552",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.549",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "1",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.992",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.533",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.573",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "1",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.999",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.536",
+    "result": "PASS"
+  },
+  {
+    "repeat": "1",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "17.906",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "2",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.505",
+    "result": "PASS"
+  },
+  {
+    "repeat": "2",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.504",
+    "result": "PASS"
+  },
+  {
+    "repeat": "2",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.532",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "2",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "1",
+    "elapsed_seconds": "16.617",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "2",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.536",
+    "result": "PASS"
+  },
+  {
+    "repeat": "2",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.851",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "2",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.538",
+    "result": "PASS"
+  },
+  {
+    "repeat": "2",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.557",
+    "result": "PASS"
+  },
+  {
+    "repeat": "2",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.903",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "3",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.504",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.507",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "main",
+    "source": "322986f4c5502b3fa887a9605ac8cd88e9b2c579",
+    "exe_sha256": "992c5cf7bb25ccfd7d6384ee837c051b31120d227cbc6e0febe8207790e0023e",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.534",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "3",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.555",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.538",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "pr104",
+    "source": "d89cbb3d54eb168f0e005b8cb4e35e36f864babf",
+    "exe_sha256": "5f79b6d5bf20ce24d8b1e4f0ff7e18e168773ffc7f32ee8fdcaf60f23e0e1401",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.624",
+    "result": "FAIL"
+  },
+  {
+    "repeat": "3",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.zero-query",
+    "exit_code": "0",
+    "elapsed_seconds": "5.538",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.clear-boundary",
+    "exit_code": "0",
+    "elapsed_seconds": "5.523",
+    "result": "PASS"
+  },
+  {
+    "repeat": "3",
+    "role": "pr105",
+    "source": "0f45e35b32a622da781dc5c4b8e4740e15b0a268",
+    "exe_sha256": "a76b68fcb9cb8c09258843c1780e48a97d23f53a7bb5ac5097fd02b864c56aab",
+    "test": "ReportQuery::report.dma-range-guard",
+    "exit_code": "1",
+    "elapsed_seconds": "16.585",
+    "result": "FAIL"
+  }
+]
