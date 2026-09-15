@@ -174,3 +174,17 @@ The later [PGR2 race-to-menu corruption report](https://github.com/Mainkill1/xem
 is a separate correctness gate. These captures end in active gameplay; none
 exit a race and inspect the resulting menu. Their passing scene checks and
 matching XISO hashes cannot qualify that transition.
+
+## September 15 exact-head review repeat
+
+The reviewed PR heads were rebuilt with the pinned Win64 O2/LTO/x86-64-v3 toolchain and run on the Windows RTX 3070 Ti host. PR #104's BC layout test passes 4/4. PR #105 passes BC layout 4/4, compiled staging-copy ordering 2/2, generated ubershader source 6/6, and glslang/reflection 2/2.
+
+The three disputed report-query records were then repeated three times per role:
+
+| Role | `zero_query` | `clear_boundary` | `dma_range_guard` |
+| --- | ---: | ---: | ---: |
+| Previous main | 3/3 PASS | 3/3 PASS | 0/3 PASS |
+| PR #104 | 2/3 PASS | 3/3 PASS | 0/3 PASS |
+| PR #105 | 3/3 PASS | 3/3 PASS | 0/3 PASS |
+
+The failures do not track either patch: the boundary case now passes all roles, the zero-query result varies between executions, and the DMA guard fails identically on unchanged main and both candidates. This clears the review's patch-attribution question while retaining the report-query defect as separate unresolved evidence. [Exact-head protocol and normalized cells](query-repeat-exact-head/README.md).
