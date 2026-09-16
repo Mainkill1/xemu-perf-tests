@@ -219,6 +219,25 @@ void PushDmaBinding(uint32_t method, uint32_t handle) {
   Pushbuffer::End();
 }
 
+using DmaDescriptorWords = std::array<uint32_t, 4>;
+
+DmaDescriptorWords ReadDmaDescriptor(const s_CtxDma &context) {
+  DmaDescriptorWords words{};
+  const uint32_t base = NV_PRAMIN + (context.Inst << 4);
+  for (uint32_t i = 0; i < words.size(); ++i) {
+    words[i] = VIDEOREG(base + i * sizeof(uint32_t));
+  }
+  return words;
+}
+
+void WriteDmaDescriptor(const s_CtxDma &context,
+                        const DmaDescriptorWords &words) {
+  const uint32_t base = NV_PRAMIN + (context.Inst << 4);
+  for (uint32_t i = 0; i < words.size(); ++i) {
+    VIDEOREG(base + i * sizeof(uint32_t)) = words[i];
+  }
+}
+
 void DrawDmaTile(TestHost &host, const Quad &quad, bool stage_one,
                  float texture_extent) {
   host.SetFinalCombiner0Just(stage_one ? TestHost::SRC_TEX1
@@ -1279,6 +1298,33 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "texture_dma_remap_pixel_kat", __FILE__, __LINE__);
+
+  const DmaDescriptorWords original_red =
+      ReadDmaDescriptor(texture_dma_red_);
+  const DmaDescriptorWords green_descriptor =
+      ReadDmaDescriptor(texture_dma_green_);
+  host_.PrepareDraw(kBackgroundColor);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, texture_dma_red_.ChannelID);
+  DrawDmaTile(host_, kQuads[0], false, kTextureWidth);
+  SynchronizeCorrectness(host_);
+  AssertXemuPerfEqual(
+      kTextureAColor, ReadTileCenter(0),
+      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+      "same-handle texture descriptor control must sample red", __FILE__,
+      __LINE__);
+
+  /* Rewrite the bound handle in RAMIN without any texture-state write. */
+  WriteDmaDescriptor(texture_dma_red_, green_descriptor);
+  DrawDmaTile(host_, kQuads[1], false, kTextureWidth);
+  SynchronizeCorrectness(host_);
+  const uint32_t same_handle_actual = ReadTileCenter(1);
+  AssertXemuPerfEqual(
+      kDiffuseColor, same_handle_actual,
+      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+      "same-handle texture descriptor rewrite must sample the new source",
+      __FILE__, __LINE__);
+  WriteDmaDescriptor(texture_dma_red_, original_red);
+
   PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
   PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
   host_.SetTextureStageEnabled(0, false);
@@ -1295,6 +1341,9 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   metadata << "\"clean_remapped_stage\":0,\"dirty_control_stage\":1,";
   metadata << "\"stage0_texture_state_writes_after_remap\":0,";
   metadata << "\"stage1_sampler_writes_after_remap\":1,";
+  metadata << "\"same_handle_descriptor_rewrite\":true,";
+  metadata << "\"same_handle_texture_state_writes_after_rewrite\":0,";
+  metadata << "\"same_handle_actual\":" << same_handle_actual << ",";
   metadata << "\"source_physical\":{\"red\":" << red_source
            << ",\"blue\":" << blue_source << ",\"green\":"
            << green_source << "},";
@@ -1408,6 +1457,33 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   AssertXemuPerfEqual(expected_kat, actual_kat,
                       XemuPerfAssertion::PIPELINE_TEXTURE_FINAL,
                       "palette_dma_remap_pixel_kat", __FILE__, __LINE__);
+
+  const DmaDescriptorWords original_red =
+      ReadDmaDescriptor(palette_dma_red_);
+  const DmaDescriptorWords blue_descriptor =
+      ReadDmaDescriptor(palette_dma_blue_);
+  host_.PrepareDraw(kBackgroundColor);
+  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, palette_dma_red_.ChannelID);
+  DrawDmaTile(host_, kQuads[0], false, 1.f);
+  SynchronizeCorrectness(host_);
+  AssertXemuPerfEqual(
+      kTextureAColor, ReadTileCenter(0),
+      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+      "same-handle palette descriptor control must sample red", __FILE__,
+      __LINE__);
+
+  /* Rewrite the bound handle in RAMIN without any texture-state write. */
+  WriteDmaDescriptor(palette_dma_red_, blue_descriptor);
+  DrawDmaTile(host_, kQuads[1], false, 1.f);
+  SynchronizeCorrectness(host_);
+  const uint32_t same_handle_actual = ReadTileCenter(1);
+  AssertXemuPerfEqual(
+      kTextureBColor, same_handle_actual,
+      XemuPerfAssertion::PIPELINE_TEXTURE_SURFACE,
+      "same-handle palette descriptor rewrite must sample the new source",
+      __FILE__, __LINE__);
+  WriteDmaDescriptor(palette_dma_red_, original_red);
+
   PushDmaBinding(NV097_SET_CONTEXT_DMA_A, kFullRamDmaHandle);
   PushDmaBinding(NV097_SET_CONTEXT_DMA_B, kFullRamDmaHandle);
   host_.SetTextureStageEnabled(0, false);
@@ -1424,6 +1500,9 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   metadata << "\"clean_palette_stage\":0,\"dirty_control_stage\":1,";
   metadata << "\"palette_register_writes_after_remap\":0,";
   metadata << "\"stage1_sampler_writes_after_remap\":1,";
+  metadata << "\"same_handle_descriptor_rewrite\":true,";
+  metadata << "\"same_handle_palette_writes_after_rewrite\":0,";
+  metadata << "\"same_handle_actual\":" << same_handle_actual << ",";
   metadata << "\"expected_pixel_kat\":" << expected_kat << ",";
   metadata << "\"actual_pixel_kat\":" << actual_kat << ",";
   metadata << "\"tile_argb\":[" << actual_tiles[0] << ","
