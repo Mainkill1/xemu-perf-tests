@@ -1304,7 +1304,10 @@ void PipelineTextureSwitchTests::RunTextureDmaRemap() {
   const DmaDescriptorWords green_descriptor =
       ReadDmaDescriptor(texture_dma_green_);
   host_.PrepareDraw(kBackgroundColor);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_A, texture_dma_red_.ChannelID);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CONTEXT_DMA_A, texture_dma_red_.ChannelID);
+  Pushbuffer::Push(NV097_SET_TEXTURE_OFFSET, 0);
+  Pushbuffer::End();
   DrawDmaTile(host_, kQuads[0], false, kTextureWidth);
   SynchronizeCorrectness(host_);
   AssertXemuPerfEqual(
@@ -1463,7 +1466,10 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   const DmaDescriptorWords blue_descriptor =
       ReadDmaDescriptor(palette_dma_blue_);
   host_.PrepareDraw(kBackgroundColor);
-  PushDmaBinding(NV097_SET_CONTEXT_DMA_B, palette_dma_red_.ChannelID);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CONTEXT_DMA_B, palette_dma_red_.ChannelID);
+  Pushbuffer::Push(NV097_SET_TEXTURE_PALETTE, 1U);
+  Pushbuffer::End();
   DrawDmaTile(host_, kQuads[0], false, 1.f);
   SynchronizeCorrectness(host_);
   AssertXemuPerfEqual(
