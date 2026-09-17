@@ -1,0 +1,20 @@
+{
+  "main-vs-pr104": {
+    "verdict": "PASS",
+    "checked_hashes": 268,
+    "mismatched_hashes": 0,
+    "comparison_count": 1
+  },
+  "main-vs-pr105": {
+    "verdict": "PASS",
+    "checked_hashes": 268,
+    "mismatched_hashes": 0,
+    "comparison_count": 1
+  },
+  "pr104-vs-pr105": {
+    "verdict": "PASS",
+    "checked_hashes": 268,
+    "mismatched_hashes": 0,
+    "comparison_count": 1
+  }
+}
