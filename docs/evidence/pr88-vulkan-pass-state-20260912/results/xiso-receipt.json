@@ -1,0 +1,22 @@
+[
+  {
+    "backend": "vulkan",
+    "exit_code": 1,
+    "run_count": 1,
+    "run": "C:\\xemu-lab\\runs\\suite\\2026-09-12-155123-perf-full-suite-unknown",
+    "status": "FAILED",
+    "record_count": 160,
+    "functional_hash_validation": "PASSED",
+    "vuid_count": 0
+  },
+  {
+    "backend": "opengl",
+    "exit_code": 1,
+    "run_count": 1,
+    "run": "C:\\xemu-lab\\runs\\suite\\2026-09-12-155319-perf-full-suite-unknown",
+    "status": "FAILED",
+    "record_count": 160,
+    "functional_hash_validation": "PASSED",
+    "vuid_count": null
+  }
+]
