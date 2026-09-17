@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "workload": "PGR2-FRESH",
+  "renderer": "VULKAN",
+  "candidate_vs_previous_primary": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 29.995487151485335,
+      "candidate": 30.0000110440618,
+      "improvement_percent": 0.015081910667488523
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 33.33795650363996,
+      "candidate": 33.332992873301976,
+      "improvement_percent": 0.014888826006599423
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 33.5935,
+      "candidate": 33.4765,
+      "improvement_percent": 0.3482816616309623
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 34.337,
+      "candidate": 34.3245,
+      "improvement_percent": 0.03640387919737555
+    },
+    {
+      "metric": "max_ms",
+      "reference": 42.2845,
+      "candidate": 40.4895,
+      "improvement_percent": 4.2450543343305505
+    },
+    {
+      "metric": "stall_count",
+      "reference": 0.0,
+      "candidate": 0.0,
+      "improvement_percent": 0.0
+    }
+  ],
+  "candidate_vs_previous_repeat": null,
+  "candidate_vs_fixed_baseline": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 29.99998168078507,
+      "candidate": 30.0000110440618,
+      "improvement_percent": 9.787764887130937e-05,
+      "evidence": "ptimer-main-qualification/pgr2-fresh-baseline/results/vulkan/complete.json"
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 33.333300943919966,
+      "candidate": 33.332992873301976,
+      "improvement_percent": 0.0009242127520115575,
+      "evidence": "ptimer-main-qualification/pgr2-fresh-baseline/results/vulkan/complete.json"
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 33.412,
+      "candidate": 33.4765,
+      "improvement_percent": -0.19304441518018212,
+      "evidence": "ptimer-main-qualification/pgr2-fresh-baseline/results/vulkan/complete.json"
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 34.497,
+      "candidate": 34.3245,
+      "improvement_percent": 0.5000434820419151,
+      "evidence": "ptimer-main-qualification/pgr2-fresh-baseline/results/vulkan/complete.json"
+    }
+  ],
+  "fixed_baseline_tail_limitation": "Historical fixed-baseline evidence has no guest maximum/worst-stall samples; same-session BaselineControl is required for those fields.",
+  "primary_adverse_tail_over_2_percent": [],
+  "repeat_adverse_tail_over_2_percent": [],
+  "reproduced_adverse_tail_over_2_percent": [],
+  "wpr_etl_escalation_authorized": false,
+  "rule": "WPR/ETL only after the same adverse >2% tail metric appears in both no-trace orders."
+}

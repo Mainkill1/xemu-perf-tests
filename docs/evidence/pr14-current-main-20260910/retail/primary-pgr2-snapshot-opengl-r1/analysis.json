@@ -1,0 +1,80 @@
+{
+  "schema_version": 1,
+  "workload": "PGR2-SNAPSHOT",
+  "renderer": "OPENGL",
+  "candidate_vs_previous_primary": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 29.000168639311006,
+      "candidate": 28.655314188428395,
+      "improvement_percent": -1.1891463638426765
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 34.498458966696006,
+      "candidate": 34.90004983270484,
+      "improvement_percent": -1.1640834925308337
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 41.908,
+      "candidate": 42.59,
+      "improvement_percent": -1.6273742483535414
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 46.42,
+      "candidate": 46.707,
+      "improvement_percent": -0.6182679879362323
+    },
+    {
+      "metric": "max_ms",
+      "reference": 81.813,
+      "candidate": 56.55,
+      "improvement_percent": 30.87895566719226
+    },
+    {
+      "metric": "stall_count",
+      "reference": 1.0,
+      "candidate": 0.0,
+      "improvement_percent": 100.0
+    }
+  ],
+  "candidate_vs_previous_repeat": null,
+  "candidate_vs_fixed_baseline": [
+    {
+      "metric": "cadence_per_second",
+      "reference": 28.519344100716634,
+      "candidate": 28.655314188428395,
+      "improvement_percent": 0.47676442779181977,
+      "evidence": "ptimer-main-qualification/pgr2-snapshot-baseline/results/opengl/complete.json"
+    },
+    {
+      "metric": "average_interval_ms",
+      "reference": 35.12222423887584,
+      "candidate": 34.90004983270484,
+      "improvement_percent": 0.6325749891576655,
+      "evidence": "ptimer-main-qualification/pgr2-snapshot-baseline/results/opengl/complete.json"
+    },
+    {
+      "metric": "p95_ms",
+      "reference": 42.308,
+      "candidate": 42.59,
+      "improvement_percent": -0.6665406069774122,
+      "evidence": "ptimer-main-qualification/pgr2-snapshot-baseline/results/opengl/complete.json"
+    },
+    {
+      "metric": "p99_ms",
+      "reference": 46.086,
+      "candidate": 46.707,
+      "improvement_percent": -1.3474807967712585,
+      "evidence": "ptimer-main-qualification/pgr2-snapshot-baseline/results/opengl/complete.json"
+    }
+  ],
+  "fixed_baseline_tail_limitation": "Historical fixed-baseline evidence has no guest maximum/worst-stall samples; same-session BaselineControl is required for those fields.",
+  "primary_adverse_tail_over_2_percent": [],
+  "repeat_adverse_tail_over_2_percent": [],
+  "reproduced_adverse_tail_over_2_percent": [],
+  "wpr_etl_escalation_authorized": false,
+  "rule": "WPR/ETL only after the same adverse >2% tail metric appears in both no-trace orders."
+}

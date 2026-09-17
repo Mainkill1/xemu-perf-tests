@@ -1,0 +1,207 @@
+{
+  "schema_version": 1,
+  "status": "PATH_ATTRIBUTED",
+  "decision": "Recurring PGR2 spike is pre-existing; PR14 remains HOLD pending full per-change qualification",
+  "source": {
+    "commit": "86a2a9708b91b4b8d92548f05c5364c4f8967c2b",
+    "tree": "c9aca7abac1295e600c15eae9de74d2f5472ae73",
+    "xemu_sha256": "73548608d5843d3b380aa0e7a0401ac36197bb5e7de7a29bc9eeadf98731d1db",
+    "unit_sha256": "2203cf9738c1a0640bb2f691088c3f309d5b7e4b9a806ab4d861dd38202e0c3d",
+    "unit_result": "7/7 PASS"
+  },
+  "route": {
+    "workload": "PGR2 snapshot",
+    "renderer": "Vulkan",
+    "input_sequence": [
+      "B-3"
+    ],
+    "warmup_seconds": 3,
+    "measurement_seconds": 60,
+    "trace": "none",
+    "optional_controls": "all disabled"
+  },
+  "runs": [
+    {
+      "run_id": "pr67-86a2a970-pgr2-snapshot-vulkan-pipeline-r1-01-research",
+      "measured_guest_frames": 1717,
+      "frame_metrics": {
+        "average_ms": 34.9364484566103,
+        "p95_ms": 42.131,
+        "p99_ms": 47.257,
+        "max_ms": 64.106,
+        "stall_count": 0
+      },
+      "pipeline_totals": {
+        "pipeline_shader_binds": 8171216,
+        "pipeline_shader_bind_cpu_us": 7336321,
+        "pipeline_key_inits": 1476626,
+        "pipeline_key_init_cpu_us": 190845,
+        "pipeline_key_hashes": 1476626,
+        "pipeline_key_hash_cpu_us": 277289,
+        "pipeline_cache_lookups": 1476626,
+        "pipeline_cache_lookup_cpu_us": 315286,
+        "pipeline_cache_hits": 1476598,
+        "pipeline_cache_misses": 28,
+        "pipeline_layout_creates": 28,
+        "pipeline_layout_create_cpu_us": 2611,
+        "graphics_pipeline_creates": 28,
+        "graphics_pipeline_create_cpu_us": 36191
+      },
+      "per_frame": {
+        "pipeline_shader_binds": 4759.00757134537,
+        "pipeline_shader_bind_cpu_us": 4272.755387303436,
+        "pipeline_key_inits": 860.0034944670938,
+        "pipeline_key_init_cpu_us": 111.15026208503203,
+        "pipeline_key_hashes": 860.0034944670938,
+        "pipeline_key_hash_cpu_us": 161.49621432731507,
+        "pipeline_cache_lookups": 860.0034944670938,
+        "pipeline_cache_lookup_cpu_us": 183.6260920209668,
+        "pipeline_cache_hits": 859.9871869539895,
+        "pipeline_cache_misses": 0.016307513104251603,
+        "pipeline_layout_creates": 0.016307513104251603,
+        "pipeline_layout_create_cpu_us": 1.5206755969714618,
+        "graphics_pipeline_creates": 0.016307513104251603,
+        "graphics_pipeline_create_cpu_us": 21.07804309842749
+      },
+      "peak_pipeline_stage_cpu_frame": {
+        "frame_index": 156,
+        "guest_frame": 665,
+        "cpu_us": 39571,
+        "pipeline_shader_binds": 4808,
+        "pipeline_shader_bind_cpu_us": 25034,
+        "pipeline_key_inits": 888,
+        "pipeline_key_init_cpu_us": 123,
+        "pipeline_key_hashes": 888,
+        "pipeline_key_hash_cpu_us": 167,
+        "pipeline_cache_lookups": 888,
+        "pipeline_cache_lookup_cpu_us": 187,
+        "pipeline_cache_hits": 880,
+        "pipeline_cache_misses": 8,
+        "pipeline_layout_creates": 8,
+        "pipeline_layout_create_cpu_us": 522,
+        "graphics_pipeline_creates": 8,
+        "graphics_pipeline_create_cpu_us": 13538
+      },
+      "worst_interval_frame": {
+        "guest_frame": 665,
+        "interval_ms": 64.106,
+        "draw_flush_cpu_ms": 56.979,
+        "pipeline_prepare_cpu_ms": 46.049,
+        "pipeline_shader_binds": 4808,
+        "pipeline_shader_bind_cpu_us": 25.034,
+        "pipeline_key_inits": 888,
+        "pipeline_key_init_cpu_us": 0.123,
+        "pipeline_key_hashes": 888,
+        "pipeline_key_hash_cpu_us": 0.167,
+        "pipeline_cache_lookups": 888,
+        "pipeline_cache_lookup_cpu_us": 0.187,
+        "pipeline_cache_hits": 880,
+        "pipeline_cache_misses": 8,
+        "pipeline_layout_creates": 8,
+        "pipeline_layout_create_cpu_us": 0.522,
+        "graphics_pipeline_creates": 8,
+        "graphics_pipeline_create_cpu_us": 13.538,
+        "summed_pipeline_stage_cpu_ms": 39.571
+      },
+      "full_telemetry_frames": 2290
+    },
+    {
+      "run_id": "pr67-86a2a970-pgr2-snapshot-vulkan-pipeline-r1-02-research",
+      "measured_guest_frames": 1717,
+      "frame_metrics": {
+        "average_ms": 34.92694117647056,
+        "p95_ms": 42.602,
+        "p99_ms": 47.981,
+        "max_ms": 59.395,
+        "stall_count": 0
+      },
+      "pipeline_totals": {
+        "pipeline_shader_binds": 8171225,
+        "pipeline_shader_bind_cpu_us": 7362392,
+        "pipeline_key_inits": 1476628,
+        "pipeline_key_init_cpu_us": 190522,
+        "pipeline_key_hashes": 1476628,
+        "pipeline_key_hash_cpu_us": 278947,
+        "pipeline_cache_lookups": 1476628,
+        "pipeline_cache_lookup_cpu_us": 318341,
+        "pipeline_cache_hits": 1476599,
+        "pipeline_cache_misses": 29,
+        "pipeline_layout_creates": 29,
+        "pipeline_layout_create_cpu_us": 2713,
+        "graphics_pipeline_creates": 29,
+        "graphics_pipeline_create_cpu_us": 39346
+      },
+      "per_frame": {
+        "pipeline_shader_binds": 4759.012813046011,
+        "pipeline_shader_bind_cpu_us": 4287.939429237042,
+        "pipeline_key_inits": 860.0046592894583,
+        "pipeline_key_init_cpu_us": 110.96214327315084,
+        "pipeline_key_hashes": 860.0046592894583,
+        "pipeline_key_hash_cpu_us": 162.4618520675597,
+        "pipeline_cache_lookups": 860.0046592894583,
+        "pipeline_cache_lookup_cpu_us": 185.4053581828771,
+        "pipeline_cache_hits": 859.9877693651719,
+        "pipeline_cache_misses": 0.0168899242865463,
+        "pipeline_layout_creates": 0.0168899242865463,
+        "pipeline_layout_create_cpu_us": 1.5800815375655213,
+        "graphics_pipeline_creates": 0.0168899242865463,
+        "graphics_pipeline_create_cpu_us": 22.915550378567268
+      },
+      "peak_pipeline_stage_cpu_frame": {
+        "frame_index": 159,
+        "guest_frame": 672,
+        "cpu_us": 37145,
+        "pipeline_shader_binds": 4808,
+        "pipeline_shader_bind_cpu_us": 23906,
+        "pipeline_key_inits": 888,
+        "pipeline_key_init_cpu_us": 114,
+        "pipeline_key_hashes": 888,
+        "pipeline_key_hash_cpu_us": 198,
+        "pipeline_cache_lookups": 888,
+        "pipeline_cache_lookup_cpu_us": 187,
+        "pipeline_cache_hits": 880,
+        "pipeline_cache_misses": 8,
+        "pipeline_layout_creates": 8,
+        "pipeline_layout_create_cpu_us": 532,
+        "graphics_pipeline_creates": 8,
+        "graphics_pipeline_create_cpu_us": 12208
+      },
+      "worst_interval_frame": {
+        "guest_frame": 672,
+        "interval_ms": 59.395,
+        "draw_flush_cpu_ms": 53.992,
+        "pipeline_prepare_cpu_ms": 43.538,
+        "pipeline_shader_binds": 4808,
+        "pipeline_shader_bind_cpu_us": 23.906,
+        "pipeline_key_inits": 888,
+        "pipeline_key_init_cpu_us": 0.114,
+        "pipeline_key_hashes": 888,
+        "pipeline_key_hash_cpu_us": 0.198,
+        "pipeline_cache_lookups": 888,
+        "pipeline_cache_lookup_cpu_us": 0.187,
+        "pipeline_cache_hits": 880,
+        "pipeline_cache_misses": 8,
+        "pipeline_layout_creates": 8,
+        "pipeline_layout_create_cpu_us": 0.532,
+        "graphics_pipeline_creates": 8,
+        "graphics_pipeline_create_cpu_us": 12.208,
+        "summed_pipeline_stage_cpu_ms": 37.145
+      },
+      "full_telemetry_frames": 2297
+    }
+  ],
+  "attribution": {
+    "repeated_event": "eight new graphics pipelines in one guest frame",
+    "primary_owners": [
+      "pgraph_vk_bind_shaders",
+      "vkCreateGraphicsPipelines"
+    ],
+    "source_location": "hw/xbox/nv2a/pgraph/vk/draw.c:create_pipeline",
+    "prior_main_presence": "Earlier schema-v5 previous-main control shows the same event at guest frame 671: 68.576ms interval and 42.966ms pipeline_prepare."
+  },
+  "gates": [
+    "Diagnostic result only; no performance acceptance.",
+    "Any proposed optimization requires exact-head unit, full XISO Vulkan/OpenGL, PGR2 full start and snapshot, and Morrowind with verified gameplay admission.",
+    "Average, p95, p99, maximum, and stalls must pass versus previous main and the fixed baseline."
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "schema_version": 1,
+  "status": "inconclusive_changed_path",
+  "pair_id": "pr14-a1645a86-pgr2-snapshot-vulkan-tail-r1",
+  "changed_variable": "xemu executable/source identity only",
+  "route": {
+    "workload": "PGR2 snapshot",
+    "renderer": "Vulkan",
+    "warmup_seconds": 3,
+    "measurement_seconds": 60,
+    "optional_controls": "all disabled"
+  },
+  "previous_main": {
+    "commit": "19944268d97ecd92f2dcd820d6e151107833795b",
+    "tree": "e4d305254f64b92d1c374413bda12567874d7c14",
+    "executable_sha256": "13f61e7655a7b37ea51c282335b7540b48e92dc5980af0877be2e968eb571d9a",
+    "frame": 676,
+    "frame_ms": 63.563,
+    "pfifo_run_ms": 50.456,
+    "pfifo_wait_ms": 12.974,
+    "pfifo_ready_ms": 0.133,
+    "pfifo_max_wait_ms": 3.663,
+    "etl_sha256": "7c14677292b4005506c28836a91d76837521d4589d19c0bb79ea1daf03ce015f",
+    "etl_bytes": 2446327808,
+    "lost_events": 0,
+    "lost_buffers": 0
+  },
+  "candidate": {
+    "commit": "a1645a8612b6222437e2da17915258412a9beee0",
+    "tree": "e8699b5983b2b0bbb761f9511365fea33f5b4413",
+    "executable_sha256": "51f5d9087d70c4354e1e1c32604fb8465f05fb3e6cb1214c3919c72826a08ebe",
+    "frame": 676,
+    "frame_ms": 74.741,
+    "pfifo_run_ms": 50.843,
+    "pfifo_wait_ms": 23.649,
+    "pfifo_ready_ms": 0.249,
+    "pfifo_max_wait_ms": 10.48,
+    "long_wait_readier": "CPU 0/TCG",
+    "etl_sha256": "ac2bf953b7f70862400c5191b5c2e02c9e4608288fcd20d0e3ea1dff0e8ac4fc",
+    "etl_bytes": 2428502016,
+    "lost_events": 0,
+    "lost_buffers": 0
+  },
+  "candidate_improvement_percent": {
+    "frame_max_ms": -17.59,
+    "pfifo_run_ms": -0.77,
+    "pfifo_wait_ms": -82.28,
+    "pfifo_max_wait_ms": -186.09
+  },
+  "source_attribution": {
+    "changed_texture_leaf_sample_observed": false,
+    "candidate_hash_leaf_weight_ms": 1.0,
+    "previous_main_hash_leaf_weight_ms": 3.059,
+    "pfifo_long_wait_is_scheduler_ready_delay": false,
+    "pfifo_long_wait_is_gpu_fence_wait": false,
+    "pfifo_long_wait_is_condition_wait_for_emulated_work": true,
+    "exact_kick_caller_resolved": false
+  },
+  "next_gate": "Matched opt-in Vulkan per-frame telemetry, followed by one-at-a-time counters/builds only if still unresolved."
+}
