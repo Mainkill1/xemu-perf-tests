@@ -1,0 +1,854 @@
+{
+  "aggregates": [
+    {
+      "misses": 20,
+      "profile_frame": 0,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 20,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 5120,
+          "sum": 75708
+        },
+        "generation": {
+          "max": 217,
+          "sum": 2427
+        },
+        "module_create": {
+          "max": 19,
+          "sum": 222
+        },
+        "reflection": {
+          "max": 669,
+          "sum": 6829
+        }
+      },
+      "unique_key_count": 20,
+      "unique_source_count": 20
+    },
+    {
+      "misses": 5,
+      "profile_frame": 0,
+      "repeat_identity": {
+        "different_key_same_source": 1,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 4,
+        "repeat": 1,
+        "saturated": 0
+      },
+      "stage": 8,
+      "stage_name": "geometry",
+      "timing_us": {
+        "compile": {
+          "max": 1867,
+          "sum": 8927
+        },
+        "generation": {
+          "max": 56,
+          "sum": 203
+        },
+        "module_create": {
+          "max": 10,
+          "sum": 30
+        },
+        "reflection": {
+          "max": 112,
+          "sum": 486
+        }
+      },
+      "unique_key_count": 5,
+      "unique_source_count": 4
+    },
+    {
+      "misses": 24,
+      "profile_frame": 0,
+      "repeat_identity": {
+        "different_key_same_source": 2,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 22,
+        "repeat": 2,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3260,
+          "sum": 62990
+        },
+        "generation": {
+          "max": 142,
+          "sum": 2075
+        },
+        "module_create": {
+          "max": 14,
+          "sum": 183
+        },
+        "reflection": {
+          "max": 169,
+          "sum": 2925
+        }
+      },
+      "unique_key_count": 24,
+      "unique_source_count": 22
+    },
+    {
+      "misses": 39,
+      "profile_frame": 1,
+      "repeat_identity": {
+        "different_key_same_source": 11,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 28,
+        "repeat": 11,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 5077,
+          "sum": 147821
+        },
+        "generation": {
+          "max": 187,
+          "sum": 4190
+        },
+        "module_create": {
+          "max": 25,
+          "sum": 466
+        },
+        "reflection": {
+          "max": 556,
+          "sum": 11733
+        }
+      },
+      "unique_key_count": 39,
+      "unique_source_count": 28
+    },
+    {
+      "misses": 29,
+      "profile_frame": 1,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 29,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 4110,
+          "sum": 80194
+        },
+        "generation": {
+          "max": 113,
+          "sum": 2310
+        },
+        "module_create": {
+          "max": 18,
+          "sum": 230
+        },
+        "reflection": {
+          "max": 237,
+          "sum": 3761
+        }
+      },
+      "unique_key_count": 29,
+      "unique_source_count": 29
+    },
+    {
+      "misses": 3,
+      "profile_frame": 423,
+      "repeat_identity": {
+        "different_key_same_source": 1,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 2,
+        "repeat": 1,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 4512,
+          "sum": 12545
+        },
+        "generation": {
+          "max": 94,
+          "sum": 258
+        },
+        "module_create": {
+          "max": 15,
+          "sum": 35
+        },
+        "reflection": {
+          "max": 239,
+          "sum": 703
+        }
+      },
+      "unique_key_count": 3,
+      "unique_source_count": 3
+    },
+    {
+      "misses": 1,
+      "profile_frame": 423,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 4064,
+          "sum": 4064
+        },
+        "generation": {
+          "max": 111,
+          "sum": 111
+        },
+        "module_create": {
+          "max": 9,
+          "sum": 9
+        },
+        "reflection": {
+          "max": 110,
+          "sum": 110
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 557,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 2957,
+          "sum": 2957
+        },
+        "generation": {
+          "max": 60,
+          "sum": 60
+        },
+        "module_create": {
+          "max": 8,
+          "sum": 8
+        },
+        "reflection": {
+          "max": 177,
+          "sum": 177
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 557,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3183,
+          "sum": 3183
+        },
+        "generation": {
+          "max": 70,
+          "sum": 70
+        },
+        "module_create": {
+          "max": 8,
+          "sum": 8
+        },
+        "reflection": {
+          "max": 162,
+          "sum": 162
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 2,
+      "profile_frame": 672,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 2,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 7013,
+          "sum": 12226
+        },
+        "generation": {
+          "max": 279,
+          "sum": 529
+        },
+        "module_create": {
+          "max": 17,
+          "sum": 29
+        },
+        "reflection": {
+          "max": 562,
+          "sum": 996
+        }
+      },
+      "unique_key_count": 2,
+      "unique_source_count": 2
+    },
+    {
+      "misses": 2,
+      "profile_frame": 672,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 2,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3029,
+          "sum": 5991
+        },
+        "generation": {
+          "max": 153,
+          "sum": 268
+        },
+        "module_create": {
+          "max": 7,
+          "sum": 14
+        },
+        "reflection": {
+          "max": 142,
+          "sum": 273
+        }
+      },
+      "unique_key_count": 2,
+      "unique_source_count": 2
+    },
+    {
+      "misses": 1,
+      "profile_frame": 794,
+      "repeat_identity": {
+        "different_key_same_source": 1,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 0,
+        "repeat": 1,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 3210,
+          "sum": 3210
+        },
+        "generation": {
+          "max": 102,
+          "sum": 102
+        },
+        "module_create": {
+          "max": 8,
+          "sum": 8
+        },
+        "reflection": {
+          "max": 169,
+          "sum": 169
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 794,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3221,
+          "sum": 3221
+        },
+        "generation": {
+          "max": 72,
+          "sum": 72
+        },
+        "module_create": {
+          "max": 8,
+          "sum": 8
+        },
+        "reflection": {
+          "max": 113,
+          "sum": 113
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 808,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 3732,
+          "sum": 3732
+        },
+        "generation": {
+          "max": 93,
+          "sum": 93
+        },
+        "module_create": {
+          "max": 9,
+          "sum": 9
+        },
+        "reflection": {
+          "max": 183,
+          "sum": 183
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 808,
+      "repeat_identity": {
+        "different_key_same_source": 1,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 0,
+        "repeat": 1,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 2690,
+          "sum": 2690
+        },
+        "generation": {
+          "max": 79,
+          "sum": 79
+        },
+        "module_create": {
+          "max": 7,
+          "sum": 7
+        },
+        "reflection": {
+          "max": 145,
+          "sum": 145
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 809,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3126,
+          "sum": 3126
+        },
+        "generation": {
+          "max": 86,
+          "sum": 86
+        },
+        "module_create": {
+          "max": 14,
+          "sum": 14
+        },
+        "reflection": {
+          "max": 163,
+          "sum": 163
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 870,
+      "repeat_identity": {
+        "different_key_same_source": 1,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 0,
+        "repeat": 1,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 3816,
+          "sum": 3816
+        },
+        "generation": {
+          "max": 96,
+          "sum": 96
+        },
+        "module_create": {
+          "max": 16,
+          "sum": 16
+        },
+        "reflection": {
+          "max": 238,
+          "sum": 238
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 890,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 3147,
+          "sum": 3147
+        },
+        "generation": {
+          "max": 109,
+          "sum": 109
+        },
+        "module_create": {
+          "max": 12,
+          "sum": 12
+        },
+        "reflection": {
+          "max": 194,
+          "sum": 194
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 890,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3290,
+          "sum": 3290
+        },
+        "generation": {
+          "max": 76,
+          "sum": 76
+        },
+        "module_create": {
+          "max": 10,
+          "sum": 10
+        },
+        "reflection": {
+          "max": 139,
+          "sum": 139
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 1040,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3107,
+          "sum": 3107
+        },
+        "generation": {
+          "max": 104,
+          "sum": 104
+        },
+        "module_create": {
+          "max": 7,
+          "sum": 7
+        },
+        "reflection": {
+          "max": 138,
+          "sum": 138
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 1876,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 2992,
+          "sum": 2992
+        },
+        "generation": {
+          "max": 77,
+          "sum": 77
+        },
+        "module_create": {
+          "max": 10,
+          "sum": 10
+        },
+        "reflection": {
+          "max": 211,
+          "sum": 211
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 1,
+      "profile_frame": 1878,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3623,
+          "sum": 3623
+        },
+        "generation": {
+          "max": 93,
+          "sum": 93
+        },
+        "module_create": {
+          "max": 8,
+          "sum": 8
+        },
+        "reflection": {
+          "max": 125,
+          "sum": 125
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    },
+    {
+      "misses": 2,
+      "profile_frame": 1879,
+      "repeat_identity": {
+        "different_key_same_source": 2,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 0,
+        "repeat": 2,
+        "saturated": 0
+      },
+      "stage": 1,
+      "stage_name": "vertex",
+      "timing_us": {
+        "compile": {
+          "max": 3974,
+          "sum": 7785
+        },
+        "generation": {
+          "max": 91,
+          "sum": 175
+        },
+        "module_create": {
+          "max": 9,
+          "sum": 17
+        },
+        "reflection": {
+          "max": 220,
+          "sum": 396
+        }
+      },
+      "unique_key_count": 2,
+      "unique_source_count": 2
+    },
+    {
+      "misses": 1,
+      "profile_frame": 1916,
+      "repeat_identity": {
+        "different_key_same_source": 0,
+        "same_key_repeat": 0
+      },
+      "source_classes": {
+        "first": 1,
+        "repeat": 0,
+        "saturated": 0
+      },
+      "stage": 16,
+      "stage_name": "fragment",
+      "timing_us": {
+        "compile": {
+          "max": 3074,
+          "sum": 3074
+        },
+        "generation": {
+          "max": 84,
+          "sum": 84
+        },
+        "module_create": {
+          "max": 7,
+          "sum": 7
+        },
+        "reflection": {
+          "max": 119,
+          "sum": 119
+        }
+      },
+      "unique_key_count": 1,
+      "unique_source_count": 1
+    }
+  ],
+  "incomplete_reasons": [],
+  "record_count": 141,
+  "schema_version": 1,
+  "status": "complete",
+  "trace_summary": {
+    "records": 141,
+    "records_saturated": 0,
+    "source_bytes": 1019897,
+    "unique_sources": 121
+  }
+}
