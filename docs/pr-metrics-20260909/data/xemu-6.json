@@ -1,0 +1,99 @@
+{
+  "repo": "xemu",
+  "number": 6,
+  "headline": "Exact-head correctness repair: successful texture validation retires its dirty hint while failed uploads retain retry state.",
+  "scope": "Pre-repair baseline 88fc5c9 to exact PR head c1462ad; tested binaries are stated in the original body. Probe timing is excluded because logging changes timing.",
+  "rows": [
+    {
+      "metric": "Successful completions retaining dirty hint",
+      "unit": "completions",
+      "renderer": "Vulkan",
+      "baseline": 438850,
+      "candidate": 0,
+      "baseline_display": "438,850",
+      "candidate_display": "0",
+      "note": "production-path oracle"
+    },
+    {
+      "metric": "Texture-hash events",
+      "unit": "events",
+      "renderer": "Vulkan",
+      "baseline": 439138,
+      "candidate": 19680,
+      "baseline_display": "439,138",
+      "candidate_display": "19,680",
+      "note": "instrumented production oracle; not timing"
+    },
+    {
+      "metric": "Bound-dirty gates",
+      "unit": "gates",
+      "renderer": "Vulkan",
+      "baseline": 348785,
+      "candidate": 1354,
+      "baseline_display": "348,785",
+      "candidate_display": "1,354",
+      "note": "instrumented production oracle; not timing"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 24.87,
+      "candidate": 24.589,
+      "baseline_display": "24.870",
+      "candidate_display": "24.589",
+      "note": "two 60-second ABBA runs; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.62,
+      "candidate": 20.778,
+      "baseline_display": "18.620",
+      "candidate_display": "20.778",
+      "note": "two 60-second ABBA runs; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 72.053,
+      "candidate": 65.152,
+      "baseline_display": "72.053",
+      "candidate_display": "65.152",
+      "note": "two 60-second ABBA runs"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.851,
+      "candidate": 18.668,
+      "baseline_display": "18.851",
+      "candidate_display": "18.668",
+      "note": "one 10-second snapshot per build; not rendered FPS"
+    },
+    {
+      "metric": "Matched XISO records",
+      "unit": "records",
+      "renderer": "Both",
+      "baseline": 147,
+      "candidate": 147,
+      "baseline_display": "147/147 per cell",
+      "candidate_display": "147/147 per cell",
+      "note": "four matched cells; functional coverage"
+    }
+  ],
+  "missing": [
+    "Expanded candidate suites retain inherited OpenGL cubemap and Vulkan copy-buffer-to-image/device-loss failures; not attributed to this repair.",
+    "No performance interpretation from instrumented probe data."
+  ],
+  "evidence": [
+    {
+      "label": "qualification report",
+      "url": "https://github.com/Mainkill1/xemu/blob/258e201cab493d519e30244e78ac9a3cfcf52da3/evidence/eng-2026-425-pr6-texture-dirty-hint/REPORT.md"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Binding marked possibly dirty] --> B[Validate content]\n B -->|Unchanged or uploaded| C[Retire this binding hint]\n B -->|Upload failure| D[Keep retry state]"
+}

@@ -1,0 +1,64 @@
+{
+  "base": "bd1fecb93353272dda2a810991e28945de35b665",
+  "base_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "head": "504a7e72637fb54787f01db2a254265a85433548",
+  "tree": "3286d98b8b2d82ee358d0abc90fdd07be509426f",
+  "previous_probe_head": "6008181a51a454029af768dda3a08fd7cb46829a",
+  "draft_pr": "https://github.com/Mainkill1/xemu/pull/54",
+  "purpose": "Temporary per-thread cause attribution; not production timing",
+  "native_test": "PASS diagnostic readiness/gameplay/counter collection, not performance acceptance",
+  "hypothesis": "A small set of guest paths causes frequent NULL dispatcher returns; sample returned PCs before proposing chaining changes.",
+  "build": {
+    "status": "BUILD_PASS",
+    "kind": "instrumented existing-baseline O2/LTO diagnostic",
+    "options": {
+      "optimization": "2",
+      "debug": true,
+      "b_lto": true,
+      "strip": false,
+      "qom_cast_debug": true,
+      "b_ndebug": "false",
+      "x86_version": "3"
+    },
+    "sha256": "34c9f1537973c44a0a97d592f3fbaaea87782da34f289614db7c61e68bdf32b3",
+    "bytes": 44239999,
+    "native_test": "PASS one20-second Morrowind cell per renderer",
+    "performance_acceptance": false
+  },
+  "hardware_manifest": "../main-cause-20260909/manifest.json",
+  "sampler": "Once per4093 NULL returns;512 sites per thread; cumulative pc/flags buckets; explicit overflow",
+  "limitations": [
+    "Periodic sampling may be biased",
+    "Instrumentation substantially perturbs timing",
+    "first_tb_pc can be zero for PC-relative TBs; chain entry is not final exiting TB",
+    "No CPU/GPU/resource qualification, independent pixels or audio oracle"
+  ],
+  "campaign": {
+    "status": "PASS",
+    "purpose": "Sample return PCs after NULL dispatcher returns; not performance acceptance",
+    "baseline_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "diagnostic_tree": "3286d98b8b2d82ee358d0abc90fdd07be509426f",
+    "executable_sha256": "34c9f1537973c44a0a97d592f3fbaaea87782da34f289614db7c61e68bdf32b3",
+    "started_utc": "2026-09-09T11:10:14.8035959+00:00",
+    "host_quarantined": false,
+    "cells": [
+      {
+        "renderer": "VULKAN",
+        "cause_counter_records": 51,
+        "return_counter_records": 32,
+        "status": "complete",
+        "private_hdd_deleted": true
+      },
+      {
+        "renderer": "OPENGL",
+        "cause_counter_records": 56,
+        "return_counter_records": 32,
+        "status": "complete",
+        "private_hdd_deleted": true
+      }
+    ],
+    "remaining_processes": [],
+    "private_disks": [],
+    "completed_utc": "2026-09-09T11:12:00.4540823+00:00"
+  }
+}

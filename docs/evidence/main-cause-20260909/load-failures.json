@@ -1,0 +1,14 @@
+[
+  {
+    "run": "diagnostic-opengl",
+    "observed": [
+      "ERROR:../hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c:893:read_memory_p: assertion failed: ((r & 0xFF000000) == 0)"
+    ]
+  },
+  {
+    "run": "baseline-opengl",
+    "observed": [
+      "ERROR:../hw/xbox/mcpx/apu/dsp/interp/dsp_cpu.c:893:read_memory_p: assertion failed: ((r & 0xFF000000) == 0)"
+    ]
+  }
+]

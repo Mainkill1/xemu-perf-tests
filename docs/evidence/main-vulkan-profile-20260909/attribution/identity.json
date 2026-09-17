@@ -1,0 +1,19 @@
+{
+  "pid": 6568,
+  "pfifo_tid": 5992,
+  "evidence_scope": "Identity only from complete row of rejected r6 export, subsequently used to filter clean export",
+  "sample_timestamp_s": "35.558234000",
+  "sample_rva": "0x001d4684",
+  "exact_function": "pgraph_method_non_inc",
+  "pdata_begin_rva": "0x001d4360",
+  "pdata_end_rva_exclusive": "0x001d46e2",
+  "source_sha": "bd1fecb93353272dda2a810991e28945de35b665",
+  "call_chain": [
+    "pfifo_thread",
+    "pfifo_run_pusher",
+    "pgraph_method",
+    "pgraph_method_non_inc"
+  ],
+  "proof": "Exact PE function extent plus static source path exclusively called by PFIFO; generic renderer/dirty helper names were not used alone",
+  "independent_review": "APPROVE identity only; root verified complete row, input hash, timestamp and RVA bounds"
+}

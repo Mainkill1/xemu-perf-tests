@@ -1,0 +1,119 @@
+{
+  "repo": "xemu",
+  "number": 9,
+  "headline": "Exact baseline-v2 candidate: atomic-load only exact 32-bit PGRAPH fence reads; integrated decision retains CPU and Morrowind tradeoffs.",
+  "scope": "Exact comparison baseline d03cc91 (removes only the fast path) to candidate/current head 67178d0, whose tree matches validated cumulative baseline-v2 208e4596. Obsolete Morrowind comparison is superseded.",
+  "rows": [
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 24.926,
+      "candidate": 30.019,
+      "baseline_display": "24.926",
+      "candidate_display": "30.019",
+      "note": "two 60-second ABBA runs; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 50.759,
+      "candidate": 39.343,
+      "baseline_display": "50.759",
+      "candidate_display": "39.343",
+      "note": "two 60-second ABBA runs"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 65.506,
+      "candidate": 42.38,
+      "baseline_display": "65.506",
+      "candidate_display": "42.380",
+      "note": "two 60-second ABBA runs"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 23.641,
+      "candidate": 30.004,
+      "baseline_display": "23.641",
+      "candidate_display": "30.004",
+      "note": "two 60-second ABBA runs; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 55.523,
+      "candidate": 39.427,
+      "baseline_display": "55.523",
+      "candidate_display": "39.427",
+      "note": "two 60-second ABBA runs"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 62.151,
+      "candidate": 41.965,
+      "baseline_display": "62.151",
+      "candidate_display": "41.965",
+      "note": "two 60-second ABBA runs"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 38.395,
+      "candidate": 38.348,
+      "baseline_display": "38.395",
+      "candidate_display": "38.348",
+      "note": "one replacement-snapshot capture; not rendered FPS"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 27.38,
+      "candidate": 27.182,
+      "baseline_display": "27.380",
+      "candidate_display": "27.182",
+      "note": "one replacement-snapshot capture; not rendered FPS"
+    },
+    {
+      "metric": "Mean host CPU",
+      "unit": "%",
+      "renderer": "OpenGL",
+      "baseline": 20.704,
+      "candidate": 22.121,
+      "baseline_display": "20.704%",
+      "candidate_display": "22.121%",
+      "note": "PGR2 arithmetic mean"
+    },
+    {
+      "metric": "Mean host CPU",
+      "unit": "%",
+      "renderer": "Vulkan",
+      "baseline": 17.609,
+      "candidate": 21.662,
+      "baseline_display": "17.609%",
+      "candidate_display": "21.662%",
+      "note": "PGR2 arithmetic mean"
+    }
+  ],
+  "missing": [
+    "XISO timing is contextual because live guest markers were unavailable.",
+    "Morrowind Vulkan cadence and p99 are slightly unfavorable and remain part of the decision."
+  ],
+  "evidence": [
+    {
+      "label": "full qualification report",
+      "url": "https://github.com/Mainkill1/xemu/blob/fa496900e156abd893168c351cc8cbfd8a5e3755/evidence/eng-2026-432-pr9-fence-fastpath-baseline-v2/REPORT.md"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Guest PGRAPH read] --> B{Exact 32-bit PATT_COLOR0?}\n B -->|Yes| C[Atomic fence load]\n B -->|No| D[Existing locked path]"
+}

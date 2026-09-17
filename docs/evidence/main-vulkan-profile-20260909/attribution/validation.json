@@ -1,0 +1,26 @@
+{
+  "status": "PASS",
+  "script_hashes": {
+    "derive-wpa-profile.py": "0b94ceeb7258f95884eca5a9508a6dea02f2f7cca21ecd40502a7a14dc0f4c20",
+    "invoke-wpa-export.ps1": "802f975e23e9031e70cff0d2d96a4df009a620a2e693217ff510cd21baa053fe",
+    "sanitize-attribution.py": "d251c82a727c0718f33bf99b6a04fc32770cf2c8e4fb3928af210494e33707e8",
+    "analyze-sanitized.py": "3899fc8fa1fac990b012b5f50d45a2bdc7836792b37b2144991588e0e4827d35"
+  },
+  "manifest_chain_checked": true,
+  "accepted_profile_reproduced": true,
+  "compact_files_byte_identical": 6,
+  "python_compile_pass": true,
+  "known_r6_truncation_rejected": true,
+  "native_wrapper_controls": "Windows PowerShell5: no CSV ->50; complete one-CSV ->0; exit0 plus error marker ->50 (recorded separate native controls)",
+  "limits": "No new WPA export or gameplay; structurally complete CSV cannot prove absence of silently omitted valid blocks",
+  "analysis_toolchain": {
+    "python": "3.13.5",
+    "lxml": "6.1.1",
+    "objdump": "GNU objdump (GNU Binutils) 2.44"
+  },
+  "line_endings": {
+    "three_compact_input_csvs": "LF",
+    "generated_leaf_summary_csv": "CRLF; preserved to retain reproduced SHA256"
+  },
+  "whitespace_check": "CR-at-EOL-aware git diff check passed; evidence bytes preserved"
+}

@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 54,
+  "headline": "Diagnostic: sampled returns identify the STI/shadow polling pair",
+  "scope": "Diagnostic 504a7e72; one capture per renderer. Periodic samples can be biased; counts are not a speed comparison.",
+  "rows": [
+    {
+      "metric": "Total sampled NULL returns",
+      "unit": "samples",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 39262,
+      "baseline_display": "Not measured",
+      "candidate_display": "39262",
+      "note": ""
+    },
+    {
+      "metric": "Shadow-set site",
+      "unit": "samples",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 19614,
+      "baseline_display": "Not measured",
+      "candidate_display": "19614",
+      "note": ""
+    },
+    {
+      "metric": "Shadow-cleared site",
+      "unit": "samples",
+      "renderer": "Vulkan",
+      "baseline": null,
+      "candidate": 19609,
+      "baseline_display": "Not measured",
+      "candidate_display": "19609",
+      "note": ""
+    },
+    {
+      "metric": "Total sampled NULL returns",
+      "unit": "samples",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": 14289,
+      "baseline_display": "Not measured",
+      "candidate_display": "14289",
+      "note": ""
+    },
+    {
+      "metric": "Shadow-set site",
+      "unit": "samples",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": 7131,
+      "baseline_display": "Not measured",
+      "candidate_display": "7131",
+      "note": ""
+    },
+    {
+      "metric": "Shadow-cleared site",
+      "unit": "samples",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": 7121,
+      "baseline_display": "Not measured",
+      "candidate_display": "7121",
+      "note": ""
+    }
+  ],
+  "diagram": "flowchart LR\n A[Periodic return sampling] --> B[Two interrupt-shadow states dominate]\n B --> C[Separate uninstrumented candidate PR55]\n C --> D[Held pending benefit and IRQ proof]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/main-cause-return-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "No uninstrumented baseline/candidate performance result for this diagnostic.",
+    "Resource and full-suite qualification not performed."
+  ]
+}

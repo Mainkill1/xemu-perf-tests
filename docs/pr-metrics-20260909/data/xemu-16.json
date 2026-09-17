@@ -1,0 +1,21 @@
+{
+  "repo": "xemu",
+  "number": 16,
+  "headline": "Ready for review: texture DMA class and target are validated before texture and palette address resolution.",
+  "scope": "The timing table measures historical candidate 5884243111c3c9dba0dc3c30cc00e18489fa96c3 against historical parent b33b33c38e434df8dbb71a67837f1ecb210f8479. Current head 37823ccf18263764c82ceb6698201330a22a6c65 has a Windows Release build and 11/11 texture-layout unit status only; it has no new timing run. PGR2 uses two parent and two candidate 60-second ABBA cells per renderer. Morrowind is one matched 10-second pair per renderer after a fixed input sequence; all cadence values are NV2A display-write rates, not rendered FPS.",
+  "rows": [
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"Vulkan","baseline":29.99,"candidate":30.00,"baseline_display":"29.99","candidate_display":"30.00","note":"Two parent and two candidate 60-second ABBA cells; NV2A display-write rate remained near the 30/s cap, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"Vulkan","baseline":39.09,"candidate":39.46,"baseline_display":"39.09","candidate_display":"39.46","note":"Higher is unfavorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":41.13,"candidate":41.79,"baseline_display":"41.13","candidate_display":"41.79","note":"Higher is unfavorable."},
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"OpenGL","baseline":30.01,"candidate":30.00,"baseline_display":"30.01","candidate_display":"30.00","note":"Two parent and two candidate 60-second ABBA cells; NV2A display-write rate remained near the 30/s cap, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"OpenGL","baseline":39.52,"candidate":40.42,"baseline_display":"39.52","candidate_display":"40.42","note":"Higher is unfavorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"OpenGL","baseline":42.13,"candidate":42.97,"baseline_display":"42.13","candidate_display":"42.97","note":"Higher is unfavorable."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"Vulkan","baseline":26.89,"candidate":26.92,"baseline_display":"26.89","candidate_display":"26.92","note":"One matched 10-second pair; NV2A display-write rate, not rendered FPS."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"OpenGL","baseline":33.95,"candidate":38.08,"baseline_display":"33.95","candidate_display":"38.08","note":"One matched 10-second pair; NV2A display-write rate, not rendered FPS; substantial movement is variance context, not an attributed gain."}
+  ],
+  "missing": ["No public exact-PR-16 performance artifact is linked in the captured body.", "Morrowind GPU measurements are n/a; PGR2 GPU mean and peak are reported in the source table. CPU and RAM were not reported.", "The guest suite has no dedicated invalid-DMA-descriptor leaf; invalid-descriptor rejection remains unit-scoped."],
+  "evidence": [
+    {"label":"PR #16 captured source and current exact-head status","url":"https://github.com/Mainkill1/xemu/pull/16"}
+  ],
+  "diagram": "flowchart LR\n A[DMA descriptor is decoded] --> B[Class and target contract checked]\n B --> C[Texture and palette address resolution proceeds only for valid descriptors]"
+}

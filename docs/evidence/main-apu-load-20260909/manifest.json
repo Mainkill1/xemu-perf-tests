@@ -1,0 +1,60 @@
+{
+  "base": "586de4f32c11001c0abe072c3530236f1571b372",
+  "head": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+  "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "scope": "Only mcpx_apu_pre_load quiescence and BQL ordering",
+  "negative_control": "Exact existing baseline DSP assertion during OpenGL snapshot load",
+  "prior_implementation": "ae9b0877a856cae0e4893c1f3413e1a9cb0357d8",
+  "build": {
+    "status": "BUILD_PASS",
+    "kind": "main-only APU snapshot correction, existing-baseline O2/LTO",
+    "options": {
+      "optimization": "2",
+      "debug": true,
+      "b_lto": true,
+      "strip": false,
+      "qom_cast_debug": true,
+      "b_ndebug": "false",
+      "x86_version": "3"
+    },
+    "sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "bytes": 44213464,
+    "native_test": "One Morrowind snapshot cell passed per renderer",
+    "performance_acceptance": false
+  },
+  "hardware_manifest": "../main-cause-20260909/manifest.json",
+  "no_diagnostic_counters": true,
+  "campaign": {
+    "status": "PASS",
+    "purpose": "Single APU pre-load correction; main baseline assertion control retained",
+    "baseline_commit": "586de4f32c11001c0abe072c3530236f1571b372",
+    "candidate_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "started_utc": "2026-09-09T09:19:29.7620526+00:00",
+    "host_quarantined": false,
+    "cells": [
+      {
+        "renderer": "VULKAN",
+        "status": "complete",
+        "private_hdd_deleted": true
+      },
+      {
+        "renderer": "OPENGL",
+        "status": "complete",
+        "private_hdd_deleted": true
+      }
+    ],
+    "remaining_processes": [],
+    "private_disks": [],
+    "completed_utc": "2026-09-09T09:21:15.6145862+00:00"
+  },
+  "integration": {
+    "main": "bd1fecb93353272dda2a810991e28945de35b665",
+    "tree_identical_to_tested_candidate": true,
+    "merged_pr": "https://github.com/Mainkill1/xemu/pull/53",
+    "ci_source_run": "https://github.com/Mainkill1/xemu/actions/runs/34340240452",
+    "ci_source_matrix": "success",
+    "baseline_rebuilt": false,
+    "existing_executable_reused": true
+  }
+}

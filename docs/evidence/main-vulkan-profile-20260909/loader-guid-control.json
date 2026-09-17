@@ -1,0 +1,34 @@
+{
+  "purpose": "single-variable diagnosis of r3 task-profile load failure",
+  "etl_sha256": "58a8bbeb4d837aeb5d6309f4ef884fc01d939d52c648706a63f642f79c6ac1c1",
+  "input_range_ns": [
+    21796061500,
+    41805107300
+  ],
+  "tool_sha256": "2b0271d58b3bddd9bb0409671a62636a6cf7650a644c3a19d6475f6152fa7ffb",
+  "before_profile_sha256": "83fc1d66682b2f7b09a1af44e169ae18e7a7fc2683a386e2b9e8a4ea3e48616d",
+  "after_profile_sha256": "a800832f1586cd711901bdb4af96ab2be316a52f9c8d89f466ed432632d89aeb",
+  "only_profile_change": {
+    "attribute": "AnalysisView.Name",
+    "before": "main-vk-0",
+    "after": "5984d89a-b545-4ba4-a5f4-555f7d9d94c2"
+  },
+  "same_command_options": true,
+  "symbol_options": [
+    "-symbols",
+    "-symcacheonly"
+  ],
+  "exit_code_before": -1,
+  "exit_code_after": 0,
+  "my_presets_before": false,
+  "my_presets_after": false,
+  "same_missing_presets_warning": true,
+  "output_csv_bytes": 302,
+  "output_csv_sha256": "c4f9230cc74569ed548a6336cf90367bd583f031c8482dedc8a3ea00d8947ec1",
+  "output_data_rows": 2,
+  "conclusion": "Replacing the non-GUID view identifier resolves r3 profile loading; missing per-user presets are not required",
+  "limitation": "Collapsed aggregate output does not identify PFIFO or establish sampling/scheduler/GPU attribution",
+  "owned_processes_remaining": 0,
+  "start_utc": "2026-09-09T13:00:38.0148246Z",
+  "end_utc": "2026-09-09T13:01:00.2799469Z"
+}

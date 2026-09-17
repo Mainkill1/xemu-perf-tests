@@ -1,0 +1,137 @@
+{
+  "repo": "xemu",
+  "number": 51,
+  "headline": "Draft release proposal remains held: history is preserved, but Morrowind cadence is unfavorable and current-main merge readiness is unqualified.",
+  "scope": "The reported campaign compares cumulative S 208e4596832a1f949bd63822d5ddd962c4575067, tested through tree-identical baseline source 3caf5d85423298c62344f8fe44fe9a1176b8ae81 and executable fe8047f60181672170524cf40b2151f335f0e232d749b569b60fd5bc2cb5d6ba, with ancestry-preparation candidate dfe9aadf158af5e8808c109e5a48802377f23a7e, tree 354f00baffb8e5bacbfb7a1ac024228c7709bd1e and executable bf50e1005f122c43b1a6845f72b3e39c0cd1ed912192e0a9cc992a95bfcc9116. Historical main 586de4f32c11001c0abe072c3530236f1571b372 is an ancestry parent, not the timing baseline. Current report head dce89f5c12125cfb4a9416a666c84994da0981e2 adds evidence. Main later advanced independently to bd1fecb93353272dda2a810991e28945de35b665, including merged #53; these measurements do not qualify the current-main diff. Morrowind has one pair per renderer; PGR2 values average two runs per build. Cadence is an NV2A guest display-write proxy, not rendered FPS.",
+  "rows": [
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 27.685,
+      "candidate": 26.745,
+      "baseline_display": "27.685/s",
+      "candidate_display": "26.745/s",
+      "note": "Report labels this unfavorable -3.39%; one pair"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 38.629,
+      "candidate": 37.381,
+      "baseline_display": "38.629/s",
+      "candidate_display": "37.381/s",
+      "note": "Unfavorable -3.23%; one pair"
+    },
+    {
+      "metric": "Morrowind p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 44.614,
+      "candidate": 43.884,
+      "baseline_display": "44.614 ms",
+      "candidate_display": "43.884 ms",
+      "note": "One run per build"
+    },
+    {
+      "metric": "Morrowind p95 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 32.6,
+      "candidate": 34.001,
+      "baseline_display": "32.600 ms",
+      "candidate_display": "34.001 ms",
+      "note": "Unfavorable tail movement; one run per build"
+    },
+    {
+      "metric": "Morrowind p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 47.996,
+      "candidate": 50.301,
+      "baseline_display": "47.996 ms",
+      "candidate_display": "50.301 ms",
+      "note": "Unfavorable tail movement; one run per build"
+    },
+    {
+      "metric": "Morrowind p99 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 36.615,
+      "candidate": 39.965,
+      "baseline_display": "36.615 ms",
+      "candidate_display": "39.965 ms",
+      "note": "Unfavorable tail movement; one run per build"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 41.818,
+      "candidate": 42.838,
+      "baseline_display": "41.818 ms",
+      "candidate_display": "42.838 ms",
+      "note": "Unfavorable; averages of two run-level p99 values"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 42.246,
+      "candidate": 42.516,
+      "baseline_display": "42.246 ms",
+      "candidate_display": "42.516 ms",
+      "note": "Averages of two run-level p99 values"
+    },
+    {
+      "metric": "PGR2 mean dedicated GPU memory",
+      "unit": "MiB",
+      "renderer": "OpenGL",
+      "baseline": 210.405,
+      "candidate": 158.481,
+      "baseline_display": "210.405 MiB",
+      "candidate_display": "158.481 MiB",
+      "note": "-24.68%; means of per-run means, repeated in both candidate runs; not attributed to one patch"
+    },
+    {
+      "metric": "PGR2 mean dedicated GPU memory",
+      "unit": "MiB",
+      "renderer": "Vulkan",
+      "baseline": 674.942,
+      "candidate": 670.611,
+      "baseline_display": "674.942 MiB",
+      "candidate_display": "670.611 MiB",
+      "note": "Means of per-run means; -0.64%; no power-saving claim"
+    }
+  ],
+  "missing": [
+    "The XISO-first campaign was not a matched baseline performance comparison; its timing is context only.",
+    "The historical campaign does not qualify current main bd1fecb9 or preservation of independently merged #53.",
+    "No causal attribution is claimed for the OpenGL dedicated-memory observation.",
+    "The unresolved repeated Morrowind cadence flag blocks merge acceptance."
+  ],
+  "evidence": [
+    {
+      "label": "Final-source report",
+      "url": "https://github.com/Mainkill1/xemu/blob/dce89f5c12125cfb4a9416a666c84994da0981e2/docs/performance/stable-v2-final-head/REPORT.md"
+    },
+    {
+      "label": "Retail per-run results",
+      "url": "https://github.com/Mainkill1/xemu/blob/dce89f5c12125cfb4a9416a666c84994da0981e2/docs/performance/stable-v2-final-head/retail-per-run.csv"
+    },
+    {
+      "label": "Resource measurements",
+      "url": "https://github.com/Mainkill1/xemu/blob/dce89f5c12125cfb4a9416a666c84994da0981e2/docs/performance/stable-v2-final-head/resources-per-run.csv"
+    },
+    {
+      "label": "All XISO rows",
+      "url": "https://github.com/Mainkill1/xemu/blob/dce89f5c12125cfb4a9416a666c84994da0981e2/docs/performance/stable-v2-final-head/xiso-per-test.csv"
+    },
+    {
+      "label": "Build and source manifest",
+      "url": "https://github.com/Mainkill1/xemu/blob/dce89f5c12125cfb4a9416a666c84994da0981e2/docs/performance/stable-v2-final-head/build-manifest.json"
+    }
+  ],
+  "diagram": "flowchart LR\n    S[Frozen cumulative S release] -->|first parent| P[Ancestry-preparation commit dfe9aadf]\n    M[Historical main 586de4f3] -->|second parent| P\n    P --> Q[Byte-identical release tree]\n    C[Current main bd1fecb9 with merged #53] --> R[Required current-main tree review]\n    Q --> R\n    R --> D{Morrowind flag and merge gates resolved?}\n    D -->|No| H[Keep draft and held]\n    D -->|Yes| G[Merge commit and verify resulting tree]"
+}

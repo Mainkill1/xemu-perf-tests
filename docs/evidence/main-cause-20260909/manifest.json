@@ -1,0 +1,66 @@
+{
+  "schema_version": 1,
+  "status": "DIAGNOSTIC_ONLY_PARTIAL_RENDERER_COVERAGE",
+  "purpose": "Attribute repeated work; retain baseline snapshot failure separately",
+  "base": "586de4f32c11001c0abe072c3530236f1571b372",
+  "base_tree": "8289487c766cdf7cb00f95c47ec454bfb62309c0",
+  "probe_tree": "a36757d638bcb19e752ca885b7fe78889979dd6c",
+  "patch_sha256": "f6032bbbff7e21dde75e58997ae9fab6e8ec4c8a7dbf437118ff391ff4162f8e",
+  "probe_binary": {
+    "status": "BUILD_PASS",
+    "kind": "instrumented existing-baseline O2/LTO diagnostic",
+    "options": {
+      "optimization": "2",
+      "debug": true,
+      "b_lto": true,
+      "strip": false,
+      "qom_cast_debug": true,
+      "b_ndebug": "false",
+      "x86_version": "3"
+    },
+    "sha256": "1fc1ecd61be95b4caf6602440242a3b32c3789c95063f507c073019c4c18281e",
+    "bytes": 44217358,
+    "native_test": "Vulkan completed; OpenGL failed during snapshot load",
+    "performance_acceptance": false
+  },
+  "baseline_binary_sha256": "70b3a1236f770d52b62c363b59cc19b747797037a12941da23bbfbd32b5fac00",
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "build_command": "ninja -C build -j12 qemu-system-i386w.exe",
+  "hardware": {
+    "os": {
+      "Caption": "Microsoft Windows 10 Pro",
+      "Version": "10.0.19045",
+      "BuildNumber": "19045"
+    },
+    "cpu": {
+      "Name": "AMD Ryzen 9 6900HX with Radeon Graphics        ",
+      "NumberOfCores": 8,
+      "NumberOfLogicalProcessors": 16
+    },
+    "gpu": [
+      {
+        "Name": "NVIDIA GeForce RTX 3070 Ti Laptop GPU",
+        "DriverVersion": "32.0.15.8195"
+      },
+      {
+        "Name": "AMD Radeon(TM) Graphics",
+        "DriverVersion": "30.0.14052.3002"
+      }
+    ]
+  },
+  "workload": "Morrowind outdoor snapshot vm-20260905015459; 20 seconds after fixed Start/B input sequence",
+  "snapshot_seed_sha256": "d178ecc4154abad5fc7cb9e428f380a1c8d49d20cbed66ba552eaaa6ed7514ad",
+  "input_controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "surface_scale": 1,
+  "present_interval": 1,
+  "present_interval_explicit": false,
+  "start_utc_us": 1788944048137590,
+  "end_utc_us": 1788944068146436,
+  "performance_acceptance": false,
+  "resource_telemetry": null,
+  "xiso_changed_by_this_probe": false,
+  "baseline_xiso_sha256": "08551d0c0b7bc5efb20a7b36d6d4f0e24ab666b4cee25930232858ccd9872a3e",
+  "published_suite_contract": "../../../releases/eng523-report-query-oracles-v2.json",
+  "suite_note": "The retained baseline has 147 records; the published v2 image has 149. Current source also contains newer opt-in workloads. These identities are distinct."
+}

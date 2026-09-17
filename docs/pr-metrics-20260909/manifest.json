@@ -1,0 +1,161 @@
+{
+  "scope": "All20 open xemu PRs and2 open perf-tests PRs at this publication; diagrams and tables also embedded in PR descriptions",
+  "plotter": "matplotlib3.10.6",
+  "data_policy": "Existing source-labelled measurements or explicit missing/validation status; no new benchmark inferred from charts",
+  "entries": [
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/10",
+      "data": "data/xemu-10.json",
+      "image": "charts/xemu-10.png",
+      "data_sha256": "e4fc451dd134d995efb47943409708c4af631d50e68bb80c5b8ce09d2f29321e",
+      "image_sha256": "8480db24e161f7100cea57c54278b9cf61a2ea03cd7cbb48db58d49f603b0b18"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/11",
+      "data": "data/xemu-11.json",
+      "image": "charts/xemu-11.png",
+      "data_sha256": "400584b753ff1026dc5fc07bb12c2fb397833cc225632e769936e97fda7c8cee",
+      "image_sha256": "8c11a4235d7766d007a80a49b875d44c6755702b69d9e55112c9ba4b4b634541"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/14",
+      "data": "data/xemu-14.json",
+      "image": "charts/xemu-14.png",
+      "data_sha256": "95d536992a83b90f963e6f9a4343828741b80ec9a3cdbe3f8d1a7e91791af794",
+      "image_sha256": "520dbdb40dbf0581d563f42b6872b4b5e1e371f4fbf6f648d3ecedaa35ff38f8"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/15",
+      "data": "data/xemu-15.json",
+      "image": "charts/xemu-15.png",
+      "data_sha256": "90f75f38f1878eced3961d7f10dc036d24078d757c996d4966a1b351f828e0b5",
+      "image_sha256": "106dc2ab0df041a298ca67f7ec87a3f71a12a9e7f1c408b3ae3441ddf7ce65b2"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/16",
+      "data": "data/xemu-16.json",
+      "image": "charts/xemu-16.png",
+      "data_sha256": "76b8c5ab07c30de06dc6f743f1ac94b252907e702a04f09bf309f02e05a0a84c",
+      "image_sha256": "f079fdc495b743131e63550d92ebb80dd05a5ebb572e9e34cdad50ba4795eb54"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/18",
+      "data": "data/xemu-18.json",
+      "image": "charts/xemu-18.png",
+      "data_sha256": "fe90664edce0e11b9ff45b7dba044f8b99af38657b07d3532370e26ac469ed52",
+      "image_sha256": "3abcdf457faca6caa782d26058650af99c86582d6876a4a7f25134623f5f142c"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/2",
+      "data": "data/xemu-2.json",
+      "image": "charts/xemu-2.png",
+      "data_sha256": "e34007863c3c44dbfffa16decdb3111e5d9ca118755a0eb07573395e34b80507",
+      "image_sha256": "a9f2d8b26040553f3ecc0e10c3e111679cd34fecebda60dceb21f69ec61df510"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/25",
+      "data": "data/xemu-25.json",
+      "image": "charts/xemu-25.png",
+      "data_sha256": "fcfe00928841272c14f8170061a2a8794682c6c65808085a4a5b8aab693811da",
+      "image_sha256": "784d651ad45f624c76d2d4524d38f29a251fe4b3f6241de62c2231e86e698af6"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/37",
+      "data": "data/xemu-37.json",
+      "image": "charts/xemu-37.png",
+      "data_sha256": "94c10f03ee606859e0bfd2823fdc765177c5fcae0651baee1bef70e6828bf0c7",
+      "image_sha256": "6aa8fb203d5f63e84b9717b1dd339a7d6cc00150c64f401e84b1e3020ca04a5f"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/48",
+      "data": "data/xemu-48.json",
+      "image": "charts/xemu-48.png",
+      "data_sha256": "fe2e760a3ceb3e4535a7220ab4569d2ff99e1660ce54bd23b6d0467a48cd2f10",
+      "image_sha256": "4474e4d6d4fc4e790fa8d1238f7dc1452989b1654900338091d94e54647898c2"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/5",
+      "data": "data/xemu-5.json",
+      "image": "charts/xemu-5.png",
+      "data_sha256": "06d329a94d986f6a387b79626f0be9b188723c8d80ff1a68a30b063c45816868",
+      "image_sha256": "6393325f9f19be59c67f4cb20760e24ad15386108e0d67872c2622fdf62c4055"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/51",
+      "data": "data/xemu-51.json",
+      "image": "charts/xemu-51.png",
+      "data_sha256": "54cdbedacfa8c8b9eac9615a5fdf842d9436f82134125ccba7812a744b1480ac",
+      "image_sha256": "7e227afb695f877790a93a37a937c6de7817c32c1e08010328e5ecb8136f0c74"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/54",
+      "data": "data/xemu-54.json",
+      "image": "charts/xemu-54.png",
+      "data_sha256": "26f554cea5e34cad947172c53e3d9dfd6c8d63e701fb3673dfeead292d441623",
+      "image_sha256": "c9238738e2ad20dc172cd65f87be47635d72cb8496227f326c6fa94706fc4e38"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/55",
+      "data": "data/xemu-55.json",
+      "image": "charts/xemu-55.png",
+      "data_sha256": "ddc7d1fd2706bc53dc0906e8136672040c48fa15db366008ae6f226120960fca",
+      "image_sha256": "904d55526f27e41a051922c55ccb576098ce8e441a97405b799034174b8a2acb"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/57",
+      "data": "data/xemu-57.json",
+      "image": "charts/xemu-57.png",
+      "data_sha256": "75b8627b73894875946d617822579d8a8cc0c65689ff43af913263eccc54f0ed",
+      "image_sha256": "ab3e6155b75947e7dc9fad663c2205368e3fb7ebc3383a184fa8888aa8d4bc3f"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/58",
+      "data": "data/xemu-58.json",
+      "image": "charts/xemu-58.png",
+      "data_sha256": "26059ba0683b2dabb1b3ca5ac243089624c65310c80116b58e71cc30693b3f84",
+      "image_sha256": "92cd7ac757036571bc1e4c8f3c70742e5b33f22a8ccf3d4b8e1a0d6ca0cb8fb4"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/6",
+      "data": "data/xemu-6.json",
+      "image": "charts/xemu-6.png",
+      "data_sha256": "2fac608f54ae33ec651a72a7e464a83a22d55a1b3d7c03419fa3c5541d8a3bf5",
+      "image_sha256": "9080ecb3cecbc2da4c8a8dc14aed3ce78b6f080873532b2fe98bcca177403548"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/7",
+      "data": "data/xemu-7.json",
+      "image": "charts/xemu-7.png",
+      "data_sha256": "d672db565281256b0ae5382ae3e37da87926f3ef2a835459379ffaa3ccbcf756",
+      "image_sha256": "ba207fdc8b0aac773d313535f47e62a62c8ab4a1fbb9a1edd18d65ab64b970e8"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/8",
+      "data": "data/xemu-8.json",
+      "image": "charts/xemu-8.png",
+      "data_sha256": "c5a57787b8f32d193cd800d8578ff8519df6398d7ae652837640b35c32399bd1",
+      "image_sha256": "470b32ebd6b21f5938b3ec98ed94c3cb87dca309c804a8353ffd5f63e5ca857c"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu/pull/9",
+      "data": "data/xemu-9.json",
+      "image": "charts/xemu-9.png",
+      "data_sha256": "ea3c0260a68a816c7635e001c79e7974206cc5d002b1570fadb1e9ae66259e80",
+      "image_sha256": "5c33535895f9b2e7ff3aa7ea14f3bc3d9a9f5426d77d7a93af46e90e1f19fbf8"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu-perf-tests/pull/7",
+      "data": "data/xemu-perf-tests-7.json",
+      "image": "charts/xemu-perf-tests-7.png",
+      "data_sha256": "c0b03165847a9d02ec84a9cd151674cc72ed735d091770ec1685dd18d53f7a42",
+      "image_sha256": "db38598ae3c995aeeceaedd22689739ed241647696fec39cc0eeb6901d1a7b94"
+    },
+    {
+      "pr": "https://github.com/Mainkill1/xemu-perf-tests/pull/9",
+      "data": "data/xemu-perf-tests-9.json",
+      "image": "charts/xemu-perf-tests-9.png",
+      "data_sha256": "1e93cc6a7a6c75bc5951b321d980c5b9098242b6241f248b531626f331b0b662",
+      "image_sha256": "9e028bcc7e3dd02f1a8fc5f87fc34b79403cdec29bf01cfda2679d78b050b6ce"
+    }
+  ]
+}

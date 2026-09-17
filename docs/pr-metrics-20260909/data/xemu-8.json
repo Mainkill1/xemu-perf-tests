@@ -1,0 +1,99 @@
+{
+  "repo": "xemu",
+  "number": 8,
+  "headline": "Historical Vulkan memory optimization evidence: start transient vertex buffers small and grow only when demand requires it.",
+  "scope": "Exact historical pair baseline 54e557d to candidate/current head 33151b4. Later 147/147 descendant suites do not isolate this PR.",
+  "rows": [
+    {
+      "metric": "Initial transient capacity request",
+      "unit": "bytes",
+      "renderer": "Vulkan",
+      "baseline": 2684349440,
+      "candidate": 16777216,
+      "baseline_display": "2,684,349,440",
+      "candidate_display": "16,777,216",
+      "note": "two 8 MiB buffers after change"
+    },
+    {
+      "metric": "PGR2 working set mean",
+      "unit": "GB",
+      "renderer": "Vulkan",
+      "baseline": 2.367,
+      "candidate": 1.033,
+      "baseline_display": "2.367",
+      "candidate_display": "1.033",
+      "note": "matched PGR2 capture"
+    },
+    {
+      "metric": "PGR2 private bytes mean",
+      "unit": "GB",
+      "renderer": "Vulkan",
+      "baseline": 7.459,
+      "candidate": 4.791,
+      "baseline_display": "7.459",
+      "candidate_display": "4.791",
+      "note": "matched PGR2 capture"
+    },
+    {
+      "metric": "PGR2 dedicated GPU memory mean",
+      "unit": "GB",
+      "renderer": "Vulkan",
+      "baseline": 3.587,
+      "candidate": 2.25,
+      "baseline_display": "3.587",
+      "candidate_display": "2.250",
+      "note": "matched PGR2 capture"
+    },
+    {
+      "metric": "PGR2 device memory used",
+      "unit": "MiB",
+      "renderer": "Vulkan",
+      "baseline": 3742,
+      "candidate": 2470,
+      "baseline_display": "3,742",
+      "candidate_display": "2,470",
+      "note": "matched PGR2 capture"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 19.702,
+      "candidate": 19.789,
+      "baseline_display": "19.702",
+      "candidate_display": "19.789",
+      "note": "guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.643,
+      "candidate": 18.792,
+      "baseline_display": "18.643",
+      "candidate_display": "18.792",
+      "note": "guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "Mean host CPU",
+      "unit": "%",
+      "renderer": "Vulkan",
+      "baseline": 16.98,
+      "candidate": 17.29,
+      "baseline_display": "16.98%",
+      "candidate_display": "17.29%",
+      "note": "matched PGR2 capture; unfavorable"
+    }
+  ],
+  "missing": [
+    "Focused inline-elements median was 0.95% slower and lacks live guest markers, so it is not PR-grade.",
+    "No isolated OpenGL or exact-head full-XISO qualification."
+  ],
+  "evidence": [
+    {
+      "label": "original PR evidence",
+      "url": "https://github.com/Mainkill1/xemu/pull/8"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Renderer startup] --> B[Fixed 2.5 GiB transient pair]\n A --> C[Start 8 MiB device and staging buffers]\n C --> D{Demand exceeds capacity?}\n D -->|Yes| E[Grow to required capacity]"
+}

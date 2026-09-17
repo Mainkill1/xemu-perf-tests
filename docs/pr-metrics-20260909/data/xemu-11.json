@@ -1,0 +1,22 @@
+{
+  "repo": "xemu",
+  "number": 11,
+  "headline": "Ready for review: Vulkan preparation failures now reach the caller while preserving retry-safe surface and texture state.",
+  "scope": "The timing table measures historical candidate 021bc7293ab534c10d311761ca975985ab50a48c against review parent 208e4596832a1f949bd63822d5ddd962c4575067. Current head a6533fd5726761f0561e0a810f691f87ad3bb93b has correctness status only, not a new performance run. PGR2 is two 60-second ABBA runs per build and renderer; Morrowind is one 10-second snapshot per build and renderer. All cadence values are NV2A display-write rates, not rendered FPS.",
+  "rows": [
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"OpenGL","baseline":30.000,"candidate":30.006,"baseline_display":"30.000","candidate_display":"30.006","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"OpenGL","baseline":39.269,"candidate":40.164,"baseline_display":"39.269","candidate_display":"40.164","note":"Higher is unfavorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"OpenGL","baseline":42.361,"candidate":43.242,"baseline_display":"42.361","candidate_display":"43.242","note":"Higher is unfavorable."},
+    {"metric":"PGR2 display-write cadence","unit":"/s","renderer":"Vulkan","baseline":30.006,"candidate":30.006,"baseline_display":"30.006","candidate_display":"30.006","note":"Two 60-second ABBA runs; NV2A display-write rate, not rendered FPS."},
+    {"metric":"PGR2 p95 frame interval","unit":"ms","renderer":"Vulkan","baseline":39.547,"candidate":38.802,"baseline_display":"39.547","candidate_display":"38.802","note":"Lower is favorable."},
+    {"metric":"PGR2 p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":41.834,"candidate":40.843,"baseline_display":"41.834","candidate_display":"40.843","note":"Lower is favorable."},
+    {"metric":"Morrowind display-write cadence","unit":"/s","renderer":"Vulkan","baseline":28.350,"candidate":27.117,"baseline_display":"28.350","candidate_display":"27.117","note":"One 10-second snapshot pair; NV2A display-write rate, not rendered FPS."},
+    {"metric":"Morrowind p99 frame interval","unit":"ms","renderer":"Vulkan","baseline":45.417,"candidate":52.949,"baseline_display":"45.417","candidate_display":"52.949","note":"One 10-second snapshot pair; higher is unfavorable."}
+  ],
+  "missing": ["CPU, GPU, and RAM measurements were not reported for the current exact head.", "The current exact head has no new performance run in the captured body."],
+  "evidence": [
+    {"label":"current exact-head mapped-failure report","url":"https://github.com/Mainkill1/xemu/blob/8d945f5b6e8d83afd381695b07d51f86c813d23a/evidence/eng-2026-489-pr11-vulkan-failure-propagation/MAPPED-FAILURE-FOLLOWUP.md"},
+    {"label":"historical qualification report","url":"https://github.com/Mainkill1/xemu/blob/f8da9ab3836a4ecfa903ede8f4cd5283bffacb05/evidence/eng-2026-489-pr11-vulkan-failure-propagation/REPORT.md"}
+  ],
+  "diagram": "flowchart LR\n A[Preparation failure was hidden] --> B[Caller receives failure]\n B --> C[Retry-safe surface and texture state retained]"
+}

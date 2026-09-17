@@ -1,0 +1,22 @@
+{
+  "id": "r6",
+  "purpose": "Attempt ungrouped CPU leaf-address export from successful GUID-corrected profile",
+  "profile_sha256": "0cfe52d5d38a9930b64b15b61b6812adba93012263e573bf93ac277a7f686999",
+  "etl_sha256": "58a8bbeb4d837aeb5d6309f4ef884fc01d939d52c648706a63f642f79c6ac1c1",
+  "range_ns": [
+    21796061500,
+    41805107300
+  ],
+  "process_id": 6568,
+  "exit_code": 0,
+  "export_complete": false,
+  "error": "Object reference not set; Error exporting profile; Unable to export",
+  "csv_bytes": 3223552,
+  "csv_sha256": "68def068eb8bb032b0573e991feb0c281b2a3a8b92e5d98cfc897f5cf12de110",
+  "complete_data_rows": 7804,
+  "incomplete_final_row": true,
+  "performance_totals_admitted": false,
+  "pfifo_identity_admitted": false,
+  "conclusion": "Zero exit code is insufficient; reject truncated CSV totals and require a complete narrowed export",
+  "remaining_owned_process_count": 0
+}

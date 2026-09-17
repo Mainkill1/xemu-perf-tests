@@ -1,0 +1,79 @@
+{
+  "repo": "xemu",
+  "number": 55,
+  "headline": "HOLD: no established Vulkan benefit; interrupt qualification pending",
+  "scope": "Main bd1fecb9 versus candidate 1a73c5bc; one retained-baseline pair per renderer, not interleaved. Cadence is guest display writes, not rendered FPS.",
+  "rows": [
+    {
+      "metric": "Display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 23.723116,
+      "candidate": 23.793884,
+      "baseline_display": "23.723116",
+      "candidate_display": "23.793884",
+      "note": ""
+    },
+    {
+      "metric": "Interval p95",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 47.99,
+      "candidate": 48.401,
+      "baseline_display": "47.99",
+      "candidate_display": "48.401",
+      "note": ""
+    },
+    {
+      "metric": "Interval p99",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 57.134,
+      "candidate": 56.833,
+      "baseline_display": "57.134",
+      "candidate_display": "56.833",
+      "note": ""
+    },
+    {
+      "metric": "Display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 32.798427,
+      "candidate": 33.715426,
+      "baseline_display": "32.798427",
+      "candidate_display": "33.715426",
+      "note": ""
+    },
+    {
+      "metric": "Interval p95",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 38.098,
+      "candidate": 36.597,
+      "baseline_display": "38.098",
+      "candidate_display": "36.597",
+      "note": ""
+    },
+    {
+      "metric": "Interval p99",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 42.848,
+      "candidate": 41.611,
+      "baseline_display": "42.848",
+      "candidate_display": "41.611",
+      "note": ""
+    }
+  ],
+  "diagram": "flowchart LR\n A[STI] --> B[Dynamic lookup into shadow block]\n B --> C[Execute shadow instruction]\n C --> D[Required dispatcher return and IRQ recognition]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/sti-shadow-entry-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "CPU/GPU/power/RAM/VRAM not collected.",
+    "Native IRQ controls, full XISO and PGR2 pending."
+  ]
+}

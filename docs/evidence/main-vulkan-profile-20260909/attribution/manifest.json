@@ -1,0 +1,32 @@
+{
+  "source_hashes": {
+    "sampled": "7692d7383ae12286fa3459dfabe17af20f5d58dc29cbcbddc192fd6d069626df",
+    "precise": "5ad036854db1f58e7360436d73341fff30eefff4e65c6e4f42fece3c49ea6cb4",
+    "gpu": "6267db0b6bb9f191483b3916d47606b68d76fd880245c02ba242e6aedbee24dd"
+  },
+  "target": {
+    "pid": 6568,
+    "tid": 5992
+  },
+  "image_interval": {
+    "base": "0x00007ff73ffe0000",
+    "end_exclusive": "0x00007ff741fee000"
+  },
+  "rows": {
+    "sampled-pfifo.csv": 4183,
+    "precise-pfifo.csv": 19133,
+    "gpu-process.csv": 9652
+  },
+  "output_hashes": {
+    "sampled-pfifo.csv": "c74598ed563713cded5f8e374a3ec0090ce63fc35f357a191369ea7055d8f00d",
+    "precise-pfifo.csv": "10cb50b1872781e903f8f05ea71632c7ee3554112ef84713af7f858c4c2abb60",
+    "gpu-process.csv": "aad4029ca3030092545c65d9fde9692a234e76afd45f674ac0571fa5a01bcfb9"
+  },
+  "redactions": [
+    "full stack strings",
+    "absolute non-xemu instruction addresses",
+    "thread start fields",
+    "old-process scheduler fields",
+    "readier process names"
+  ]
+}

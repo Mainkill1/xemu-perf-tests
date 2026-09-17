@@ -1,0 +1,28 @@
+{
+  "summary_schema_version": 1,
+  "analysis": "schema6 capacity counters over observed QPC intervals",
+  "raw_input_sha256": "d9d793f8969e6b24993681e05f3f7b93850a51cd9c3d381a33efeecf2e6e1449",
+  "source": "3db2bbfecd5153bb6841599d66bb24de731e12b7",
+  "tree": "e76e9879fedb81973b0eb0b93b99b9d8331669c7",
+  "binary": "a18ae99f2e1274cefff5c1e73d9068e606445b0a171e3c498ad4d7a8d26f99b6",
+  "selected_records": 664,
+  "excluded_first_unknown_prefix_record": true,
+  "observed_qpc_span_us": 27007765,
+  "capacity_category_counts": {
+    "descriptor_only": 665,
+    "ubo_staging_only": 0,
+    "both": 0
+  },
+  "all_producer_need_buffer_space_calls": 665,
+  "all_producer_need_buffer_space_wait_us": 6529970,
+  "finish_wait_count": 2492,
+  "finish_wait_us": 8480415,
+  "single_time_wait_count": 1335,
+  "single_time_wait_us": 591426,
+  "unresolved_unrelated_producers_difference": 0,
+  "limitations": [
+    "Category counts are not removable-wait estimates.",
+    "No category-specific wait duration is recorded; wait time is not subtracted.",
+    "The first counter block has an unknown prefix and is excluded from interval sums."
+  ]
+}

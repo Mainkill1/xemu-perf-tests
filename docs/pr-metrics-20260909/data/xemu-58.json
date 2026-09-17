@@ -1,0 +1,85 @@
+{
+  "repo": "xemu",
+  "number": 58,
+  "headline": "Paused for PTIMER baseline qualification; focused GL/VK comparisons are inconclusive",
+  "scope": "Main bd1fecb9 versus 3a56adfa, one stored-baseline pair per renderer at different times. Guest display-write cadence is not rendered FPS. First renamed-file attempt failed before measurement and is excluded.",
+  "rows": [
+    {
+      "metric": "Morrowind cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 23.723115829141207,
+      "candidate": 24.269445893522185,
+      "baseline_display": "23.723116",
+      "candidate_display": "24.269446",
+      "note": "Observed +2.303%; not causal/repeatability proof"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 47.99,
+      "candidate": 48.369,
+      "baseline_display": "47.990000",
+      "candidate_display": "48.369000",
+      "note": "Observed +0.790%; not causal/repeatability proof"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 57.134,
+      "candidate": 56.928,
+      "baseline_display": "57.134000",
+      "candidate_display": "56.928000",
+      "note": "Observed -0.361%; not causal/repeatability proof"
+    },
+    {
+      "metric": "Morrowind cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 32.798426877284314,
+      "candidate": 34.12681685268284,
+      "baseline_display": "32.798427",
+      "candidate_display": "34.126817",
+      "note": "Observed +4.050%; not causal/repeatability proof"
+    },
+    {
+      "metric": "Morrowind p95",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 38.098,
+      "candidate": 35.759,
+      "baseline_display": "38.098000",
+      "candidate_display": "35.759000",
+      "note": "Observed -6.139%; not causal/repeatability proof"
+    },
+    {
+      "metric": "Morrowind p99",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 42.848,
+      "candidate": 41.092,
+      "baseline_display": "42.848000",
+      "candidate_display": "41.092000",
+      "note": "Observed -4.098%; not causal/repeatability proof"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Graphics descriptor capacity 1024] --> B[Increase existing pool to 2048]\n B --> C[Same fence completion before reuse]\n C --> D[Measure whether earlier drains were avoidable]",
+  "evidence": [
+    {
+      "label": "Source-pinned report",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/393b299dc5db323c5026baa5cda4d04c76b914a0/docs/evidence/vk-capacity-20260909/REPORT.md"
+    },
+    {
+      "label": "Production comparison",
+      "url": "https://github.com/Mainkill1/xemu-perf-tests/blob/research/main-cause-evidence/docs/evidence/vk-descriptor-capacity-20260909/REPORT.md"
+    }
+  ],
+  "missing": [
+    "CPU/GPU/RAM/VRAM not collected; driver allocation succeeded only on tested host.",
+    "Full XISO/PGR2 and useful-work performance qualification pending.",
+    "First invalid setup attempt preserved; corrected measured cells completed and cleaned up.",
+    "Further optimization tests paused until issue40 timer correction is validated against current main; >2% regression is a rejection gate for that baseline repair."
+  ]
+}

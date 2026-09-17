@@ -1,0 +1,49 @@
+{
+  "repo": "xemu",
+  "number": 2,
+  "headline": "Correctness fix: ready for review; no speed claim.",
+  "scope": "Current PR head d7223fb is documentation/evidence after tested implementation b16291b; base 208e459. Validation, not a performance comparison.",
+  "rows": [
+    {
+      "metric": "Shared-context lifecycle coverage",
+      "unit": "cycles",
+      "renderer": "OpenGL",
+      "baseline": null,
+      "candidate": 64,
+      "baseline_display": "Known first-leak failure",
+      "candidate_display": "64/64 passed",
+      "note": "focused lifecycle control; not throughput"
+    },
+    {
+      "metric": "Matched XISO records",
+      "unit": "records",
+      "renderer": "OpenGL",
+      "baseline": 147,
+      "candidate": 147,
+      "baseline_display": "147/147 passed",
+      "candidate_display": "147/147 passed",
+      "note": "functional coverage"
+    },
+    {
+      "metric": "Matched XISO records",
+      "unit": "records",
+      "renderer": "Vulkan",
+      "baseline": 147,
+      "candidate": 147,
+      "baseline_display": "147/147 passed",
+      "candidate_display": "147/147 passed; 0 VUIDs",
+      "note": "functional coverage"
+    }
+  ],
+  "missing": [
+    "No paired performance metric or resource measurement is claimed.",
+    "Expanded Vulkan 152-record attempt had inherited bordered-cubemap VUID/device loss; use matched 147-record coverage only."
+  ],
+  "evidence": [
+    {
+      "label": "public lifecycle report",
+      "url": "https://github.com/Mainkill1/xemu/blob/d7223fb8a65a20488c60d86cd689dfa2a833f189/docs/performance/gloffscreen-lifecycle/README.md"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Temporary shared GL context and hidden window] --> B[Probe GPU properties]\n B --> C[Detach wrapper]\n C --> D[Destroy SDL context and window]"
+}

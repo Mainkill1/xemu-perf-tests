@@ -1,0 +1,39 @@
+{
+  "status": "OWNED_HELPER_CLEANUP_VERIFIED",
+  "observed_after_rejected_capture": true,
+  "before": {
+    "timestamp_utc": "2026-09-09T19:17:44.1270883Z",
+    "available_physical_bytes": 602304512,
+    "total_physical_bytes": 16361480192,
+    "committed_bytes": 24751054848,
+    "commit_limit_bytes": 28565053440
+  },
+  "owned_stale_helper": {
+    "image": "powershell.exe",
+    "working_set_bytes": 11396313088,
+    "private_bytes": 17127624704,
+    "origin": "earlier recursive status query",
+    "ownership_checks": [
+      "process identity",
+      "creation time",
+      "parent identity",
+      "exact originating command"
+    ],
+    "removed": true
+  },
+  "after": {
+    "timestamp_utc": "2026-09-09T19:19:22.5725861Z",
+    "available_physical_bytes": 12270919680,
+    "committed_bytes": 7547371520,
+    "commit_limit_bytes": 18777399296
+  },
+  "verification": {
+    "wpr_recording": false,
+    "owned_workload_recorder_exporter_analysis_processes_remaining": 0,
+    "owned_etw_sessions_remaining": 0,
+    "shared_gui_server_preserved": true,
+    "trace_artifacts_preserved": true,
+    "unrelated_sessions_unchanged": true
+  },
+  "limitation": "Memory figures are later host-health observations, not measurements from the gameplay window; no performance effect is attributed."
+}

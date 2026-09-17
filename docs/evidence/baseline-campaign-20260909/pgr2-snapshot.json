@@ -1,0 +1,145 @@
+{
+  "schema": 1,
+  "status": "BASELINE_OBSERVATION_ONLY",
+  "scope": "Two completed retained-baseline PGR2 snapshot cells; no candidate comparison or performance acceptance.",
+  "baseline": {
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "comparison_main_commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+  },
+  "shared_inputs": {
+    "snapshot_seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "snapshot_manifest_sha256": "2b33ac44bfd7e563d2161d3c3546530414759520459dc7a65a0ef8c8dbca51c5",
+    "runner_sha256": "e5d1964384da8605794d1058052338b205b92225046af553c8c6667594b540c8",
+    "capture_sha256": "c6b259cabfdc8ab5f31129ddd9adfff585d09b0474ba40d9afef391781bf7b38",
+    "snapshot_launcher_sha256": "d1938ccbdb9235f668e873a306442540093cda86883c67ddf2835d034b580279",
+    "timed_key_sequence_sha256": "6fcc4f2a12b5ed212a0d4bb5d7ca3e70041e8676a68d39db191976f5f2c57df0",
+    "key_sender_sha256": "eab682af9b58f75ff5ed88b5a160c983bf022649e7b2c71dab0764e62b8d392d",
+    "window_capture_sha256": "7381116e826dc286251bbba4f4f9227fcd498fc0e38dfcd9d95269216d357bfd"
+  },
+  "runs": [
+    {
+      "id": "ptimer-main-c17591d5-pgr2-snapshot-opengl-r1-20260909",
+      "renderer": "OPENGL",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "duration_seconds": 60,
+      "launch_mode": "Snapshot",
+      "snapshot_label": "vm-20260907142321",
+      "input_hashes": {
+        "base_config_sha256": "e3e40e64327a0eecf111e37cd081cfdafddd9ef24aa77015d86c89c8de1f0656",
+        "launch_config_sha256": "ea811a931bfc73671cacf08d40794ad0a7fdf761cadf6b0ae23ac5e3fb921b9d"
+      },
+      "source_output_hashes": {
+        "complete_receipt_sha256": "f8a8c8411d34e9666301341a405f7744ba2d465d04088adbb971d455708e9971",
+        "dispatcher_receipt_sha256": "b98c02b5aa227ae8653f6d3e882d467262251fa3b401e16b5445655c93162813",
+        "frame_summary_sha256": "087f5f79d319f31b68a7e35ffb2fc98f8d2ec86653d9cee6f112eb6ae607bdff",
+        "analysis_filter_sha256": "985b1a3c1123a73dc8bd0e3f4abb014ebfe1315c49768b4ae6f1bb20d9e0fc15",
+        "hdd_lifecycle_sha256": "bf7a1a4980a61be06c06c13704bd72d3c335b1ddddc4dda70b2e3f6e8288b31d",
+        "capture_start_sha256": "01f78e9747164b2ea1bbc255aa32c74b387c40e4929d27fb6e25dc176d0a2e7f"
+      },
+      "guest_frames": {
+        "source": "complete frames selected by QPC timestamp",
+        "count": 1708,
+        "average_ms": 35.12222423887584,
+        "p95_ms": 42.308,
+        "p99_ms": 46.086,
+        "stall_threshold_ms": 75,
+        "stall_count": 0
+      },
+      "guest_flip_cadence": {
+        "source": "XEMU_FLIP_LOG",
+        "frame_count": 1575,
+        "elapsed_us": 55225674,
+        "rate_per_second": 28.519344100716634,
+        "not_rendered_fps": true
+      },
+      "host_presentation": {
+        "source": "PresentMon",
+        "sample_count": 3598,
+        "average_ms": 16.667640633685377,
+        "rate_per_second": 59.99649392362081,
+        "p95_ms": 29.8095,
+        "p99_ms": 32.2564,
+        "not_guest_fps": true
+      },
+      "integrity": {
+        "config_policy_validated": true,
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "snapshot_verified": true,
+        "seed_unchanged_after_clone": true,
+        "seed_unchanged_final": true,
+        "private_hdd_cleanup": "complete"
+      }
+    },
+    {
+      "id": "ptimer-main-c17591d5-pgr2-snapshot-vulkan-r1-20260909",
+      "renderer": "VULKAN",
+      "status": "complete",
+      "functional_status": "complete",
+      "measurement_status": "complete",
+      "duration_seconds": 60,
+      "launch_mode": "Snapshot",
+      "snapshot_label": "vm-20260907142321",
+      "input_hashes": {
+        "base_config_sha256": "ee47218c846e75c7dbcc9e88fddb09053f96b73dd606e3b516a33fadb07b167e",
+        "launch_config_sha256": "1dc472d23ce1b4c68c4449dccc7a3f863c62ed5fb56538d2a3de12d53ba1b01b"
+      },
+      "source_output_hashes": {
+        "complete_receipt_sha256": "008c59071b9013ffc6edef58fbfffc3ee5394f9d575b8f838c6247fc838e0f70",
+        "dispatcher_receipt_sha256": "0e2b947770d9e570e103add7a861ba3d068141e61b1ed7ae76e413953d0ade61",
+        "frame_summary_sha256": "61525b68ffc7782aa2928df6fea6be34a453d9b1cd57e2703b996e88beafe418",
+        "analysis_filter_sha256": "8787dfee4a4a84cd9abd01a9943ea461e54bdf77fed4288f75ed6648fce313c1",
+        "hdd_lifecycle_sha256": "5e08c108bc414e88a00693ada724d0bbad59056fb04bdcfb3f1c9ff23b171518",
+        "capture_start_sha256": "c18a34c68b000303a05b52efd9bc439e970fcf7a585f55db0b5406c2e5872f65"
+      },
+      "guest_frames": {
+        "source": "complete frames selected by QPC timestamp",
+        "count": 1740,
+        "average_ms": 34.483841379310306,
+        "p95_ms": 40.91,
+        "p99_ms": 45.186,
+        "stall_threshold_ms": 75,
+        "stall_count": 0
+      },
+      "guest_flip_cadence": {
+        "source": "XEMU_FLIP_LOG",
+        "frame_count": 1601,
+        "elapsed_us": 55183919,
+        "rate_per_second": 29.0120750575906,
+        "not_rendered_fps": true
+      },
+      "host_presentation": {
+        "source": "PresentMon",
+        "sample_count": 3597,
+        "average_ms": 16.66571209341114,
+        "rate_per_second": 60.003436660552545,
+        "p95_ms": 27.9362,
+        "p99_ms": 31.3329,
+        "not_guest_fps": true
+      },
+      "integrity": {
+        "config_policy_validated": true,
+        "focus_loss_samples": 0,
+        "not_responding_samples": 0,
+        "etw_lost_events": 0,
+        "etw_lost_buffers": 0,
+        "snapshot_verified": true,
+        "seed_unchanged_after_clone": true,
+        "seed_unchanged_final": true,
+        "private_hdd_cleanup": "complete"
+      }
+    }
+  ],
+  "limits": [
+    "A local visual check found race HUD and a stationary 0 MPH car without a pause overlay; it does not establish racing progression.",
+    "Guest frames, guest flip cadence, and host presentation cadence are distinct measures. Neither cadence is rendered FPS.",
+    "The optional profiling-symbol capture records source_ownership_valid=false because it had no matching PDB/build manifest. The separately published baseline release preserves the source/tree/binary identity, embedded DWARF/COFF, full source, function mapping, and its documented line-resolution limit.",
+    "Raw receipts, captures, traces, logs, game assets, and private-disk material remain outside this publication."
+  ]
+}

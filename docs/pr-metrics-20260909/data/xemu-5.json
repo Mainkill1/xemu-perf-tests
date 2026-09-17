@@ -1,0 +1,99 @@
+{
+  "repo": "xemu",
+  "number": 5,
+  "headline": "Historical cumulative-S optimization evidence; targeted PGR2 Vulkan result is favorable, but no exact-head full-suite performance decision.",
+  "scope": "Historical comparison baseline bc60883c to candidate/current head 3f9e6b6. Later 147/147 descendant XISO coverage does not isolate this patch.",
+  "rows": [
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "OpenGL",
+      "baseline": 24.637,
+      "candidate": 24.689,
+      "baseline_display": "24.637",
+      "candidate_display": "24.689",
+      "note": "20-second guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 58.216,
+      "candidate": 53.961,
+      "baseline_display": "58.216",
+      "candidate_display": "53.961",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "OpenGL",
+      "baseline": 67.642,
+      "candidate": 66.288,
+      "baseline_display": "67.642",
+      "candidate_display": "66.288",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "PGR2 display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.759,
+      "candidate": 19.184,
+      "baseline_display": "18.759",
+      "candidate_display": "19.184",
+      "note": "20-second guest display-write cadence; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 p95 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 72.065,
+      "candidate": 69.183,
+      "baseline_display": "72.065",
+      "candidate_display": "69.183",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "PGR2 p99 interval",
+      "unit": "ms",
+      "renderer": "Vulkan",
+      "baseline": 77.595,
+      "candidate": 75.882,
+      "baseline_display": "77.595",
+      "candidate_display": "75.882",
+      "note": "20-second cell"
+    },
+    {
+      "metric": "Morrowind display-write cadence",
+      "unit": "/s",
+      "renderer": "Vulkan",
+      "baseline": 18.87,
+      "candidate": 18.762,
+      "baseline_display": "18.870",
+      "candidate_display": "18.762",
+      "note": "60-second single sample; not rendered FPS"
+    },
+    {
+      "metric": "PGR2 mean host CPU",
+      "unit": "%",
+      "renderer": "Vulkan",
+      "baseline": 18.44,
+      "candidate": 16.21,
+      "baseline_display": "18.44%",
+      "candidate_display": "16.21%",
+      "note": "matched capture"
+    }
+  ],
+  "missing": [
+    "No isolated exact-head full-XISO comparison.",
+    "Vulkan validation layers were not collected for the retail runs."
+  ],
+  "evidence": [
+    {
+      "label": "original PR evidence",
+      "url": "https://github.com/Mainkill1/xemu/pull/5"
+    }
+  ],
+  "diagram": "flowchart LR\n A[Eligible color copy] --> B[Separate download submission]\n B --> C[Completion wait]\n A --> D[Record with producer command buffer]\n D --> C"
+}

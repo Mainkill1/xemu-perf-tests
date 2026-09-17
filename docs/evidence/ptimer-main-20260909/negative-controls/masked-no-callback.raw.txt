@@ -1,0 +1,9 @@
+TAP version 14
+# random seed: R02S1fec35db63e7c17792cccae8aca5692f
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+**
+not ok /xbox/nv2a/ptimer/masked-no-callback - ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:332:test_masked_alarm_has_no_callback: 'timer_pending(&d.ptimer.timer)' should be FALSE
+ERROR:../tests/unit/test-xbox-nv2a-ptimer.c:332:test_masked_alarm_has_no_callback: 'timer_pending(&d.ptimer.timer)' should be FALSE
+Bail out!

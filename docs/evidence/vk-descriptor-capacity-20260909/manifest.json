@@ -1,0 +1,21 @@
+{
+  "baseline_source": "bd1fecb93353272dda2a810991e28945de35b665",
+  "baseline_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+  "baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+  "candidate_source": "3a56adfac81a804e974078024cb31bd132315cb6",
+  "candidate_tree": "463f23c13c42a2d5284152ae5879766dfa92f4d8",
+  "candidate_executable_sha256": "9a4232229ada84d91422b66bca38dcf441fc77568b367c8bcf73f889434edbfe",
+  "pr": "https://github.com/Mainkill1/xemu/pull/58",
+  "build": "Pinned Windows GCC image09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2; optimization2, fullLTO, symbols/assertions retained, x86-64-v3",
+  "runner_sha256": "9994bd2d823e8557d39aef582fef8d7f37965d54caa52eaa09514e5d256307ed",
+  "controller_sha256": "94fbbbd95a48f1e7b2c66f8e58fc0f02458d308cdde467be706b4d6f96f7a799",
+  "hardware_manifest": "../main-cause-20260909/manifest.json",
+  "instrumentation": "Vulkan diagnostic telemetry disabled; existing display-write trace unchanged",
+  "scope": "One20-second measured Morrowind cell per renderer; retained baseline; no interleaving",
+  "resource_measurements": "Not collected",
+  "full_xiso": "Not run",
+  "pgr2": "Not run",
+  "independent_pixel_audio_oracle": "Not performed",
+  "visual_review": "Both final images inspected for expected scene, crosshair and absence of pause/reconnect overlay",
+  "decision": "Paused pending issue40/PTIMER baseline qualification; no established descriptor speedup or release approval"
+}

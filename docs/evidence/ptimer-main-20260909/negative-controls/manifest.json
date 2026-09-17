@@ -1,0 +1,78 @@
+{
+  "schema_version": 1,
+  "purpose": "Disposable production-TU base negative controls for PTIMER #39 and #40; not an emulator or performance build.",
+  "base": {
+    "commit": "bd1fecb93353272dda2a810991e28945de35b665",
+    "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "inputs_sha256": {
+      "hw/xbox/nv2a/ptimer.c": "f1bf4ddd3e87232f9eaf1f00c7043830606c71c23847cd15cca74794f0c034a0",
+      "tests/unit/test-xbox-nv2a-ptimer.c": "93c9c57b6f1a521ac4a77247fc918f8538a2f8a638ecb00e6a177b7c2caaf6c4",
+      "tests/unit/ptimer-test-stubs.c": "cb742a6dd64547c510a582f4c2c09708fc00906d61953126151dec4e237e754a",
+      "tests/unit/xbox-nv2a-ptimer-test-shim.h": "72f115849e6492781d1bac53d5a8da3795f87fd1187ad50cb934b3c586684f37",
+      "tests/unit/meson.build": "3ad8ef5b74d6279e3d7e3dafe3c65c1654fc080f757dc56340aefa3b05d0d6e1"
+    }
+  },
+  "overlay": {
+    "commit": "012a47f6ae74d8a4f874718b565daf1dcae07c53",
+    "tree": "cafe061c10e30887dfdc353bf7fd8cf36b974849",
+    "changed_files": [
+      "tests/unit/test-xbox-nv2a-ptimer.c"
+    ],
+    "fixture_sha256": "414657abbc84f1983917aab1069d1ef9a68870ee6111bd9ad1492072c111fed9",
+    "patch": "fixture.patch",
+    "patch_sha256": "8ffef2c2af6e35da01b3464d97a6a2e2f19185d3f141b2443ddef0fec833962b",
+    "copied_from_candidate": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "copied_bodies": [
+      "test_fractional_deadline",
+      "test_deadline_preserves_clock_phase",
+      "test_deadline_range",
+      "test_masked_alarm_has_no_callback"
+    ],
+    "added_glib_paths": [
+      "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-1",
+      "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-2",
+      "/xbox/nv2a/ptimer/deadline-phase",
+      "/xbox/nv2a/ptimer/deadline-range",
+      "/xbox/nv2a/ptimer/masked-no-callback"
+    ],
+    "total_glib_registrations": 14,
+    "preserved_base_inputs": [
+      "hw/xbox/nv2a/ptimer.c",
+      "tests/unit/ptimer-test-stubs.c",
+      "tests/unit/xbox-nv2a-ptimer-test-shim.h",
+      "tests/unit/meson.build"
+    ],
+    "excluded_candidate_abi": [
+      "alarm_armed",
+      "ptimer_post_load(d, version_id)",
+      "ptimer_set_core_clock()",
+      "PRAMDAC linkage"
+    ]
+  },
+  "expected_base_failures": {
+    "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-1": "expected expiry 5 ns; current-main observation 4 ns",
+    "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-2": "expected expiry 5 ns; current-main observation 0 ns",
+    "/xbox/nv2a/ptimer/deadline-phase": "expected first expiry 10 ns at now=9 ns; current-main observation 19 ns",
+    "/xbox/nv2a/ptimer/deadline-range": "expected INT64_MAX saturation; current-main observation 0 ns after overflow",
+    "/xbox/nv2a/ptimer/masked-no-callback": "expected timer_pending false after masked alarm program; current-main observation true"
+  },
+  "reproduction_commands": [
+    "meson test -C <bd1-unit-build> test-xbox-nv2a-ptimer",
+    "<bd1-unit-build>/tests/unit/test-xbox-nv2a-ptimer[.exe] -p <each added path>",
+    "meson test -C <candidate-build> test-xbox-nv2a-ptimer",
+    "meson test -C <candidate-build> ptimer-test"
+  ],
+  "execution_status": "Built and run natively: five intended baseline assertion failures, each exit 3",
+  "reproduction": {
+    "file": "REPRODUCTION.md",
+    "sha256": "646089fcd714b830373203b345c95b205d9ddb355dee550db81aa9e838cd64ff"
+  },
+  "build_recipe": {
+    "toolchain": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+    "target": "ninja -C build -j12 tests/unit/test-xbox-nv2a-ptimer.exe",
+    "archive_correction": "x86_64-w64-mingw32.static-gcc-ranlib build/libqemuutil.a",
+    "reason": "Plain ar omitted LTO symbols from thin archive index. GCC-aware reindex preserved all 499 member objects and allowed unchanged target to link.",
+    "emulator_rebuilt": false,
+    "production_or_stub_changes": false
+  }
+}

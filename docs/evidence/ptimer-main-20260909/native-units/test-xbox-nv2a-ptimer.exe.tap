@@ -1,0 +1,35 @@
+TAP version 14
+# random seed: R02S45cd0ef43066c78fe26bcb243a5c1d67
+1..24
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+ok 1 /xbox/nv2a/ptimer/alarm-assert-ack
+ok 2 /xbox/nv2a/ptimer/enable-pending
+ok 3 /xbox/nv2a/ptimer/time-registers-epoch
+ok 4 /xbox/nv2a/ptimer/runtime-overdue
+ok 5 /xbox/nv2a/ptimer/post-load-overdue
+ok 6 /xbox/nv2a/ptimer/intr-read-overdue
+ok 7 /xbox/nv2a/ptimer/intr-enable-overdue
+ok 8 /xbox/nv2a/ptimer/zero-ratio
+ok 9 /xbox/nv2a/ptimer/post-load-irq
+ok 10 /xbox/nv2a/ptimer/deadline-phase
+ok 11 /xbox/nv2a/ptimer/deadline-range
+ok 12 /xbox/nv2a/ptimer/deadline-forward-oracle
+ok 13 /xbox/nv2a/ptimer/deadline-wrap-stopped-source
+ok 14 /xbox/nv2a/ptimer/deadline-wide-source-wrap
+ok 15 /xbox/nv2a/ptimer/masked-ack
+ok 16 /xbox/nv2a/ptimer/stopped-read
+ok 17 /xbox/nv2a/ptimer/stopped-restore
+ok 18 /xbox/nv2a/ptimer/masked-no-callback
+ok 19 /xbox/nv2a/ptimer/mask-unmask-before-expiry
+ok 20 /xbox/nv2a/ptimer/rate-changes-masked
+ok 21 /xbox/nv2a/ptimer/restore-versions
+ok 22 /xbox/nv2a/ptimer/pll-register
+# Start of fractional-deadline tests
+ok 23 /xbox/nv2a/ptimer/fractional-deadline/ratio-1-1
+ok 24 /xbox/nv2a/ptimer/fractional-deadline/ratio-1-2
+# End of fractional-deadline tests
+# End of ptimer tests
+# End of nv2a tests
+# End of xbox tests

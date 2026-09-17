@@ -1,0 +1,63 @@
+{
+  "schema_version": 1,
+  "classification": "benchmark-instrumented",
+  "mode": "perf",
+  "profile": "BusyPfifo::PFIFOSaturation",
+  "status": "PASSED",
+  "message": "",
+  "host_wall_seconds": 5.192866700002924,
+  "backend": "vulkan",
+  "surface_scale": 1,
+  "vsync": false,
+  "measurement_iterations_multiplier": 1,
+  "xbox_memory_megabytes": 64,
+  "records": [
+    {
+      "name": "BusyPfifo::PFIFOSaturation",
+      "iterations": 10,
+      "sample_count": 10,
+      "measurement_iterations_multiplier": 1,
+      "raw_result_count": 10,
+      "guest_total_us": 1022406,
+      "guest_average_us": 102240,
+      "guest_min_us": 101688,
+      "guest_max_us": 103912,
+      "warmup_iterations": 0,
+      "gpu_completion_mode": "per_iteration",
+      "completion_wait_us": 101,
+      "framebuffer_fnv1a64": "1508607624bb8506",
+      "metadata": null,
+      "guest_median_us": 102035.5,
+      "guest_mad_us": 162.5
+    }
+  ],
+  "expected_record_count": 1,
+  "record_count_validation": {
+    "status": "PASSED",
+    "catalog_id": "sha256:2ac7832875b183d806cf1f8f1ee1cc27980acec4b117602c2b1fa5fd002bf0e5",
+    "expected": 1,
+    "actual": 1,
+    "expected_leaf_count": 1,
+    "actual_leaf_count": 1,
+    "expected_group_count": 0,
+    "actual_group_count": 0,
+    "missing_leaf_records": [],
+    "unexpected_leaf_records": [],
+    "missing_group_records": [],
+    "unexpected_group_records": [],
+    "unknown_kind_records": [],
+    "duplicate_records": [],
+    "catalog_sha256": "027065948624d6aafdbe557bed8123eb6dcaa83353cf242c71d030a109b64578"
+  },
+  "functional_hash_validation": {
+    "status": "PASSED",
+    "report_id": "1ba635a11ab8731463419b97fd6bd238fbf56291cb58df3d6b091090056a9884",
+    "functional_id": "93696618ea668e2b0ac3704af9458d0b742f90b236d0c91a9405c3ac083aa3fe",
+    "oracle_provenance": null,
+    "profile_hash_provenance": null,
+    "checks": []
+  },
+  "measurement_warning": "Live markers are unavailable; timing is not PR-grade performance evidence.",
+  "original_summary_sha256": "ea47a3bdafd71e7ee1f2f60ef00eade9bd27ff9d12c3177dc5a76fedbd0cb870",
+  "export": "Selected measurement fields; system paths and environment omitted"
+}

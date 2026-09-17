@@ -1,0 +1,68 @@
+{
+  "decision": "HOLD",
+  "reason": "No established Vulkan benefit from one retained-baseline pair; IRQ qualification remains open",
+  "comparison": "same source-equivalent baseline tree, recipe/renderer/settings; noninterleaved observations at different times",
+  "statistical_significance": "not established",
+  "baseline_rebuilt": false,
+  "baseline_rerun": false,
+  "rows": [
+    {
+      "renderer": "vulkan",
+      "baseline_source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "baseline_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "baseline_record": "../main-apu-load-20260909/vulkan-run.json",
+      "candidate_source": "1a73c5bce07be278c2aedb298caedbfd85f32aa0",
+      "candidate_executable_sha256": "4ef7cb6305813b369c225b9c88dc8ba4150ea7b82a2812af7f3973c500d33175",
+      "metrics": {
+        "display_write_interval_cadence_per_second": {
+          "baseline": 23.723115829141207,
+          "candidate": 23.793884250417257,
+          "delta": 0.07076842127604976,
+          "delta_percent": 0.2983099765888199
+        },
+        "frame_interval_p95_ms": {
+          "baseline": 47.99,
+          "candidate": 48.401,
+          "delta": 0.41100000000000136,
+          "delta_percent": 0.856428422588042
+        },
+        "frame_interval_p99_ms": {
+          "baseline": 57.134,
+          "candidate": 56.833,
+          "delta": -0.30100000000000193,
+          "delta_percent": -0.526831658907134
+        }
+      }
+    },
+    {
+      "renderer": "opengl",
+      "baseline_source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "baseline_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "baseline_executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "baseline_record": "../main-apu-load-20260909/opengl-run.json",
+      "candidate_source": "1a73c5bce07be278c2aedb298caedbfd85f32aa0",
+      "candidate_executable_sha256": "4ef7cb6305813b369c225b9c88dc8ba4150ea7b82a2812af7f3973c500d33175",
+      "metrics": {
+        "display_write_interval_cadence_per_second": {
+          "baseline": 32.798426877284314,
+          "candidate": 33.71542647083798,
+          "delta": 0.916999593553669,
+          "delta_percent": 2.795864560774922
+        },
+        "frame_interval_p95_ms": {
+          "baseline": 38.098,
+          "candidate": 36.597,
+          "delta": -1.5009999999999977,
+          "delta_percent": -3.939839361646275
+        },
+        "frame_interval_p99_ms": {
+          "baseline": 42.848,
+          "candidate": 41.611,
+          "delta": -1.2370000000000019,
+          "delta_percent": -2.8869492158327152
+        }
+      }
+    }
+  ]
+}
