@@ -1,0 +1,27 @@
+--- run-suite.py
++++ run-suite.py
+@@ -2407,0 +2408 @@
++    enable_xemu_only_tests: bool = False,
+@@ -2429,0 +2431,2 @@
++    if enable_xemu_only_tests:
++        config["settings"]["enable_xemu_only_tests"] = True
+@@ -3815,0 +3819,5 @@
++        "--enable-xemu-only-tests",
++        action="store_true",
++        help="Enable the guest's xemu-only correctness suites for --mode perf --full-suite",
++    )
++    parser.add_argument(
+@@ -4058,0 +4067,9 @@
++def validate_enable_xemu_only_tests_request(args: argparse.Namespace) -> None:
++    if args.enable_xemu_only_tests and (
++        args.mode != "perf" or not args.full_suite
++    ):
++        raise ValueError(
++            "--enable-xemu-only-tests requires --mode perf --full-suite"
++        )
++
++
+@@ -4062,0 +4080 @@
++    validate_enable_xemu_only_tests_request(args)
+@@ -4324,0 +4343 @@
++                args.enable_xemu_only_tests,
