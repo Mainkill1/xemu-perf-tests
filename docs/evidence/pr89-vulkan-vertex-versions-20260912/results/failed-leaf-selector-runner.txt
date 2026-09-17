@@ -1,0 +1,21 @@
+Evidence: [test-host]\runs\suite\2026-09-12-162602-perf-GameLoadComposite-09-CrossTitleHotpath-01-QueuedVertexCpuWrites-unknown
+2026-09-12 16:26:02,474 INFO Formatting...
+2026-09-12 16:26:06,599 ERROR Test failed with exception
+Traceback (most recent call last):
+  File "[test-host]\suite-eng523-9ff9af9\python313\Lib\site-packages\xemutest\test_base.py", line 65, in run
+    self.analyze_results()
+    ~~~~~~~~~~~~~~~~~~~~^^
+  File "[test-host]\suite-eng523-9ff9af9\run-suite-pr81-optin.py", line 2147, in analyze_results
+    self.parsed_results = normalize_guest_results(
+                          ~~~~~~~~~~~~~~~~~~~~~~~^
+        raw_path.read_text(encoding="utf-8", errors="strict")
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "[test-host]\suite-eng523-9ff9af9\run-suite-pr81-optin.py", line 1989, in normalize_guest_results
+    raise ValueError("guest result file did not contain any benchmark records")
+ValueError: guest result file did not contain any benchmark records
+2026-09-12 16:26:06,609 ERROR guest records do not match the catalog-derived selection contract
+Status: FAILED
+Evidence: [test-host]\runs\suite\2026-09-12-162602-perf-GameLoadComposite-09-CrossTitleHotpath-01-QueuedVertexCpuWrites-unknown
+Message: guest records do not match the catalog-derived selection contract

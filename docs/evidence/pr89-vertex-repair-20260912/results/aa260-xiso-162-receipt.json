@@ -1,0 +1,97 @@
+{
+  "evidence_class": "LOCALLY_REPRODUCED",
+  "suite_source_commit": "57c2438c3d46c8f99bc18004f1fd34a5d9ed82b9",
+  "suite_release": "suite-57c2438-20260912",
+  "cells": [
+    {
+      "cell": "vulkan-baseline",
+      "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "executable_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+      "backend": "vulkan",
+      "status": "FAILED",
+      "record_count": 0,
+      "expected_record_count": 162,
+      "record_count_validation": "FAILED",
+      "functional_hash_validation": null,
+      "vuid_count": 0,
+      "test_iso_sha256": "6a57961a7312bb8ec125181ac5e642d194835df382cbb900c81efaf9765536cd",
+      "catalog_sha256": "ea881a43ec71cc37f74e5863e00f0cf4caea94e32933a5a15063e179e743ddfb",
+      "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+      "abort": "Supported-build PFIFO inline-packet assertion at pgraph.c:2824 after 71 written records; guest JSON incomplete"
+    },
+    {
+      "cell": "vulkan-pr87",
+      "source_commit": "b3b99fb8832b658a653d53641170da3171ab2e6c",
+      "executable_sha256": "54b879eb2602c57504e97f2899ee73b91aa22debca4373465896a40b6d8a57e2",
+      "backend": "vulkan",
+      "status": "FAILED",
+      "record_count": 162,
+      "expected_record_count": 162,
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vuid_count": 0,
+      "test_iso_sha256": "6a57961a7312bb8ec125181ac5e642d194835df382cbb900c81efaf9765536cd",
+      "catalog_sha256": "ea881a43ec71cc37f74e5863e00f0cf4caea94e32933a5a15063e179e743ddfb",
+      "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+      "passes": 161,
+      "nonpasses": [
+        {
+          "id": "report_query.dma_range_guard",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "cell": "vulkan-pr89",
+      "source_commit": "aa260e72c51ebca05038a7abd0455f18e8c42084",
+      "executable_sha256": "92abb1cc287d9a025b2bedb7f1146daf27f2305ff9f7f62bee85efe850390bfb",
+      "backend": "vulkan",
+      "status": "FAILED",
+      "record_count": 162,
+      "expected_record_count": 162,
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vuid_count": 0,
+      "test_iso_sha256": "6a57961a7312bb8ec125181ac5e642d194835df382cbb900c81efaf9765536cd",
+      "catalog_sha256": "ea881a43ec71cc37f74e5863e00f0cf4caea94e32933a5a15063e179e743ddfb",
+      "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+      "passes": 161,
+      "nonpasses": [
+        {
+          "id": "report_query.dma_range_guard",
+          "outcome": "FAIL"
+        }
+      ]
+    },
+    {
+      "cell": "opengl-pr89",
+      "source_commit": "aa260e72c51ebca05038a7abd0455f18e8c42084",
+      "executable_sha256": "92abb1cc287d9a025b2bedb7f1146daf27f2305ff9f7f62bee85efe850390bfb",
+      "backend": "opengl",
+      "status": "FAILED",
+      "record_count": 162,
+      "expected_record_count": 162,
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vuid_count": null,
+      "test_iso_sha256": "6a57961a7312bb8ec125181ac5e642d194835df382cbb900c81efaf9765536cd",
+      "catalog_sha256": "ea881a43ec71cc37f74e5863e00f0cf4caea94e32933a5a15063e179e743ddfb",
+      "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+      "passes": 159,
+      "nonpasses": [
+        {
+          "id": "texture_cubemap_fallback.unbordered_subblock_dxt1",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "report_query.dma_range_guard",
+          "outcome": "FAIL"
+        },
+        {
+          "id": "vertex_buffer_allocation.gpu_surface_vertex_attribute_readback",
+          "outcome": "FAIL"
+        }
+      ]
+    }
+  ]
+}
