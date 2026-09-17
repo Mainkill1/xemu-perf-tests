@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "product_candidate": {
+    "source": "98f1a7a49cb7a6ccb8feba20438dc86f9ead58d5",
+    "executable_sha256": "5da6b82f13b6ddc325972eabecb4144b72d7930c46514def369f8d4da1c050bf"
+  },
+  "previous_main": {
+    "logical_source": "9148241de690617ac0a21a26b41858585c1e3cab",
+    "runtime_equivalent_source": "6bf9e98cdee50fd73e936ff2bd5b485ce14ac4dc",
+    "executable_sha256": "6857240d6e95909d591832685c60e376611924d00a9688da4d7d2b89e84c17f6"
+  },
+  "test_source": "5269072fb1db6b1a7ca3c9679db05bce6e204a38",
+  "test_image_sha256": "1e2573d416949ced403426826bf4d8597949468ed117185847f47dfd97b64260",
+  "catalog_sha256": "a0674f73cef85d43f1dba0ad2059b9fa076841a0f4b1084b59186cf4ffb3871e",
+  "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+  "runner_change": "full-suite sets enable_xemu_only_tests=true; see runner-optin.patch and xemu-perf-tests issue 10",
+  "cells": {
+    "candidate_vulkan": {
+      "record_count": 159,
+      "record_count_status": "PASSED",
+      "functional_hash_status": "PASSED",
+      "pass_count": 158,
+      "fail_count": 1,
+      "fail_ids": [
+        "report_query.dma_range_guard"
+      ],
+      "vulkan_vuid_count": 0,
+      "xemu_exit_code": 0
+    },
+    "candidate_opengl": {
+      "record_count": 159,
+      "record_count_status": "PASSED",
+      "functional_hash_status": "PASSED",
+      "pass_count": 157,
+      "fail_count": 2,
+      "fail_ids": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "vulkan_vuid_count": null,
+      "xemu_exit_code": 0
+    },
+    "previous_main_opengl": {
+      "record_count": 159,
+      "record_count_status": "PASSED",
+      "functional_hash_status": "PASSED",
+      "pass_count": 157,
+      "fail_count": 2,
+      "fail_ids": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "vulkan_vuid_count": null,
+      "xemu_exit_code": 0
+    }
+  },
+  "timing_qualified": false,
+  "timing_exclusion": "No live markers; catalog correctness workloads and known timeout cases are not performance samples."
+}

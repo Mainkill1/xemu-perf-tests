@@ -1,0 +1,106 @@
+TAP version 14
+# random seed: R02S0f70397e56cfcbbf6ff701a4b10f897a
+1..75
+# Start of xbox tests
+# Start of nv2a tests
+# Start of ptimer tests
+ok 1 /xbox/nv2a/ptimer/alarm-assert-ack
+ok 2 /xbox/nv2a/ptimer/enable-pending
+ok 3 /xbox/nv2a/ptimer/time-registers-epoch
+ok 4 /xbox/nv2a/ptimer/runtime-overdue
+ok 5 /xbox/nv2a/ptimer/post-load-overdue
+ok 6 /xbox/nv2a/ptimer/intr-read-overdue
+ok 7 /xbox/nv2a/ptimer/intr-enable-overdue
+ok 8 /xbox/nv2a/ptimer/zero-ratio
+ok 9 /xbox/nv2a/ptimer/post-load-irq
+ok 10 /xbox/nv2a/ptimer/deadline-phase
+ok 11 /xbox/nv2a/ptimer/deadline-range
+ok 12 /xbox/nv2a/ptimer/deadline-forward-oracle
+ok 13 /xbox/nv2a/ptimer/deadline-wrap-stopped-source
+ok 14 /xbox/nv2a/ptimer/deadline-wide-source-wrap
+ok 15 /xbox/nv2a/ptimer/masked-ack
+ok 16 /xbox/nv2a/ptimer/stopped-read
+ok 17 /xbox/nv2a/ptimer/stopped-restore
+ok 18 /xbox/nv2a/ptimer/masked-no-callback
+ok 19 /xbox/nv2a/ptimer/mask-unmask-before-expiry
+ok 20 /xbox/nv2a/ptimer/rate-changes-masked
+ok 21 /xbox/nv2a/ptimer/restore-versions
+ok 22 /xbox/nv2a/ptimer/pll-register
+ok 23 /xbox/nv2a/ptimer/ack-keeps-future-schedule
+ok 24 /xbox/nv2a/ptimer/masked-ack-keeps-absent
+ok 25 /xbox/nv2a/ptimer/overdue-ack-rearms
+ok 26 /xbox/nv2a/ptimer/callback-consumption-rearms
+ok 27 /xbox/nv2a/ptimer/restore-rebuilds-host-schedule
+# Start of fractional-deadline tests
+ok 28 /xbox/nv2a/ptimer/fractional-deadline/ratio-1-1
+ok 29 /xbox/nv2a/ptimer/fractional-deadline/ratio-1-2
+# End of fractional-deadline tests
+# Start of timebase-characterization tests
+ok 30 /xbox/nv2a/ptimer/timebase-characterization/backward
+# Start of core tests
+ok 31 /xbox/nv2a/ptimer/timebase-characterization/core/poll
+ok 32 /xbox/nv2a/ptimer/timebase-characterization/core/callback
+ok 33 /xbox/nv2a/ptimer/timebase-characterization/core/masked-poll
+ok 34 /xbox/nv2a/ptimer/timebase-characterization/core/already-pending
+ok 35 /xbox/nv2a/ptimer/timebase-characterization/core/masked-ack
+# End of core tests
+# Start of numerator tests
+ok 36 /xbox/nv2a/ptimer/timebase-characterization/numerator/poll
+ok 37 /xbox/nv2a/ptimer/timebase-characterization/numerator/callback
+ok 38 /xbox/nv2a/ptimer/timebase-characterization/numerator/masked-poll
+ok 39 /xbox/nv2a/ptimer/timebase-characterization/numerator/already-pending
+ok 40 /xbox/nv2a/ptimer/timebase-characterization/numerator/masked-ack
+# End of numerator tests
+# Start of denominator tests
+ok 41 /xbox/nv2a/ptimer/timebase-characterization/denominator/poll
+ok 42 /xbox/nv2a/ptimer/timebase-characterization/denominator/callback
+ok 43 /xbox/nv2a/ptimer/timebase-characterization/denominator/masked-poll
+ok 44 /xbox/nv2a/ptimer/timebase-characterization/denominator/already-pending
+ok 45 /xbox/nv2a/ptimer/timebase-characterization/denominator/masked-ack
+# End of denominator tests
+# Start of time-low tests
+ok 46 /xbox/nv2a/ptimer/timebase-characterization/time-low/poll
+ok 47 /xbox/nv2a/ptimer/timebase-characterization/time-low/callback
+ok 48 /xbox/nv2a/ptimer/timebase-characterization/time-low/masked-poll
+ok 49 /xbox/nv2a/ptimer/timebase-characterization/time-low/already-pending
+ok 50 /xbox/nv2a/ptimer/timebase-characterization/time-low/masked-ack
+# End of time-low tests
+# Start of time-high tests
+ok 51 /xbox/nv2a/ptimer/timebase-characterization/time-high/poll
+ok 52 /xbox/nv2a/ptimer/timebase-characterization/time-high/callback
+ok 53 /xbox/nv2a/ptimer/timebase-characterization/time-high/masked-poll
+ok 54 /xbox/nv2a/ptimer/timebase-characterization/time-high/already-pending
+ok 55 /xbox/nv2a/ptimer/timebase-characterization/time-high/masked-ack
+# End of time-high tests
+# Start of core-restart tests
+ok 56 /xbox/nv2a/ptimer/timebase-characterization/core-restart/poll
+ok 57 /xbox/nv2a/ptimer/timebase-characterization/core-restart/callback
+ok 58 /xbox/nv2a/ptimer/timebase-characterization/core-restart/masked-poll
+ok 59 /xbox/nv2a/ptimer/timebase-characterization/core-restart/already-pending
+ok 60 /xbox/nv2a/ptimer/timebase-characterization/core-restart/masked-ack
+# End of core-restart tests
+# Start of pll-register tests
+ok 61 /xbox/nv2a/ptimer/timebase-characterization/pll-register/poll
+ok 62 /xbox/nv2a/ptimer/timebase-characterization/pll-register/callback
+ok 63 /xbox/nv2a/ptimer/timebase-characterization/pll-register/masked-poll
+ok 64 /xbox/nv2a/ptimer/timebase-characterization/pll-register/already-pending
+ok 65 /xbox/nv2a/ptimer/timebase-characterization/pll-register/masked-ack
+# End of pll-register tests
+# Start of numerator-restart tests
+ok 66 /xbox/nv2a/ptimer/timebase-characterization/numerator-restart/poll
+ok 67 /xbox/nv2a/ptimer/timebase-characterization/numerator-restart/callback
+ok 68 /xbox/nv2a/ptimer/timebase-characterization/numerator-restart/masked-poll
+ok 69 /xbox/nv2a/ptimer/timebase-characterization/numerator-restart/already-pending
+ok 70 /xbox/nv2a/ptimer/timebase-characterization/numerator-restart/masked-ack
+# End of numerator-restart tests
+# Start of denominator-restart tests
+ok 71 /xbox/nv2a/ptimer/timebase-characterization/denominator-restart/poll
+ok 72 /xbox/nv2a/ptimer/timebase-characterization/denominator-restart/callback
+ok 73 /xbox/nv2a/ptimer/timebase-characterization/denominator-restart/masked-poll
+ok 74 /xbox/nv2a/ptimer/timebase-characterization/denominator-restart/already-pending
+ok 75 /xbox/nv2a/ptimer/timebase-characterization/denominator-restart/masked-ack
+# End of denominator-restart tests
+# End of timebase-characterization tests
+# End of ptimer tests
+# End of nv2a tests
+# End of xbox tests
