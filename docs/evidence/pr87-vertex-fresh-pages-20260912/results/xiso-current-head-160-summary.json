@@ -1,0 +1,59 @@
+{
+  "schema_version": 1,
+  "scope": "exact PR87 current-head full functional XISO; same product executable as focused oracle; new 160-record catalog",
+  "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "source_tree": "4d49acf74c5069b0cf03a995c7867f55554ac028",
+  "executable_sha256": "6f5a85d3200135ab1eef6efb4ba4c20697303f9f6ec5fa5f8b0567dda5822cc0",
+  "test_source_commit": "5b9670e5bbef92ea12a303ecd7a9eef88e956ba3",
+  "xiso_sha256": "3146ad9da3a8ae8e8185699083c6888f312e9ad2a4707bded2a1c265b75db7a3",
+  "catalog_sha256": "98224982dd86f27cf3e8b87a2b17d34aed3c2f2d2e76b8e70a0c5c72b46899e9",
+  "runner_sha256": "cd51e2192bf51a5e58862b4ff5f356867119a59c95351bc3a1378994e7917558",
+  "timing_note": "Not a performance A/B: Vulkan validation enabled, test catalog changed, inherited suite failures remain, previous 159-record comparison uses different product/test head.",
+  "renderers": {
+    "vulkan": {
+      "suite_status": "FAILED",
+      "records": 160,
+      "passed": 159,
+      "failed_ids": [
+        "report_query.dma_range_guard"
+      ],
+      "host_wall_seconds": 115.22548059991095,
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vulkan_validation_active": true,
+      "vuid_count": 0,
+      "same_outcome_and_hash_as_previous_159": 157,
+      "same_outcome_hash_ineligible": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued"
+      ],
+      "new_test_id": "vertex_buffer_allocation.ordered_same_page_overwrite",
+      "new_test_outcome": "PASS",
+      "normalized_results_sha256": "ebbd9d7ddf7af073135126f89ad5e4a98c5152a9b0ddb6062c5a3d2b4dd3873b",
+      "summary_input_sha256": "cd411b8c3b7fe438275dd5b5188afcf52a9e1d0624a36d955db55c6ac1467a06"
+    },
+    "opengl": {
+      "suite_status": "FAILED",
+      "records": 160,
+      "passed": 158,
+      "failed_ids": [
+        "texture_cubemap_fallback.unbordered_subblock_dxt1",
+        "report_query.dma_range_guard"
+      ],
+      "host_wall_seconds": 128.23608529998455,
+      "record_count_validation": "PASSED",
+      "functional_hash_validation": "PASSED",
+      "vulkan_validation_active": null,
+      "vuid_count": 0,
+      "same_outcome_and_hash_as_previous_159": 157,
+      "same_outcome_hash_ineligible": [
+        "game_load.s3tc_sync_factor.dxt1_same_address_queued",
+        "game_load.s3tc_sync_factor.rgba8_same_address_queued"
+      ],
+      "new_test_id": "vertex_buffer_allocation.ordered_same_page_overwrite",
+      "new_test_outcome": "PASS",
+      "normalized_results_sha256": "60d2cbff0e1cf854f77f6cbc114d8b00b8dd4d226f30c0822c541f4f1d80b3e6",
+      "summary_input_sha256": "7acf4849f6e8aecc06d1f6bdc5536a9940822ac013ecff27b0e6f5873d825961"
+    }
+  }
+}

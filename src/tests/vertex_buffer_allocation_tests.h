@@ -35,6 +35,7 @@ class VertexBufferAllocationTests : public TestSuite {
   void TestTinyAllocations(const std::string &name, DrawMode mode);
   void TestMixedSizes(const std::string &name, DrawMode mode);
   void TestDisjointSamePageVertexUpdates();
+  void TestOrderedSamePageVertexOverwrite();
   void TestRisingTransientBufferGrowth();
   void FinishProfileWithOracle(const std::string &name, DrawMode mode,
                                const TestHost::ProfileResults &results,

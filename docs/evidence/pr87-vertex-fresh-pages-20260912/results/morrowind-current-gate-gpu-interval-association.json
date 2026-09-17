@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "source_commit": "974f2ae63b166f64aa2ea6a77963c77481e28969",
+  "diagnostic_patch_sha256": "a5babd1f62d807cab7c7c894d883e144107391bc1bc3cdffd7ee358b673aeb4b",
+  "diagnostic_executable_sha256": "80889154812d794bd6ae4d600fa861cde57110c14d736e9c6dc3ab43e18d0c44",
+  "source_tree": "4d49acf74c5069b0cf03a995c7867f55554ac028",
+  "snapshot": "vm-20260905015459",
+  "renderer": "VULKAN",
+  "metric": "NV2A display-write intervals, not presented FPS",
+  "timestamp_valid_bits": 64,
+  "timestamp_period_ns": 1,
+  "measurement_seconds": 10.0068179,
+  "aligned_intervals": 242,
+  "instrumentation": "Opt-in GPU timestamp queries and Vulkan counters; not a performance comparison",
+  "input_sha256": {
+    "perf_log": "900f3bc94a952ff4fe7f1811befc06f63f70d3eb5eb5eef487ff9e586b1a924f",
+    "guest_flips": "24cf92a71820f3e1562f921d263908e053b31a01868814c274ed85dc9a08d143",
+    "result": "3f7575f4566929f4975691a6cdea87e3bbabfeb987ecba980aa5b3879ffa2a42"
+  },
+  "fastest_decile_medians": {
+    "guest_interval_ms": 34.6985,
+    "capacity_gpu_main_ms": 4.984336000000001,
+    "capacity_gpu_batch_ms": 5.310256,
+    "capacity_host_wait_ms": 5.731999999999999,
+    "staged_vertex_copies": 193.0
+  },
+  "slowest_decile_medians": {
+    "guest_interval_ms": 49.1105,
+    "capacity_gpu_main_ms": 10.293552,
+    "capacity_gpu_batch_ms": 11.491824000000001,
+    "capacity_host_wait_ms": 12.0945,
+    "staged_vertex_copies": 243.5
+  },
+  "spearman_guest_interval_vs": {
+    "capacity_gpu_main_ms": 0.8212745807172334,
+    "capacity_gpu_batch_ms": 0.8285833432118743,
+    "capacity_host_wait_ms": 0.8267912765992893,
+    "staged_vertex_copies": 0.3661673765126846
+  }
+}

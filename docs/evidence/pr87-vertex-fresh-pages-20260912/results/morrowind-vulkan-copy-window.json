@@ -1,0 +1,26 @@
+{
+  "schema_version": 1,
+  "product_source_commit": "d42c81ba32e7c299e4a65f70db05e2ba3363cccc",
+  "executable_sha256": "9da192457c4264df3e3025434841c4d72599b47cf673f3a9206416619d24f99b",
+  "window_frames": 246,
+  "raw_perf_sha256": "0d3c1f5348b539ead1858552ccc41f65e2e0ab323c1e2fa1c18b5777c3682d42",
+  "raw_flips_sha256": "15af8389ebb4c3fb0cc209fc682a5c4eadd276f656aa852022375696eb84156f",
+  "values": {
+    "vertex_direct_copies_per_guest_frame": {
+      "total": 27642,
+      "median_per_display_write": 112.0
+    },
+    "vertex_direct_bytes_per_guest_frame": {
+      "total": 213491712,
+      "median_per_display_write": 868352.0
+    },
+    "vertex_staging_copies_per_guest_frame": {
+      "total": 58365,
+      "median_per_display_write": 241.0
+    },
+    "vertex_staged_bytes_per_guest_frame": {
+      "total": 543154176,
+      "median_per_display_write": 2244608.0
+    }
+  }
+}
