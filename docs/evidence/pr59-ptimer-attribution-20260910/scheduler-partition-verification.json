@@ -1,0 +1,10 @@
+{
+  "scope": "Independent integer-nanosecond verification of published nominal-frame scheduler intervals; not a clock-accuracy or all-process-thread coverage guarantee",
+  "runs": 20,
+  "observed_threads": 646,
+  "state_segments": 195758,
+  "per_thread_state_totals_checked": 1938,
+  "complete_contiguous_partitions": 646,
+  "max_rounding_difference_ms": 1.1167777813625435e-10,
+  "status": "PASS"
+}

@@ -1,0 +1,146 @@
+{
+  "scope": "Independent retained frame selection and rational timestamp-map recomputation; not a clock-accuracy guarantee",
+  "verified_runs": 20,
+  "results": [
+    {
+      "run_id": "pr59-attr-r1-01-opengl-b",
+      "selected_frame": 1849,
+      "recorded_interval_us": 51343,
+      "mapping_duration_difference_ns": -1216,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-02-opengl-am",
+      "selected_frame": 828,
+      "recorded_interval_us": 67316,
+      "mapping_duration_difference_ns": -1591,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-03-vulkan-am",
+      "selected_frame": 677,
+      "recorded_interval_us": 65974,
+      "mapping_duration_difference_ns": -1558,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-04-vulkan-b",
+      "selected_frame": 675,
+      "recorded_interval_us": 72256,
+      "mapping_duration_difference_ns": -1710,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-05-vulkan-b",
+      "selected_frame": 674,
+      "recorded_interval_us": 57005,
+      "mapping_duration_difference_ns": -1347,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-06-vulkan-am",
+      "selected_frame": 671,
+      "recorded_interval_us": 69401,
+      "mapping_duration_difference_ns": -1647,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-07-opengl-am",
+      "selected_frame": 2171,
+      "recorded_interval_us": 52934,
+      "mapping_duration_difference_ns": -1251,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-08-opengl-b",
+      "selected_frame": 561,
+      "recorded_interval_us": 62604,
+      "mapping_duration_difference_ns": -1482,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-09-opengl-b",
+      "selected_frame": 1792,
+      "recorded_interval_us": 56068,
+      "mapping_duration_difference_ns": -1348,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-10-opengl-am",
+      "selected_frame": 560,
+      "recorded_interval_us": 58637,
+      "mapping_duration_difference_ns": -1388,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-11-vulkan-am",
+      "selected_frame": 673,
+      "recorded_interval_us": 70871,
+      "mapping_duration_difference_ns": -1676,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-12-vulkan-b",
+      "selected_frame": 674,
+      "recorded_interval_us": 69931,
+      "mapping_duration_difference_ns": -1653,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-13-vulkan-b",
+      "selected_frame": 675,
+      "recorded_interval_us": 68902,
+      "mapping_duration_difference_ns": -1629,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-14-vulkan-am",
+      "selected_frame": 675,
+      "recorded_interval_us": 59970,
+      "mapping_duration_difference_ns": -1189,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-15-opengl-am",
+      "selected_frame": 965,
+      "recorded_interval_us": 55518,
+      "mapping_duration_difference_ns": -997,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-16-opengl-b",
+      "selected_frame": 1393,
+      "recorded_interval_us": 60941,
+      "mapping_duration_difference_ns": -1094,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-17-opengl-b",
+      "selected_frame": 1216,
+      "recorded_interval_us": 52460,
+      "mapping_duration_difference_ns": -942,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-18-opengl-am",
+      "selected_frame": 735,
+      "recorded_interval_us": 54664,
+      "mapping_duration_difference_ns": -983,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-19-vulkan-am",
+      "selected_frame": 673,
+      "recorded_interval_us": 61286,
+      "mapping_duration_difference_ns": -1100,
+      "result": "PASS"
+    },
+    {
+      "run_id": "pr59-attr-r1-20-vulkan-b",
+      "selected_frame": 670,
+      "recorded_interval_us": 72313,
+      "mapping_duration_difference_ns": -1300,
+      "result": "PASS"
+    }
+  ]
+}

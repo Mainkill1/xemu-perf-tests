@@ -1,0 +1,1682 @@
+[
+  {
+    "phase": "pilot",
+    "index": 1,
+    "pair": 0,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 10,
+    "run_id": "pr59-attr-r1-pilot-01-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 10,
+    "started_utc": "2026-09-11T00:01:59.4868836Z",
+    "completed_utc": "2026-09-11T00:03:01.7699172Z",
+    "window_start_utc": "2026-09-11T00:02:35.2357012Z",
+    "window_end_utc": "2026-09-11T00:02:45.2507786Z",
+    "measured_window_us": 10016092,
+    "frame_interval_count": 287,
+    "frame_interval_sum_us": 9981619,
+    "cadence_flip_count": 145,
+    "cadence_elapsed_us": 5009522,
+    "host_present_count": 596,
+    "metrics": {
+      "cadence_hz": 28.944877375526048,
+      "mean_ms": 34.77916027874565,
+      "p95_ms": 42.274,
+      "p99_ms": 46.742,
+      "maximum_ms": 56.865
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "13fdf4f5a6823ef6d5469573fa80c66ac050b9cec1779f55e1bc7662fba0ce04",
+    "screenshot_sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": "Predeclared readiness pilot"
+  },
+  {
+    "phase": "pilot",
+    "index": 2,
+    "pair": 0,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 10,
+    "run_id": "pr59-attr-r1-pilot-02-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 10,
+    "started_utc": "2026-09-11T00:03:01.7902687Z",
+    "completed_utc": "2026-09-11T00:04:01.9031976Z",
+    "window_start_utc": "2026-09-11T00:03:36.6893906Z",
+    "window_end_utc": "2026-09-11T00:03:46.7285102Z",
+    "measured_window_us": 10039366,
+    "frame_interval_count": 286,
+    "frame_interval_sum_us": 10007071,
+    "cadence_flip_count": 144,
+    "cadence_elapsed_us": 5028232,
+    "host_present_count": 597,
+    "metrics": {
+      "cadence_hz": 28.63829672139233,
+      "mean_ms": 34.98975874125874,
+      "p95_ms": 42.372,
+      "p99_ms": 46.626,
+      "maximum_ms": 49.528
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "5091a987289f014c6ac792ed78b7515255a6d7e89672e969136162114ed4791a",
+    "screenshot_sha256": "fdd021f29f3c93af13f838cf58a1aae74a319fa06f01a24b4cae2b46b1a1286f",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": "Predeclared readiness pilot"
+  },
+  {
+    "phase": "pilot",
+    "index": 3,
+    "pair": 0,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 10,
+    "run_id": "pr59-attr-r1-pilot-03-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 10,
+    "started_utc": "2026-09-11T00:04:01.9050920Z",
+    "completed_utc": "2026-09-11T00:05:00.8375936Z",
+    "window_start_utc": "2026-09-11T00:04:36.1725224Z",
+    "window_end_utc": "2026-09-11T00:04:46.1844899Z",
+    "measured_window_us": 10012212,
+    "frame_interval_count": 286,
+    "frame_interval_sum_us": 9973981,
+    "cadence_flip_count": 143,
+    "cadence_elapsed_us": 5000164,
+    "host_present_count": 597,
+    "metrics": {
+      "cadence_hz": 28.599061950768014,
+      "mean_ms": 34.87405944055944,
+      "p95_ms": 42.311,
+      "p99_ms": 52.108,
+      "maximum_ms": 67.955
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "05f8eb8683c265e4020d91398f19320bddd5422a4a835d836aa2562eeaf7ec4c",
+    "screenshot_sha256": "93a724bd23d50c89b016746ba777cf5cc78bf8a1b771d66ca3c97d96b11a7599",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": "Predeclared readiness pilot"
+  },
+  {
+    "phase": "pilot",
+    "index": 4,
+    "pair": 0,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 10,
+    "run_id": "pr59-attr-r1-pilot-04-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 10,
+    "started_utc": "2026-09-11T00:05:00.8389386Z",
+    "completed_utc": "2026-09-11T00:05:59.6965715Z",
+    "window_start_utc": "2026-09-11T00:05:35.1800359Z",
+    "window_end_utc": "2026-09-11T00:05:45.2020637Z",
+    "measured_window_us": 10022276,
+    "frame_interval_count": 292,
+    "frame_interval_sum_us": 10003579,
+    "cadence_flip_count": 146,
+    "cadence_elapsed_us": 5000550,
+    "host_present_count": 597,
+    "metrics": {
+      "cadence_hz": 29.19678835328114,
+      "mean_ms": 34.25883219178082,
+      "p95_ms": 41.178,
+      "p99_ms": 52.195,
+      "maximum_ms": 67.621
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "d181132ff30bfa20c30aae0f8550da8270e34da47eaf59dabc476be0131795ac",
+    "screenshot_sha256": "8bf2ce0a202d0bbfe22246572f49058be82376460face5062983bc3b0b620844",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": "Predeclared readiness pilot"
+  },
+  {
+    "phase": "measured",
+    "index": 1,
+    "pair": 1,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-01-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:07:02.8253213Z",
+    "completed_utc": "2026-09-11T00:09:00.8331514Z",
+    "window_start_utc": "2026-09-11T00:07:37.2075413Z",
+    "window_end_utc": "2026-09-11T00:08:37.2568038Z",
+    "measured_window_us": 60050684,
+    "frame_interval_count": 1740,
+    "frame_interval_sum_us": 60018931,
+    "cadence_flip_count": 1601,
+    "cadence_elapsed_us": 55190668,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 29.008527311175143,
+      "mean_ms": 34.49363850574712,
+      "p95_ms": 41.411,
+      "p99_ms": 45.104,
+      "maximum_ms": 51.343
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "a1038e17133c1fa0dad414b0d8ffaad1be4a2ee9836cff0368653a86b121108d",
+    "screenshot_sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 2,
+    "pair": 1,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-02-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:09:00.8355880Z",
+    "completed_utc": "2026-09-11T00:10:58.6697399Z",
+    "window_start_utc": "2026-09-11T00:09:35.2908871Z",
+    "window_end_utc": "2026-09-11T00:10:35.3434889Z",
+    "measured_window_us": 60054021,
+    "frame_interval_count": 1681,
+    "frame_interval_sum_us": 59997460,
+    "cadence_flip_count": 1551,
+    "cadence_elapsed_us": 55274482,
+    "host_present_count": 3594,
+    "metrics": {
+      "cadence_hz": 28.05996445158907,
+      "mean_ms": 35.69152885187388,
+      "p95_ms": 42.904,
+      "p99_ms": 47.018,
+      "maximum_ms": 67.316
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "70f703a847db52b84c5a15574b7196d9d6328ecb192cd09f1cfe25264bb369ad",
+    "screenshot_sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 3,
+    "pair": 1,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-03-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:10:58.6715099Z",
+    "completed_utc": "2026-09-11T00:12:55.3473453Z",
+    "window_start_utc": "2026-09-11T00:11:33.1851863Z",
+    "window_end_utc": "2026-09-11T00:12:33.2220349Z",
+    "measured_window_us": 60038267,
+    "frame_interval_count": 1716,
+    "frame_interval_sum_us": 59984250,
+    "cadence_flip_count": 1580,
+    "cadence_elapsed_us": 55166802,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 28.640413123820373,
+      "mean_ms": 34.95585664335665,
+      "p95_ms": 42.03,
+      "p99_ms": 46.459,
+      "maximum_ms": 65.974
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "33b0ab853e2f4569423b7b022f5fe15fd30a754a28d53bf5632366e06bd75f1d",
+    "screenshot_sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 4,
+    "pair": 1,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-04-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:12:55.3495264Z",
+    "completed_utc": "2026-09-11T00:14:52.0605521Z",
+    "window_start_utc": "2026-09-11T00:13:29.8933276Z",
+    "window_end_utc": "2026-09-11T00:14:29.9348780Z",
+    "measured_window_us": 60042971,
+    "frame_interval_count": 1718,
+    "frame_interval_sum_us": 60031929,
+    "cadence_flip_count": 1580,
+    "cadence_elapsed_us": 55193105,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 28.62676415831289,
+      "mean_ms": 34.94291559953434,
+      "p95_ms": 42.081,
+      "p99_ms": 46.967,
+      "maximum_ms": 72.256
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "d66ba7965b0b1c20190935eebacd31cf44509fa326f63cd242e4cfddeb1febd9",
+    "screenshot_sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 5,
+    "pair": 2,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-05-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:14:52.0621030Z",
+    "completed_utc": "2026-09-11T00:16:48.7889846Z",
+    "window_start_utc": "2026-09-11T00:15:26.5727456Z",
+    "window_end_utc": "2026-09-11T00:16:26.6195520Z",
+    "measured_window_us": 60048226,
+    "frame_interval_count": 1737,
+    "frame_interval_sum_us": 60026123,
+    "cadence_flip_count": 1598,
+    "cadence_elapsed_us": 55230019,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 28.933540652955415,
+      "mean_ms": 34.5573534830167,
+      "p95_ms": 41.512,
+      "p99_ms": 46.196,
+      "maximum_ms": 57.005
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "8f6b8552a1d8ee81728b80ff51e93d983ff0f428d1c49f27301a8f19db44d360",
+    "screenshot_sha256": "1584db49fe4f34253bd2f565568019e2750d9c97b49ce890545b755e89ff0a93",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 6,
+    "pair": 2,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-06-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:16:48.7908316Z",
+    "completed_utc": "2026-09-11T00:18:45.4763118Z",
+    "window_start_utc": "2026-09-11T00:17:23.2927595Z",
+    "window_end_utc": "2026-09-11T00:18:23.3073649Z",
+    "measured_window_us": 60016029,
+    "frame_interval_count": 1706,
+    "frame_interval_sum_us": 59987641,
+    "cadence_flip_count": 1567,
+    "cadence_elapsed_us": 55155263,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 28.41070669901438,
+      "mean_ms": 35.16274384525205,
+      "p95_ms": 42.363,
+      "p99_ms": 47.235,
+      "maximum_ms": 69.401
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "bcc572cd582cb226911ada57747a432cb61d132f6d9b263e9f35c18eff7c261b",
+    "screenshot_sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 7,
+    "pair": 2,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-07-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:18:45.4782648Z",
+    "completed_utc": "2026-09-11T00:20:43.1036049Z",
+    "window_start_utc": "2026-09-11T00:19:19.9673475Z",
+    "window_end_utc": "2026-09-11T00:20:19.9922396Z",
+    "measured_window_us": 60026311,
+    "frame_interval_count": 1704,
+    "frame_interval_sum_us": 59998256,
+    "cadence_flip_count": 1570,
+    "cadence_elapsed_us": 55228393,
+    "host_present_count": 3595,
+    "metrics": {
+      "cadence_hz": 28.42740689557996,
+      "mean_ms": 35.2102441314554,
+      "p95_ms": 42.705,
+      "p99_ms": 46.945,
+      "maximum_ms": 52.934
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "f58ef3c23b0016873cb9b6d7bf546f7ac7cb5e3a5146f6005bb95ea76ed48c66",
+    "screenshot_sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 8,
+    "pair": 2,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-08-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:20:43.1050973Z",
+    "completed_utc": "2026-09-11T00:22:41.0535331Z",
+    "window_start_utc": "2026-09-11T00:21:17.6696587Z",
+    "window_end_utc": "2026-09-11T00:22:17.7838038Z",
+    "measured_window_us": 60115568,
+    "frame_interval_count": 1694,
+    "frame_interval_sum_us": 60105263,
+    "cadence_flip_count": 1555,
+    "cadence_elapsed_us": 55155489,
+    "host_present_count": 3597,
+    "metrics": {
+      "cadence_hz": 28.19302354476451,
+      "mean_ms": 35.48126505312869,
+      "p95_ms": 42.726,
+      "p99_ms": 46.953,
+      "maximum_ms": 62.604
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "36873e902ec77d41401d32dc31dd4ff7e4bb886021423f0e06cd03de99830a53",
+    "screenshot_sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 9,
+    "pair": 3,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-09-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:22:41.0553073Z",
+    "completed_utc": "2026-09-11T00:24:39.2702104Z",
+    "window_start_utc": "2026-09-11T00:23:15.5403438Z",
+    "window_end_utc": "2026-09-11T00:24:15.6050288Z",
+    "measured_window_us": 60066129,
+    "frame_interval_count": 1703,
+    "frame_interval_sum_us": 60036995,
+    "cadence_flip_count": 1566,
+    "cadence_elapsed_us": 55223871,
+    "host_present_count": 3597,
+    "metrics": {
+      "cadence_hz": 28.357302225336575,
+      "mean_ms": 35.253667058132706,
+      "p95_ms": 42.595,
+      "p99_ms": 48.457,
+      "maximum_ms": 56.068
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "0bc784d8852cdec6865d1f353c88850581f4f93f27a6863c741e4a1c44f16352",
+    "screenshot_sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 10,
+    "pair": 3,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-10-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:24:39.2720193Z",
+    "completed_utc": "2026-09-11T00:26:37.2306726Z",
+    "window_start_utc": "2026-09-11T00:25:13.7322761Z",
+    "window_end_utc": "2026-09-11T00:26:13.7436307Z",
+    "measured_window_us": 60012775,
+    "frame_interval_count": 1682,
+    "frame_interval_sum_us": 59979112,
+    "cadence_flip_count": 1550,
+    "cadence_elapsed_us": 55223150,
+    "host_present_count": 3597,
+    "metrics": {
+      "cadence_hz": 28.06793889881327,
+      "mean_ms": 35.65940071343638,
+      "p95_ms": 43.46,
+      "p99_ms": 47.058,
+      "maximum_ms": 58.637
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "d6a39f54f18fb7301d8472ed999a8993ada1e53156016b1d1066d7eb7ff8c705",
+    "screenshot_sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 11,
+    "pair": 3,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-11-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:26:37.2327604Z",
+    "completed_utc": "2026-09-11T00:28:33.8396695Z",
+    "window_start_utc": "2026-09-11T00:27:11.5772869Z",
+    "window_end_utc": "2026-09-11T00:28:11.6264299Z",
+    "measured_window_us": 60050563,
+    "frame_interval_count": 1701,
+    "frame_interval_sum_us": 60021696,
+    "cadence_flip_count": 1565,
+    "cadence_elapsed_us": 55192060,
+    "host_present_count": 3594,
+    "metrics": {
+      "cadence_hz": 28.35552795094077,
+      "mean_ms": 35.28612345679012,
+      "p95_ms": 42.106,
+      "p99_ms": 48.109,
+      "maximum_ms": 70.871
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "19d2b7ab991ceaa823b61345ec8e98bd6a2741a3394cc99c55171c43157ed6ab",
+    "screenshot_sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 12,
+    "pair": 3,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-12-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:28:33.8414057Z",
+    "completed_utc": "2026-09-11T00:30:30.6040609Z",
+    "window_start_utc": "2026-09-11T00:29:08.4105111Z",
+    "window_end_utc": "2026-09-11T00:30:08.4479450Z",
+    "measured_window_us": 60038853,
+    "frame_interval_count": 1729,
+    "frame_interval_sum_us": 60015960,
+    "cadence_flip_count": 1589,
+    "cadence_elapsed_us": 55204634,
+    "host_present_count": 3594,
+    "metrics": {
+      "cadence_hz": 28.78381550360428,
+      "mean_ms": 34.71137073452863,
+      "p95_ms": 41.528,
+      "p99_ms": 45.199,
+      "maximum_ms": 69.931
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "ffec14f7cd085f88b7dd4c3e07732cec9fcbe2cf1ae64df454284c72202ef804",
+    "screenshot_sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 13,
+    "pair": 4,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-13-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:30:30.6055050Z",
+    "completed_utc": "2026-09-11T00:32:27.1933635Z",
+    "window_start_utc": "2026-09-11T00:31:05.1028253Z",
+    "window_end_utc": "2026-09-11T00:32:05.1273805Z",
+    "measured_window_us": 60025974,
+    "frame_interval_count": 1724,
+    "frame_interval_sum_us": 60016233,
+    "cadence_flip_count": 1588,
+    "cadence_elapsed_us": 55251572,
+    "host_present_count": 3594,
+    "metrics": {
+      "cadence_hz": 28.741263687483862,
+      "mean_ms": 34.81220011600928,
+      "p95_ms": 41.709,
+      "p99_ms": 47.269,
+      "maximum_ms": 68.902
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "9ee977f24587008e90bd1cfa8d5f345b7dd43d02e1cf21473d134ed18f237f54",
+    "screenshot_sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 14,
+    "pair": 4,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-14-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:32:27.1948471Z",
+    "completed_utc": "2026-09-11T00:34:23.8556883Z",
+    "window_start_utc": "2026-09-11T00:33:01.7493915Z",
+    "window_end_utc": "2026-09-11T00:34:01.7920870Z",
+    "measured_window_us": 60043886,
+    "frame_interval_count": 1743,
+    "frame_interval_sum_us": 60007501,
+    "cadence_flip_count": 1603,
+    "cadence_elapsed_us": 55188741,
+    "host_present_count": 3595,
+    "metrics": {
+      "cadence_hz": 29.04577946432951,
+      "mean_ms": 34.42771141709696,
+      "p95_ms": 40.784,
+      "p99_ms": 45.488,
+      "maximum_ms": 59.97
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "33fd8f095bf647880426f6695ade0ba953bd1af651fe77ac13947b3673dd6f7f",
+    "screenshot_sha256": "53d87e7f7803a1439fe57d00a969a0431ebb89805cc3469fd9c8bc1d3c8da052",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 15,
+    "pair": 4,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-15-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:34:23.8576907Z",
+    "completed_utc": "2026-09-11T00:36:21.4409479Z",
+    "window_start_utc": "2026-09-11T00:34:58.2888804Z",
+    "window_end_utc": "2026-09-11T00:35:58.3099107Z",
+    "measured_window_us": 60022108,
+    "frame_interval_count": 1683,
+    "frame_interval_sum_us": 59951930,
+    "cadence_flip_count": 1550,
+    "cadence_elapsed_us": 55243031,
+    "host_present_count": 3597,
+    "metrics": {
+      "cadence_hz": 28.057837738845286,
+      "mean_ms": 35.62206179441473,
+      "p95_ms": 43.053,
+      "p99_ms": 47.397,
+      "maximum_ms": 55.518
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "d5cb876ed67ab5c00d528d53724ac1ac2c2afb6abe99642a9be6625dbd3dcf98",
+    "screenshot_sha256": "ca0e663be073611ff899c95d943cada90a55a3e74439f8ac23d7de4c857cc81e",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 16,
+    "pair": 4,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-16-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:36:21.4426690Z",
+    "completed_utc": "2026-09-11T00:38:18.9058715Z",
+    "window_start_utc": "2026-09-11T00:36:55.9002016Z",
+    "window_end_utc": "2026-09-11T00:37:55.9300559Z",
+    "measured_window_us": 60030932,
+    "frame_interval_count": 1690,
+    "frame_interval_sum_us": 59997800,
+    "cadence_flip_count": 1555,
+    "cadence_elapsed_us": 55144273,
+    "host_present_count": 3596,
+    "metrics": {
+      "cadence_hz": 28.198757829303506,
+      "mean_ms": 35.50165680473373,
+      "p95_ms": 42.734,
+      "p99_ms": 47.845,
+      "maximum_ms": 60.941
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "7d8e15be6dda44c11bfa0734502eee17b470a3e4742b915c77a04c243edb0fee",
+    "screenshot_sha256": "08a915931f23a2b3407e922322e871fe2f869b1314bfbe9f334b32b42559f055",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 17,
+    "pair": 5,
+    "renderer": "OPENGL",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-17-opengl-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:38:18.9077890Z",
+    "completed_utc": "2026-09-11T00:40:16.9579494Z",
+    "window_start_utc": "2026-09-11T00:38:53.4843885Z",
+    "window_end_utc": "2026-09-11T00:39:53.5188607Z",
+    "measured_window_us": 60035550,
+    "frame_interval_count": 1720,
+    "frame_interval_sum_us": 60001473,
+    "cadence_flip_count": 1585,
+    "cadence_elapsed_us": 55238712,
+    "host_present_count": 3595,
+    "metrics": {
+      "cadence_hz": 28.693645137851874,
+      "mean_ms": 34.8845773255814,
+      "p95_ms": 42.204,
+      "p99_ms": 46.426,
+      "maximum_ms": 52.46
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "66578a71a9277c6079a608fbe44101ec9d54332584be0e1dd99126f0441ca641",
+    "screenshot_sha256": "16f0c5b451b7a3ed8b53ca7fb68942d1a3c130ded13104f4a490c278785e0714",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 18,
+    "pair": 5,
+    "renderer": "OPENGL",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-18-opengl-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:40:16.9596356Z",
+    "completed_utc": "2026-09-11T00:42:14.9015823Z",
+    "window_start_utc": "2026-09-11T00:40:51.4478581Z",
+    "window_end_utc": "2026-09-11T00:41:51.4871966Z",
+    "measured_window_us": 60040419,
+    "frame_interval_count": 1731,
+    "frame_interval_sum_us": 59996820,
+    "cadence_flip_count": 1594,
+    "cadence_elapsed_us": 55228554,
+    "host_present_count": 3595,
+    "metrics": {
+      "cadence_hz": 28.86188184467042,
+      "mean_ms": 34.66020797227036,
+      "p95_ms": 41.668,
+      "p99_ms": 46.344,
+      "maximum_ms": 54.664
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "5c862617da831a5d2cf709a524611e71f8d0b6d5589371f93156bc4c81d5ac67",
+    "screenshot_sha256": "fdd021f29f3c93af13f838cf58a1aae74a319fa06f01a24b4cae2b46b1a1286f",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 19,
+    "pair": 5,
+    "renderer": "VULKAN",
+    "build": "AM",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-19-vulkan-am",
+    "status": "VALID",
+    "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "source_tree": "20c4d0a4551a878485370329e9856766dca7c752",
+    "exe_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:42:14.9032822Z",
+    "completed_utc": "2026-09-11T00:44:11.8443022Z",
+    "window_start_utc": "2026-09-11T00:42:49.3758774Z",
+    "window_end_utc": "2026-09-11T00:43:49.4139012Z",
+    "measured_window_us": 60039102,
+    "frame_interval_count": 1722,
+    "frame_interval_sum_us": 60009903,
+    "cadence_flip_count": 1583,
+    "cadence_elapsed_us": 55218248,
+    "host_present_count": 3593,
+    "metrics": {
+      "cadence_hz": 28.668059153198776,
+      "mean_ms": 34.84895644599303,
+      "p95_ms": 41.979,
+      "p99_ms": 47.361,
+      "maximum_ms": 61.286
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "0b80ddd7817604789b588720175a7d9662dd79302c4cb1005756b90654bddd19",
+    "screenshot_sha256": "4390cd5f76f7ad9f5ff97964ad5bd14d4c2b089b9cddf14e47135debded31473",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "repaired",
+      "armed_mask_restore_state": "repaired"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  },
+  {
+    "phase": "measured",
+    "index": 20,
+    "pair": 5,
+    "renderer": "VULKAN",
+    "build": "B",
+    "seconds": 60,
+    "run_id": "pr59-attr-r1-20-vulkan-b",
+    "status": "VALID",
+    "source_commit": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+    "source_tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+    "exe_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+    "duration_seconds": 60,
+    "started_utc": "2026-09-11T00:44:11.8463221Z",
+    "completed_utc": "2026-09-11T00:46:08.3682489Z",
+    "window_start_utc": "2026-09-11T00:44:46.2740963Z",
+    "window_end_utc": "2026-09-11T00:45:46.2864113Z",
+    "measured_window_us": 60013394,
+    "frame_interval_count": 1740,
+    "frame_interval_sum_us": 59972706,
+    "cadence_flip_count": 1603,
+    "cadence_elapsed_us": 55233331,
+    "host_present_count": 3595,
+    "metrics": {
+      "cadence_hz": 29.022330737213732,
+      "mean_ms": 34.467072413793105,
+      "p95_ms": 40.784,
+      "p99_ms": 44.793,
+      "maximum_ms": 72.313
+    },
+    "gates": {
+      "focus_loss_samples": 0,
+      "etw_lost_events": 0,
+      "etw_lost_buffers": 0,
+      "not_responding_samples": 0
+    },
+    "cleanup_verified": true,
+    "seed_sha256": "cbc17b468d49127a09743a63777ee3bef35b63040083989187724cd4a42b594c",
+    "start_scene_review": {
+      "status": "PASS_START_SCENE",
+      "scope": "Expected stationary race scene, no controller overlay; start image only, not an equal-work oracle"
+    },
+    "raw_frame_log_sha256": "fb8ccf3a81b765f7f72f79e22af160800693c833d9bb25457caa06feac451189",
+    "screenshot_sha256": "b73e34bec6293cc9d21b6c8b769214377b094f1b95f7e0587812342c5e61c485",
+    "cadence_scope": "Logged flip-window cadence; covered duration differs from complete-frame interval window. Not displayed FPS or fixed work.",
+    "resource_scope": "CPU not summarized; GPU sensor tail limited by perf-tests #24",
+    "factor_settings": {
+      "deadline_arithmetic": "original",
+      "armed_mask_restore_state": "original"
+    },
+    "completed_work": {
+      "known_guest_operation_count": null,
+      "terminal_output_oracle": null,
+      "guest_virtual_elapsed_ns": null,
+      "note": "Wall-time snapshot observation. Frame/flip counts are progress proxies, not a fixed-operation or output oracle."
+    },
+    "attribution": {
+      "per_thread_cpu_seconds": null,
+      "timer_callbacks": null,
+      "timer_modifications": null,
+      "timer_deletions": null,
+      "irq_recomputations": null,
+      "effective_irq_transitions": null,
+      "host_wait_returns": null,
+      "scheduler_wakeups": null,
+      "note": "Not attributed in this bounded repeat. Original scheduler traces retained; no zero-cost inference from missing counters."
+    },
+    "error": null,
+    "exclusion_reason": null
+  }
+]

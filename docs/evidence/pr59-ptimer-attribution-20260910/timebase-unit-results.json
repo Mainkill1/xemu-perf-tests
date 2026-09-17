@@ -1,0 +1,471 @@
+{
+  "compiler": "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0",
+  "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "runtime_source_changed": false,
+  "rebuilt_translation_units": [
+    "test-xbox-nv2a-ptimer.c",
+    "hw/xbox/nv2a/ptimer.c",
+    "hw/xbox/nv2a/pramdac.c"
+  ],
+  "sha256": {
+    "test-xbox-nv2a-ptimer.c": "5a322d5e358747e0ba28c07534d0147518b6e16a092dce8e938edb670db9c0d2",
+    "test-xbox-nv2a-ptimer.exe": "d00c1c2d45eb0182b4098ba4138a23df38e90ef37085d4f071543b795e331238"
+  },
+  "runtime_source_sha256": {
+    "hw/xbox/nv2a/ptimer.c": "b193913493e2ab30c7be6a4c757e5854f2507d1180011ca5a7dc7c396295b94c",
+    "hw/xbox/nv2a/pramdac.c": "1db990327eb7b1933c5f6e7b24245f6e4145c82f3f8993b64c108ea6cd2221b6",
+    "tests/unit/xbox-nv2a-ptimer-test-shim.h": "5db758ed0333c3874de09271bb3ecea131956a9e6be626ba9980578c9502e087",
+    "tests/unit/ptimer-test-stubs.c": "e45e2a1a50509d51d6b0848739cd9ffb671ff909da8403c5defe372b8520f7da"
+  },
+  "status": "WINE_AND_NATIVE_PASS",
+  "run_context": "Wine on a separate build host, then the same executable on native Windows after all timing captures stopped",
+  "exit_code": 0,
+  "tests": [
+    {
+      "name": "/xbox/nv2a/ptimer/alarm-assert-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/enable-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/time-registers-epoch",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/runtime-overdue",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/post-load-overdue",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/intr-read-overdue",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/intr-enable-overdue",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/zero-ratio",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/post-load-irq",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/deadline-phase",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/deadline-range",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/deadline-forward-oracle",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/deadline-wrap-stopped-source",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/deadline-wide-source-wrap",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/stopped-read",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/stopped-restore",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/masked-no-callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/mask-unmask-before-expiry",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/rate-changes-masked",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/restore-versions",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/pll-register",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-1",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/fractional-deadline/ratio-1-2",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/backward",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-low/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-low/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-low/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-low/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-low/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-high/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-high/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-high/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-high/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/time-high/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core-restart/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core-restart/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core-restart/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core-restart/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/core-restart/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/pll-register/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/pll-register/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/pll-register/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/pll-register/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/pll-register/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator-restart/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator-restart/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator-restart/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator-restart/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/numerator-restart/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator-restart/poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator-restart/callback",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator-restart/masked-poll",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator-restart/already-pending",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    },
+    {
+      "name": "/xbox/nv2a/ptimer/timebase-characterization/denominator-restart/masked-ack",
+      "outcome": "PASS",
+      "wine": "PASS",
+      "native_windows": "PASS"
+    }
+  ],
+  "test_count": 70,
+  "new_characterizations": 46,
+  "historical_controls": 24,
+  "limits": [
+    "Observation-order characterization, not a hardware policy oracle",
+    "Clock/timer/IRQ fixture; not the complete NV2A IRQ aggregator or guest scheduler",
+    "No runtime PTIMER or PRAMDAC source changed",
+    "Historical generic-timer and old-code negative controls were not rerun in this campaign"
+  ],
+  "toolchain_image": "ghcr.io/xemu-project/xemu-win64-toolchain-gcc@sha256:09fdc183a88b493bf3a98d0d00b03aca4d5a23e60cc08228d7752d3c3295e8b2",
+  "test_source_commit": "0043629b0bc13d2b34a1bf3c1008171ad8eecb8f",
+  "test_source_tree": "c010d261e408219194f81dedcda30b85bcca9250",
+  "native": {
+    "status": "PASS",
+    "test_source_commit": "0043629b0bc13d2b34a1bf3c1008171ad8eecb8f",
+    "runtime_source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+    "exe_sha256": "d00c1c2d45eb0182b4098ba4138a23df38e90ef37085d4f071543b795e331238",
+    "started_utc": "2026-09-11T00:46:33.0230206Z",
+    "exit_code": 0,
+    "tests_passed": 70,
+    "test_plan": "70",
+    "cleanup_complete": true,
+    "error": null,
+    "completed_utc": "2026-09-11T00:46:33.2187995Z",
+    "stdout_sha256": "bbb07fba8f9663bb03977244e5250ee5e0c218abb98ccec91e0e8d0731ce9126"
+  }
+}

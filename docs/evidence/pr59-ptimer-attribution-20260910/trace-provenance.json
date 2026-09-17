@@ -1,0 +1,852 @@
+{
+  "schema_version": 1,
+  "created_utc": "2026-09-11T03:51:37.732644Z",
+  "scope": "Provenance for 20 sequential retained-ETL maximum-frame exports; no new capture, build, gameplay run or input.",
+  "host": {
+    "context": "Same measurement host/configuration as manifest.json; offline analysis only",
+    "final_cleanup": {
+      "checked_utc": "2026-09-11T03:50:17.0520475Z",
+      "tracked_process_names": [
+        "xemu",
+        "PresentMon",
+        "wpr",
+        "wpa",
+        "wpaexporter",
+        "xperf",
+        "tracerpt"
+      ],
+      "tracked_process_count": 0
+    }
+  },
+  "export": {
+    "status": "COMPLETE",
+    "started_utc": "2026-09-11T03:23:35.1465310Z",
+    "completed_utc": "2026-09-11T03:38:27.8567654Z",
+    "run_count": 20,
+    "serial_exporter_elapsed_seconds": 891.5602888999999,
+    "minimum_free_memory_mib": 6144,
+    "admission_stalls": 0,
+    "exit_codes": [
+      0
+    ],
+    "csv_count": 40,
+    "derived_output_bytes_including_logs": 198365839,
+    "all_runs_left_no_owned_analyzer": true,
+    "exporter": {
+      "name": "wpaexporter.exe",
+      "version": "11.7.383+9b99bb825f",
+      "sha256": "2b0271d58b3bddd9bb0409671a62636a6cf7650a644c3a19d6475f6152fa7ffb"
+    },
+    "working_profile": {
+      "name": "candidate-worst-frame.wpaProfile",
+      "bytes": 18530,
+      "sha256": "6c205c7b17bf476c53d846b15b052984f93115c1e14ec68602e553c9ebf6d773",
+      "remote_sha256": "6c205c7b17bf476c53d846b15b052984f93115c1e14ec68602e553c9ebf6d773",
+      "specialization": "Only the fixed xemu process ID filter changed per run.",
+      "published_file": "cpu-scheduler-window.wpaProfile"
+    },
+    "command_shape": "wpaexporter.exe -i <etl> -symbols -symcacheonly -range <start_ns> <end_ns> -profile <pid-specialized-profile> -outputfolder <out> -outputformat CSV -prefix <run>-",
+    "known_benign_stderr": "The exporter reported a missing wpaexporter.deps.json while still returning exit code 0 and writing both requested tables.",
+    "manifest": {
+      "name": "export-manifest.remote.json",
+      "bytes": 102460,
+      "sha256": "d5c689e1e28e945ee81e2b1f19b71bb7d02a2c4c3bb019d0ec3dc16220cf456a"
+    },
+    "plan": {
+      "name": "tail-export-plan.private.json",
+      "bytes": 48495,
+      "sha256": "69162e9f341ddd5fd2e756a3add858baa3bf54c641e19d6423ff6418afb77ed6"
+    },
+    "powershell_recipe": {
+      "name": "export-retained-tails.ps1",
+      "bytes": 8080,
+      "sha256": "f4d6e2c487eec024b3cf9eaaf6c9637db03da7de0373af49427654971641c25a"
+    },
+    "input_identity_verification": "ETL sizes matched the published inventory. Previously recorded ETL SHA-256 identities were carried forward, not freshly recomputed in this offline export pass. Derived CSV byte counts and transfer hashes were freshly verified."
+  },
+  "input_identity": {
+    "published_evidence_root": "docs/evidence/pr59-ptimer-attribution-20260910",
+    "runs": [
+      {
+        "run_id": "pr59-attr-r1-01-opengl-b",
+        "renderer": "OPENGL",
+        "pair": 1,
+        "order_position": "first",
+        "build": "B",
+        "xemu_pid": 4316,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2044723200,
+        "etl_sha256": "8202fae3fbfb32742441052e6eede254de2bea5b614493898a25f338404ff939",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724274650895,
+        "steady_end_qpc_us": 724334701579,
+        "steady_start_utc_ticks_100ns": 17890852572075413,
+        "steady_end_utc_ticks_100ns": 17890853172568038,
+        "trace_start_utc_ticks_100ns": 17890852570672618,
+        "wall_minus_qpc_ns": -1421500,
+        "selected_frame": {
+          "timestamp_us": 724319044279,
+          "frame": 1849,
+          "delta_us": 51343,
+          "frame_start_qpc_us": 724318992936,
+          "frame_start_etl_ns": 44481270850,
+          "frame_end_etl_ns": 44532612634,
+          "mapped_duration_ns": 51341784
+        },
+        "export_range_ns": [
+          44431270850,
+          44582612634
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-02-opengl-am",
+        "renderer": "OPENGL",
+        "pair": 1,
+        "order_position": "second",
+        "build": "AM",
+        "xemu_pid": 12712,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2039480320,
+        "etl_sha256": "05b82b732e45d600b0d72727904e0963c03a9b698ce7d673d8701cc5e633cc6c",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724392737017,
+        "steady_end_qpc_us": 724452791038,
+        "steady_start_utc_ticks_100ns": 17890853752908871,
+        "steady_end_utc_ticks_100ns": 17890854353434889,
+        "trace_start_utc_ticks_100ns": 17890853751551852,
+        "wall_minus_qpc_ns": -1419200,
+        "selected_frame": {
+          "timestamp_us": 724402583518,
+          "frame": 828,
+          "delta_us": 67316,
+          "frame_start_qpc_us": 724402516202,
+          "frame_start_etl_ns": 9914655798,
+          "frame_end_etl_ns": 9981970207,
+          "mapped_duration_ns": 67314409
+        },
+        "export_range_ns": [
+          9864655798,
+          10031970207
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-03-vulkan-am",
+        "renderer": "VULKAN",
+        "pair": 1,
+        "order_position": "first",
+        "build": "AM",
+        "xemu_pid": 13776,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1882193920,
+        "etl_sha256": "ba3f278da281386f86cb0786c36d7c67d0d49d2ee12bf303d42a39bbc3df25b1",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724510634086,
+        "steady_end_qpc_us": 724570672353,
+        "steady_start_utc_ticks_100ns": 17890854931851863,
+        "steady_end_utc_ticks_100ns": 17890855532220349,
+        "trace_start_utc_ticks_100ns": 17890854930380008,
+        "wall_minus_qpc_ns": -1418400,
+        "selected_frame": {
+          "timestamp_us": 724516042796,
+          "frame": 677,
+          "delta_us": 65974,
+          "frame_start_qpc_us": 724515976822,
+          "frame_start_etl_ns": 5489795278,
+          "frame_end_etl_ns": 5555767720,
+          "mapped_duration_ns": 65972442
+        },
+        "export_range_ns": [
+          5439795278,
+          5605767720
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-04-vulkan-b",
+        "renderer": "VULKAN",
+        "pair": 1,
+        "order_position": "second",
+        "build": "B",
+        "xemu_pid": 15716,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1884291072,
+        "etl_sha256": "6a6e1804c12915bcb205d211dfc8120307b643f176455e5242231f7733a9f7a4",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724627344970,
+        "steady_end_qpc_us": 724687387941,
+        "steady_start_utc_ticks_100ns": 17890856098933276,
+        "steady_end_utc_ticks_100ns": 17890856699348780,
+        "trace_start_utc_ticks_100ns": 17890856097607701,
+        "wall_minus_qpc_ns": -1420600,
+        "selected_frame": {
+          "timestamp_us": 724632691810,
+          "frame": 675,
+          "delta_us": 72256,
+          "frame_start_qpc_us": 724632619554,
+          "frame_start_etl_ns": 5407016705,
+          "frame_end_etl_ns": 5479270995,
+          "mapped_duration_ns": 72254290
+        },
+        "export_range_ns": [
+          5357016705,
+          5529270995
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-05-vulkan-b",
+        "renderer": "VULKAN",
+        "pair": 2,
+        "order_position": "first",
+        "build": "B",
+        "xemu_pid": 3016,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1886388224,
+        "etl_sha256": "3b40735918f693cbacee2c6b4da959964d8889180e96addda8698aa8ea76998f",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724744027131,
+        "steady_end_qpc_us": 724804075357,
+        "steady_start_utc_ticks_100ns": 17890857265727456,
+        "steady_end_utc_ticks_100ns": 17890857866195520,
+        "trace_start_utc_ticks_100ns": 17890857264382221,
+        "wall_minus_qpc_ns": -1419600,
+        "selected_frame": {
+          "timestamp_us": 724749264488,
+          "frame": 674,
+          "delta_us": 57005,
+          "frame_start_qpc_us": 724749207483,
+          "frame_start_etl_ns": 5314753031,
+          "frame_end_etl_ns": 5371756684,
+          "mapped_duration_ns": 57003653
+        },
+        "export_range_ns": [
+          5264753031,
+          5421756684
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-06-vulkan-am",
+        "renderer": "VULKAN",
+        "pair": 2,
+        "order_position": "second",
+        "build": "AM",
+        "xemu_pid": 6832,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1887436800,
+        "etl_sha256": "f2aaa9238a24ab60ee4256249b40e767e830e615d91cd8942077e988ac7b3e44",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724860749883,
+        "steady_end_qpc_us": 724920765912,
+        "steady_start_utc_ticks_100ns": 17890858432927595,
+        "steady_end_utc_ticks_100ns": 17890859033073649,
+        "trace_start_utc_ticks_100ns": 17890858431347402,
+        "wall_minus_qpc_ns": -1423600,
+        "selected_frame": {
+          "timestamp_us": 724866132635,
+          "frame": 671,
+          "delta_us": 69401,
+          "frame_start_qpc_us": 724866063234,
+          "frame_start_etl_ns": 5471244266,
+          "frame_end_etl_ns": 5540643619,
+          "mapped_duration_ns": 69399353
+        },
+        "export_range_ns": [
+          5421244266,
+          5590643619
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-07-opengl-am",
+        "renderer": "OPENGL",
+        "pair": 2,
+        "order_position": "first",
+        "build": "AM",
+        "xemu_pid": 16364,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2039480320,
+        "etl_sha256": "c34ac47a700bbb48db6f5c0c366ba6fb3b69163b2dccbec79e958601a5f978e1",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 724977427218,
+        "steady_end_qpc_us": 725037453529,
+        "steady_start_utc_ticks_100ns": 17890859599673475,
+        "steady_end_utc_ticks_100ns": 17890860199922396,
+        "trace_start_utc_ticks_100ns": 17890859598147942,
+        "wall_minus_qpc_ns": -1418900,
+        "selected_frame": {
+          "timestamp_us": 725034331767,
+          "frame": 2171,
+          "delta_us": 52934,
+          "frame_start_qpc_us": 725034278833,
+          "frame_start_etl_ns": 57002824443,
+          "frame_end_etl_ns": 57055757192,
+          "mapped_duration_ns": 52932749
+        },
+        "export_range_ns": [
+          56952824443,
+          57105757192
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-08-opengl-b",
+        "renderer": "OPENGL",
+        "pair": 2,
+        "order_position": "second",
+        "build": "B",
+        "xemu_pid": 12884,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2039480320,
+        "etl_sha256": "be9259394ad9a2e184856b5c1ed40573be77af53b45ecdbc4725cce58f069764",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725095132293,
+        "steady_end_qpc_us": 725155247861,
+        "steady_start_utc_ticks_100ns": 17890860776696587,
+        "steady_end_utc_ticks_100ns": 17890861377838038,
+        "trace_start_utc_ticks_100ns": 17890860775309451,
+        "wall_minus_qpc_ns": -1422900,
+        "selected_frame": {
+          "timestamp_us": 725095359835,
+          "frame": 561,
+          "delta_us": 62604,
+          "frame_start_qpc_us": 725095297231,
+          "frame_start_etl_ns": 303647696,
+          "frame_end_etl_ns": 366250214,
+          "mapped_duration_ns": 62602518
+        },
+        "export_range_ns": [
+          253647696,
+          416250214
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-09-opengl-b",
+        "renderer": "OPENGL",
+        "pair": 3,
+        "order_position": "first",
+        "build": "B",
+        "xemu_pid": 2800,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2059403264,
+        "etl_sha256": "2b331fbad664b6c80bab9d546ce224e8a0c13aae6cea838c990f3bb7174aa934",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725213005726,
+        "steady_end_qpc_us": 725273071855,
+        "steady_start_utc_ticks_100ns": 17890861955403438,
+        "steady_end_utc_ticks_100ns": 17890862556050288,
+        "trace_start_utc_ticks_100ns": 17890861953979013,
+        "wall_minus_qpc_ns": -1444000,
+        "selected_frame": {
+          "timestamp_us": 725256412691,
+          "frame": 1792,
+          "delta_us": 56068,
+          "frame_start_qpc_us": 725256356623,
+          "frame_start_etl_ns": 43492297337,
+          "frame_end_etl_ns": 43548363989,
+          "mapped_duration_ns": 56066652
+        },
+        "export_range_ns": [
+          43442297337,
+          43598363989
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-10-opengl-am",
+        "renderer": "OPENGL",
+        "pair": 3,
+        "order_position": "second",
+        "build": "AM",
+        "xemu_pid": 10200,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2033188864,
+        "etl_sha256": "810c2d7bd5e881aa9b827c422193142fc01389fb2761a842736edfc373dcd05b",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725331200459,
+        "steady_end_qpc_us": 725391213234,
+        "steady_start_utc_ticks_100ns": 17890863137322761,
+        "steady_end_utc_ticks_100ns": 17890863737436307,
+        "trace_start_utc_ticks_100ns": 17890863135961229,
+        "wall_minus_qpc_ns": -1420400,
+        "selected_frame": {
+          "timestamp_us": 725331398599,
+          "frame": 560,
+          "delta_us": 58637,
+          "frame_start_qpc_us": 725331339962,
+          "frame_start_etl_ns": 275652898,
+          "frame_end_etl_ns": 334288510,
+          "mapped_duration_ns": 58635612
+        },
+        "export_range_ns": [
+          225652898,
+          384288510
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-11-vulkan-am",
+        "renderer": "VULKAN",
+        "pair": 3,
+        "order_position": "first",
+        "build": "AM",
+        "xemu_pid": 6904,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1889533952,
+        "etl_sha256": "abd60223f13fddf5114716cc19c20a05a7b2117d4f77ca6e4cd7c018c04f6f20",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725449048240,
+        "steady_end_qpc_us": 725509098803,
+        "steady_start_utc_ticks_100ns": 17890864315772869,
+        "steady_end_utc_ticks_100ns": 17890864916264299,
+        "trace_start_utc_ticks_100ns": 17890864314359392,
+        "wall_minus_qpc_ns": -1420000,
+        "selected_frame": {
+          "timestamp_us": 725454456791,
+          "frame": 673,
+          "delta_us": 70871,
+          "frame_start_qpc_us": 725454385920,
+          "frame_start_etl_ns": 5478901481,
+          "frame_end_etl_ns": 5549770805,
+          "mapped_duration_ns": 70869324
+        },
+        "export_range_ns": [
+          5428901481,
+          5599770805
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-12-vulkan-b",
+        "renderer": "VULKAN",
+        "pair": 3,
+        "order_position": "second",
+        "build": "B",
+        "xemu_pid": 3120,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1881145344,
+        "etl_sha256": "b1ba3c2ac29b5cca0fa5dbde4939a74ff33310647eea43c7187ef195cda67d20",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725565884209,
+        "steady_end_qpc_us": 725625923062,
+        "steady_start_utc_ticks_100ns": 17890865484105111,
+        "steady_end_utc_ticks_100ns": 17890866084479450,
+        "trace_start_utc_ticks_100ns": 17890865482794092,
+        "wall_minus_qpc_ns": -1419100,
+        "selected_frame": {
+          "timestamp_us": 725571115990,
+          "frame": 674,
+          "delta_us": 69931,
+          "frame_start_qpc_us": 725571046059,
+          "frame_start_etl_ns": 5292829893,
+          "frame_end_etl_ns": 5362759240,
+          "mapped_duration_ns": 69929347
+        },
+        "export_range_ns": [
+          5242829893,
+          5412759240
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-13-vulkan-b",
+        "renderer": "VULKAN",
+        "pair": 4,
+        "order_position": "first",
+        "build": "B",
+        "xemu_pid": 4520,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1880096768,
+        "etl_sha256": "84fc207b2bd1d5a245c450f61512bdc5a361c5846fc8c40398cc4c7f3197b3e6",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725682579265,
+        "steady_end_qpc_us": 725742605239,
+        "steady_start_utc_ticks_100ns": 17890866651028253,
+        "steady_end_utc_ticks_100ns": 17890867251273805,
+        "trace_start_utc_ticks_100ns": 17890866649731321,
+        "wall_minus_qpc_ns": -1418800,
+        "selected_frame": {
+          "timestamp_us": 725687870831,
+          "frame": 675,
+          "delta_us": 68902,
+          "frame_start_qpc_us": 725687801929,
+          "frame_start_etl_ns": 5352233755,
+          "frame_end_etl_ns": 5421134126,
+          "mapped_duration_ns": 68900371
+        },
+        "export_range_ns": [
+          5302233755,
+          5471134126
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-14-vulkan-am",
+        "renderer": "VULKAN",
+        "pair": 4,
+        "order_position": "second",
+        "build": "AM",
+        "xemu_pid": 1280,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1879048192,
+        "etl_sha256": "c4afd66f3d9e9a8d0601e05c6dc4f61d15355a6eb69dbd5beed1c784f5047c97",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725799228571,
+        "steady_end_qpc_us": 725859272457,
+        "steady_start_utc_ticks_100ns": 17890867817493915,
+        "steady_end_utc_ticks_100ns": 17890868417920870,
+        "trace_start_utc_ticks_100ns": 17890867816170963,
+        "wall_minus_qpc_ns": -1190500,
+        "selected_frame": {
+          "timestamp_us": 725804364591,
+          "frame": 675,
+          "delta_us": 59970,
+          "frame_start_qpc_us": 725804304621,
+          "frame_start_etl_ns": 5208244556,
+          "frame_end_etl_ns": 5268213367,
+          "mapped_duration_ns": 59968811
+        },
+        "export_range_ns": [
+          5158244556,
+          5318213367
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-15-opengl-am",
+        "renderer": "OPENGL",
+        "pair": 4,
+        "order_position": "first",
+        "build": "AM",
+        "xemu_pid": 7740,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2038431744,
+        "etl_sha256": "381d9d2c7d482b218f35568572ee409d87776b63361b79ead78a2b83555e83c0",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 725915770246,
+        "steady_end_qpc_us": 725975792354,
+        "steady_start_utc_ticks_100ns": 17890868982888804,
+        "steady_end_utc_ticks_100ns": 17890869583099107,
+        "trace_start_utc_ticks_100ns": 17890868981552751,
+        "wall_minus_qpc_ns": -1077700,
+        "selected_frame": {
+          "timestamp_us": 725930503942,
+          "frame": 965,
+          "delta_us": 55518,
+          "frame_start_qpc_us": 725930448424,
+          "frame_start_etl_ns": 14811519753,
+          "frame_end_etl_ns": 14867036756,
+          "mapped_duration_ns": 55517003
+        },
+        "export_range_ns": [
+          14761519753,
+          14917036756
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-16-opengl-b",
+        "renderer": "OPENGL",
+        "pair": 4,
+        "order_position": "second",
+        "build": "B",
+        "xemu_pid": 5304,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2036334592,
+        "etl_sha256": "328c35040c37c7d626b5fb90601a1afdaa257f393f44c81a7d17eb3e51f906df",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 726033383662,
+        "steady_end_qpc_us": 726093414594,
+        "steady_start_utc_ticks_100ns": 17890870159002016,
+        "steady_end_utc_ticks_100ns": 17890870759300559,
+        "trace_start_utc_ticks_100ns": 17890870157536043,
+        "wall_minus_qpc_ns": -1077700,
+        "selected_frame": {
+          "timestamp_us": 726063211269,
+          "frame": 1393,
+          "delta_us": 60941,
+          "frame_start_qpc_us": 726063150328,
+          "frame_start_etl_ns": 29912728917,
+          "frame_end_etl_ns": 29973668823,
+          "mapped_duration_ns": 60939906
+        },
+        "export_range_ns": [
+          29862728917,
+          30023668823
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-17-opengl-b",
+        "renderer": "OPENGL",
+        "pair": 5,
+        "order_position": "first",
+        "build": "B",
+        "xemu_pid": 12376,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2040528896,
+        "etl_sha256": "4dfb66061535f8f757b88f8cbf84454ea6912343198147494bdeadacd1d9d15c",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 726150969941,
+        "steady_end_qpc_us": 726211005491,
+        "steady_start_utc_ticks_100ns": 17890871334843885,
+        "steady_end_utc_ticks_100ns": 17890871935188607,
+        "trace_start_utc_ticks_100ns": 17890871333433684,
+        "wall_minus_qpc_ns": -1077800,
+        "selected_frame": {
+          "timestamp_us": 726173987665,
+          "frame": 1216,
+          "delta_us": 52460,
+          "frame_start_qpc_us": 726173935205,
+          "frame_start_etl_ns": 23105871812,
+          "frame_end_etl_ns": 23158330870,
+          "mapped_duration_ns": 52459058
+        },
+        "export_range_ns": [
+          23055871812,
+          23208330870
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-18-opengl-am",
+        "renderer": "OPENGL",
+        "pair": 5,
+        "order_position": "second",
+        "build": "AM",
+        "xemu_pid": 8888,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 2044723200,
+        "etl_sha256": "1c6930448d9cbd77c674ced0e09a7f0f3042da052fd968ef92bf1f4321400d7c",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 726268935507,
+        "steady_end_qpc_us": 726328975926,
+        "steady_start_utc_ticks_100ns": 17890872514478581,
+        "steady_end_utc_ticks_100ns": 17890873114871966,
+        "trace_start_utc_ticks_100ns": 17890872513161753,
+        "wall_minus_qpc_ns": -1080500,
+        "selected_frame": {
+          "timestamp_us": 726275116885,
+          "frame": 735,
+          "delta_us": 54664,
+          "frame_start_qpc_us": 726275062221,
+          "frame_start_etl_ns": 6258286542,
+          "frame_end_etl_ns": 6312949559,
+          "mapped_duration_ns": 54663017
+        },
+        "export_range_ns": [
+          6208286542,
+          6362949559
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-19-vulkan-am",
+        "renderer": "VULKAN",
+        "pair": 5,
+        "order_position": "first",
+        "build": "AM",
+        "xemu_pid": 6948,
+        "xemu_sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1886388224,
+        "etl_sha256": "3f5dd9475f1972ce62a55670160e9a1da7d234394f9cc22ea1609e70d1d35a41",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 726386865628,
+        "steady_end_qpc_us": 726446904730,
+        "steady_start_utc_ticks_100ns": 17890873693758774,
+        "steady_end_utc_ticks_100ns": 17890874294139012,
+        "trace_start_utc_ticks_100ns": 17890873692111274,
+        "wall_minus_qpc_ns": -1078200,
+        "selected_frame": {
+          "timestamp_us": 726392172822,
+          "frame": 673,
+          "delta_us": 61286,
+          "frame_start_qpc_us": 726392111536,
+          "frame_start_etl_ns": 5410563792,
+          "frame_end_etl_ns": 5471848692,
+          "mapped_duration_ns": 61284900
+        },
+        "export_range_ns": [
+          5360563792,
+          5521848692
+        ]
+      },
+      {
+        "run_id": "pr59-attr-r1-20-vulkan-b",
+        "renderer": "VULKAN",
+        "pair": 5,
+        "order_position": "second",
+        "build": "B",
+        "xemu_pid": 12412,
+        "xemu_sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b",
+        "name": "pgr2-cpuscheduler.etl",
+        "etl_bytes": 1879048192,
+        "etl_sha256": "0e2cda1f043080fb062f8bf243b871b783c0e289cc77f03344c2afd032637d04",
+        "trace_lost_events": 0,
+        "trace_lost_buffers": 0,
+        "steady_start_qpc_us": 726503765927,
+        "steady_end_qpc_us": 726563779321,
+        "steady_start_utc_ticks_100ns": 17890874862740963,
+        "steady_end_utc_ticks_100ns": 17890875462864113,
+        "trace_start_utc_ticks_100ns": 17890874861489969,
+        "wall_minus_qpc_ns": -1079000,
+        "selected_frame": {
+          "timestamp_us": 726509041847,
+          "frame": 670,
+          "delta_us": 72313,
+          "frame_start_qpc_us": 726508969534,
+          "frame_start_etl_ns": 5328612843,
+          "frame_end_etl_ns": 5400924543,
+          "mapped_duration_ns": 72311700
+        },
+        "export_range_ns": [
+          5278612843,
+          5450924543
+        ]
+      }
+    ]
+  },
+  "clock_mapping": {
+    "formula": "etl_ns=(steady_start_utc-trace_start_utc)_ns+round((qpc_us-steady_start_qpc_us)*steady_wall_span_ns/steady_qpc_span_us)",
+    "origin": "The ETL header PerfCounter UTC start is subtracted after mapping the retained QPC value onto the retained steady-state UTC anchors.",
+    "wall_minus_qpc_ns_range": [
+      -1444000,
+      -1077700
+    ],
+    "uncertainty": "The affine map pins both retained boundary pairs and preserves frame duration, but adjacent QPC/GetUtcNow call latency was not measured. Sub-millisecond point alignment is not claimed.",
+    "independent_check": {
+      "scope": "Independent retained frame selection and rational timestamp-map recomputation; not a clock-accuracy guarantee",
+      "verified_runs": 20,
+      "all_pass": true,
+      "maximum_absolute_mapped_duration_shift_ns": 1710,
+      "artifact": {
+        "name": "clock-window-verification.json",
+        "bytes": 4041,
+        "sha256": "16d2b25965747a2e47638f4fc8ddfe137efb2eb64b65fbdcca8659bb62faf7bf"
+      }
+    },
+    "marker_probe_run_01": {
+      "saved_boundary_etl_s": 0.1402795,
+      "defender_wpr_process_creation_etl_s": 0.1431954,
+      "wpr_context_marker_etl_s": 0.2457044,
+      "conclusion": "The marker validates sequencing but is delayed by WPR process startup and is not used as the saved boundary anchor.",
+      "raw_csv": {
+        "name": "r01-Generic_Events_Telemetry.csv",
+        "bytes": 7081037,
+        "sha256": "f8d5a6eec7a84179aebaaa53aca2dd74b8c42c8ae0e40eb06f82bf606a2e6633"
+      },
+      "probe_attempts": [
+        "Stock TelemetryEvents with its keyword filter excluded the marker (exit 0).",
+        "A hand-written minimal profile failed profile loading because required preset metadata was absent; no analyzer remained.",
+        "A full stock profile without the filter exported an aggregate table.",
+        "The valid full profile with raw Generic Events exported the marker (exit 0)."
+      ],
+      "failed_minimal_profile": {
+        "name": "generic-markers.wpaProfile",
+        "bytes": 4430,
+        "sha256": "785683f89a0e0e38293d70a0415b3f8a8bbcc43f988114487735491e9b04ceb2"
+      }
+    }
+  },
+  "derived_data": {
+    "archive": {
+      "name": "exports.zip",
+      "bytes": 9275103,
+      "sha256": "34f914c1181f900fa99d3cc77eca8ec4c62d7190a349f378a45e3523b72048cb"
+    },
+    "expanded_derived_bytes": 198365839,
+    "validated_csv_count": 40,
+    "validated_csv_bytes": 197779070,
+    "precise_data_rows": 172488,
+    "sampled_data_rows": 12969,
+    "all_remote_hashes_match": true,
+    "all_rows_well_formed": true,
+    "all_terminal_crlf": true,
+    "file_manifest": {
+      "name": "trace-export-files.private.json",
+      "bytes": 16933,
+      "sha256": "eeef11003352a170f9685599d826cbc86976db400666517d5240242e2418256b"
+    },
+    "private_analysis": {
+      "name": "trace-attribution.private.json",
+      "bytes": 1187993,
+      "sha256": "8daa98b068dc451769dd46d653e5891795342f8f4aa01b0baa94ddedc078976d"
+    },
+    "public_summary": {
+      "name": "trace-attribution-summary.json",
+      "bytes": 236938,
+      "sha256": "6012bbbcbb40178def2f9ccc83ae85e5b23c7a238e3e3d8f39d1532c5bc0118d"
+    },
+    "clipped_intervals": {
+      "name": "clipped-scheduler-intervals.csv.gz",
+      "bytes": 1280701,
+      "sha256": "08227355a5d2c8c87bc612ef9ef6ed947ea55136315deec8541a60590f57d0b6"
+    },
+    "analysis_recipe": {
+      "name": "analyze-retained-tails.py",
+      "bytes": 17354,
+      "sha256": "854d22c1685d63954c9bada8ba27e049953d92af027e4255bda03928b6e08b2c"
+    },
+    "sanitization_recipe": {
+      "name": "prepare-sanitized-trace-evidence.py",
+      "bytes": 12830,
+      "sha256": "af5230b43fcad53c13cd2eebc072d15caeedc9aa862bc25ff2f77593e178029d"
+    },
+    "public_checker": {
+      "name": "check-trace-attribution.py",
+      "bytes": 7044,
+      "sha256": "a49f402d048c6952c1bef142f94e00475f33bf1d1185e1d74133593d2ae6735b",
+      "note": "Publication adds run-set, metadata-identity and thread-count verification."
+    },
+    "original_private_checker": {
+      "name": "check-trace-attribution.py",
+      "bytes": 6537,
+      "sha256": "61afe6ab097f3d2fb41e0742d6b21ce7f435a3cc7927baf7ccc0c12985b7220d"
+    }
+  },
+  "limits": [
+    "Full nominal-frame state coverage applies to observed/exported xemu threads; it is not proof that no entirely unobserved thread existed.",
+    "The wider 50 ms context is not fully bounded for every observed thread and is excluded from quantitative findings.",
+    "Current WPA exports do not resolve a PTIMER/function path and contain no explicit timer callback, timer operation, IRQ, wait-return, notification, or wake probes.",
+    "Sampled stacks provide statistical context only. They are not used to infer PTIMER calls.",
+    "Old State and Old Wait Reason are excluded because they describe the switched-out old thread, not the new thread's preceding wait.",
+    "Cross-thread state sums overlap and are not wall time or a critical path.",
+    "This maximum-frame analysis does not attribute Vulkan p99 behavior."
+  ],
+  "retention_note": "Original ETLs, full WPA exports, private analysis and marker probes remain retained by run/artifact name and hash; those raw files are not public attachments. Published derived summaries, clipped intervals and replay checks are listed in SHA256SUMS.",
+  "build_identity": {
+    "B": {
+      "source": "c17591d59c270b352b72e648f5ed65e4b2a3e77e",
+      "tree": "6824a5aa4d9ca288ac96092dc9244684e995b08d",
+      "sha256": "3489fdcc593e942b92a612bf35a98f509ff0907e3370e1e5f45f2972d83fb16b"
+    },
+    "AM": {
+      "source": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+      "tree": "20c4d0a4551a878485370329e9856766dca7c752",
+      "sha256": "6fb3dcdd998e67c18223fd4b6f0bfb74542bdc0b282d95776c5a27c8f8be7ab6"
+    }
+  }
+}

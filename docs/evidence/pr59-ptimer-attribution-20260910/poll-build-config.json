@@ -1,0 +1,17 @@
+{
+  "source_commit": "8da17c3e68c525475f55f3e9d1ddda0ad9c11d5b",
+  "config_header_sha256": "75406e4fffb3ece517780db0a976a71e82fe6deed50eff176ca2860a4441ab5d",
+  "config_lines": [
+    "#undef CONFIG_PPOLL",
+    "#define CONFIG_WIN32"
+  ],
+  "compile_entries": [
+    {
+      "translation_unit": "util/qemu-timer.c",
+      "preprocessor_flags": [
+        "-DXBOX=1"
+      ],
+      "command_sha256": "4060bd599ce3ae5ac6d6a77cf5bdabc2ee4baf87055322a6fdcd70a8b27f1649"
+    }
+  ]
+}

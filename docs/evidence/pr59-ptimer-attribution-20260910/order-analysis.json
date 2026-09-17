@@ -1,0 +1,353 @@
+{
+  "source_file": "runs.json",
+  "source_sha256": "21f673b4a7fe28232975159211fd8e580f85b834821ee03c9d76df59ccbf6c53",
+  "evidence_commit": "fec867ab048ef52c783a5582cd4045756655ffd4",
+  "method": "Reorder each declared pair by actual execution position; descriptive association only",
+  "percentage_reference": "First-position run, which may be baseline B or candidate AM",
+  "improvement_convention": "Positive favorable; negative unfavorable. Cadence raw +good; intervals raw +bad.",
+  "qualification": "No causal attribution or performance acceptance",
+  "renderers": {
+    "OPENGL": {
+      "pairs": [
+        {
+          "pair": 1,
+          "first_run": "pr59-attr-r1-01-opengl-b",
+          "second_run": "pr59-attr-r1-02-opengl-am",
+          "first_build": "B",
+          "second_build": "AM",
+          "first_metrics": {
+            "cadence_hz": 29.008527311175143,
+            "mean_ms": 34.49363850574712,
+            "p95_ms": 41.411,
+            "p99_ms": 45.104,
+            "maximum_ms": 51.343
+          },
+          "second_metrics": {
+            "cadence_hz": 28.05996445158907,
+            "mean_ms": 35.69152885187388,
+            "p95_ms": 42.904,
+            "p99_ms": 47.018,
+            "maximum_ms": 67.316
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": -3.2699449007211445,
+            "mean_ms": -3.4727862818159316,
+            "p95_ms": -3.605322257371224,
+            "p99_ms": -4.243526073075565,
+            "maximum_ms": -31.110375318933436
+          }
+        },
+        {
+          "pair": 2,
+          "first_run": "pr59-attr-r1-07-opengl-am",
+          "second_run": "pr59-attr-r1-08-opengl-b",
+          "first_build": "AM",
+          "second_build": "B",
+          "first_metrics": {
+            "cadence_hz": 28.42740689557996,
+            "mean_ms": 35.2102441314554,
+            "p95_ms": 42.705,
+            "p99_ms": 46.945,
+            "maximum_ms": 52.934
+          },
+          "second_metrics": {
+            "cadence_hz": 28.19302354476451,
+            "mean_ms": 35.48126505312869,
+            "p95_ms": 42.726,
+            "p99_ms": 46.953,
+            "maximum_ms": 62.604
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": -0.8244978223880595,
+            "mean_ms": -0.7697217907988607,
+            "p95_ms": -0.04917456972250989,
+            "p99_ms": -0.017041218447122475,
+            "maximum_ms": -18.268031888767155
+          }
+        },
+        {
+          "pair": 3,
+          "first_run": "pr59-attr-r1-09-opengl-b",
+          "second_run": "pr59-attr-r1-10-opengl-am",
+          "first_build": "B",
+          "second_build": "AM",
+          "first_metrics": {
+            "cadence_hz": 28.357302225336575,
+            "mean_ms": 35.253667058132706,
+            "p95_ms": 42.595,
+            "p99_ms": 48.457,
+            "maximum_ms": 56.068
+          },
+          "second_metrics": {
+            "cadence_hz": 28.06793889881327,
+            "mean_ms": 35.65940071343638,
+            "p95_ms": 43.46,
+            "p99_ms": 47.058,
+            "maximum_ms": 58.637
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": -1.0204190942563085,
+            "mean_ms": -1.1508977339424797,
+            "p95_ms": -2.0307547834252926,
+            "p99_ms": 2.887095775636128,
+            "maximum_ms": -4.581936220303917
+          }
+        },
+        {
+          "pair": 4,
+          "first_run": "pr59-attr-r1-15-opengl-am",
+          "second_run": "pr59-attr-r1-16-opengl-b",
+          "first_build": "AM",
+          "second_build": "B",
+          "first_metrics": {
+            "cadence_hz": 28.057837738845286,
+            "mean_ms": 35.62206179441473,
+            "p95_ms": 43.053,
+            "p99_ms": 47.397,
+            "maximum_ms": 55.518
+          },
+          "second_metrics": {
+            "cadence_hz": 28.198757829303506,
+            "mean_ms": 35.50165680473373,
+            "p95_ms": 42.734,
+            "p99_ms": 47.845,
+            "maximum_ms": 60.941
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": 0.5022485758520157,
+            "mean_ms": 0.33800679583314563,
+            "p95_ms": 0.7409472046082666,
+            "p99_ms": -0.9452075025845552,
+            "maximum_ms": -9.768003170143015
+          }
+        },
+        {
+          "pair": 5,
+          "first_run": "pr59-attr-r1-17-opengl-b",
+          "second_run": "pr59-attr-r1-18-opengl-am",
+          "first_build": "B",
+          "second_build": "AM",
+          "first_metrics": {
+            "cadence_hz": 28.693645137851874,
+            "mean_ms": 34.8845773255814,
+            "p95_ms": 42.204,
+            "p99_ms": 46.426,
+            "maximum_ms": 52.46
+          },
+          "second_metrics": {
+            "cadence_hz": 28.86188184467042,
+            "mean_ms": 34.66020797227036,
+            "p95_ms": 41.668,
+            "p99_ms": 46.344,
+            "maximum_ms": 54.664
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": 0.5863204413740108,
+            "mean_ms": 0.643176356178754,
+            "p95_ms": 1.2700217988816265,
+            "p99_ms": 0.17662516693232044,
+            "maximum_ms": -4.201296225695761
+          }
+        }
+      ],
+      "summary": {
+        "cadence_hz": {
+          "second_worse_pairs": 3,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -0.8244978223880595
+        },
+        "mean_ms": {
+          "second_worse_pairs": 3,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -0.7697217907988607
+        },
+        "p95_ms": {
+          "second_worse_pairs": 3,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -0.04917456972250989
+        },
+        "p99_ms": {
+          "second_worse_pairs": 3,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -0.017041218447122475
+        },
+        "maximum_ms": {
+          "second_worse_pairs": 5,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -9.768003170143015
+        }
+      }
+    },
+    "VULKAN": {
+      "pairs": [
+        {
+          "pair": 1,
+          "first_run": "pr59-attr-r1-03-vulkan-am",
+          "second_run": "pr59-attr-r1-04-vulkan-b",
+          "first_build": "AM",
+          "second_build": "B",
+          "first_metrics": {
+            "cadence_hz": 28.640413123820373,
+            "mean_ms": 34.95585664335665,
+            "p95_ms": 42.03,
+            "p99_ms": 46.459,
+            "maximum_ms": 65.974
+          },
+          "second_metrics": {
+            "cadence_hz": 28.62676415831289,
+            "mean_ms": 34.94291559953434,
+            "p95_ms": 42.081,
+            "p99_ms": 46.967,
+            "maximum_ms": 72.256
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": -0.047656315041522124,
+            "mean_ms": 0.03702110337143738,
+            "p95_ms": -0.12134189864383416,
+            "p99_ms": -1.0934372242191959,
+            "maximum_ms": -9.52193288265073
+          }
+        },
+        {
+          "pair": 2,
+          "first_run": "pr59-attr-r1-05-vulkan-b",
+          "second_run": "pr59-attr-r1-06-vulkan-am",
+          "first_build": "B",
+          "second_build": "AM",
+          "first_metrics": {
+            "cadence_hz": 28.933540652955415,
+            "mean_ms": 34.5573534830167,
+            "p95_ms": 41.512,
+            "p99_ms": 46.196,
+            "maximum_ms": 57.005
+          },
+          "second_metrics": {
+            "cadence_hz": 28.41070669901438,
+            "mean_ms": 35.16274384525205,
+            "p95_ms": 42.363,
+            "p99_ms": 47.235,
+            "maximum_ms": 69.401
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": -1.8070168466838843,
+            "mean_ms": -1.7518423756983426,
+            "p95_ms": -2.0500096357679576,
+            "p99_ms": -2.249112477270754,
+            "maximum_ms": -21.745460924480287
+          }
+        },
+        {
+          "pair": 3,
+          "first_run": "pr59-attr-r1-11-vulkan-am",
+          "second_run": "pr59-attr-r1-12-vulkan-b",
+          "first_build": "AM",
+          "second_build": "B",
+          "first_metrics": {
+            "cadence_hz": 28.35552795094077,
+            "mean_ms": 35.28612345679012,
+            "p95_ms": 42.106,
+            "p99_ms": 48.109,
+            "maximum_ms": 70.871
+          },
+          "second_metrics": {
+            "cadence_hz": 28.78381550360428,
+            "mean_ms": 34.71137073452863,
+            "p95_ms": 41.528,
+            "p99_ms": 45.199,
+            "maximum_ms": 69.931
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": 1.5104199555180609,
+            "mean_ms": 1.6288349808822433,
+            "p95_ms": 1.3727259772954081,
+            "p99_ms": 6.048764264482742,
+            "maximum_ms": 1.3263535155423223
+          }
+        },
+        {
+          "pair": 4,
+          "first_run": "pr59-attr-r1-13-vulkan-b",
+          "second_run": "pr59-attr-r1-14-vulkan-am",
+          "first_build": "B",
+          "second_build": "AM",
+          "first_metrics": {
+            "cadence_hz": 28.741263687483862,
+            "mean_ms": 34.81220011600928,
+            "p95_ms": 41.709,
+            "p99_ms": 47.269,
+            "maximum_ms": 68.902
+          },
+          "second_metrics": {
+            "cadence_hz": 29.04577946432951,
+            "mean_ms": 34.42771141709696,
+            "p95_ms": 40.784,
+            "p99_ms": 45.488,
+            "maximum_ms": 59.97
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": 1.059507265083326,
+            "mean_ms": 1.1044653817656958,
+            "p95_ms": 2.2177467692824138,
+            "p99_ms": 3.7677970763079327,
+            "maximum_ms": 12.963339235435845
+          }
+        },
+        {
+          "pair": 5,
+          "first_run": "pr59-attr-r1-19-vulkan-am",
+          "second_run": "pr59-attr-r1-20-vulkan-b",
+          "first_build": "AM",
+          "second_build": "B",
+          "first_metrics": {
+            "cadence_hz": 28.668059153198776,
+            "mean_ms": 34.84895644599303,
+            "p95_ms": 41.979,
+            "p99_ms": 47.361,
+            "maximum_ms": 61.286
+          },
+          "second_metrics": {
+            "cadence_hz": 29.022330737213732,
+            "mean_ms": 34.467072413793105,
+            "p95_ms": 40.784,
+            "p99_ms": 44.793,
+            "maximum_ms": 72.313
+          },
+          "second_vs_first_improvement_percent": {
+            "cadence_hz": 1.2357710793108545,
+            "mean_ms": 1.095826306281944,
+            "p95_ms": 2.846661425951069,
+            "p99_ms": 5.422182808640019,
+            "maximum_ms": -17.992690010769174
+          }
+        }
+      ],
+      "summary": {
+        "cadence_hz": {
+          "second_worse_pairs": 2,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": 1.059507265083326
+        },
+        "mean_ms": {
+          "second_worse_pairs": 1,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": 1.095826306281944
+        },
+        "p95_ms": {
+          "second_worse_pairs": 2,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": 1.3727259772954081
+        },
+        "p99_ms": {
+          "second_worse_pairs": 2,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": 3.7677970763079327
+        },
+        "maximum_ms": {
+          "second_worse_pairs": 3,
+          "total_pairs": 5,
+          "median_second_vs_first_improvement_percent": -9.52193288265073
+        }
+      }
+    }
+  }
+}

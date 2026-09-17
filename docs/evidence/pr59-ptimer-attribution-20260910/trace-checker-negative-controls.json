@@ -1,0 +1,19 @@
+{
+  "scope": "Scheduler evidence replay checker only; no emulator execution",
+  "cases": [
+    {
+      "case": "mismatched_build_identity",
+      "expected": "reject inconsistent data",
+      "observed": "rejected",
+      "exit_code": 1,
+      "result": "PASS_NEGATIVE_CONTROL"
+    },
+    {
+      "case": "negative_offset_with_valid_outer_hash",
+      "expected": "reject inconsistent data",
+      "observed": "rejected",
+      "exit_code": 1,
+      "result": "PASS_NEGATIVE_CONTROL"
+    }
+  ]
+}
