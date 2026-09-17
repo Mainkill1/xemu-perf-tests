@@ -1,0 +1,18 @@
+Build type: cross build
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+C compiler for the host machine: x86_64-w64-mingw32.static-gcc -m64 (gcc 16.1.0 "x86_64-w64-mingw32.static-gcc (GCC) 16.1.0")
+C linker for the host machine: x86_64-w64-mingw32.static-gcc -m64 ld.bfd 2.46.0.20260210
+    link-time optimization (LTO)    : YES

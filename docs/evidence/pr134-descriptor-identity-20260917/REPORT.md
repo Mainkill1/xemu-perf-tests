@@ -9,6 +9,7 @@ This record qualifies the narrow Vulkan descriptor-publication change in
 | --- | --- | --- |
 | Instrumented control | `f3977d6fb659c61bd24361436a97b8ab286e23df` | `adc5f320ed9d29c9e72097b2a2f17abbd8679c7925ff6918d2905d15210910e2` |
 | PR #134 candidate | `1447f60091be4a1db4857e53cd6de691c5395c27` | `731fbb223afdd3e96ea2312ffa81bde3c117480fea0646c8eb0e4b84271051fd` |
+| Repaired PR #134 candidate | `8b02bcdaf958898f02571f9f73f7a8fd80dae914` | `f6effd7a40588d9b6d4f91eb10a513e7784b9e74100fc3f6d6bb2edf9bd6007b` |
 
 The control is PR #134's construction parent
 `3cb55dffdd46a31dae9066c59d3dacf3b2942795` plus only the schema-8
@@ -19,6 +20,10 @@ Both executables used the pinned Win64 GCC toolchain image
 with Release, `-O2`, full LTO, x86-64-v3, assertions retained, and symbols not
 stripped. The candidate tree was clean. The exact candidate also passed the
 Win64 texture-binding test 5/5 and ubershader-runtime test 26/26 under Wine.
+The repaired head passed the Win64 Release build and the expanded
+texture-binding test 6/6 under Wine. Case 6 covers a changed earlier stage,
+a later stage failing while already bound to the dummy, an unchanged
+failure-then-disable bind, and retirement only after descriptor publication.
 
 ## Workload
 
@@ -44,6 +49,27 @@ Win64 texture-binding test 5/5 and ubershader-runtime test 26/26 under Wine.
 The metric is NV2A guest display-write cadence, not displayed FPS. Both cells
 passed the automated final-image oracle, preserved the seed image, deleted the
 private HDD, and left no xemu or recorder process running.
+
+## Repaired-head uninstrumented comparison
+
+The requested ordinary-runtime comparison used no Vulkan performance or
+hybrid trace environment variables. It ran the instrumentation-matched control
+first and repaired head `8b02bcdaf9` second. Both admitted cells used the exact
+runner SHA-256 above.
+
+| Metric | Control | Repaired candidate | Change |
+| --- | ---: | ---: | ---: |
+| Guest display-write cadence | 25.498/s | 25.580/s | **0.32% higher** |
+| p95 interval | 44.498 ms | 48.377 ms | **8.72% worse** |
+| p99 interval | 52.956 ms | 53.173 ms | **0.41% worse** |
+| Final-image oracle | PASS | PASS | unchanged |
+
+This single bounded pair is mixed. It supplies the missing uninstrumented
+comparison but does not demonstrate a dependable end-to-end performance win.
+An earlier candidate attempt is retained under `excluded-runner-mismatch/` and
+excluded because its runner hash differed from the control. No automatic rerun
+was performed beyond replacing the mismatched runner bytes and collecting the
+one valid candidate observation.
 
 ## Result
 
@@ -98,10 +124,12 @@ a mergeable end-to-end performance win.
 
 ## Disposition
 
-Keep PR #134 in Draft / HOLD. The narrow comparison is functionally credible
-and measurably removes descriptor work. It should not be merged as a Morrowind
-performance fix while the p99 signal remains adverse and the wait has shifted
-to the mandatory pre-surface-upload boundary.
+Keep PR #134 in Draft / HOLD. The repaired ownership contract is covered and
+the narrow comparison measurably removes descriptor work. The uninstrumented
+pair is cadence-neutral/slightly favorable with an adverse p95 observation,
+so it does not establish a mergeable Morrowind performance win. The earlier
+instrumented result also predates the publication-lifetime repair and cannot
+alone qualify the repaired head.
 
 No report ordering, surface ownership, descriptor pool sizing, GPU wait,
 multi-batch lifetime, or upload semantics were changed in this patch.
@@ -115,4 +143,8 @@ multi-batch lifetime, or upload semantics were changed in this patch.
 - `candidate/hybrid-trace.csv.gz`, `control/hybrid-trace.csv.gz`: bounded
   slow-frame traces.
 - `build/`: source/build identities and focused TAP results.
+- `repaired-build/`: repaired source/executable identities, build profile, and
+  expanded 6/6 TAP result.
+- `uninstrumented/`: admitted control/candidate results, computed comparison,
+  and the retained excluded runner-mismatch attempt.
 - `SHA256SUMS`: archive member integrity.

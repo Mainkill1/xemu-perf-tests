@@ -1,4 +1,4 @@
-e9f2d811d515ca9ce3967c23e938d005e6f9d824b1c5ef5ee83fcc915ec75ac3  ./REPORT.md
+f40e4eebf04ebce251a2f80f2850d0ff4356a97897934234b448864c4b6098ef  ./REPORT.md
 dd824e2e71896938db274e98c5de6ca03d62a172d4b3772d65dd110d2507ce08  ./analysis.json
 7ec82d5cccd72caec37ea3ad48d15e3176ff37f330edbca8d819b6da273c7191  ./build/BUILD_PROFILE.txt
 7ec82d5cccd72caec37ea3ad48d15e3176ff37f330edbca8d819b6da273c7191  ./build/CONTROL_BUILD_PROFILE.txt
@@ -14,3 +14,12 @@ e32dbd2418edcdc94b738c7344213de02b8b6e031150e51c4f3b23d176756298  ./build/test-t
 fc5ecda35ccca603c96d593b883ceef5f88109b66a5c7d31928be7f11aa00960  ./control/hybrid-trace.csv.gz
 cbbb3832f7b12f7b42677fd8d25eccf1ec28b46c3d922996089804347344054f  ./control/result.json
 394ed73e8de2d4bd429250e0f47bd9c7a7693602f540dd0253d62d87f56a51d5  ./control/vk-perf.ndjson.gz
+c504644dafcb03855472f2099bf7815ecedc7cebc8a6e0f8fd4b3edd68b56a69  ./repaired-build/BUILD_PROFILE.txt
+dabc32dc261974260954ef2af94ee7f4763d8293237e4e2342a4d2d4f3311070  ./repaired-build/EXECUTABLE_SHA256.txt
+944a08eed363e964c60d9e486967cf4bd1bb1014094548992b2088f071033a87  ./repaired-build/SOURCE_COMMIT.txt
+cf5c1b758b911d0871ea1484cea0b70a91513069bbb66b9d4a7788d82afa2ca5  ./repaired-build/test-texture-binding.tap
+af771becd4db0ac23c0bdaff8720292943c26aaa002aa0d39d0f7d3d5d5e360d  ./uninstrumented/candidate/result.json
+910d99848e9143064b8f29f08255f12fa2fdee377f8c7ba0de047b108b68472a  ./uninstrumented/comparison.json
+1b6861428a3451f8df8b083798b35ae3b7425ae69ac4a1824e554f64fc47f332  ./uninstrumented/control/result.json
+323782dcd3ff2f67a307f10d5ec2002ed49927c2aa78b01194f74688f2124509  ./uninstrumented/excluded-runner-mismatch/README.md
+9b6f227a473a15e2751d3709b27fb893d5437aa8ff38c7037f1d3e665372b522  ./uninstrumented/excluded-runner-mismatch/result.json
