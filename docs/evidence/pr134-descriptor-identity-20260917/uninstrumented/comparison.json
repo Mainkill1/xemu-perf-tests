@@ -1,0 +1,17 @@
+{
+  "control_commit": "f3977d6fb659c61bd24361436a97b8ab286e23df",
+  "candidate_commit": "8b02bcdaf958898f02571f9f73f7a8fd80dae914",
+  "runner_sha256_control": "fed0a35f9ae97e0ecf6727f2f3869a1226b9989026566d8f7a89765f25e44c4b",
+  "runner_sha256_candidate": "fed0a35f9ae97e0ecf6727f2f3869a1226b9989026566d8f7a89765f25e44c4b",
+  "cadence_control": 25.497705206531414,
+  "cadence_candidate": 25.579927040029276,
+  "cadence_improvement_percent": 0.32246758220735305,
+  "p95_control_ms": 44.498,
+  "p95_candidate_ms": 48.377,
+  "p95_improvement_percent": -8.717245718908726,
+  "p99_control_ms": 52.956,
+  "p99_candidate_ms": 53.173,
+  "p99_improvement_percent": -0.40977415212629115,
+  "control_final_image_validation": "PASSED",
+  "candidate_final_image_validation": "PASSED"
+}
