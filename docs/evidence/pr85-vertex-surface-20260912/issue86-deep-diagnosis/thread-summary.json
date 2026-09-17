@@ -1,0 +1,108 @@
+{
+  "source": "xperf CPU precise/sampled; report diag xemu PID 12352",
+  "window_s_from_etl_start": [
+    22.2305666,
+    32.2360392
+  ],
+  "precise_rows_for_process": 589301,
+  "sample_rows_in_window": 18919,
+  "threads": [
+    {
+      "tid": 16012,
+      "running_ms": 9865.086,
+      "waiting_ms": 131.521,
+      "ready_ms": 9.126,
+      "switches": 2272,
+      "sampled_weight_ms": 9695.333,
+      "sampled_count": 9738,
+      "top_sample_modules": [
+        [
+          "xemu.exe",
+          6242
+        ],
+        [
+          "?",
+          3362
+        ],
+        [
+          "ntoskrnl.exe",
+          94
+        ],
+        [
+          "ntdll.dll",
+          25
+        ],
+        [
+          "msvcrt.dll",
+          9
+        ]
+      ]
+    },
+    {
+      "tid": 11316,
+      "running_ms": 2072.539,
+      "waiting_ms": 7895.693,
+      "ready_ms": 37.246,
+      "switches": 9744,
+      "sampled_weight_ms": 1921.081,
+      "sampled_count": 1923,
+      "top_sample_modules": [
+        [
+          "xemu.exe",
+          933
+        ],
+        [
+          "nvoglv64.dll",
+          379
+        ],
+        [
+          "msvcrt.dll",
+          304
+        ],
+        [
+          "ntdll.dll",
+          186
+        ],
+        [
+          "ntoskrnl.exe",
+          77
+        ]
+      ]
+    },
+    {
+      "tid": 4616,
+      "running_ms": 1702.089,
+      "waiting_ms": 8235.734,
+      "ready_ms": 67.652,
+      "switches": 17935,
+      "sampled_weight_ms": 1221.82,
+      "sampled_count": 1222,
+      "top_sample_modules": [
+        [
+          "ntoskrnl.exe",
+          930
+        ],
+        [
+          "xemu.exe",
+          241
+        ],
+        [
+          "ntdll.dll",
+          39
+        ],
+        [
+          "msvcrt.dll",
+          6
+        ],
+        [
+          "a",
+          5
+        ]
+      ]
+    }
+  ],
+  "raw_etl_sha256": "9a5ef50fe716c2b5d49372a480a33985bb7a81a9a9a93ab8718b780dd5248272",
+  "raw_etl_bytes": 668991488,
+  "lost_buffers": 0,
+  "lost_events": 0
+}

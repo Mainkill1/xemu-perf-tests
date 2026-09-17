@@ -1,0 +1,152 @@
+{
+  "schema_version": 1,
+  "source_commit": "5717357917abdd92e7c344d9e4f1b36b6fa61afa+gpu-timestamps",
+  "executable_sha256": "c3d91377fa6bf639fcb803750c63b2926edc12240509329564acf494c6ab09c9",
+  "renderer": "VULKAN",
+  "snapshot": "vm-20260905015459",
+  "full_run_frames": 407,
+  "window_frames": 233,
+  "perf_input_sha256": "3a007a894dad9ead67e286f31afc96201a92933c8915e8396ca7d69f2e74a8f7",
+  "flips_input_sha256": "ae78bb48be78d3df8967eb08115d4a7bef1f48dcd84ce82e19fe2ad928437685",
+  "median_total_sampled_finish_wait_us_per_frame": 12404,
+  "p95_total_sampled_finish_wait_us_per_frame": 18141.2,
+  "queue_submits_median_per_frame": 4,
+  "reasons": {
+    "vertex_buffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    },
+    "surface_create": {
+      "submits": 2,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 8903,
+      "gpu_timed_submits": 2,
+      "sum_gpu_batch_ns": 8765408,
+      "median_gpu_batch_ns_per_timed_frame": 8765408,
+      "p95_gpu_batch_ns_per_timed_frame": 8765408.0
+    },
+    "surface_down": {
+      "submits": 1,
+      "frames_with_submit": 1,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 232,
+      "gpu_timed_submits": 1,
+      "sum_gpu_batch_ns": 173728,
+      "median_gpu_batch_ns_per_timed_frame": 173728,
+      "p95_gpu_batch_ns_per_timed_frame": 173728.0
+    },
+    "need_buffer_space": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    },
+    "framebuffer_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    },
+    "presenting": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    },
+    "flip_stall": {
+      "submits": 232,
+      "frames_with_submit": 232,
+      "median_wait_us_per_frame": 1218,
+      "p95_wait_us_per_frame": 1524.6,
+      "sum_sampled_wait_us": 249493,
+      "gpu_timed_submits": 232,
+      "sum_gpu_batch_ns": 144367040,
+      "median_gpu_batch_ns_per_timed_frame": 783296.0,
+      "p95_gpu_batch_ns_per_timed_frame": 868307.2
+    },
+    "flush": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    },
+    "stalled": {
+      "submits": 233,
+      "frames_with_submit": 233,
+      "median_wait_us_per_frame": 11194,
+      "p95_wait_us_per_frame": 16739.2,
+      "sum_sampled_wait_us": 2684775,
+      "gpu_timed_submits": 233,
+      "sum_gpu_batch_ns": 2580456096,
+      "median_gpu_batch_ns_per_timed_frame": 10762528,
+      "p95_gpu_batch_ns_per_timed_frame": 16209273.6
+    },
+    "texture_dirty": {
+      "submits": 0,
+      "frames_with_submit": 0,
+      "median_wait_us_per_frame": 0,
+      "p95_wait_us_per_frame": 0.0,
+      "sum_sampled_wait_us": 0,
+      "gpu_timed_submits": 0,
+      "sum_gpu_batch_ns": 0,
+      "median_gpu_batch_ns_per_timed_frame": null,
+      "p95_gpu_batch_ns_per_timed_frame": null
+    }
+  },
+  "cpu_regions": {
+    "draw_begin_surface_update": {
+      "median_us_per_frame": 130,
+      "p95_us_per_frame": 148.0
+    },
+    "draw_flush": {
+      "median_us_per_frame": 5817,
+      "p95_us_per_frame": 6249.399999999999
+    },
+    "pipeline_prepare": {
+      "median_us_per_frame": 2185,
+      "p95_us_per_frame": 2339.6
+    },
+    "bind_textures": {
+      "median_us_per_frame": 633,
+      "p95_us_per_frame": 710.4
+    },
+    "texture_upload": {
+      "median_us_per_frame": 0,
+      "p95_us_per_frame": 0.0
+    },
+    "update_descriptor_sets": {
+      "median_us_per_frame": 498,
+      "p95_us_per_frame": 532.0
+    }
+  }
+}
