@@ -1,0 +1,37 @@
+TAP version 14
+# random seed: R02S4e7bfda0866118612d1a35d27720e06c
+1..26
+# Start of xbox tests
+# Start of vk tests
+# Start of ubershader tests
+# Start of runtime tests
+ok 1 /xbox/vk/ubershader/runtime/control-abi
+ok 2 /xbox/vk/ubershader/runtime/control-only-upload
+ok 3 /xbox/vk/ubershader/runtime/baseline-layout
+ok 4 /xbox/vk/ubershader/runtime/shader-binding-key
+ok 5 /xbox/vk/ubershader/runtime/shader-module-key
+ok 6 /xbox/vk/ubershader/runtime/canonical-key
+ok 7 /xbox/vk/ubershader/runtime/route-isolation
+ok 8 /xbox/vk/ubershader/runtime/shell-state
+ok 9 /xbox/vk/ubershader/runtime/production-resolver
+ok 10 /xbox/vk/ubershader/runtime/pipeline-ready-probe
+ok 11 /xbox/vk/ubershader/runtime/vertex-input-count-key
+ok 12 /xbox/vk/ubershader/runtime/uniform-register-key
+ok 13 /xbox/vk/ubershader/runtime/shader-ready-probe
+ok 14 /xbox/vk/ubershader/runtime/complete-route
+ok 15 /xbox/vk/ubershader/runtime/hidden-fallback-binding
+ok 16 /xbox/vk/ubershader/runtime/uncovered-choice
+ok 17 /xbox/vk/ubershader/runtime/promotion-time-gate
+ok 18 /xbox/vk/ubershader/runtime/pipeline-late-publication
+ok 19 /xbox/vk/ubershader/runtime/fallback-family-queue
+ok 20 /xbox/vk/ubershader/runtime/fallback-family-tracked
+ok 21 /xbox/vk/ubershader/runtime/fallback-family-retry
+ok 22 /xbox/vk/ubershader/runtime/fallback-family-wake
+ok 23 /xbox/vk/ubershader/runtime/fallback-family-production
+ok 24 /xbox/vk/ubershader/runtime/fallback-family-admission
+ok 25 /xbox/vk/ubershader/runtime/register-shortcut-dirty
+ok 26 /xbox/vk/ubershader/runtime/snapshot-invalidation
+# End of runtime tests
+# End of ubershader tests
+# End of vk tests
+# End of xbox tests

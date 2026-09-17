@@ -1,0 +1,1 @@
+Win64 Release; O2; full LTO; x86-64-v3; assertions retained; unstripped diagnostic
