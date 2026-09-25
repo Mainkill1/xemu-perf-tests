@@ -2,6 +2,7 @@
 """Static contracts for the visible learned-fallback readiness synthetic."""
 
 import json
+import re
 import unittest
 from pathlib import Path
 
@@ -12,6 +13,30 @@ HEADER_PATH = ROOT / "src/tests/shader_lifecycle_tests.h"
 
 
 class ShaderLifecycleReadinessContractTests(unittest.TestCase):
+    def test_readback_literals_use_framebuffer_bgra_packing(self) -> None:
+        source = SOURCE_PATH.read_text(encoding="utf-8")
+
+        def packed_values(name: str) -> list[int]:
+            match = re.search(
+                rf"{name}.*?\{{\{{(.*?)\}}\}};",
+                source,
+                flags=re.DOTALL,
+            )
+            self.assertIsNotNone(match, f"missing {name}")
+            return [
+                int(value, 16)
+                for value in re.findall(r"0x([0-9A-Fa-f]{8})", match.group(1))
+            ]
+
+        self.assertEqual(
+            packed_values("kReadinessDiffuseInputColors"),
+            [0xFF557391, 0xFF7AB632, 0xFF9F3993],
+        )
+        self.assertEqual(
+            packed_values("kReadinessFramebufferExpectedColors"),
+            [0xFF917355, 0xFF32B67A, 0xFF93399F],
+        )
+
     def test_suite_is_native_and_registered(self) -> None:
         source = SOURCE_PATH.read_text(encoding="utf-8")
         header = HEADER_PATH.read_text(encoding="utf-8")

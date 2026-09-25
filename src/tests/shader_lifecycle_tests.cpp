@@ -54,14 +54,14 @@ static constexpr std::array<TestHost::DrawPrimitive, kReadinessFamilyCount>
 // Literal packed framebuffer expectations are deliberately independent of
 // the shader route. Equal-but-wrong fallback/specialized output must fail.
 static constexpr std::array<uint32_t, kReadinessFamilyCount>
-    kReadinessFamilyExpectedColors{{
+    kReadinessDiffuseInputColors{{
         0xFF557391,
         0xFF7AB632,
         0xFF9F3993,
     }};
 static constexpr std::array<
     uint32_t, kReadinessFamilyCount * kReadinessCombinerVariantCount>
-    kReadinessUniformExpectedColors{{
+    kReadinessUniformDiffuseInputColors{{
         0xFF557391,
         0xFF7AB632,
         0xFF9F3993,
@@ -70,12 +70,41 @@ static constexpr std::array<
         0xFF4E4236,
     }};
 
-static uint32_t ExpectedReadinessColor(bool uniform_only, uint32_t family,
-                                       uint32_t variant) {
+// NV097_SET_DIFFUSE_COLOR4I and the linear framebuffer use opposite red/blue
+// byte orderings. Keep the readback literals separate from the draw inputs so
+// the oracle remains independent of the route that produced the pixels.
+static constexpr std::array<uint32_t, kReadinessFamilyCount>
+    kReadinessFramebufferExpectedColors{{
+        0xFF917355,
+        0xFF32B67A,
+        0xFF93399F,
+    }};
+static constexpr std::array<
+    uint32_t, kReadinessFamilyCount * kReadinessCombinerVariantCount>
+    kReadinessUniformFramebufferExpectedColors{{
+        0xFF917355,
+        0xFF32B67A,
+        0xFF93399F,
+        0xFF347CC4,
+        0xFF95BFE9,
+        0xFF36424E,
+    }};
+
+static uint32_t ReadinessDiffuseInputColor(bool uniform_only, uint32_t family,
+                                           uint32_t variant) {
   if (!uniform_only) {
-    return kReadinessFamilyExpectedColors[family];
+    return kReadinessDiffuseInputColors[family];
   }
-  return kReadinessUniformExpectedColors[
+  return kReadinessUniformDiffuseInputColors[
+      family * kReadinessCombinerVariantCount + variant];
+}
+
+static uint32_t ExpectedReadinessFramebufferColor(
+    bool uniform_only, uint32_t family, uint32_t variant) {
+  if (!uniform_only) {
+    return kReadinessFramebufferExpectedColors[family];
+  }
+  return kReadinessUniformFramebufferExpectedColors[
       family * kReadinessCombinerVariantCount + variant];
 }
 
@@ -212,7 +241,7 @@ void ShaderLifecycleTests::DrawReadinessFamilies(
            variant < kReadinessCombinerVariantCount; ++variant) {
         ConfigureReadinessCombiner(variant);
         host_.SetDiffuse(
-            ExpectedReadinessColor(uniform_only, family, variant));
+            ReadinessDiffuseInputColor(uniform_only, family, variant));
         const uint32_t column =
             pass * kReadinessCombinerVariantCount + variant;
         DrawReadinessTile(
@@ -248,8 +277,22 @@ uint32_t ShaderLifecycleTests::ValidateReadinessFamilies(
             kReadinessLeft + column * kReadinessColumnStride +
                 kReadinessSampleOffset,
             y);
-        const uint32_t expected =
-            ExpectedReadinessColor(uniform_only, family, variant);
+        const uint32_t expected = ExpectedReadinessFramebufferColor(
+            uniform_only, family, variant);
+        if (pixel != expected) {
+          PrintMsg("SHADER_LIFECYCLE_READINESS_MISMATCH pass=%lu "
+                   "family=%lu variant=%lu x=%lu y=%lu "
+                   "actual=%08lx expected=%08lx\n",
+                   static_cast<unsigned long>(pass),
+                   static_cast<unsigned long>(family),
+                   static_cast<unsigned long>(variant),
+                   static_cast<unsigned long>(
+                       kReadinessLeft + column * kReadinessColumnStride +
+                           kReadinessSampleOffset),
+                   static_cast<unsigned long>(y),
+                   static_cast<unsigned long>(pixel),
+                   static_cast<unsigned long>(expected));
+        }
         ASSERT(pixel == expected);
         checksum = Fnv1aWord(checksum, pixel);
       }
