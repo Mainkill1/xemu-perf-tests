@@ -76,6 +76,11 @@ trained identities are ready. The separate
 time; it must remain explicitly uncovered rather than being relabeled as a
 prewarm success.
 
+Every readiness route holds its validated result display for ten seconds after
+the measured guest work. This bounded, unmeasured window lets unattended host
+captures retain the actual colored tiles and result overlay instead of a later
+menu screen.
+
 This mechanism proof does not require a promotion event because it changes no
 queue or scheduling policy. Keep the C-1/C/C+1 promotion workload as an
 independent diagnostic. Run the visible readiness profile on Windows and Steam

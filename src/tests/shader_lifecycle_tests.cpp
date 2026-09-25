@@ -36,6 +36,7 @@ static constexpr uint32_t kPipelineVariantCount = kPipelineJobCapacity + 1;
 static constexpr uint32_t kReadinessFamilyCount = 3;
 static constexpr uint32_t kReadinessCombinerVariantCount = 2;
 static constexpr uint32_t kReadinessSpecializationLeadMs = 2000;
+static constexpr uint32_t kReadinessVisibleResultHoldMs = 10000;
 static constexpr uint32_t kBackgroundColor = 0xFF102030;
 static constexpr uint32_t kSourceColor = 0x8040C080;
 static constexpr uint32_t kSentinelColor = 0xFF40C080;
@@ -503,4 +504,8 @@ void ShaderLifecycleTests::RunReadinessScenario(const char *test_name,
            static_cast<unsigned long>(interpass_delay_ms),
            static_cast<unsigned long>(result_kat));
   host_.FinishDraw(suite_name_, test_name, results);
+  // Keep the validated color-producing tiles and result overlay visible long
+  // enough for an unattended host capture. This is outside Profile(), so the
+  // evidence window cannot be mistaken for guest-work timing.
+  Sleep(kReadinessVisibleResultHoldMs);
 }

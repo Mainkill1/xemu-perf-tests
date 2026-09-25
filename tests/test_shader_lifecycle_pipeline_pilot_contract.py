@@ -164,12 +164,14 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         )
 
         self.assertIn("kReadinessSpecializationLeadMs = 2000", source)
+        self.assertIn("kReadinessVisibleResultHoldMs = 10000", source)
         self.assertRegex(
             source,
             r"kReadinessIdenticalReplay,\s*3,\s*false,\s*"
             r"kReadinessSpecializationLeadMs",
         )
         self.assertIn("Sleep(interpass_delay_ms)", source)
+        self.assertIn("Sleep(kReadinessVisibleResultHoldMs)", source)
         self.assertIn("visible, non-omittable readiness profile", doc)
         self.assertIn("fallback pipeline publication before first demand", doc)
         self.assertIn("actual submitted use", doc)
