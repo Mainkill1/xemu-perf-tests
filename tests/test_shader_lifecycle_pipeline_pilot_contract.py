@@ -158,10 +158,18 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
             self.assertEqual(plan["resolved_plan"]["tests"], [{"id": test_id}])
 
     def test_visible_readiness_acceptance_is_publication_and_use(self) -> None:
+        source = SOURCE_PATH.read_text(encoding="utf-8")
         doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(
             encoding="utf-8"
         )
 
+        self.assertIn("kReadinessSpecializationLeadMs = 2000", source)
+        self.assertRegex(
+            source,
+            r"kReadinessIdenticalReplay,\s*2,\s*false,\s*"
+            r"kReadinessSpecializationLeadMs",
+        )
+        self.assertIn("Sleep(interpass_delay_ms)", source)
         self.assertIn("visible, non-omittable readiness profile", doc)
         self.assertIn("fallback pipeline publication before first demand", doc)
         self.assertIn("actual submitted use", doc)

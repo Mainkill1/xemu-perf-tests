@@ -24,9 +24,11 @@ class ShaderLifecycleTests : public TestSuite {
   uint32_t ValidatePipelineVariants(uint32_t variant_count,
                                     bool safe_omission) const;
   void RunReadinessScenario(const char *test_name, uint32_t passes,
-                            bool uniform_only);
+                            bool uniform_only,
+                            uint32_t interpass_delay_ms = 0);
   void ConfigureReadinessCombiner(uint32_t variant) const;
-  void DrawReadinessFamilies(uint32_t passes, bool uniform_only) const;
+  void DrawReadinessFamilies(uint32_t passes, bool uniform_only,
+                             uint32_t interpass_delay_ms) const;
   void DrawReadinessTile(TestHost::DrawPrimitive primitive, float left,
                          float top, float width, float height) const;
   uint32_t ValidateReadinessFamilies(bool uniform_only) const;
