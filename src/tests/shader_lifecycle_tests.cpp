@@ -169,7 +169,7 @@ ShaderLifecycleTests::ShaderLifecycleTests(TestHost &host,
   };
   tests_[kPipelineCapacityCPlusOne] = [this]() {
     RunPipelineScenario(kPipelineCapacityCPlusOne,
-                        kPipelineJobCapacity + 1, 1, false, true);
+                        kPipelineJobCapacity + 1, 2, false, true);
   };
   tests_[kPipelineIdenticalReplay] = [this]() {
     RunPipelineScenario(kPipelineIdenticalReplay,

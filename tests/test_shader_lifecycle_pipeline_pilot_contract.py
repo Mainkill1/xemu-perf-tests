@@ -85,7 +85,7 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         source = SOURCE_PATH.read_text(encoding="utf-8")
 
         self.assertIn(
-            "kPipelineJobCapacity + 1, 1, false, true", source
+            "kPipelineJobCapacity + 1, 2, false, true", source
         )
         self.assertIn("safe_omission ? 0 : kAllChannels", source)
         self.assertIn("DrawVisibleSentinel", source)
@@ -97,6 +97,7 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         )
         self.assertIn("side-effect-free", doc)
         self.assertIn("visible sentinel", doc)
+        self.assertIn("The second pass revisits every capacity", doc)
 
 
 if __name__ == "__main__":

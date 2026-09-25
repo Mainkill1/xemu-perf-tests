@@ -22,6 +22,9 @@ pipeline under xemu's conservative policy. A separate unblended visible sentinel
 is drawn afterward and validated, while every variant tile must retain the known
 background color. This keeps the framebuffer oracle meaningful without making
 the queue test depend on replaying an omitted resource-producing draw.
+The C+1 case uses two immediate passes. The second pass revisits every capacity
+identity while a deliberately delayed background job may still be
+pending. Promotion still must be established from the matching host trace.
 
 Guest completion, a visible image, 17 requested variants, or background worker
 activity does not prove promotion. The C+1 promotion qualification passes only
