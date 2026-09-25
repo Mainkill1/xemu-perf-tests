@@ -34,6 +34,7 @@
 #include "tests/pipeline_texture_switch_tests.h"
 #include "tests/primitive_type_tests.h"
 #include "tests/report_query_tests.h"
+#include "tests/shader_lifecycle_tests.h"
 #include "tests/surface_rendering_tests.h"
 #include "tests/texture_cubemap_fallback_tests.h"
 #include "tests/tiny_draw_tests.h"
@@ -309,6 +310,7 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(PfifoArrayElementTests)
   if (runtime_config.enable_xemu_only_tests()) {
     REG_TEST(PfifoPacketBoundaryTests)
+    REG_TEST(ShaderLifecycleTests)
     REG_TEST(TextureCubemapFallbackTests)
   }
   REG_TEST(PipelineTextureSwitchTests)

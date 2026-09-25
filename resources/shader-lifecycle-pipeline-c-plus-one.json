@@ -1,6 +1,8 @@
 {
   "settings": {
     "skip_tests_by_default": true,
+    "enable_autorun_immediately": true,
+    "enable_xemu_only_tests": true,
     "warmup_iterations": 0,
     "measurement_iterations_multiplier": 1,
     "gpu_completion_mode": "per_iteration",
@@ -8,12 +10,12 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:cee32f77286732dd205d071394d7b39d3aea3bcf67db086f4210a42284ab6826",
+    "plan_id": "sha256:b969932a68389e98037bb0fbf9e02fa0beff58df502031db6a2be2438de0dbd4",
     "catalog_id": "sha256:8307fde80201084ce39706e9490cbdf16cddfb1aa21fc19fecf34942fa2f3dd4",
     "selected_leaf_count": 1,
     "tests": [
       {
-        "id": "vertex_buffer_allocation.rising_transient_growth"
+        "id": "shader_lifecycle.pipeline_capacity_c_plus_one"
       }
     ]
   }
