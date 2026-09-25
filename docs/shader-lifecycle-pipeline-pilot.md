@@ -64,10 +64,12 @@ earlier correct fallback output. Module publication without a complete
 pipeline, a complete pipeline never used by a submitted draw, or correct final
 pixels without lifecycle ownership is insufficient.
 
-`readiness.identical-replay` uses a bounded two-second inter-pass lead interval:
-the first pass must use the ready learned fallback, and the second must prove
-actual specialized-pipeline takeover after publication. This interval makes the
-case a mechanism diagnostic, not a performance result. Identical replay and
+`readiness.identical-replay` uses three identical passes with a bounded
+two-second interval between them. The first pass must use the ready learned
+fallback. If an exact stage was absent after restart, the second pass may be
+the first demand able to queue its complete specialized pipeline; the third
+must prove actual specialized takeover after publication. These intervals make
+the case a mechanism diagnostic, not a performance result. Identical replay and
 `readiness.uniform-only` must produce no new structural compiler work once the
 trained identities are ready. The separate
 `readiness.early-demand` plan runs with empty history and no preparation lead

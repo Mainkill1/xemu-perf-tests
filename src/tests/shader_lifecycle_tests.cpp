@@ -202,7 +202,7 @@ ShaderLifecycleTests::ShaderLifecycleTests(TestHost &host,
     RunReadinessScenario(kReadinessReplayVisible, 1, false);
   };
   tests_[kReadinessIdenticalReplay] = [this]() {
-    RunReadinessScenario(kReadinessIdenticalReplay, 2, false,
+    RunReadinessScenario(kReadinessIdenticalReplay, 3, false,
                          kReadinessSpecializationLeadMs);
   };
   tests_[kReadinessUniformOnly] = [this]() {
@@ -445,9 +445,11 @@ void ShaderLifecycleTests::DrawReadinessFamilies(uint32_t passes,
       }
     }
     if (interpass_delay_ms && pass + 1 < passes) {
-      // The first pass must exercise the already-published fallback. Give the
-      // bounded host builder a deterministic opportunity to publish exact
-      // specialization before the second pass proves actual takeover.
+      // The first pass must exercise the already-published fallback. The
+      // second pass can be the first demand that queues a full pipeline when
+      // an exact stage was rebuilt after restart. A third identical pass then
+      // proves actual specialized takeover without conflating module and
+      // pipeline readiness.
       host_.WaitForGpu();
       Sleep(interpass_delay_ms);
     }

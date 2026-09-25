@@ -166,7 +166,7 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         self.assertIn("kReadinessSpecializationLeadMs = 2000", source)
         self.assertRegex(
             source,
-            r"kReadinessIdenticalReplay,\s*2,\s*false,\s*"
+            r"kReadinessIdenticalReplay,\s*3,\s*false,\s*"
             r"kReadinessSpecializationLeadMs",
         )
         self.assertIn("Sleep(interpass_delay_ms)", source)
