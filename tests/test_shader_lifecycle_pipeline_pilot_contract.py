@@ -68,9 +68,24 @@ class ShaderLifecycleReadinessContractTests(unittest.TestCase):
         )
         validation_end = source.index("\n}", validation_start)
         validation = source[validation_start:validation_end]
-        self.assertIn("ASSERT(first_pixel != kBackgroundColor)", validation)
-        self.assertIn("ASSERT(second_pixel != kBackgroundColor)", validation)
-        self.assertIn("ASSERT(first_pixel == second_pixel)", validation)
+        for packed_color in (
+            "0xFF557391", "0xFF7AB632", "0xFF9F3993",
+            "0xFFC47C34", "0xFFE9BF95", "0xFF4E4236",
+        ):
+            self.assertIn(packed_color, source)
+        self.assertIn("for (uint32_t pass = 0; pass < passes; ++pass)",
+                      validation)
+        self.assertIn("ASSERT(pixel == expected)", validation)
+        self.assertNotIn("first_pixel == second_pixel", validation)
+
+        # A wrong-but-equal fallback pair and an incorrect first pass followed
+        # by a correct final pass must both fail the literal, per-pass oracle.
+        expected = [0xFF557391, 0xFF7AB632, 0xFF9F3993]
+        wrong_equal = [0xFF010203, 0xFF010203]
+        self.assertFalse(all(pixel == expected[0] for pixel in wrong_equal))
+        wrong_then_correct = [0xFF010203, expected[0]]
+        self.assertFalse(all(pixel == expected[0]
+                             for pixel in wrong_then_correct))
 
     def test_visible_readiness_profiles_have_separate_launch_plans(self) -> None:
         expected = {

@@ -19,7 +19,8 @@ class ShaderLifecycleTests : public TestSuite {
                              uint32_t interpass_delay_ms) const;
   void DrawReadinessTile(TestHost::DrawPrimitive primitive, float left,
                          float top, float width, float height) const;
-  uint32_t ValidateReadinessFamilies(bool uniform_only) const;
+  uint32_t ValidateReadinessFamilies(uint32_t passes,
+                                     bool uniform_only) const;
 };
 
 #endif  // XEMU_PERF_TESTS_SHADER_LIFECYCLE_TESTS_H

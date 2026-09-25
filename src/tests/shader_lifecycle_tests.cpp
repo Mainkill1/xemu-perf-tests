@@ -27,6 +27,13 @@ static constexpr uint32_t kReadinessVisibleResultHoldMs = 10000;
 static constexpr uint32_t kBackgroundColor = 0xFF102030;
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
 static constexpr uint32_t kFnvPrime = 16777619U;
+static constexpr uint32_t kReadinessLeft = 72;
+static constexpr uint32_t kReadinessTop = 72;
+static constexpr uint32_t kReadinessColumnStride = 88;
+static constexpr uint32_t kReadinessRowStride = 120;
+static constexpr uint32_t kReadinessTileWidth = 64;
+static constexpr uint32_t kReadinessTileHeight = 80;
+static constexpr uint32_t kReadinessSampleOffset = 24;
 
 static constexpr uint32_t kBlue =
     NV097_SET_COLOR_MASK_BLUE_WRITE_ENABLE;
@@ -44,11 +51,32 @@ static constexpr std::array<TestHost::DrawPrimitive, kReadinessFamilyCount>
         TestHost::PRIMITIVE_QUADS,
     }};
 
-static uint32_t UniformColor(uint32_t index) {
-  const uint32_t red = 0x30U + (index * 37U) % 0xC0U;
-  const uint32_t green = 0x30U + (index * 67U) % 0xC0U;
-  const uint32_t blue = 0x30U + (index * 97U) % 0xC0U;
-  return 0xFF000000U | (red << 16) | (green << 8) | blue;
+// Literal packed framebuffer expectations are deliberately independent of
+// the shader route. Equal-but-wrong fallback/specialized output must fail.
+static constexpr std::array<uint32_t, kReadinessFamilyCount>
+    kReadinessFamilyExpectedColors{{
+        0xFF557391,
+        0xFF7AB632,
+        0xFF9F3993,
+    }};
+static constexpr std::array<
+    uint32_t, kReadinessFamilyCount * kReadinessCombinerVariantCount>
+    kReadinessUniformExpectedColors{{
+        0xFF557391,
+        0xFF7AB632,
+        0xFF9F3993,
+        0xFFC47C34,
+        0xFFE9BF95,
+        0xFF4E4236,
+    }};
+
+static uint32_t ExpectedReadinessColor(bool uniform_only, uint32_t family,
+                                       uint32_t variant) {
+  if (!uniform_only) {
+    return kReadinessFamilyExpectedColors[family];
+  }
+  return kReadinessUniformExpectedColors[
+      family * kReadinessCombinerVariantCount + variant];
 }
 
 static uint32_t ReadPixel(uint32_t x, uint32_t y) {
@@ -165,12 +193,7 @@ void ShaderLifecycleTests::DrawReadinessTile(
 
 void ShaderLifecycleTests::DrawReadinessFamilies(
     uint32_t passes, bool uniform_only, uint32_t interpass_delay_ms) const {
-  static constexpr float kLeft = 72.f;
-  static constexpr float kTop = 72.f;
-  static constexpr float kColumnStride = 240.f;
-  static constexpr float kRowStride = 120.f;
-  static constexpr float kTileWidth = 160.f;
-  static constexpr float kTileHeight = 80.f;
+  ASSERT(passes > 0 && passes <= 3);
 
   host_.PrepareDraw(kBackgroundColor);
   host_.SetBlend(false);
@@ -188,14 +211,15 @@ void ShaderLifecycleTests::DrawReadinessFamilies(
       for (uint32_t variant = 0;
            variant < kReadinessCombinerVariantCount; ++variant) {
         ConfigureReadinessCombiner(variant);
-        const uint32_t color_index = uniform_only
-            ? family * kReadinessCombinerVariantCount + variant + 1
-            : family + 1;
-        host_.SetDiffuse(UniformColor(color_index));
+        host_.SetDiffuse(
+            ExpectedReadinessColor(uniform_only, family, variant));
+        const uint32_t column =
+            pass * kReadinessCombinerVariantCount + variant;
         DrawReadinessTile(
             kReadinessPrimitives[family],
-            kLeft + variant * kColumnStride,
-            kTop + family * kRowStride, kTileWidth, kTileHeight);
+            kReadinessLeft + column * kReadinessColumnStride,
+            kReadinessTop + family * kReadinessRowStride,
+            kReadinessTileWidth, kReadinessTileHeight);
       }
     }
     if (interpass_delay_ms && pass + 1 < passes) {
@@ -209,26 +233,27 @@ void ShaderLifecycleTests::DrawReadinessFamilies(
 }
 
 uint32_t ShaderLifecycleTests::ValidateReadinessFamilies(
-    bool uniform_only) const {
-  static constexpr uint32_t kLeft = 72;
-  static constexpr uint32_t kTop = 72;
-  static constexpr uint32_t kColumnStride = 240;
-  static constexpr uint32_t kRowStride = 120;
-  static constexpr uint32_t kSampleOffset = 32;
+    uint32_t passes, bool uniform_only) const {
   uint32_t checksum = kFnvOffsetBasis;
 
-  for (uint32_t family = 0; family < kReadinessFamilyCount; ++family) {
-    const uint32_t y = kTop + family * kRowStride + kSampleOffset;
-    const uint32_t first_pixel = ReadPixel(kLeft + kSampleOffset, y);
-    const uint32_t second_pixel =
-        ReadPixel(kLeft + kColumnStride + kSampleOffset, y);
-    ASSERT(first_pixel != kBackgroundColor);
-    ASSERT(second_pixel != kBackgroundColor);
-    if (!uniform_only) {
-      ASSERT(first_pixel == second_pixel);
+  for (uint32_t pass = 0; pass < passes; ++pass) {
+    for (uint32_t family = 0; family < kReadinessFamilyCount; ++family) {
+      const uint32_t y = kReadinessTop +
+          family * kReadinessRowStride + kReadinessSampleOffset;
+      for (uint32_t variant = 0;
+           variant < kReadinessCombinerVariantCount; ++variant) {
+        const uint32_t column =
+            pass * kReadinessCombinerVariantCount + variant;
+        const uint32_t pixel = ReadPixel(
+            kReadinessLeft + column * kReadinessColumnStride +
+                kReadinessSampleOffset,
+            y);
+        const uint32_t expected =
+            ExpectedReadinessColor(uniform_only, family, variant);
+        ASSERT(pixel == expected);
+        checksum = Fnv1aWord(checksum, pixel);
+      }
     }
-    checksum = Fnv1aWord(checksum, first_pixel);
-    checksum = Fnv1aWord(checksum, second_pixel);
   }
   return checksum;
 }
@@ -243,7 +268,8 @@ void ShaderLifecycleTests::RunReadinessScenario(
   });
   host_.WaitForGpu();
   EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
-  const uint32_t result_kat = ValidateReadinessFamilies(uniform_only);
+  const uint32_t result_kat =
+      ValidateReadinessFamilies(passes, uniform_only);
   PrintMsg("SHADER_LIFECYCLE_READINESS families=%lu combiner_variants=%lu "
            "passes=%lu uniform_only=%lu interpass_delay_ms=%lu "
            "no_omission=1 result_kat=%08lx\n",
