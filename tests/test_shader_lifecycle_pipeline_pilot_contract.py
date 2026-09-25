@@ -31,13 +31,24 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         draw_end = source.index("\n}", draw_start)
         draw = source[draw_start:draw_end]
 
-        self.assertIn("NV097_SET_COLOR_MASK", draw)
+        # Color write masks are dynamic state in xemu and therefore cannot
+        # provide the distinct fixed-pipeline identities this workload needs.
+        self.assertNotIn("variant.color_mask", draw)
+        self.assertIn("kAllChannels", draw)
+        self.assertIn("variant.source_factor", draw)
+        self.assertIn("variant.destination_factor", draw)
         self.assertIn("NV097_SET_BLEND_FUNC_SFACTOR", draw)
         self.assertIn("NV097_SET_BLEND_FUNC_DFACTOR", draw)
         self.assertIn("NV097_SET_BLEND_EQUATION", draw)
         self.assertIn("host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE)", draw)
         self.assertNotIn("SetVertexShaderProgram", draw)
         self.assertNotIn("SetShaderStageProgram", draw)
+
+        self.assertIn("AllPipelineVariantsHaveUniqueBlendIdentity()", source)
+        self.assertIn(
+            "static_assert(AllPipelineVariantsHaveUniqueBlendIdentity())",
+            source,
+        )
 
     def test_capacity_and_control_routes_have_separate_launch_plans(self) -> None:
         expected = {

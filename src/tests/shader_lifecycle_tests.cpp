@@ -42,40 +42,86 @@ static constexpr uint32_t kAlpha =
 static constexpr uint32_t kAllChannels = kBlue | kGreen | kRed | kAlpha;
 
 struct PipelineVariant {
-  uint32_t color_mask;
-  bool blend;
+  uint32_t source_factor;
+  uint32_t destination_factor;
   uint32_t blend_equation;
 };
 
-// The first fifteen entries are every non-empty color-write mask. The final
-// two retain the full mask but select distinct legal blend pipelines. Shader,
-// texture, geometry, render target, and vertex format state remain fixed.
+// Color-write masks are dynamic Vulkan state in xemu, so they do not create
+// distinct fixed-pipeline recipes. These entries instead exercise all legal
+// NV2A source factors and two additional equations while shader, texture,
+// geometry, render target, color mask, and vertex format state remain fixed.
 static constexpr std::array<PipelineVariant, kPipelineVariantCount>
     kPipelineVariants{{
-        {kBlue, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kGreen, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kBlue | kGreen, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kRed, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kRed | kBlue, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kRed | kGreen, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kRed | kGreen | kBlue, false,
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ZERO,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
          NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kBlue, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kGreen, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kGreen | kBlue, false,
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
          NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kRed, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kRed | kBlue, false,
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
          NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAlpha | kRed | kGreen, false,
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_SRC_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
          NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAllChannels, false, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAllChannels, true, NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {kAllChannels, true,
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_SRC_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_DST_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_DST_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_DST_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_DST_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_ALPHA_SATURATE,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_CONSTANT_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_CONSTANT_COLOR,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_CONSTANT_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_CONSTANT_ALPHA,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
+         NV097_SET_BLEND_EQUATION_V_FUNC_SUBTRACT},
+        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
+         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
          NV097_SET_BLEND_EQUATION_V_FUNC_REVERSE_SUBTRACT},
     }};
 static_assert(kPipelineVariants.size() == kPipelineVariantCount);
+
+static constexpr bool AllPipelineVariantsHaveUniqueBlendIdentity() {
+  for (size_t lhs = 0; lhs < kPipelineVariants.size(); ++lhs) {
+    for (size_t rhs = lhs + 1; rhs < kPipelineVariants.size(); ++rhs) {
+      const PipelineVariant &a = kPipelineVariants[lhs];
+      const PipelineVariant &b = kPipelineVariants[rhs];
+      if (a.source_factor == b.source_factor &&
+          a.destination_factor == b.destination_factor &&
+          a.blend_equation == b.blend_equation) {
+        return false;
+      }
+    }
+  }
+  return true;
+}
+static_assert(AllPipelineVariantsHaveUniqueBlendIdentity());
 
 static uint32_t UniformColor(uint32_t index) {
   const uint32_t red = 0x30U + (index * 37U) % 0xC0U;
@@ -164,15 +210,15 @@ void ShaderLifecycleTests::DrawPipelineVariants(uint32_t variant_count,
   for (uint32_t pass = 0; pass < passes; ++pass) {
     for (uint32_t index = 0; index < variant_count; ++index) {
       const PipelineVariant &variant = uniform_only
-          ? kPipelineVariants[kPipelineJobCapacity - 2]
+          ? kPipelineVariants[1]
           : kPipelineVariants[index];
-      host_.SetBlend(variant.blend);
+      host_.SetBlend(true);
       Pushbuffer::Begin();
-      Pushbuffer::Push(NV097_SET_COLOR_MASK, variant.color_mask);
+      Pushbuffer::Push(NV097_SET_COLOR_MASK, kAllChannels);
       Pushbuffer::Push(NV097_SET_BLEND_FUNC_SFACTOR,
-                       NV097_SET_BLEND_FUNC_SFACTOR_V_ONE);
+                       variant.source_factor);
       Pushbuffer::Push(NV097_SET_BLEND_FUNC_DFACTOR,
-                       NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO);
+                       variant.destination_factor);
       Pushbuffer::Push(NV097_SET_BLEND_EQUATION, variant.blend_equation);
       Pushbuffer::End();
 

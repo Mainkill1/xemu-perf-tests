@@ -2,9 +2,12 @@
 
 This is the first executable slice of the PR #43 design. It holds shader,
 texture, geometry, target, and vertex-format identity fixed while generating 17
-legal full-pipeline identities: all 15 non-empty color-write masks and two
-blend-equation variants. The audited xemu pipeline-job capacity is 16, so the
-separate C-1, C, and C+1 launches request 15, 16, and 17 identities.
+legal full-pipeline identities: all 15 legal NV2A source-blend factors and two
+additional blend-equation variants. Color-write masks are held fixed because
+xemu implements them as dynamic state, so changing only the mask does not
+create a distinct fixed-pipeline recipe. The audited xemu pipeline-job capacity
+is 16, so the separate C-1, C, and C+1 launches request 15, 16, and 17
+identities.
 
 The guest has six independent launch plans. `pipeline.train` populates the
 shader-module cache and fallback-family history. After a clean xemu process
