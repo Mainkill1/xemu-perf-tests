@@ -15,11 +15,14 @@ class ShaderLifecycleTests : public TestSuite {
 
  private:
   void RunPipelineScenario(const char *test_name, uint32_t variant_count,
-                           uint32_t passes, bool uniform_only);
+                           uint32_t passes, bool uniform_only,
+                           bool safe_omission);
   void ConfigureFixedShader() const;
   void DrawPipelineVariants(uint32_t variant_count, uint32_t passes,
-                            bool uniform_only) const;
-  uint32_t ValidatePipelineVariants(uint32_t variant_count) const;
+                            bool uniform_only, bool safe_omission) const;
+  void DrawVisibleSentinel() const;
+  uint32_t ValidatePipelineVariants(uint32_t variant_count,
+                                    bool safe_omission) const;
 };
 
 #endif  // XEMU_PERF_TESTS_SHADER_LIFECYCLE_TESTS_H

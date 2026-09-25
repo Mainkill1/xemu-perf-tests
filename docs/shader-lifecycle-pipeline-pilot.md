@@ -16,6 +16,13 @@ enabled. `pipeline.identical-replay` repeats the same bytes in process;
 `pipeline.uniform-only` changes visible diffuse inputs without changing the
 structural pipeline key.
 
+The C-1/C/C+1 variant draws are side-effect-free: color writes, depth/stencil
+writes, and queries are disabled so Continue may safely omit a not-yet-ready
+pipeline under xemu's conservative policy. A separate unblended visible sentinel
+is drawn afterward and validated, while every variant tile must retain the known
+background color. This keeps the framebuffer oracle meaningful without making
+the queue test depend on replaying an omitted resource-producing draw.
+
 Guest completion, a visible image, 17 requested variants, or background worker
 activity does not prove promotion. The C+1 promotion qualification passes only
 when the matching xemu trace is complete and reports `pipeline-promotion > 0`.

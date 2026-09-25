@@ -29,6 +29,10 @@ static constexpr uint32_t kPipelineJobCapacity = 16;
 static constexpr uint32_t kPipelineVariantCount = kPipelineJobCapacity + 1;
 static constexpr uint32_t kBackgroundColor = 0xFF102030;
 static constexpr uint32_t kSourceColor = 0x8040C080;
+static constexpr uint32_t kSentinelColor = 0xFF40C080;
+static constexpr uint32_t kSentinelX = 16;
+static constexpr uint32_t kSentinelY = 16;
+static constexpr uint32_t kSentinelSize = 32;
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
 static constexpr uint32_t kFnvPrime = 16777619U;
 
@@ -152,26 +156,28 @@ ShaderLifecycleTests::ShaderLifecycleTests(TestHost &host,
                                            const Config &config)
     : TestSuite(host, std::move(output_dir), "ShaderLifecycle", config) {
   tests_[kPipelineTrain] = [this]() {
-    RunPipelineScenario(kPipelineTrain, kPipelineVariantCount, 1, false);
+    RunPipelineScenario(kPipelineTrain, kPipelineVariantCount, 1, false,
+                        false);
   };
   tests_[kPipelineCapacityCMinusOne] = [this]() {
     RunPipelineScenario(kPipelineCapacityCMinusOne,
-                        kPipelineJobCapacity - 1, 1, false);
+                        kPipelineJobCapacity - 1, 1, false, true);
   };
   tests_[kPipelineCapacityC] = [this]() {
-    RunPipelineScenario(kPipelineCapacityC, kPipelineJobCapacity, 1, false);
+    RunPipelineScenario(kPipelineCapacityC, kPipelineJobCapacity, 1, false,
+                        true);
   };
   tests_[kPipelineCapacityCPlusOne] = [this]() {
     RunPipelineScenario(kPipelineCapacityCPlusOne,
-                        kPipelineJobCapacity + 1, 1, false);
+                        kPipelineJobCapacity + 1, 1, false, true);
   };
   tests_[kPipelineIdenticalReplay] = [this]() {
     RunPipelineScenario(kPipelineIdenticalReplay,
-                        kPipelineVariantCount, 2, false);
+                        kPipelineVariantCount, 2, false, false);
   };
   tests_[kPipelineUniformOnly] = [this]() {
     RunPipelineScenario(kPipelineUniformOnly,
-                        kPipelineVariantCount, 1, true);
+                        kPipelineVariantCount, 1, true, false);
   };
 }
 
@@ -188,7 +194,8 @@ void ShaderLifecycleTests::ConfigureFixedShader() const {
 
 void ShaderLifecycleTests::DrawPipelineVariants(uint32_t variant_count,
                                                 uint32_t passes,
-                                                bool uniform_only) const {
+                                                bool uniform_only,
+                                                bool safe_omission) const {
   host_.PrepareDraw(kBackgroundColor);
   host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
   host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
@@ -214,7 +221,8 @@ void ShaderLifecycleTests::DrawPipelineVariants(uint32_t variant_count,
           : kPipelineVariants[index];
       host_.SetBlend(true);
       Pushbuffer::Begin();
-      Pushbuffer::Push(NV097_SET_COLOR_MASK, kAllChannels);
+      Pushbuffer::Push(NV097_SET_COLOR_MASK,
+                       safe_omission ? 0 : kAllChannels);
       Pushbuffer::Push(NV097_SET_BLEND_FUNC_SFACTOR,
                        variant.source_factor);
       Pushbuffer::Push(NV097_SET_BLEND_FUNC_DFACTOR,
@@ -238,10 +246,25 @@ void ShaderLifecycleTests::DrawPipelineVariants(uint32_t variant_count,
   Pushbuffer::Begin();
   Pushbuffer::Push(NV097_SET_COLOR_MASK, kAllChannels);
   Pushbuffer::End();
+  if (safe_omission) {
+    DrawVisibleSentinel();
+  }
+}
+
+void ShaderLifecycleTests::DrawVisibleSentinel() const {
+  host_.SetBlend(false);
+  host_.SetDiffuse(kSentinelColor);
+  host_.Begin(TestHost::PRIMITIVE_QUADS);
+  host_.SetVertex(kSentinelX, kSentinelY, 1.f);
+  host_.SetVertex(kSentinelX + kSentinelSize, kSentinelY, 1.f);
+  host_.SetVertex(kSentinelX + kSentinelSize, kSentinelY + kSentinelSize,
+                  1.f);
+  host_.SetVertex(kSentinelX, kSentinelY + kSentinelSize, 1.f);
+  host_.End();
 }
 
 uint32_t ShaderLifecycleTests::ValidatePipelineVariants(
-    uint32_t variant_count) const {
+    uint32_t variant_count, bool safe_omission) const {
   static constexpr uint32_t kColumns = 8;
   static constexpr uint32_t kLeft = 48;
   static constexpr uint32_t kTop = 96;
@@ -252,8 +275,17 @@ uint32_t ShaderLifecycleTests::ValidatePipelineVariants(
     const uint32_t x = kLeft + (index % kColumns) * kTileWidth + 8;
     const uint32_t y = kTop + (index / kColumns) * kTileHeight + 8;
     const uint32_t pixel = ReadPixel(x, y);
-    ASSERT(pixel != kBackgroundColor);
+    if (safe_omission) {
+      ASSERT(pixel == kBackgroundColor);
+    } else {
+      ASSERT(pixel != kBackgroundColor);
+    }
     checksum = Fnv1aWord(checksum, pixel);
+  }
+  if (safe_omission) {
+    const uint32_t sentinel = ReadPixel(kSentinelX, kSentinelY);
+    ASSERT(ReadPixel(kSentinelX, kSentinelY) != kBackgroundColor);
+    checksum = Fnv1aWord(checksum, sentinel);
   }
   return checksum;
 }
@@ -261,20 +293,23 @@ uint32_t ShaderLifecycleTests::ValidatePipelineVariants(
 void ShaderLifecycleTests::RunPipelineScenario(const char *test_name,
                                                uint32_t variant_count,
                                                uint32_t passes,
-                                               bool uniform_only) {
+                                               bool uniform_only,
+                                               bool safe_omission) {
   ASSERT(variant_count > 0 && variant_count <= kPipelineVariantCount);
   ConfigureFixedShader();
   auto results = Profile(test_name, 1, [this, variant_count, passes,
-                                        uniform_only]() {
-    DrawPipelineVariants(variant_count, passes, uniform_only);
+                                        uniform_only, safe_omission]() {
+    DrawPipelineVariants(variant_count, passes, uniform_only, safe_omission);
   });
   host_.WaitForGpu();
   EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
-  const uint32_t result_kat = ValidatePipelineVariants(variant_count);
-  PrintMsg("SHADER_LIFECYCLE_PIPELINE variants=%lu passes=%lu uniform_only=%lu result_kat=%08lx\n",
+  const uint32_t result_kat =
+      ValidatePipelineVariants(variant_count, safe_omission);
+  PrintMsg("SHADER_LIFECYCLE_PIPELINE variants=%lu passes=%lu uniform_only=%lu safe_omission=%lu result_kat=%08lx\n",
            static_cast<unsigned long>(variant_count),
            static_cast<unsigned long>(passes),
            static_cast<unsigned long>(uniform_only),
+           static_cast<unsigned long>(safe_omission),
            static_cast<unsigned long>(result_kat));
   host_.FinishDraw(suite_name_, test_name, results);
 }

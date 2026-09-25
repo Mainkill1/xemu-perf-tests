@@ -81,6 +81,23 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         self.assertIn("never pooled", doc)
         self.assertIn("does not prove promotion", doc)
 
+    def test_capacity_cells_are_safe_to_omit_but_keep_a_visible_oracle(self) -> None:
+        source = SOURCE_PATH.read_text(encoding="utf-8")
+
+        self.assertIn(
+            "kPipelineJobCapacity + 1, 1, false, true", source
+        )
+        self.assertIn("safe_omission ? 0 : kAllChannels", source)
+        self.assertIn("DrawVisibleSentinel", source)
+        self.assertIn("ASSERT(pixel == kBackgroundColor)", source)
+        self.assertIn("ASSERT(ReadPixel(kSentinelX, kSentinelY) !=", source)
+
+        doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(
+            encoding="utf-8"
+        )
+        self.assertIn("side-effect-free", doc)
+        self.assertIn("visible sentinel", doc)
+
 
 if __name__ == "__main__":
     unittest.main()
