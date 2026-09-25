@@ -44,13 +44,10 @@
 #include <fstream>
 
 static constexpr const char* kLogFileName = "results.txt";
-
 static const int kFramebufferWidth = 640;
 static const int kFramebufferHeight = 480;
 static const int kBitsPerPixel = 32;
-
 static constexpr int kDelayOnFailureMilliseconds = 4000;
-
 const UCHAR kSMCSlaveAddress = 0x20;
 const UCHAR kSMCRegisterPower = 0x02;
 const UCHAR kSMCPowerShutdown = 0x80;
@@ -61,7 +58,6 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
 static void RegisterSuites(TestHost& host, RuntimeConfig& config, std::vector<std::shared_ptr<TestSuite>>& test_suites,
                            const std::string& output_directory);
 static void Shutdown();
-
 extern "C" __cdecl int automount_d_drive(void);
 
 int main() {
@@ -72,17 +68,14 @@ int main() {
     Sleep(kDelayOnFailureMilliseconds);
     return 1;
   }
-
   int status = pb_init();
   if (status) {
     debugPrint("pb_init Error %d\n", status);
     Sleep(kDelayOnFailureMilliseconds);
     return 1;
   }
-
   debugPrint("Initializing...\n");
   pb_show_debug_screen();
-
   if (SDL_Init(SDL_INIT_GAMECONTROLLER)) {
     debugPrint("Failed to initialize SDL_GAMECONTROLLER.\n");
     debugPrint("%s\n", SDL_GetError());
@@ -90,7 +83,6 @@ int main() {
     Sleep(kDelayOnFailureMilliseconds);
     return 1;
   }
-
   if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG)) {
     debugPrint("Failed to initialize SDL_image PNG mode.\n");
     pb_show_debug_screen();
@@ -98,79 +90,55 @@ int main() {
     pb_kill();
     return 1;
   }
-
   RuntimeConfig config;
   {
     std::vector<std::string> errors;
     if (!LoadConfig(config, errors)) {
       debugPrint("Failed to load config, using default values.\n");
-      for (auto& err : errors) {
-        debugPrint("%s\n", err.c_str());
-      }
+      for (auto& err : errors) debugPrint("%s\n", err.c_str());
       pb_show_debug_screen();
     }
   }
-
   if (!EnsureDriveMounted(config.output_directory_path().front())) {
-    debugPrint("Failed to mount %s, please make sure output directory is on a writable drive.\n",
-               config.output_directory_path().c_str());
+    debugPrint("Failed to mount %s, please make sure output directory is on a writable drive.\n", config.output_directory_path().c_str());
     pb_show_debug_screen();
     Sleep(kDelayOnFailureMilliseconds);
     pb_kill();
     return 1;
   };
-
   TestHost::EnsureFolderExists(config.output_directory_path());
-
   std::vector<std::shared_ptr<TestSuite>> test_suites;
   TestHost host(kFramebufferWidth, kFramebufferHeight);
   host.SetWarmupIterations(config.warmup_iterations());
   host.SetMeasurementIterationsMultiplier(config.measurement_iterations_multiplier());
   host.SetGpuCompletionMode(config.gpu_completion_mode());
   RegisterSuites(host, config, test_suites, config.output_directory_path());
-
   {
     std::vector<std::string> errors;
     if (!config.ApplyConfig(test_suites, errors)) {
       debugClearScreen();
       debugPrint("Failed to apply runtime config:\n");
-      for (auto& err : errors) {
-        debugPrint("%s\n", err.c_str());
-      }
+      for (auto& err : errors) debugPrint("%s\n", err.c_str());
       Sleep(kDelayOnFailureMilliseconds);
       pb_kill();
       return 1;
     }
   }
-
   pb_show_front_screen();
   debugClearScreen();
-  if (!RunTests(config, host, test_suites)) {
-    pb_kill();
-    return 2;
-  }
-
+  if (!RunTests(config, host, test_suites)) { pb_kill(); return 2; }
   pb_kill();
   return 0;
 }
 
 static bool EnsureDriveMounted(char drive_letter) {
-  if (nxIsDriveMounted(drive_letter)) {
-    return true;
-  }
-
+  if (nxIsDriveMounted(drive_letter)) return true;
   char dos_path[4] = "x:\\";
   dos_path[0] = drive_letter;
   char device_path[256] = {0};
-  if (XConvertDOSFilenameToXBOX(dos_path, device_path) != STATUS_SUCCESS) {
-    return false;
-  }
-
-  if (!strstr(device_path, R"(\Device\Harddisk0\Partition)")) {
-    return false;
-  }
+  if (XConvertDOSFilenameToXBOX(dos_path, device_path) != STATUS_SUCCESS) return false;
+  if (!strstr(device_path, R"(\Device\Harddisk0\Partition)")) return false;
   device_path[28] = 0;
-
   return nxMountDrive(drive_letter, device_path);
 }
 
@@ -179,27 +147,17 @@ static bool LoadConfig(RuntimeConfig& config, std::vector<std::string>& errors) 
   if (!EnsureDriveMounted(RUNTIME_CONFIG_PATH[0])) {
     debugPrint("Ignoring missing config at %s\n", RUNTIME_CONFIG_PATH);
   } else {
-    if (config.LoadConfig(RUNTIME_CONFIG_PATH, errors)) {
-      return true;
-    } else {
-      debugPrint("Failed to load config at %s\n", RUNTIME_CONFIG_PATH);
-    }
+    if (config.LoadConfig(RUNTIME_CONFIG_PATH, errors)) return true;
+    debugPrint("Failed to load config at %s\n", RUNTIME_CONFIG_PATH);
   }
 #endif
-
   return config.LoadConfig("d:\\xemu_perf_tests_config.json", errors);
 }
 
 static void Shutdown() {
-  // TODO: HalInitiateShutdown doesn't seem to cause Xemu to actually close.
-  // This never sends the SMC command indicating that a shutdown should occur (at least, it never makes it to
-  // `smc_write_data` to be processed).
-  // HalInitiateShutdown();
-
+  // HalInitiateShutdown does not issue the SMC shutdown write used by xemu.
   HalWriteSMBusValue(kSMCSlaveAddress, kSMCRegisterPower, FALSE, kSMCPowerShutdown);
-  while (true) {
-    Sleep(30000);
-  }
+  while (true) Sleep(30000);
 }
 
 static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::shared_ptr<TestSuite>>& test_suites) {
@@ -207,40 +165,34 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   std::string archive_error;
   if (!ArchiveCurrentResults(config.output_directory_path(), archive_error)) {
     debugClearScreen();
-    debugPrint("Cannot preserve previous result.\n%s\n\nCurrent file remains at:\n%s\n",
-               archive_error.c_str(), log_file.c_str());
+    debugPrint("Cannot preserve previous result.\n%s\n\nCurrent file remains at:\n%s\n", archive_error.c_str(), log_file.c_str());
     pb_show_debug_screen();
     Sleep(kDelayOnFailureMilliseconds);
     return false;
   }
   Logger::Initialize(log_file, true);
   host.ResetResultLogState();
-  if (config.has_resolved_plan()) {
-    host.ConfigureResolvedPlan(config.plan_id(), config.selected_test_ids());
-  }
-
+  if (config.has_resolved_plan()) host.ConfigureResolvedPlan(config.plan_id(), config.selected_test_ids());
   TestDriver driver(host, test_suites, kFramebufferWidth, kFramebufferHeight, false, config.disable_autorun(),
-                    config.enable_autorun_immediately(),
-                    config.enable_shutdown_on_completion(),
-                    config.output_directory_path());
-
+                    config.enable_autorun_immediately(), config.enable_shutdown_on_completion(), config.output_directory_path());
   Logger::Log() << "[" << std::endl;
   driver.Run();
   Logger::Log() << "]" << std::endl;
   PrintMsg("Test loop completed normally\n");
   Logger::Log().close();
-
   std::string plan_error;
   const bool plan_complete = host.ValidateResolvedPlan(plan_error);
   if (config.has_resolved_plan()) {
-    const std::string plan_result_path =
-        config.output_directory_path() + "\\resolved-plan-result.json";
+    const std::string plan_result_path = config.output_directory_path() + "\\resolved-plan-result.json";
     std::ofstream plan_result(plan_result_path, std::ios_base::trunc);
     if (!plan_result) {
       debugPrint("Failed to write resolved plan result at %s\n", plan_result_path.c_str());
       return false;
     }
-    plan_result << "{\n  \"schema_version\": 1,\n  \"plan_id\": \""
+    // The host binds this catalog identity to the unchanged XISO SHA-256.
+    // Echo the plan only after all selected leaves and the result file close.
+    plan_result << "{\n  \"schema_version\": 2,\n  \"catalog_id\": \""
+                << TestCatalogId() << "\",\n  \"plan_id\": \""
                 << config.plan_id() << "\",\n  \"selected_leaf_count\": "
                 << config.selected_leaf_count() << ",\n  \"emitted_leaf_count\": "
                 << host.EmittedLeafCount() << ",\n  \"completion\": \""
@@ -251,7 +203,6 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
       return false;
     }
   }
-
   const bool oracle_pass = host.OracleFailureCount() == 0;
   const bool soft_pass = host.SoftFailureCount() == 0;
   const bool run_pass = plan_complete && oracle_pass && soft_pass;
@@ -259,47 +210,28 @@ static bool RunTests(RuntimeConfig& config, TestHost& host, std::vector<std::sha
   debugPrint("xemu perf tests: %s\n\n", run_pass ? "PASS" : "FAIL");
   debugPrint("Catalog: %s\n", TestCatalogId());
   debugPrint("Results: %s\n", log_file.c_str());
-  debugPrint("Leaves: %lu  Groups: %lu\n",
-             static_cast<unsigned long>(host.RecordedLeafCount()),
-             static_cast<unsigned long>(host.RecordedGroupCount()));
-  debugPrint("Oracle failures: %lu\n",
-             static_cast<unsigned long>(host.OracleFailureCount()));
-  debugPrint("Soft failures: %lu\n",
-             static_cast<unsigned long>(host.SoftFailureCount()));
-  if (!soft_pass) {
-    debugPrint("First failure: %s\n", host.FirstSoftFailure().c_str());
-  } else if (!oracle_pass) {
-    debugPrint("First failure: %s\n", host.FirstOracleFailure().c_str());
-  }
-  if (!plan_complete) {
-    debugPrint("Plan: INCOMPLETE\n%s\n", plan_error.c_str());
-  } else {
-    debugPrint("Plan: COMPLETE\n");
-  }
-  debugPrint("\nFinal screen: %lu seconds\n",
-             static_cast<unsigned long>(
-                 config.reboot_or_shutdown_delay_ms() / 1000));
+  debugPrint("Leaves: %lu  Groups: %lu\n", static_cast<unsigned long>(host.RecordedLeafCount()), static_cast<unsigned long>(host.RecordedGroupCount()));
+  debugPrint("Oracle failures: %lu\n", static_cast<unsigned long>(host.OracleFailureCount()));
+  debugPrint("Soft failures: %lu\n", static_cast<unsigned long>(host.SoftFailureCount()));
+  if (!soft_pass) debugPrint("First failure: %s\n", host.FirstSoftFailure().c_str());
+  else if (!oracle_pass) debugPrint("First failure: %s\n", host.FirstOracleFailure().c_str());
+  if (!plan_complete) debugPrint("Plan: INCOMPLETE\n%s\n", plan_error.c_str());
+  else debugPrint("Plan: COMPLETE\n");
+  debugPrint("\nFinal screen: %lu seconds\n", static_cast<unsigned long>(config.reboot_or_shutdown_delay_ms() / 1000));
   pb_show_debug_screen();
-  // This configurable hold is zero for unattended runners and should be at
-  // least 30 seconds in physical-console plans. No hidden UI delay is added.
   Sleep(config.reboot_or_shutdown_delay_ms());
-
-  if (config.enable_shutdown_on_completion()) {
-    Shutdown();
-  }
+  if (config.enable_shutdown_on_completion()) Shutdown();
   return run_pass;
 }
 
 static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
                            std::vector<std::shared_ptr<TestSuite>>& test_suites, const std::string& output_directory) {
   const auto& config = runtime_config.test_suite_config();
-
-#define REG_TEST(CLASS_NAME)                                                   \
-  {                                                                            \
+#define REG_TEST(CLASS_NAME) \
+  { \
     auto suite = std::make_shared<CLASS_NAME>(host, output_directory, config); \
-    test_suites.push_back(suite);                                              \
+    test_suites.push_back(suite); \
   }
-
   // -- Begin REG_TEST --
   REG_TEST(BusyPfifoTests)
   REG_TEST(CpuFloatingPointTests)
@@ -321,6 +253,5 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(UniformThrashTests)
   REG_TEST(VertexBufferAllocationTests)
   // -- End REG_TEST --
-
 #undef REG_TEST
 }
