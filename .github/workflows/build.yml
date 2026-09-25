@@ -1,99 +1,83 @@
 name: Build
-
 on:
   push:
-    branches:
-      - main
-    paths-ignore:
-      - '.github/**'
-      - '!.github/workflows/**'
-      - 'README.md'
+    branches: [main]
+    paths-ignore: ['README.md']
   pull_request:
-    paths-ignore:
-      - '.github/**'
-      - '!.github/workflows/**'
-      - 'README.md'
+    paths-ignore: ['README.md']
   workflow_dispatch:
-
 concurrency:
   group: ${{ github.workflow }}-${{ github.head_ref }}
   cancel-in-progress: ${{ startsWith(github.ref, 'refs/pull/') }}
-
 jobs:
   BuildISO:
     name: Build ISO
     runs-on: ubuntu-latest
     steps:
-    - name: Clone tree
-      uses: actions/checkout@v7
-      with:
-        submodules: recursive
-    - name: Install dependencies
-      run: |
-        sudo apt-get update
-        sudo apt-get install -y \
-          llvm \
-          lld
-        pip3 install -r requirements.txt --break-system-packages
-
-    - name: Compile
-      run: |
-        export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
-        cmake -B build \
-              -DCMAKE_BUILD_TYPE=Release \
-              -DCMAKE_TOOLCHAIN_FILE="${NXDK_DIR}/share/toolchain-nxdk.cmake"
-        cmake --build build -- -j$(grep -c processor /proc/cpuinfo)
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v7
-      with:
-        name: xemu_perf_tests_xiso
-        path: build/src/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
-
+      - name: Clone tree
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm lld
+          pip3 install -r requirements.txt --break-system-packages
+      - name: Validate suite catalog and bundle contracts
+        run: |
+          python3 utils/test_catalog.py --check
+          python3 -m unittest discover -s tests -p 'test_runner_bundle.py' -v
+      - name: Compile
+        run: |
+          export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${NXDK_DIR}/share/toolchain-nxdk.cmake"
+          cmake --build build -- -j$(grep -c processor /proc/cpuinfo)
+      - name: Bind exact ISO and catalog in a runner bundle
+        run: |
+          python3 utils/package_runner_suite.py --iso build/src/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso --source-commit "$(git rev-parse HEAD)"
+      - name: Upload runner suite
+        uses: actions/upload-artifact@v7
+        with:
+          name: xemu-runner-suite
+          path: build/runner-suite/
+          if-no-files-found: error
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: xemu_perf_tests_xiso
+          path: build/src/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
   DeployDocs:
     runs-on: ubuntu-latest
     needs: [BuildISO]
     steps:
-      - name: Clone tree
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
       - name: Install Doxygen and Graphviz
         run: sudo apt-get install doxygen graphviz
       - name: Generate docs
         run: cmake -S . -B build -DDOCS_ONLY=on && cmake --build build --verbose -- doc
-      - name: Generate xemu_perf_tests_registry
+      - name: Generate registry
         run: python3 .github/scripts/summarize_test_suites.py xml
-      - name: Upload generated documentation
-        uses: actions/upload-artifact@v7
+      - uses: actions/upload-artifact@v7
         with:
           name: xemu_perf_tests_docs
           path: |
             docs/
             xml/
-
   BuildMacOS:
     name: Build macOS
     runs-on: macOS-latest
-
     steps:
-      - name: Clone tree
-        uses: actions/checkout@v7
+      - uses: actions/checkout@v7
         with:
           submodules: recursive
-
       - name: Install dependencies
         run: |
-          export HOMEBREW_NO_AUTO_UPDATE=1
-          export HOMEBREW_NO_INSTALL_CLEANUP=1
-          brew install \
-            cmake \
-            coreutils \
-            llvm \
-            lld
+          export HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_NO_INSTALL_CLEANUP=1
+          brew install cmake coreutils llvm lld
           export PIP_BREAK_SYSTEM_PACKAGES=1
           pip3 install -r requirements.txt
-
       - name: Compile
         run: |
           LLVMDIR="$(brew --prefix llvm)"
@@ -101,10 +85,6 @@ jobs:
           export PATH="${LLVMDIR}/bin:${LLDDIR}/bin:$PATH"
           export LDFLAGS="-L${LLVMDIR}/lib/c++ -L${LLVMDIR}/lib -L${LLDDIR}/lib"
           export CPPFLAGS="-I${LLDDIR}/include"
-
           export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
-          cmake -B build \
-                -DCMAKE_BUILD_TYPE=Release \
-                -DCMAKE_TOOLCHAIN_FILE="${NXDK_DIR}/share/toolchain-nxdk.cmake" \
-                -DDUMP_CONFIG_FILE=OFF
+          cmake -B build -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE="${NXDK_DIR}/share/toolchain-nxdk.cmake" -DDUMP_CONFIG_FILE=OFF
           cmake --build build -- -j
