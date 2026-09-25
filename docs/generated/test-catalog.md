@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:c16d1ac170eb4082c08abe8cb235e43c00b89663f5bbcdbebb2790a16c05599d` contains 165 leaves and 5 groups.
+Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747` contains 159 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -36,12 +36,6 @@ Catalog `sha256:c16d1ac170eb4082c08abe8cb235e43c00b89663f5bbcdbebb2790a16c05599d
 | `report_query.fifo_producer_ordering` | leaf | `ReportQuery::report.fifo-producer-ordering` |
 | `report_query.dma_descriptor_rewrite` | leaf | `ReportQuery::report.dma-descriptor-rewrite` |
 | `report_query.dma_range_guard` | leaf | `ReportQuery::report.dma-range-guard` |
-| `shader_lifecycle.pipeline_train` | leaf | `ShaderLifecycle::pipeline.train` |
-| `shader_lifecycle.pipeline_capacity_c_minus_one` | leaf | `ShaderLifecycle::pipeline.capacity-c-minus-one` |
-| `shader_lifecycle.pipeline_capacity_c` | leaf | `ShaderLifecycle::pipeline.capacity-c` |
-| `shader_lifecycle.pipeline_capacity_c_plus_one` | leaf | `ShaderLifecycle::pipeline.capacity-c-plus-one` |
-| `shader_lifecycle.pipeline_identical_replay` | leaf | `ShaderLifecycle::pipeline.identical-replay` |
-| `shader_lifecycle.pipeline_uniform_only` | leaf | `ShaderLifecycle::pipeline.uniform-only` |
 | `shader_lifecycle.readiness_train_visible` | leaf | `ShaderLifecycle::readiness.train-visible` |
 | `shader_lifecycle.readiness_replay_visible` | leaf | `ShaderLifecycle::readiness.replay-visible` |
 | `shader_lifecycle.readiness_identical_replay` | leaf | `ShaderLifecycle::readiness.identical-replay` |

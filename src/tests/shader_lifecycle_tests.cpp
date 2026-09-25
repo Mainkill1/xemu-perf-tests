@@ -13,15 +13,6 @@ using namespace PBKitPlusPlus;
 
 namespace {
 
-static constexpr char kPipelineTrain[] = "pipeline.train";
-static constexpr char kPipelineCapacityCMinusOne[] =
-    "pipeline.capacity-c-minus-one";
-static constexpr char kPipelineCapacityC[] = "pipeline.capacity-c";
-static constexpr char kPipelineCapacityCPlusOne[] =
-    "pipeline.capacity-c-plus-one";
-static constexpr char kPipelineIdenticalReplay[] =
-    "pipeline.identical-replay";
-static constexpr char kPipelineUniformOnly[] = "pipeline.uniform-only";
 static constexpr char kReadinessTrainVisible[] = "readiness.train-visible";
 static constexpr char kReadinessReplayVisible[] = "readiness.replay-visible";
 static constexpr char kReadinessIdenticalReplay[] =
@@ -29,20 +20,11 @@ static constexpr char kReadinessIdenticalReplay[] =
 static constexpr char kReadinessUniformOnly[] = "readiness.uniform-only";
 static constexpr char kReadinessEarlyDemand[] = "readiness.early-demand";
 
-// Audited from the xemu renderer revision named by PR #43. Runtime traces must
-// still report the effective capacity; a mismatch invalidates C-1/C/C+1 labels.
-static constexpr uint32_t kPipelineJobCapacity = 16;
-static constexpr uint32_t kPipelineVariantCount = kPipelineJobCapacity + 1;
 static constexpr uint32_t kReadinessFamilyCount = 3;
 static constexpr uint32_t kReadinessCombinerVariantCount = 2;
 static constexpr uint32_t kReadinessSpecializationLeadMs = 2000;
 static constexpr uint32_t kReadinessVisibleResultHoldMs = 10000;
 static constexpr uint32_t kBackgroundColor = 0xFF102030;
-static constexpr uint32_t kSourceColor = 0x8040C080;
-static constexpr uint32_t kSentinelColor = 0xFF40C080;
-static constexpr uint32_t kSentinelX = 16;
-static constexpr uint32_t kSentinelY = 16;
-static constexpr uint32_t kSentinelSize = 32;
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
 static constexpr uint32_t kFnvPrime = 16777619U;
 
@@ -61,88 +43,6 @@ static constexpr std::array<TestHost::DrawPrimitive, kReadinessFamilyCount>
         TestHost::PRIMITIVE_TRIANGLE_STRIP,
         TestHost::PRIMITIVE_QUADS,
     }};
-
-struct PipelineVariant {
-  uint32_t source_factor;
-  uint32_t destination_factor;
-  uint32_t blend_equation;
-};
-
-// Color-write masks are dynamic Vulkan state in xemu, so they do not create
-// distinct fixed-pipeline recipes. These entries instead exercise all legal
-// NV2A source factors and two additional equations while shader, texture,
-// geometry, render target, color mask, and vertex format state remain fixed.
-static constexpr std::array<PipelineVariant, kPipelineVariantCount>
-    kPipelineVariants{{
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ZERO,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_SRC_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_SRC_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_DST_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_DST_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_DST_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_DST_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_SRC_ALPHA_SATURATE,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_CONSTANT_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_CONSTANT_COLOR,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_CONSTANT_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE_MINUS_CONSTANT_ALPHA,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_ADD},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_SUBTRACT},
-        {NV097_SET_BLEND_FUNC_SFACTOR_V_ONE,
-         NV097_SET_BLEND_FUNC_DFACTOR_V_ZERO,
-         NV097_SET_BLEND_EQUATION_V_FUNC_REVERSE_SUBTRACT},
-    }};
-static_assert(kPipelineVariants.size() == kPipelineVariantCount);
-
-static constexpr bool AllPipelineVariantsHaveUniqueBlendIdentity() {
-  for (size_t lhs = 0; lhs < kPipelineVariants.size(); ++lhs) {
-    for (size_t rhs = lhs + 1; rhs < kPipelineVariants.size(); ++rhs) {
-      const PipelineVariant &a = kPipelineVariants[lhs];
-      const PipelineVariant &b = kPipelineVariants[rhs];
-      if (a.source_factor == b.source_factor &&
-          a.destination_factor == b.destination_factor &&
-          a.blend_equation == b.blend_equation) {
-        return false;
-      }
-    }
-  }
-  return true;
-}
-static_assert(AllPipelineVariantsHaveUniqueBlendIdentity());
 
 static uint32_t UniformColor(uint32_t index) {
   const uint32_t red = 0x30U + (index * 37U) % 0xC0U;
@@ -172,30 +72,6 @@ ShaderLifecycleTests::ShaderLifecycleTests(TestHost &host,
                                            std::string output_dir,
                                            const Config &config)
     : TestSuite(host, std::move(output_dir), "ShaderLifecycle", config) {
-  tests_[kPipelineTrain] = [this]() {
-    RunPipelineScenario(kPipelineTrain, kPipelineVariantCount, 1, false,
-                        false);
-  };
-  tests_[kPipelineCapacityCMinusOne] = [this]() {
-    RunPipelineScenario(kPipelineCapacityCMinusOne,
-                        kPipelineJobCapacity - 1, 1, false, true);
-  };
-  tests_[kPipelineCapacityC] = [this]() {
-    RunPipelineScenario(kPipelineCapacityC, kPipelineJobCapacity, 1, false,
-                        true);
-  };
-  tests_[kPipelineCapacityCPlusOne] = [this]() {
-    RunPipelineScenario(kPipelineCapacityCPlusOne,
-                        kPipelineJobCapacity + 1, 2, false, true);
-  };
-  tests_[kPipelineIdenticalReplay] = [this]() {
-    RunPipelineScenario(kPipelineIdenticalReplay,
-                        kPipelineVariantCount, 2, false, false);
-  };
-  tests_[kPipelineUniformOnly] = [this]() {
-    RunPipelineScenario(kPipelineUniformOnly,
-                        kPipelineVariantCount, 1, true, false);
-  };
   tests_[kReadinessTrainVisible] = [this]() {
     RunReadinessScenario(kReadinessTrainVisible, 1, false);
   };
@@ -223,128 +99,6 @@ void ShaderLifecycleTests::ConfigureFixedShader() const {
   host_.SetupTextureStages();
   host_.SetShaderStageProgram(TestHost::STAGE_NONE, TestHost::STAGE_NONE,
                               TestHost::STAGE_NONE, TestHost::STAGE_NONE);
-}
-
-void ShaderLifecycleTests::DrawPipelineVariants(uint32_t variant_count,
-                                                uint32_t passes,
-                                                bool uniform_only,
-                                                bool safe_omission) const {
-  host_.PrepareDraw(kBackgroundColor);
-  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
-  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
-
-  Pushbuffer::Begin();
-  Pushbuffer::Push(NV097_SET_ALPHA_TEST_ENABLE, false);
-  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
-  Pushbuffer::Push(NV097_SET_DEPTH_MASK, false);
-  Pushbuffer::Push(NV097_SET_STENCIL_TEST_ENABLE, false);
-  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
-  Pushbuffer::End();
-
-  static constexpr float kLeft = 48.f;
-  static constexpr float kTop = 96.f;
-  static constexpr float kTileWidth = 64.f;
-  static constexpr float kTileHeight = 56.f;
-  static constexpr uint32_t kColumns = 8;
-
-  for (uint32_t pass = 0; pass < passes; ++pass) {
-    for (uint32_t index = 0; index < variant_count; ++index) {
-      const PipelineVariant &variant = uniform_only
-          ? kPipelineVariants[1]
-          : kPipelineVariants[index];
-      host_.SetBlend(true);
-      Pushbuffer::Begin();
-      Pushbuffer::Push(NV097_SET_COLOR_MASK,
-                       safe_omission ? 0 : kAllChannels);
-      Pushbuffer::Push(NV097_SET_BLEND_FUNC_SFACTOR,
-                       variant.source_factor);
-      Pushbuffer::Push(NV097_SET_BLEND_FUNC_DFACTOR,
-                       variant.destination_factor);
-      Pushbuffer::Push(NV097_SET_BLEND_EQUATION, variant.blend_equation);
-      Pushbuffer::End();
-
-      host_.SetDiffuse(uniform_only ? UniformColor(index) : kSourceColor);
-      const float left = kLeft + (index % kColumns) * kTileWidth;
-      const float top = kTop + (index / kColumns) * kTileHeight;
-      host_.Begin(TestHost::PRIMITIVE_QUADS);
-      host_.SetVertex(left, top, 1.f);
-      host_.SetVertex(left + kTileWidth - 4.f, top, 1.f);
-      host_.SetVertex(left + kTileWidth - 4.f, top + kTileHeight - 4.f, 1.f);
-      host_.SetVertex(left, top + kTileHeight - 4.f, 1.f);
-      host_.End();
-    }
-  }
-
-  host_.SetBlend(false);
-  Pushbuffer::Begin();
-  Pushbuffer::Push(NV097_SET_COLOR_MASK, kAllChannels);
-  Pushbuffer::End();
-  if (safe_omission) {
-    DrawVisibleSentinel();
-  }
-}
-
-void ShaderLifecycleTests::DrawVisibleSentinel() const {
-  host_.SetBlend(false);
-  host_.SetDiffuse(kSentinelColor);
-  host_.Begin(TestHost::PRIMITIVE_QUADS);
-  host_.SetVertex(kSentinelX, kSentinelY, 1.f);
-  host_.SetVertex(kSentinelX + kSentinelSize, kSentinelY, 1.f);
-  host_.SetVertex(kSentinelX + kSentinelSize, kSentinelY + kSentinelSize,
-                  1.f);
-  host_.SetVertex(kSentinelX, kSentinelY + kSentinelSize, 1.f);
-  host_.End();
-}
-
-uint32_t ShaderLifecycleTests::ValidatePipelineVariants(
-    uint32_t variant_count, bool safe_omission) const {
-  static constexpr uint32_t kColumns = 8;
-  static constexpr uint32_t kLeft = 48;
-  static constexpr uint32_t kTop = 96;
-  static constexpr uint32_t kTileWidth = 64;
-  static constexpr uint32_t kTileHeight = 56;
-  uint32_t checksum = kFnvOffsetBasis;
-  for (uint32_t index = 0; index < variant_count; ++index) {
-    const uint32_t x = kLeft + (index % kColumns) * kTileWidth + 8;
-    const uint32_t y = kTop + (index / kColumns) * kTileHeight + 8;
-    const uint32_t pixel = ReadPixel(x, y);
-    if (safe_omission) {
-      ASSERT(pixel == kBackgroundColor);
-    } else {
-      ASSERT(pixel != kBackgroundColor);
-    }
-    checksum = Fnv1aWord(checksum, pixel);
-  }
-  if (safe_omission) {
-    const uint32_t sentinel = ReadPixel(kSentinelX, kSentinelY);
-    ASSERT(ReadPixel(kSentinelX, kSentinelY) != kBackgroundColor);
-    checksum = Fnv1aWord(checksum, sentinel);
-  }
-  return checksum;
-}
-
-void ShaderLifecycleTests::RunPipelineScenario(const char *test_name,
-                                               uint32_t variant_count,
-                                               uint32_t passes,
-                                               bool uniform_only,
-                                               bool safe_omission) {
-  ASSERT(variant_count > 0 && variant_count <= kPipelineVariantCount);
-  ConfigureFixedShader();
-  auto results = Profile(test_name, 1, [this, variant_count, passes,
-                                        uniform_only, safe_omission]() {
-    DrawPipelineVariants(variant_count, passes, uniform_only, safe_omission);
-  });
-  host_.WaitForGpu();
-  EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
-  const uint32_t result_kat =
-      ValidatePipelineVariants(variant_count, safe_omission);
-  PrintMsg("SHADER_LIFECYCLE_PIPELINE variants=%lu passes=%lu uniform_only=%lu safe_omission=%lu result_kat=%08lx\n",
-           static_cast<unsigned long>(variant_count),
-           static_cast<unsigned long>(passes),
-           static_cast<unsigned long>(uniform_only),
-           static_cast<unsigned long>(safe_omission),
-           static_cast<unsigned long>(result_kat));
-  host_.FinishDraw(suite_name_, test_name, results);
 }
 
 void ShaderLifecycleTests::ConfigureReadinessCombiner(
@@ -409,9 +163,8 @@ void ShaderLifecycleTests::DrawReadinessTile(
   host_.End();
 }
 
-void ShaderLifecycleTests::DrawReadinessFamilies(uint32_t passes,
-                                                 bool uniform_only,
-                                                 uint32_t interpass_delay_ms) const {
+void ShaderLifecycleTests::DrawReadinessFamilies(
+    uint32_t passes, bool uniform_only, uint32_t interpass_delay_ms) const {
   static constexpr float kLeft = 72.f;
   static constexpr float kTop = 72.f;
   static constexpr float kColumnStride = 240.f;
@@ -446,11 +199,9 @@ void ShaderLifecycleTests::DrawReadinessFamilies(uint32_t passes,
       }
     }
     if (interpass_delay_ms && pass + 1 < passes) {
-      // The first pass must exercise the already-published fallback. The
-      // second pass can be the first demand that queues a full pipeline when
-      // an exact stage was rebuilt after restart. A third identical pass then
-      // proves actual specialized takeover without conflating module and
-      // pipeline readiness.
+      // The first pass exercises the already-published fallback. The second
+      // can queue an exact pipeline after a rebuilt stage; the third proves
+      // actual specialized takeover after publication.
       host_.WaitForGpu();
       Sleep(interpass_delay_ms);
     }
@@ -482,10 +233,9 @@ uint32_t ShaderLifecycleTests::ValidateReadinessFamilies(
   return checksum;
 }
 
-void ShaderLifecycleTests::RunReadinessScenario(const char *test_name,
-                                                uint32_t passes,
-                                                bool uniform_only,
-                                                uint32_t interpass_delay_ms) {
+void ShaderLifecycleTests::RunReadinessScenario(
+    const char *test_name, uint32_t passes, bool uniform_only,
+    uint32_t interpass_delay_ms) {
   ConfigureFixedShader();
   auto results = Profile(test_name, 1, [this, passes, uniform_only,
                                         interpass_delay_ms]() {

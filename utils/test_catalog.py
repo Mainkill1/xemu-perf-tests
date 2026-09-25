@@ -118,14 +118,6 @@ def entries():
         ("dma_range_guard", "report.dma-range-guard")],
         ("report", "gpu", "correctness", "xemu-only"))
     simple("shader_lifecycle", "ShaderLifecycle", [
-        ("pipeline_train", "pipeline.train"),
-        ("pipeline_capacity_c_minus_one", "pipeline.capacity-c-minus-one"),
-        ("pipeline_capacity_c", "pipeline.capacity-c"),
-        ("pipeline_capacity_c_plus_one", "pipeline.capacity-c-plus-one"),
-        ("pipeline_identical_replay", "pipeline.identical-replay"),
-        ("pipeline_uniform_only", "pipeline.uniform-only")],
-        ("shader-lifecycle", "gpu", "correctness", "xemu-only"))
-    simple("shader_lifecycle", "ShaderLifecycle", [
         ("readiness_train_visible", "readiness.train-visible"),
         ("readiness_replay_visible", "readiness.replay-visible"),
         ("readiness_identical_replay", "readiness.identical-replay"),
@@ -656,18 +648,6 @@ def render():
         "output_directory_path": "e:/xemu_perf_tests",
     }
     shader_lifecycle_plans = {
-        "shader-lifecycle-pipeline-train.json":
-            "shader_lifecycle.pipeline_train",
-        "shader-lifecycle-pipeline-c-minus-one.json":
-            "shader_lifecycle.pipeline_capacity_c_minus_one",
-        "shader-lifecycle-pipeline-c.json":
-            "shader_lifecycle.pipeline_capacity_c",
-        "shader-lifecycle-pipeline-c-plus-one.json":
-            "shader_lifecycle.pipeline_capacity_c_plus_one",
-        "shader-lifecycle-pipeline-identical-replay.json":
-            "shader_lifecycle.pipeline_identical_replay",
-        "shader-lifecycle-pipeline-uniform-only.json":
-            "shader_lifecycle.pipeline_uniform_only",
         "shader-lifecycle-readiness-train-visible.json":
             "shader_lifecycle.readiness_train_visible",
         "shader-lifecycle-readiness-replay-visible.json":

@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Static contracts for the first native shader-lifecycle synthetic."""
+"""Static contracts for the visible learned-fallback readiness synthetic."""
 
 import json
 import unittest
@@ -11,7 +11,7 @@ SOURCE_PATH = ROOT / "src/tests/shader_lifecycle_tests.cpp"
 HEADER_PATH = ROOT / "src/tests/shader_lifecycle_tests.h"
 
 
-class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
+class ShaderLifecycleReadinessContractTests(unittest.TestCase):
     def test_suite_is_native_and_registered(self) -> None:
         source = SOURCE_PATH.read_text(encoding="utf-8")
         header = HEADER_PATH.read_text(encoding="utf-8")
@@ -21,83 +21,28 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         self.assertIn("class ShaderLifecycleTests", header)
         self.assertIn("REG_TEST(ShaderLifecycleTests)", main)
         self.assertIn("tests/shader_lifecycle_tests.cpp", cmake)
-        self.assertIn("kPipelineJobCapacity = 16", source)
-        self.assertIn("kPipelineVariantCount = kPipelineJobCapacity + 1", source)
-        self.assertIn("static_assert(kPipelineVariants.size() == kPipelineVariantCount)", source)
+        self.assertIn("kReadinessFamilyCount = 3", source)
+        self.assertIn("kReadinessCombinerVariantCount = 2", source)
 
-    def test_pipeline_identity_changes_without_shader_changes(self) -> None:
+    def test_reduced_scope_excludes_unqualified_capacity_workload(self) -> None:
         source = SOURCE_PATH.read_text(encoding="utf-8")
-        draw_start = source.index("void ShaderLifecycleTests::DrawPipelineVariants")
-        draw_end = source.index("\n}", draw_start)
-        draw = source[draw_start:draw_end]
-
-        # Color write masks are dynamic state in xemu and therefore cannot
-        # provide the distinct fixed-pipeline identities this workload needs.
-        self.assertNotIn("variant.color_mask", draw)
-        self.assertIn("kAllChannels", draw)
-        self.assertIn("variant.source_factor", draw)
-        self.assertIn("variant.destination_factor", draw)
-        self.assertIn("NV097_SET_BLEND_FUNC_SFACTOR", draw)
-        self.assertIn("NV097_SET_BLEND_FUNC_DFACTOR", draw)
-        self.assertIn("NV097_SET_BLEND_EQUATION", draw)
-        self.assertIn("host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE)", draw)
-        self.assertNotIn("SetVertexShaderProgram", draw)
-        self.assertNotIn("SetShaderStageProgram", draw)
-
-        self.assertIn("AllPipelineVariantsHaveUniqueBlendIdentity()", source)
-        self.assertIn(
-            "static_assert(AllPipelineVariantsHaveUniqueBlendIdentity())",
-            source,
+        header = HEADER_PATH.read_text(encoding="utf-8")
+        catalog = json.loads(
+            (ROOT / "resources/catalog.json").read_text(encoding="utf-8")
         )
 
-    def test_capacity_and_control_routes_have_separate_launch_plans(self) -> None:
-        expected = {
-            "shader_lifecycle.pipeline_train": "shader-lifecycle-pipeline-train.json",
-            "shader_lifecycle.pipeline_capacity_c_minus_one": "shader-lifecycle-pipeline-c-minus-one.json",
-            "shader_lifecycle.pipeline_capacity_c": "shader-lifecycle-pipeline-c.json",
-            "shader_lifecycle.pipeline_capacity_c_plus_one": "shader-lifecycle-pipeline-c-plus-one.json",
-            "shader_lifecycle.pipeline_identical_replay": "shader-lifecycle-pipeline-identical-replay.json",
-            "shader_lifecycle.pipeline_uniform_only": "shader-lifecycle-pipeline-uniform-only.json",
-        }
-        catalog = json.loads((ROOT / "resources/catalog.json").read_text(encoding="utf-8"))
-        descriptors = {entry["id"]: entry for entry in catalog["tests"]}
-        for test_id, filename in expected.items():
-            self.assertIn(test_id, descriptors)
-            descriptor = descriptors[test_id]
-            self.assertEqual(descriptor["supported_targets"], ["xemu"])
-            self.assertIn("shader-lifecycle", descriptor["tags"])
-
-            plan = json.loads((ROOT / "resources" / filename).read_text(encoding="utf-8"))
-            self.assertTrue(plan["settings"]["enable_autorun_immediately"])
-            self.assertEqual(plan["settings"]["warmup_iterations"], 0)
-            self.assertEqual(plan["settings"]["measurement_iterations_multiplier"], 1)
-            self.assertEqual(plan["resolved_plan"]["tests"], [{"id": test_id}])
-
-    def test_documented_acceptance_requires_real_promotion(self) -> None:
-        doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(encoding="utf-8")
-        self.assertIn("pipeline-promotion > 0", doc)
-        self.assertIn("Windows", doc)
-        self.assertIn("Steam Deck/Linux", doc)
-        self.assertIn("never pooled", doc)
-        self.assertIn("does not prove promotion", doc)
-
-    def test_capacity_cells_are_safe_to_omit_but_keep_a_visible_oracle(self) -> None:
-        source = SOURCE_PATH.read_text(encoding="utf-8")
-
-        self.assertIn(
-            "kPipelineJobCapacity + 1, 2, false, true", source
+        self.assertNotIn("kPipelineJobCapacity", source)
+        self.assertNotIn("RunPipelineScenario", source)
+        self.assertNotIn("RunPipelineScenario", header)
+        self.assertFalse(
+            any(
+                entry["id"].startswith("shader_lifecycle.pipeline_")
+                for entry in catalog["tests"]
+            )
         )
-        self.assertIn("safe_omission ? 0 : kAllChannels", source)
-        self.assertIn("DrawVisibleSentinel", source)
-        self.assertIn("ASSERT(pixel == kBackgroundColor)", source)
-        self.assertIn("ASSERT(ReadPixel(kSentinelX, kSentinelY) !=", source)
-
-        doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(
-            encoding="utf-8"
+        self.assertFalse(
+            list((ROOT / "resources").glob("shader-lifecycle-pipeline-*.json"))
         )
-        self.assertIn("side-effect-free", doc)
-        self.assertIn("visible sentinel", doc)
-        self.assertIn("The second pass revisits every capacity", doc)
 
     def test_visible_readiness_profile_is_small_and_never_omittable(self) -> None:
         source = SOURCE_PATH.read_text(encoding="utf-8")
@@ -162,6 +107,7 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(
             encoding="utf-8"
         )
+        normalized_doc = " ".join(doc.split())
 
         self.assertIn("kReadinessSpecializationLeadMs = 2000", source)
         self.assertIn("kReadinessVisibleResultHoldMs = 10000", source)
@@ -172,14 +118,16 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         )
         self.assertIn("Sleep(interpass_delay_ms)", source)
         self.assertIn("Sleep(kReadinessVisibleResultHoldMs)", source)
-        self.assertIn("visible, non-omittable readiness profile", doc)
-        self.assertIn("fallback pipeline publication before first demand", doc)
-        self.assertIn("actual submitted use", doc)
-        self.assertIn("missing vertex", doc)
-        self.assertIn("missing geometry", doc)
-        self.assertIn("missing fallback fragment", doc)
-        self.assertIn("early-demand", doc)
-        self.assertIn("does not require a promotion event", doc)
+        self.assertIn("visible, non-omittable readiness profile", normalized_doc)
+        self.assertIn(
+            "fallback pipeline publication before first demand", normalized_doc
+        )
+        self.assertIn("actual submitted use", normalized_doc)
+        self.assertIn("missing vertex", normalized_doc)
+        self.assertIn("missing geometry", normalized_doc)
+        self.assertIn("missing fallback fragment", normalized_doc)
+        self.assertIn("early-demand", normalized_doc)
+        self.assertIn("does not require a promotion event", normalized_doc)
 
 
 if __name__ == "__main__":
