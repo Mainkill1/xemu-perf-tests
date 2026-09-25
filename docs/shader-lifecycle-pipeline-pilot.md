@@ -38,3 +38,40 @@ or averaged across the two machines. Diagnostic worker gates may be used to
 prove ordering and promotion, but any run with a gate enabled is ineligible for
 performance acceptance. Retail PGR2 performance qualification remains
 Windows-only.
+
+## Visible learned-fallback readiness profile
+
+The first acceptance gate for the reduced xemu #203 implementation is a small
+**visible, non-omittable readiness profile**, not the capacity/promotion
+campaign above. It renders three canonical fallback families using triangles,
+triangle strips, and quads. Each family uses two output-equivalent combiner
+programs whose specialized fragment identities differ while their compatible
+fallback combiner state canonicalizes to the same family. Every draw writes a
+required color tile, and every tile is checked; no sentinel or unchanged
+background can substitute for the shading output.
+
+Run `readiness.train-visible`, exit xemu cleanly, and restart with the same
+learned history and effective Vulkan, Prewarm, and shader caching settings.
+Before each focused replay, selectively remove only the owned test-cache
+artifact named in the run manifest. Use separate replays for a missing vertex,
+missing geometry, and missing fallback fragment artifact. Never delete or
+claim control over a user's host-driver cache.
+
+For `readiness.replay-visible`, acceptance requires fallback pipeline publication before first demand
+and actual submitted use of that exact full pipeline.
+The trace must then distinguish the first correct specialized use from the
+earlier correct fallback output. Module publication without a complete
+pipeline, a complete pipeline never used by a submitted draw, or correct final
+pixels without lifecycle ownership is insufficient.
+
+`readiness.identical-replay` and `readiness.uniform-only` must produce no new
+structural compiler work once the trained identities are ready. The separate
+`readiness.early-demand` plan runs with empty history and no preparation lead
+time; it must remain explicitly uncovered rather than being relabeled as a
+prewarm success.
+
+This mechanism proof does not require a promotion event because it changes no
+queue or scheduling policy. Keep the C-1/C/C+1 promotion workload as an
+independent diagnostic. Run the visible readiness profile on Windows and Steam
+Deck/Linux, retain each host's evidence separately, and make no performance
+claim from fault-injected or diagnostically delayed runs.

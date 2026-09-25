@@ -23,6 +23,13 @@ class ShaderLifecycleTests : public TestSuite {
   void DrawVisibleSentinel() const;
   uint32_t ValidatePipelineVariants(uint32_t variant_count,
                                     bool safe_omission) const;
+  void RunReadinessScenario(const char *test_name, uint32_t passes,
+                            bool uniform_only);
+  void ConfigureReadinessCombiner(uint32_t variant) const;
+  void DrawReadinessFamilies(uint32_t passes, bool uniform_only) const;
+  void DrawReadinessTile(TestHost::DrawPrimitive primitive, float left,
+                         float top, float width, float height) const;
+  uint32_t ValidateReadinessFamilies(bool uniform_only) const;
 };
 
 #endif  // XEMU_PERF_TESTS_SHADER_LIFECYCLE_TESTS_H

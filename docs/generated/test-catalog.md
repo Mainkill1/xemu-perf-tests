@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:8307fde80201084ce39706e9490cbdf16cddfb1aa21fc19fecf34942fa2f3dd4` contains 160 leaves and 5 groups.
+Catalog `sha256:c16d1ac170eb4082c08abe8cb235e43c00b89663f5bbcdbebb2790a16c05599d` contains 165 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -42,6 +42,11 @@ Catalog `sha256:8307fde80201084ce39706e9490cbdf16cddfb1aa21fc19fecf34942fa2f3dd4
 | `shader_lifecycle.pipeline_capacity_c_plus_one` | leaf | `ShaderLifecycle::pipeline.capacity-c-plus-one` |
 | `shader_lifecycle.pipeline_identical_replay` | leaf | `ShaderLifecycle::pipeline.identical-replay` |
 | `shader_lifecycle.pipeline_uniform_only` | leaf | `ShaderLifecycle::pipeline.uniform-only` |
+| `shader_lifecycle.readiness_train_visible` | leaf | `ShaderLifecycle::readiness.train-visible` |
+| `shader_lifecycle.readiness_replay_visible` | leaf | `ShaderLifecycle::readiness.replay-visible` |
+| `shader_lifecycle.readiness_identical_replay` | leaf | `ShaderLifecycle::readiness.identical-replay` |
+| `shader_lifecycle.readiness_uniform_only` | leaf | `ShaderLifecycle::readiness.uniform-only` |
+| `shader_lifecycle.readiness_early_demand` | leaf | `ShaderLifecycle::readiness.early-demand` |
 | `game_load.long_unlocked_scene` | group | `GameLoadComposite::08-LongUnlockedScene` |
 | `game_load.long_unlocked_scene.cpu` | leaf | `GameLoadComposite::08-LongUnlockedScene-01-CPU` |
 | `game_load.long_unlocked_scene.pfifo` | leaf | `GameLoadComposite::08-LongUnlockedScene-02-PFIFO` |

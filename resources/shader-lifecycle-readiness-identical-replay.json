@@ -10,12 +10,12 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:63b10a6de8598e910112893ecea6ccd44b623d5f9c3c0d01c2c102fcb711d994",
+    "plan_id": "sha256:b617143639cabc78a4972d9c385dd0524ddcaf1c1e6935929a493b9f0c73a2a8",
     "catalog_id": "sha256:c16d1ac170eb4082c08abe8cb235e43c00b89663f5bbcdbebb2790a16c05599d",
     "selected_leaf_count": 1,
     "tests": [
       {
-        "id": "shader_lifecycle.pipeline_capacity_c"
+        "id": "shader_lifecycle.readiness_identical_replay"
       }
     ]
   }

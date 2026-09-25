@@ -22,11 +22,19 @@ static constexpr char kPipelineCapacityCPlusOne[] =
 static constexpr char kPipelineIdenticalReplay[] =
     "pipeline.identical-replay";
 static constexpr char kPipelineUniformOnly[] = "pipeline.uniform-only";
+static constexpr char kReadinessTrainVisible[] = "readiness.train-visible";
+static constexpr char kReadinessReplayVisible[] = "readiness.replay-visible";
+static constexpr char kReadinessIdenticalReplay[] =
+    "readiness.identical-replay";
+static constexpr char kReadinessUniformOnly[] = "readiness.uniform-only";
+static constexpr char kReadinessEarlyDemand[] = "readiness.early-demand";
 
 // Audited from the xemu renderer revision named by PR #43. Runtime traces must
 // still report the effective capacity; a mismatch invalidates C-1/C/C+1 labels.
 static constexpr uint32_t kPipelineJobCapacity = 16;
 static constexpr uint32_t kPipelineVariantCount = kPipelineJobCapacity + 1;
+static constexpr uint32_t kReadinessFamilyCount = 3;
+static constexpr uint32_t kReadinessCombinerVariantCount = 2;
 static constexpr uint32_t kBackgroundColor = 0xFF102030;
 static constexpr uint32_t kSourceColor = 0x8040C080;
 static constexpr uint32_t kSentinelColor = 0xFF40C080;
@@ -44,6 +52,13 @@ static constexpr uint32_t kRed = NV097_SET_COLOR_MASK_RED_WRITE_ENABLE;
 static constexpr uint32_t kAlpha =
     NV097_SET_COLOR_MASK_ALPHA_WRITE_ENABLE;
 static constexpr uint32_t kAllChannels = kBlue | kGreen | kRed | kAlpha;
+
+static constexpr std::array<TestHost::DrawPrimitive, kReadinessFamilyCount>
+    kReadinessPrimitives{{
+        TestHost::PRIMITIVE_TRIANGLES,
+        TestHost::PRIMITIVE_TRIANGLE_STRIP,
+        TestHost::PRIMITIVE_QUADS,
+    }};
 
 struct PipelineVariant {
   uint32_t source_factor;
@@ -179,6 +194,21 @@ ShaderLifecycleTests::ShaderLifecycleTests(TestHost &host,
     RunPipelineScenario(kPipelineUniformOnly,
                         kPipelineVariantCount, 1, true, false);
   };
+  tests_[kReadinessTrainVisible] = [this]() {
+    RunReadinessScenario(kReadinessTrainVisible, 1, false);
+  };
+  tests_[kReadinessReplayVisible] = [this]() {
+    RunReadinessScenario(kReadinessReplayVisible, 1, false);
+  };
+  tests_[kReadinessIdenticalReplay] = [this]() {
+    RunReadinessScenario(kReadinessIdenticalReplay, 2, false);
+  };
+  tests_[kReadinessUniformOnly] = [this]() {
+    RunReadinessScenario(kReadinessUniformOnly, 1, true);
+  };
+  tests_[kReadinessEarlyDemand] = [this]() {
+    RunReadinessScenario(kReadinessEarlyDemand, 1, false);
+  };
 }
 
 void ShaderLifecycleTests::ConfigureFixedShader() const {
@@ -310,6 +340,151 @@ void ShaderLifecycleTests::RunPipelineScenario(const char *test_name,
            static_cast<unsigned long>(passes),
            static_cast<unsigned long>(uniform_only),
            static_cast<unsigned long>(safe_omission),
+           static_cast<unsigned long>(result_kat));
+  host_.FinishDraw(suite_name_, test_name, results);
+}
+
+void ShaderLifecycleTests::ConfigureReadinessCombiner(
+    uint32_t variant) const {
+  ASSERT(variant < kReadinessCombinerVariantCount);
+  host_.ClearInputColorCombiners();
+  host_.ClearInputAlphaCombiners();
+  host_.ClearOutputColorCombiners();
+  host_.ClearOutputAlphaCombiners();
+  host_.SetCombinerControl(1);
+
+  // Multiplication is commutative: both programs emit the same diffuse value,
+  // but swapping A/B produces distinct specialized fragment state. xemu's
+  // fallback route canonicalizes these combiner fields, so the pair must share
+  // the same compatible fallback family for a given primitive topology.
+  const auto source_a = variant ? TestHost::SRC_ZERO : TestHost::SRC_DIFFUSE;
+  const auto source_b = variant ? TestHost::SRC_DIFFUSE : TestHost::SRC_ZERO;
+  const auto map_a = variant ? TestHost::MAP_UNSIGNED_INVERT
+                             : TestHost::MAP_UNSIGNED_IDENTITY;
+  const auto map_b = variant ? TestHost::MAP_UNSIGNED_IDENTITY
+                             : TestHost::MAP_UNSIGNED_INVERT;
+  host_.SetInputColorCombiner(0, source_a, false, map_a, source_b, false,
+                              map_b);
+  host_.SetInputAlphaCombiner(0, source_a, true, map_a, source_b, true,
+                              map_b);
+  host_.SetOutputColorCombiner(0, TestHost::DST_DISCARD,
+                               TestHost::DST_DISCARD, TestHost::DST_R0);
+  host_.SetOutputAlphaCombiner(0, TestHost::DST_DISCARD,
+                               TestHost::DST_DISCARD, TestHost::DST_R0);
+  host_.SetFinalCombiner0(TestHost::SRC_ZERO, false, false,
+                          TestHost::SRC_ZERO, false, false,
+                          TestHost::SRC_ZERO, false, false,
+                          TestHost::SRC_R0);
+  host_.SetFinalCombiner1(TestHost::SRC_ZERO, false, false,
+                          TestHost::SRC_ZERO, false, false,
+                          TestHost::SRC_R0, true, false, false, false, true);
+}
+
+void ShaderLifecycleTests::DrawReadinessTile(
+    TestHost::DrawPrimitive primitive, float left, float top, float width,
+    float height) const {
+  host_.Begin(primitive);
+  if (primitive == TestHost::PRIMITIVE_TRIANGLES) {
+    host_.SetVertex(left, top, 1.f);
+    host_.SetVertex(left + width, top, 1.f);
+    host_.SetVertex(left + width, top + height, 1.f);
+    host_.SetVertex(left, top, 1.f);
+    host_.SetVertex(left + width, top + height, 1.f);
+    host_.SetVertex(left, top + height, 1.f);
+  } else if (primitive == TestHost::PRIMITIVE_TRIANGLE_STRIP) {
+    host_.SetVertex(left, top, 1.f);
+    host_.SetVertex(left, top + height, 1.f);
+    host_.SetVertex(left + width, top, 1.f);
+    host_.SetVertex(left + width, top + height, 1.f);
+  } else {
+    ASSERT(primitive == TestHost::PRIMITIVE_QUADS);
+    host_.SetVertex(left, top, 1.f);
+    host_.SetVertex(left + width, top, 1.f);
+    host_.SetVertex(left + width, top + height, 1.f);
+    host_.SetVertex(left, top + height, 1.f);
+  }
+  host_.End();
+}
+
+void ShaderLifecycleTests::DrawReadinessFamilies(uint32_t passes,
+                                                 bool uniform_only) const {
+  static constexpr float kLeft = 72.f;
+  static constexpr float kTop = 72.f;
+  static constexpr float kColumnStride = 240.f;
+  static constexpr float kRowStride = 120.f;
+  static constexpr float kTileWidth = 160.f;
+  static constexpr float kTileHeight = 80.f;
+
+  host_.PrepareDraw(kBackgroundColor);
+  host_.SetBlend(false);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_COLOR_MASK, kAllChannels);
+  Pushbuffer::Push(NV097_SET_ALPHA_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_MASK, false);
+  Pushbuffer::Push(NV097_SET_STENCIL_TEST_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
+  Pushbuffer::End();
+
+  for (uint32_t pass = 0; pass < passes; ++pass) {
+    for (uint32_t family = 0; family < kReadinessFamilyCount; ++family) {
+      for (uint32_t variant = 0;
+           variant < kReadinessCombinerVariantCount; ++variant) {
+        ConfigureReadinessCombiner(variant);
+        const uint32_t color_index = uniform_only
+            ? family * kReadinessCombinerVariantCount + variant + 1
+            : family + 1;
+        host_.SetDiffuse(UniformColor(color_index));
+        DrawReadinessTile(
+            kReadinessPrimitives[family],
+            kLeft + variant * kColumnStride,
+            kTop + family * kRowStride, kTileWidth, kTileHeight);
+      }
+    }
+  }
+}
+
+uint32_t ShaderLifecycleTests::ValidateReadinessFamilies(
+    bool uniform_only) const {
+  static constexpr uint32_t kLeft = 72;
+  static constexpr uint32_t kTop = 72;
+  static constexpr uint32_t kColumnStride = 240;
+  static constexpr uint32_t kRowStride = 120;
+  static constexpr uint32_t kSampleOffset = 32;
+  uint32_t checksum = kFnvOffsetBasis;
+
+  for (uint32_t family = 0; family < kReadinessFamilyCount; ++family) {
+    const uint32_t y = kTop + family * kRowStride + kSampleOffset;
+    const uint32_t first_pixel = ReadPixel(kLeft + kSampleOffset, y);
+    const uint32_t second_pixel =
+        ReadPixel(kLeft + kColumnStride + kSampleOffset, y);
+    ASSERT(first_pixel != kBackgroundColor);
+    ASSERT(second_pixel != kBackgroundColor);
+    if (!uniform_only) {
+      ASSERT(first_pixel == second_pixel);
+    }
+    checksum = Fnv1aWord(checksum, first_pixel);
+    checksum = Fnv1aWord(checksum, second_pixel);
+  }
+  return checksum;
+}
+
+void ShaderLifecycleTests::RunReadinessScenario(const char *test_name,
+                                                uint32_t passes,
+                                                bool uniform_only) {
+  ConfigureFixedShader();
+  auto results = Profile(test_name, 1, [this, passes, uniform_only]() {
+    DrawReadinessFamilies(passes, uniform_only);
+  });
+  host_.WaitForGpu();
+  EmitXemuPerfMarker(kXemuPerfMarkerGpuComplete);
+  const uint32_t result_kat = ValidateReadinessFamilies(uniform_only);
+  PrintMsg("SHADER_LIFECYCLE_READINESS families=%lu combiner_variants=%lu "
+           "passes=%lu uniform_only=%lu no_omission=1 result_kat=%08lx\n",
+           static_cast<unsigned long>(kReadinessFamilyCount),
+           static_cast<unsigned long>(kReadinessCombinerVariantCount),
+           static_cast<unsigned long>(passes),
+           static_cast<unsigned long>(uniform_only),
            static_cast<unsigned long>(result_kat));
   host_.FinishDraw(suite_name_, test_name, results);
 }

@@ -99,6 +99,78 @@ class ShaderLifecyclePipelinePilotContractTests(unittest.TestCase):
         self.assertIn("visible sentinel", doc)
         self.assertIn("The second pass revisits every capacity", doc)
 
+    def test_visible_readiness_profile_is_small_and_never_omittable(self) -> None:
+        source = SOURCE_PATH.read_text(encoding="utf-8")
+
+        self.assertIn("kReadinessFamilyCount = 3", source)
+        self.assertIn("kReadinessCombinerVariantCount = 2", source)
+        self.assertIn("PRIMITIVE_TRIANGLES", source)
+        self.assertIn("PRIMITIVE_TRIANGLE_STRIP", source)
+        self.assertIn("PRIMITIVE_QUADS", source)
+        self.assertIn("DrawReadinessFamilies", source)
+        self.assertIn("ConfigureReadinessCombiner", source)
+
+        readiness_start = source.index(
+            "void ShaderLifecycleTests::DrawReadinessFamilies"
+        )
+        readiness_end = source.index("\n}", readiness_start)
+        readiness = source[readiness_start:readiness_end]
+        self.assertIn("NV097_SET_COLOR_MASK, kAllChannels", readiness)
+        self.assertNotIn("safe_omission", readiness)
+
+        validation_start = source.index(
+            "uint32_t ShaderLifecycleTests::ValidateReadinessFamilies"
+        )
+        validation_end = source.index("\n}", validation_start)
+        validation = source[validation_start:validation_end]
+        self.assertIn("ASSERT(first_pixel != kBackgroundColor)", validation)
+        self.assertIn("ASSERT(second_pixel != kBackgroundColor)", validation)
+        self.assertIn("ASSERT(first_pixel == second_pixel)", validation)
+
+    def test_visible_readiness_profiles_have_separate_launch_plans(self) -> None:
+        expected = {
+            "shader_lifecycle.readiness_train_visible":
+                "shader-lifecycle-readiness-train-visible.json",
+            "shader_lifecycle.readiness_replay_visible":
+                "shader-lifecycle-readiness-replay-visible.json",
+            "shader_lifecycle.readiness_identical_replay":
+                "shader-lifecycle-readiness-identical-replay.json",
+            "shader_lifecycle.readiness_uniform_only":
+                "shader-lifecycle-readiness-uniform-only.json",
+            "shader_lifecycle.readiness_early_demand":
+                "shader-lifecycle-readiness-early-demand.json",
+        }
+        catalog = json.loads(
+            (ROOT / "resources/catalog.json").read_text(encoding="utf-8")
+        )
+        descriptors = {entry["id"]: entry for entry in catalog["tests"]}
+
+        for test_id, filename in expected.items():
+            self.assertIn(test_id, descriptors)
+            descriptor = descriptors[test_id]
+            self.assertEqual(descriptor["supported_targets"], ["xemu"])
+            self.assertIn("shader-readiness", descriptor["tags"])
+
+            plan = json.loads(
+                (ROOT / "resources" / filename).read_text(encoding="utf-8")
+            )
+            self.assertEqual(plan["settings"]["warmup_iterations"], 0)
+            self.assertEqual(plan["resolved_plan"]["tests"], [{"id": test_id}])
+
+    def test_visible_readiness_acceptance_is_publication_and_use(self) -> None:
+        doc = (ROOT / "docs/shader-lifecycle-pipeline-pilot.md").read_text(
+            encoding="utf-8"
+        )
+
+        self.assertIn("visible, non-omittable readiness profile", doc)
+        self.assertIn("fallback pipeline publication before first demand", doc)
+        self.assertIn("actual submitted use", doc)
+        self.assertIn("missing vertex", doc)
+        self.assertIn("missing geometry", doc)
+        self.assertIn("missing fallback fragment", doc)
+        self.assertIn("early-demand", doc)
+        self.assertIn("does not require a promotion event", doc)
+
 
 if __name__ == "__main__":
     unittest.main()
