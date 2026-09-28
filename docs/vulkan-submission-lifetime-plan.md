@@ -7,7 +7,8 @@ teardown changes without inventing a synthetic host-only workload.
 The selected leaves cover queued vertex writes, PGR2-sized draws, surface and
 pipeline churn, texture binding reuse, fenced S3TC streaming, an explicit GPU
 wait control, GPU-to-CPU surface reads, downloads, disjoint same-page vertex
-RAM, and vertex-shader inline-buffer draws. Together they exercise the
+RAM, three queued generations of one vertex allocation, and vertex-shader
+inline-buffer draws. Together they exercise the
 graphics, texture, surface, vertex, fence, and retirement paths that can keep
 Vulkan objects live across a submission boundary.
 

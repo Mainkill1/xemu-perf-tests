@@ -4,8 +4,8 @@ This is the operator contract for the current XISO. Verify the release name,
 source commit, SHA-256, and catalog size on the [landing page](../README.md)
 before use. Do not substitute an older image with a similar filename.
 
-The current full selection has 136 executable leaves and five structural
-groups: 141 result records. The [catalog](generated/test-catalog.md) explains
+The current full selection has 156 executable leaves and five structural
+groups: 161 result records. The [catalog](generated/test-catalog.md) explains
 every stable test ID. The [failure guide](generated/test-failure-guide.md) maps
 a failed ID to the first emulator paths to inspect.
 
