@@ -161,10 +161,10 @@ void CpuTranslationBlockTests::TestGeneratedCode(const char* name, bool rewrite,
   ASSERT(!mismatch);
   PrintMsg("CPU_WORK CpuTranslationBlocks::%s operations=%lu checksum=%08lx\n", name, operations, checksum);
   char metadata[160];
-  snprintf(
-      metadata, sizeof(metadata),
-      "{\"oracle_status\":\"PASS\",\"operations\":%lu,\"work_checksum\":\"%08lx\",\"expected_checksum\":\"%08lx\"}",
-      operations, checksum, expected);
+  snprintf(metadata, sizeof(metadata),
+           "{\"oracle_status\":\"PASS\",\"operations\":%lu,\"work_checksum\":\"%08lx\","
+           "\"result_checksum\":\"%08lx\",\"expected_checksum\":\"%08lx\"}",
+           operations, CpuCodeRewrite::WorkChecksum(operations, rewrite), checksum, expected);
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
   host_.FinishDraw(suite_name_, name, results, metadata);
 }

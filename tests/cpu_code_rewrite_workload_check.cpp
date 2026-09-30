@@ -28,7 +28,8 @@ int main() {
                    test.expected, result);
       return 1;
     }
-    std::printf("%u %d %08x\n", test.operations, test.rewrite, result);
+    std::printf("%u %d %08x %08x\n", test.operations, test.rewrite, result,
+                CpuCodeRewrite::WorkChecksum(test.operations, test.rewrite));
   }
   return munmap(code, 4096) ? 2 : 0;
 }

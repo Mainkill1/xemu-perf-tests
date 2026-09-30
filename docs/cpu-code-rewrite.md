@@ -40,13 +40,21 @@ and one checksum comparison per sample. An accumulated mismatch flag checks
 every warmup and measured sample, including failures followed by a passing
 sample. The suite's existing timing and GPU completion settings still apply.
 `CPU_WORK` reports the operation count and final checksum. Result metadata
-also retains `operations`, `work_checksum`, `expected_checksum`, and
+also retains `operations`, `work_checksum`, `result_checksum`, `expected_checksum`, and
 `oracle_status`. The sticky sample check must pass before a record is written.
 The runner can check the checksum independently using
 `resources/cpu-code-rewrite-reference.json`; that file contains known-answer
 values and work settings, with no recorded emulator timings or framebuffer
 goldens. It is an oracle for the two leaves at default work settings, not a
 timing baseline or an oracle for other suite members.
+
+`work_checksum` fingerprints the fixed inputs with 32-bit FNV-1a over these
+little-endian words: operations, rewrite mode (0 or 1), return constant A,
+return constant B, initial state, add multiplier, rotation count, and CPUID
+leaf. Its stable/rewrite known answers are `9275e7c3` / `02a5f4ff`.
+`result_checksum` is the actual execution recurrence result. Both are checked
+by the native test against the pinned reference; the checksum pair is also
+checked through the maintained host oracle validator.
 
 The native Linux x86 contract test executes this same helper in executable
 memory against all thirteen literal known answers. Its negative control compiles

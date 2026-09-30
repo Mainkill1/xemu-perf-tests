@@ -5,6 +5,19 @@
 
 namespace CpuCodeRewrite {
 
+// FNV-1a over little-endian words identifying the fixed inputs, outside timing.
+inline uint32_t WorkChecksum(uint32_t operations, bool rewrite) {
+  const uint32_t words[] = {
+      operations, static_cast<uint32_t>(rewrite), 0xA5A55A5A, 0x5A5AA5A5, 0x12345678, 0x9E3779B9, 5, 0};
+  uint32_t checksum = 2166136261;
+  for (uint32_t word : words) {
+    for (unsigned shift = 0; shift < 32; shift += 8) {
+      checksum = (checksum ^ ((word >> shift) & 0xFF)) * 16777619;
+    }
+  }
+  return checksum;
+}
+
 // The caller supplies a page-aligned, writable and executable buffer. Placing
 // the entry at byte 3 aligns the immediate operand for each 32-bit code store.
 inline void Initialize(uint8_t* code) {

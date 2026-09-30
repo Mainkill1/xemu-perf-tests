@@ -12,7 +12,8 @@
     "gpu_completion_mode": "per_iteration",
     "metadata": {
       "oracle_status": "PASS",
-      "work_checksum": "f5ff3985"
+      "work_checksum": "9275e7c3",
+      "result_checksum": "f5ff3985"
     }
   },
   {
@@ -28,7 +29,8 @@
     "gpu_completion_mode": "per_iteration",
     "metadata": {
       "oracle_status": "PASS",
-      "work_checksum": "65151d67"
+      "work_checksum": "02a5f4ff",
+      "result_checksum": "65151d67"
     }
   }
 ]
