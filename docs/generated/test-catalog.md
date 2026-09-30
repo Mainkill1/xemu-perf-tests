@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5` contains 154 leaves and 5 groups.
+Catalog `sha256:b4d29bf2f6f4adea7785327502e0eca89358a9c362f7099ee77af30c2bd32a09` contains 156 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -18,6 +18,8 @@ Catalog `sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |
+| `cpu_translation_blocks.code_stable` | leaf | `CpuTranslationBlocks::CodeStable` |
+| `cpu_translation_blocks.code_rewrite` | leaf | `CpuTranslationBlocks::CodeRewrite` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |

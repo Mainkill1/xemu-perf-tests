@@ -1,0 +1,49 @@
+"""Run the actual generated code and prove the oracle rejects stale code."""
+import os
+import platform
+import shutil
+import subprocess
+import tempfile
+import unittest
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+@unittest.skipUnless(platform.system() == "Linux" and platform.machine() in
+                     ("x86_64", "i386", "i686"), "requires native Linux x86 executable memory")
+class CpuCodeRewriteContractTests(unittest.TestCase):
+    def run_fixture(self, stale=False):
+        compiler = os.environ.get("CXX", "g++")
+        self.assertIsNotNone(shutil.which(compiler), "native C++ compiler is required")
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            header = root / "tests/cpu_code_rewrite_workload.h"
+            header.parent.mkdir()
+            text = (ROOT / "src/tests/cpu_code_rewrite_workload.h").read_text()
+            if stale:
+                store = "if (rewrite) *immediate = (i & 1) ? 0x5A5AA5A5 : 0xA5A55A5A;"
+                self.assertEqual(text.count(store), 1)
+                text = text.replace(store, "(void)rewrite; (void)immediate;")
+            header.write_text(text)
+            executable = root / "check"
+            build = subprocess.run([
+                compiler, "-O3", "-std=c++17", "-Wall", "-Wextra", "-Werror",
+                "-fno-strict-aliasing", "-I", str(root),
+                str(ROOT / "tests/cpu_code_rewrite_workload_check.cpp"), "-o", str(executable)
+            ], capture_output=True, text=True)
+            self.assertEqual(build.returncode, 0, build.stdout + build.stderr)
+            return subprocess.run([str(executable)], capture_output=True, text=True)
+
+    def test_native_code_matches_independent_known_answers(self):
+        result = self.run_fixture()
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+
+    def test_stale_code_is_rejected(self):
+        result = self.run_fixture(stale=True)
+        self.assertEqual(result.returncode, 1, result.stdout + result.stderr)
+        self.assertIn("operations=2 rewrite=1 expected=dddf8872 actual=5e8f6aff", result.stderr)
+
+
+if __name__ == "__main__":
+    unittest.main()

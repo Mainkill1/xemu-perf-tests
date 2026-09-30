@@ -73,6 +73,14 @@ def entries():
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
            ("indirect_dispatch", "IndirectDispatch"),
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))
+    out.append(leaf(
+        "cpu_translation_blocks.code_stable", "cpu_translation_blocks", "CpuTranslationBlocks", "CodeStable",
+        "Executes one million calls to unchanged generated code with CPUID serialization and checks the fixed checksum; controls the code-rewrite workload.",
+        ("cpu", "performance", "correctness", "hardware-safe")))
+    out.append(leaf(
+        "cpu_translation_blocks.code_rewrite", "cpu_translation_blocks", "CpuTranslationBlocks", "CodeRewrite",
+        "Alternates a generated function's return immediate before one million serialized calls and checks a distinct checksum that detects stale code.",
+        ("cpu", "performance", "correctness", "hardware-safe")))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
     simple("pipeline_texture_switch", "PipelineTextureSwitch", [
@@ -269,7 +277,8 @@ def catalog(items):
              "kind": item.kind, "legacy_ids": [item.legacy_id],
              "suite_id": item.suite_id, "display_name": item.legacy_result, "description": item.description,
              "tags": list(item.tags), "supported_targets": ["xemu"] if "xemu-only" in item.tags else ["xemu", "xbox"],
-             "isolation": "same_process", "timeout_ms": 300000 if item.suite_id == "pfifo_packet_boundary" else
+             "isolation": "same_process", "timeout_ms": 300000 if item.suite_id == "pfifo_packet_boundary" or
+                                                          item.id in ("cpu_translation_blocks.code_stable", "cpu_translation_blocks.code_rewrite") else
                                                       (120000 if "stress" in item.id else 30000),
              "measurement_class": "correctness" if "performance" not in item.tags else
                                   ("scenario" if {"scenario", "memory-pressure"} & set(item.tags) else "micro")}
@@ -338,6 +347,10 @@ def failure_diagnosis(test):
             "The fixed indirect jump-table sequence diverged. Check indirect TB lookup, target caching, register state at exits, and branch dispatch.",
         "cpu_translation_blocks.indirect_dispatch_stress":
             "The larger indirect-target set diverged or timed out. Check TB hash/lookup behavior, eviction, chaining misses, and state restoration across repeated indirect exits.",
+        "cpu_translation_blocks.code_stable":
+            "Unchanged generated code returned the wrong checksum or stalled. Check instruction decoding, indirect TB lookup, executable memory, CPUID serialization, and call/return state.",
+        "cpu_translation_blocks.code_rewrite":
+            "Rewritten generated code returned a stale value or the checksum diverged. Check code-page write tracking, TB invalidation, indirect-cache entries, and CPUID serialization before executing changed code.",
         "fill_rate.solid":
             "Solid fragments have wrong coverage/color or the draw does not complete. Check clear/raster state, color masks, viewport/scissor, render-pass setup, and host fill path.",
         "fill_rate.textured":
