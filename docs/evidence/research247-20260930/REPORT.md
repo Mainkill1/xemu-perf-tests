@@ -98,6 +98,12 @@ for that bucket. Do not extrapolate these brackets into a production speedup.
 
 ## Performance checks
 
+Windows start images include the race-start camera; `w3` still shows a countdown
+at the first checkpoint. The last-25-second frame tail excludes the beginning,
+but the CPU profile covers the entire requested segment. Coarse saved input
+waits do not establish identical scene timing, so the observer check remains
+descriptive even beyond its cache and sample-size limitations.
+
 These are the runner's retained analysis values, not recalculated host CSV
 statistics. CPU core percent means 100% is one core. Guest cadence is distinct
 from rendered FPS; p99/max refer to guest frame intervals. Diagnostic timings
