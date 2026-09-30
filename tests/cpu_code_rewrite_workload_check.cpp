@@ -15,9 +15,10 @@ int main() {
     uint32_t expected;
   };
   const Case cases[] = {
-      {0, false, 0x12345678},  {0, true, 0x12345678},  {1, false, 0xE32F9558},       {1, true, 0xE32F9558},
-      {2, false, 0x5E8F6AFF},  {2, true, 0xDDDF8872},  {3, false, 0xB0B6F923},       {3, true, 0x5AC34773},
-      {16, false, 0x87414987}, {16, true, 0xDA7190D8}, {1000000, false, 0x2FD8B528}, {1000000, true, 0x65151D67},
+      {0, false, 0x12345678},        {0, true, 0x12345678},  {1, false, 0xE32F9558},       {1, true, 0xE32F9558},
+      {2, false, 0x5E8F6AFF},        {2, true, 0xDDDF8872},  {3, false, 0xB0B6F923},       {3, true, 0x5AC34773},
+      {16, false, 0x87414987},       {16, true, 0xDA7190D8}, {1000000, false, 0x2FD8B528}, {1000000, true, 0x65151D67},
+      {50000000, false, 0xF5FF3985},
   };
   for (const auto& test : cases) {
     CpuCodeRewrite::Initialize(code);
@@ -27,6 +28,7 @@ int main() {
                    test.expected, result);
       return 1;
     }
+    std::printf("%u %d %08x\n", test.operations, test.rewrite, result);
   }
   return munmap(code, 4096) ? 2 : 0;
 }

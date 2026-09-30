@@ -3,6 +3,7 @@
 #include <windows.h>
 
 #include <cstdint>
+#include <cstdio>
 
 #include "cpu_code_rewrite_workload.h"
 #include "debug_output.h"
@@ -20,8 +21,9 @@ static constexpr uint32_t kIndirectStressOperations = 20000000;
 static constexpr uint32_t kDirectExpected = 0x8CECF231;
 static constexpr uint32_t kIndirectExpected = 0xD561B779;
 static constexpr uint32_t kIndirectStressExpected = 0xC4FDFFCD;
-static constexpr uint32_t kCodeOperations = 1000000;
-static constexpr uint32_t kCodeStableExpected = 0x2FD8B528;
+static constexpr uint32_t kCodeStableOperations = 50000000;
+static constexpr uint32_t kCodeRewriteOperations = 1000000;
+static constexpr uint32_t kCodeStableExpected = 0xF5FF3985;
 static constexpr uint32_t kCodeRewriteExpected = 0x65151D67;
 
 static volatile uint32_t g_cpu_result;
@@ -89,8 +91,12 @@ CpuTranslationBlockTests::CpuTranslationBlockTests(TestHost& host, std::string o
   tests_[kDirectLoopTest] = [this]() { TestDirectLoop(); };
   tests_[kIndirectDispatchTest] = [this]() { TestIndirectDispatch(); };
   tests_[kIndirectDispatchStressTest] = [this]() { TestIndirectDispatchStress(); };
-  tests_[kCodeStableTest] = [this]() { TestGeneratedCode(kCodeStableTest, false, kCodeStableExpected); };
-  tests_[kCodeRewriteTest] = [this]() { TestGeneratedCode(kCodeRewriteTest, true, kCodeRewriteExpected); };
+  tests_[kCodeStableTest] = [this]() {
+    TestGeneratedCode(kCodeStableTest, false, kCodeStableOperations, kCodeStableExpected);
+  };
+  tests_[kCodeRewriteTest] = [this]() {
+    TestGeneratedCode(kCodeRewriteTest, true, kCodeRewriteOperations, kCodeRewriteExpected);
+  };
 }
 
 void CpuTranslationBlockTests::TestDirectLoop() {
@@ -138,7 +144,8 @@ void CpuTranslationBlockTests::TestIndirectDispatchStress() {
   host_.FinishDraw(suite_name_, kIndirectDispatchStressTest, results);
 }
 
-void CpuTranslationBlockTests::TestGeneratedCode(const char* name, bool rewrite, uint32_t expected) {
+void CpuTranslationBlockTests::TestGeneratedCode(const char* name, bool rewrite, uint32_t operations,
+                                                 uint32_t expected) {
   auto* code = static_cast<uint8_t*>(VirtualAlloc(nullptr, 4096, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE));
   ASSERT(code);
   CpuCodeRewrite::Initialize(code);
@@ -146,13 +153,18 @@ void CpuTranslationBlockTests::TestGeneratedCode(const char* name, bool rewrite,
   uint32_t checksum = 0;
   bool mismatch = false;
   auto results = Profile(name, kProfileIterations, [&]() {
-    checksum = CpuCodeRewrite::Run(code, kCodeOperations, rewrite);
+    checksum = CpuCodeRewrite::Run(code, operations, rewrite);
     g_cpu_result = checksum;
     mismatch |= checksum != expected;
   });
   ASSERT(VirtualFree(code, 0, MEM_RELEASE));
   ASSERT(!mismatch);
-  PrintMsg("CPU_WORK CpuTranslationBlocks::%s operations=%lu checksum=%08lx\n", name, kCodeOperations, checksum);
+  PrintMsg("CPU_WORK CpuTranslationBlocks::%s operations=%lu checksum=%08lx\n", name, operations, checksum);
+  char metadata[160];
+  snprintf(
+      metadata, sizeof(metadata),
+      "{\"oracle_status\":\"PASS\",\"operations\":%lu,\"work_checksum\":\"%08lx\",\"expected_checksum\":\"%08lx\"}",
+      operations, checksum, expected);
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
-  host_.FinishDraw(suite_name_, name, results);
+  host_.FinishDraw(suite_name_, name, results, metadata);
 }

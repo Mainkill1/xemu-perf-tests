@@ -3,8 +3,13 @@
 `cpu_translation_blocks.code_stable` and
 `cpu_translation_blocks.code_rewrite` are paired fixed-work leaves for
 [xemu research #245](https://github.com/Mainkill1/xemu/issues/245).
-Their first revision uses 1,000,000 operations per sample and the suite's
-existing ten measured samples, before any runner multiplier or warmups.
+Revision 2 uses 50,000,000 stable-code operations or 1,000,000 rewrite operations
+per sample and the suite's existing ten measured samples, before any runner
+multiplier or warmups. Initial revision 1 calibration on exact xemu main
+`2d289cb349bca95eae81b6a54b0f8d965365ff82` found that one million stable-code
+operations took about 58 ms per sample, while rewrites took about 2.85 s.
+The stable batch was increased using that baseline measurement. Revision 2
+also retains each leaf's checksum in result metadata.
 
 Each operation calls a generated `mov eax, imm32; ret` function in a separate
 4096-byte executable allocation. Its entry is at byte 3, so the immediate at
@@ -27,16 +32,24 @@ this recurrence, without executing guest code:
 | 3 | `b0b6f923` | `5ac34773` |
 | 16 | `87414987` | `da7190d8` |
 | 1,000,000 | `2fd8b528` | `65151d67` |
+| 50,000,000 | `f5ff3985` | not used |
 
 Allocation, initial code construction, deallocation, assertion, and rendering
 are outside `Profile`. Its body includes the fixed-work loop, result stores,
 and one checksum comparison per sample. An accumulated mismatch flag checks
 every warmup and measured sample, including failures followed by a passing
 sample. The suite's existing timing and GPU completion settings still apply.
-`CPU_WORK` reports the operation count and final checksum.
+`CPU_WORK` reports the operation count and final checksum. Result metadata
+also retains `operations`, `work_checksum`, `expected_checksum`, and
+`oracle_status`. The sticky sample check must pass before a record is written.
+The runner can check the checksum independently using
+`resources/cpu-code-rewrite-reference.json`; that file contains known-answer
+values and work settings, with no recorded emulator timings or framebuffer
+goldens. It is an oracle for the two leaves at default work settings, not a
+timing baseline or an oracle for other suite members.
 
 The native Linux x86 contract test executes this same helper in executable
-memory against all twelve literal known answers. Its negative control compiles
+memory against all thirteen literal known answers. Its negative control compiles
 a temporary copy with code stores suppressed; the rewrite oracle must reject
 the stale function at operation count two. Run it with the maintained host
 contract command:
@@ -46,7 +59,9 @@ python3 -m unittest discover -s tests -p 'test_*contract.py'
 python3 utils/test_catalog.py --check
 ```
 
-The pair isolates repeated code writes while keeping call and CPUID work
+The leaves use the same call and CPUID sequence with different fixed batch
+sizes so each sample lasts seconds. Compare emulator builds separately for
+each leaf with identical work settings; the leaf timings are not directly
 comparable. The stable leaf is a proposed low-invalidation control: measured
 emulator counters must establish that property. The rewrite leaf checks one
 page and one aligned operand. It provides no coverage for remapping, spanning

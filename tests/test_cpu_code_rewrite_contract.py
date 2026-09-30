@@ -1,5 +1,6 @@
 """Run the actual generated code and prove the oracle rejects stale code."""
 import os
+import json
 import platform
 import shutil
 import subprocess
@@ -38,6 +39,14 @@ class CpuCodeRewriteContractTests(unittest.TestCase):
     def test_native_code_matches_independent_known_answers(self):
         result = self.run_fixture()
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        observed = {(int(count), int(rewrite)): checksum for count, rewrite, checksum in
+                    (line.split() for line in result.stdout.splitlines())}
+        reference = json.loads((ROOT / "resources/cpu-code-rewrite-reference.json").read_text())
+        work = {"cpu_translation_blocks.code_stable": (50000000, 0),
+                "cpu_translation_blocks.code_rewrite": (1000000, 1)}
+        self.assertEqual({record["id"] for record in reference}, set(work))
+        for record in reference:
+            self.assertEqual(record["metadata"]["work_checksum"], observed[work[record["id"]]])
 
     def test_stale_code_is_rejected(self):
         result = self.run_fixture(stale=True)
