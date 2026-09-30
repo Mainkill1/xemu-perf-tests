@@ -2,11 +2,6 @@
 
 ## Decision
 
-Follow-up: the opt-in product probe, direct occupancy/lookup measurements and
-same-binary observer checks are retained in the
-[jump-cache attribution report](../research245-probe-20260930/REPORT.md).
-The first-stage observations below retain their original source and scope.
-
 Individual TB invalidations are frequent in the admitted stationary PGR2 scene
 on both Windows and Steam Deck. Continue with an opt-in cache occupancy and
 lookup attribution probe. Keep the existing invalidation behavior until that
