@@ -14,6 +14,8 @@ static const TestDescriptor kTestCatalog[] = {
   {"cpu_translation_blocks.direct_loop", 1, "cpu_translation_blocks", "DirectLoop", "Runs the DirectLoop workload and records its deterministic result.", "CpuTranslationBlocks", "DirectLoop", "DirectLoop", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.indirect_dispatch", 1, "cpu_translation_blocks", "IndirectDispatch", "Runs the IndirectDispatch workload and records its deterministic result.", "CpuTranslationBlocks", "IndirectDispatch", "IndirectDispatch", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.indirect_dispatch_stress", 1, "cpu_translation_blocks", "IndirectDispatchStress", "Runs the IndirectDispatchStress workload and records its deterministic result.", "CpuTranslationBlocks", "IndirectDispatchStress", "IndirectDispatchStress", TestKind::LEAF, 0, 0},
+  {"cpu_translation_blocks.code_stable", 2, "cpu_translation_blocks", "CodeStable", "Executes fifty million calls to unchanged generated code with CPUID serialization and checks the fixed checksum; controls the code-rewrite workload.", "CpuTranslationBlocks", "CodeStable", "CodeStable", TestKind::LEAF, 0, 0},
+  {"cpu_translation_blocks.code_rewrite", 2, "cpu_translation_blocks", "CodeRewrite", "Alternates a generated function's return immediate before one million serialized calls and checks a distinct checksum that detects stale code.", "CpuTranslationBlocks", "CodeRewrite", "CodeRewrite", TestKind::LEAF, 0, 0},
   {"fill_rate.solid", 1, "fill_rate", "FillRate-Solid", "Runs the FillRate-Solid workload and records its deterministic result.", "FillRate", "FillRate-Solid", "FillRate-Solid", TestKind::LEAF, 0, 0},
   {"fill_rate.textured", 1, "fill_rate", "FillRate-Textured", "Runs the FillRate-Textured workload and records its deterministic result.", "FillRate", "FillRate-Textured", "FillRate-Textured", TestKind::LEAF, 0, 0},
   {"pipeline_texture_switch.texture_switch", 1, "pipeline_texture_switch", "pipeline.texture-switch", "Runs the pipeline.texture-switch workload and records its deterministic result.", "PipelineTextureSwitch", "pipeline.texture-switch", "pipeline.texture-switch", TestKind::LEAF, 0, 0},
@@ -161,4 +163,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5";
+static constexpr const char *kTestCatalogId = "sha256:34b8ee7f91f3412b5e7758aab9f4ca08746ef2e97fee8b5c61be8947e145f7f4";
