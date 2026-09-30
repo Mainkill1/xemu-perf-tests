@@ -5,11 +5,9 @@
 [xemu research #245](https://github.com/Mainkill1/xemu/issues/245).
 Revision 2 uses 50,000,000 stable-code operations or 1,000,000 rewrite operations
 per sample and the suite's existing ten measured samples, before any runner
-multiplier or warmups. Initial revision 1 calibration on exact xemu main
-`2d289cb349bca95eae81b6a54b0f8d965365ff82` found that one million stable-code
-operations took about 58 ms per sample, while rewrites took about 2.85 s.
-The stable batch was increased using that baseline measurement. Revision 2
-also retains each leaf's checksum in result metadata.
+multiplier or warmups. Revision 2 retains each leaf's checksum in result metadata.
+Emulator calibration, qualification results and performance measurements are
+reported in [xemu draft PR 272](https://github.com/Mainkill1/xemu/pull/272).
 
 Each operation calls a generated `mov eax, imm32; ret` function in a separate
 4096-byte executable allocation. Its entry is at byte 3, so the immediate at
