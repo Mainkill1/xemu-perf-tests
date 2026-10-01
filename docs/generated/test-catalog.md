@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5` contains 154 leaves and 5 groups.
+Catalog `sha256:99a525cbb7504d6b481cb4e9fc8ffb7de692bff68e977b841492006f8c82e1e8` contains 156 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -13,6 +13,8 @@ Catalog `sha256:e027c333e51fa30b9630236397735fdbcc5a024e7bd421401f23c211124ab3a5
 | `pfifo_packet_boundary.array_element32_overflow` | leaf | `PFIFOPacketBoundary::pfifo.boundary-array-element32` |
 | `pfifo_packet_boundary.inline_array_overflow` | leaf | `PFIFOPacketBoundary::pfifo.boundary-inline-array` |
 | `pfifo_packet_boundary.incrementing_inline_fallback` | leaf | `PFIFOPacketBoundary::pfifo.incrementing-inline-fallback` |
+| `pvideo.steady_upload` | leaf | `Pvideo::SteadyUpload` |
+| `pvideo.resize_toggle` | leaf | `Pvideo::ResizeToggle` |
 | `cpu_floating_point.sse_scalar` | leaf | `CpuFloatingPoint::SSEScalar` |
 | `cpu_floating_point.x87_scalar` | leaf | `CpuFloatingPoint::X87Scalar` |
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
