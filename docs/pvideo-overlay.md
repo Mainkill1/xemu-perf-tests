@@ -87,3 +87,24 @@ XISO workflow and a clean prepared FATX seed. Native overlay correctness,
 OpenGL/Vulkan, 1x/4x and full-suite validation remain required before merging
 this fixture. Emulator performance evidence belongs in the owning xemu PR;
 this repository retains the workload and its contracts.
+
+## Retained host-image oracle
+
+`utils/pvideo_overlay_oracle.py` checks 100 interior/exterior probes against
+specified black/white quadrants and background RGB (51,76,153), allowing at
+most 2/255 per-channel rounding error. Supply the exact guest viewport inside
+the capture; it must fit the image. Coordinates are mapped from the 640×480
+guest plane. Pillow is needed only by this optional CLI; host contracts use
+an independent image specification without that dependency.
+
+```sh
+python3 utils/pvideo_overlay_oracle.py --viewport X Y WIDTH HEIGHT CAPTURES_IN_TIME_ORDER...
+```
+
+The oracle requires the complete eight-phase resize/toggle visual sequence
+at least once. Duplicate captures do not add coverage, and an unknown image
+breaks a sequence. Boot/result screens outside a qualifying cycle are not
+substitutes for overlay states. It verifies sampled output bounds, colors and
+ordered transitions; it does not prove every frame, precise transition timing,
+Vulkan allocations or a performance improvement. Preserve failed runner
+attempts even if some individual screenshots match this visual oracle.
