@@ -1,22 +1,24 @@
 {
   "settings": {
+    "enable_autorun_immediately": true,
+    "enable_xemu_only_tests": true,
     "skip_tests_by_default": true,
-    "output_directory_path": "e:/xemu_perf_tests",
     "warmup_iterations": 0,
     "measurement_iterations_multiplier": 1,
-    "gpu_completion_mode": "per_iteration"
+    "gpu_completion_mode": "per_iteration",
+    "output_directory_path": "e:/xemu_perf_tests"
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:196e57b8c1c720acc0ba24d66fc3251f41ac524e45f2ea5ed5d64e403af17fbb",
+    "plan_id": "sha256:2bb7d540dcd82feda0dc1db37e04f2b056291768b03a70bdabb1eb7b56f99b28",
     "catalog_id": "sha256:8d412b1c1cfb6f2b2d8681f4a9a931625a5e68df059e59f2c4b61aa2e65163d1",
     "selected_leaf_count": 2,
     "tests": [
       {
-        "id": "pipeline_texture_switch.palette_only_update"
+        "id": "pvideo.steady_upload"
       },
       {
-        "id": "pipeline_texture_switch.shared_page_overlap"
+        "id": "pvideo.resize_toggle"
       }
     ]
   }
