@@ -73,7 +73,7 @@ int main() {
         for stable, legacy in (("steady_upload", "SteadyUpload"),
                                ("resize_toggle", "ResizeToggle")):
             leaf = by_id[f"pvideo.{stable}"]
-            self.assertEqual(leaf["revision"], 1)
+            self.assertEqual(leaf["revision"], 2)
             self.assertEqual(leaf["supported_targets"], ["xemu"])
             self.assertEqual(leaf["legacy_ids"], [f"Pvideo::{legacy}"])
             self.assertEqual(leaf["timeout_ms"], 120000)

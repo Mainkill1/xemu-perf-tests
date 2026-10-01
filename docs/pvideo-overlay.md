@@ -1,6 +1,6 @@
 # PVIDEO overlay workload
 
-These xemu-only leaves generate YUY2 input and program the public NV2A PVIDEO
+These revision-2 xemu-only leaves generate YUY2 input and program the public NV2A PVIDEO
 MMIO registers. They exercise display uploads and compositing on OpenGL and
 Vulkan, including Vulkan image/view/sampler reuse investigated in
 [Mainkill1/xemu #263](https://github.com/Mainkill1/xemu/issues/263).
@@ -16,7 +16,9 @@ Both use a 68 KiB contiguous uncached allocation below 64 MiB. Two source
 windows start at offsets 0 and 32,768. A final allocated 4 KiB guard page
 keeps the one-past source end below the inclusive LIMIT: both xemu renderer
 decoders currently compare `offset + pitch * height <= LIMIT`. No guard bytes
-are read, and no renderer limit interpretation is changed. Each frame clears the guest buffer to
+are read, and no renderer limit interpretation is changed. Before profiling, the fixture selects the render front buffer: the common
+suite progress screen uses a separate debug buffer that cannot exercise
+GPU PVIDEO compositing. Each frame clears the guest buffer to
 ARGB `0xff334c99`, programs PVIDEO at guest pixel (256,176), and finishes a
 pbkit buffer swap. Source YUY2 has neutral chroma (128) and luma 16/235 in four
 checker quadrants. Every source generation is complete before its MMIO write.

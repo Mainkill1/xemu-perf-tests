@@ -76,6 +76,10 @@ void PvideoTests::RunOverlay(bool resize) {
       ASSERT(Hash(source_, size * size * 2) == expected[size_index][inverse]);
     }
   }
+  // Run() selects the debug screen for its progress text. PVIDEO compositing
+  // needs a GPU-backed render surface during measurement, not only at the
+  // Profile() end where the common helper restores the front screen.
+  pb_show_front_screen();
   uint32_t frame_index = 0;
   PvideoFixture::FrameState last{};
   auto results = Profile(resize ? "ResizeToggle" : "SteadyUpload", kSamples, [&]() {
