@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747` contains 159 leaves and 5 groups.
+Catalog `sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd` contains 171 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -121,6 +121,18 @@ Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747
 | `primitive_type.triangles.fixed_function` | leaf | `PrimitiveType::PrimitiveType-Tris` |
 | `primitive_type.triangles.vertex_shader` | leaf | `PrimitiveType::PrimitiveType-Tris-vsh` |
 | `texture_cubemap_fallback.unbordered_subblock_dxt1` | leaf | `TextureCubemapFallback::UnborderedSubblockDxt1` |
+| `texture_cubemap_fallback.bordered_rgba8_size1` | leaf | `TextureCubemapFallback::BorderedRgba8Size1` |
+| `texture_cubemap_fallback.bordered_rgba8_size2` | leaf | `TextureCubemapFallback::BorderedRgba8Size2` |
+| `texture_cubemap_fallback.bordered_rgba8_size4` | leaf | `TextureCubemapFallback::BorderedRgba8Size4` |
+| `texture_cubemap_fallback.bordered_rgba8_size8` | leaf | `TextureCubemapFallback::BorderedRgba8Size8` |
+| `texture_cubemap_fallback.bordered_palette_size1` | leaf | `TextureCubemapFallback::BorderedPaletteSize1` |
+| `texture_cubemap_fallback.bordered_palette_size2` | leaf | `TextureCubemapFallback::BorderedPaletteSize2` |
+| `texture_cubemap_fallback.bordered_palette_size4` | leaf | `TextureCubemapFallback::BorderedPaletteSize4` |
+| `texture_cubemap_fallback.bordered_palette_size8` | leaf | `TextureCubemapFallback::BorderedPaletteSize8` |
+| `texture_cubemap_fallback.bordered_r6g5b5_size1` | leaf | `TextureCubemapFallback::BorderedR6G5B5Size1` |
+| `texture_cubemap_fallback.bordered_r6g5b5_size2` | leaf | `TextureCubemapFallback::BorderedR6G5B5Size2` |
+| `texture_cubemap_fallback.bordered_r6g5b5_size4` | leaf | `TextureCubemapFallback::BorderedR6G5B5Size4` |
+| `texture_cubemap_fallback.bordered_r6g5b5_size8` | leaf | `TextureCubemapFallback::BorderedR6G5B5Size8` |
 | `surface.basic` | leaf | `SurfaceRendering::SurfaceRendering` |
 | `surface.cpu_read_after_gpu_write` | leaf | `SurfaceRendering::XemuCpuReadAfterGpuWrite` |
 | `surface.cpu_read_clean_surface` | leaf | `SurfaceRendering::XemuCpuReadCleanSurface` |
