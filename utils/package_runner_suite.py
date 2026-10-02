@@ -13,7 +13,7 @@ import shutil
 
 CATEGORIES = {
     'cpu': 'CPU and translation',
-    'command': 'Command submission and reports',
+    'commands': 'Command submission and reports',
     'geometry': 'Geometry and vertex data',
     'textures': 'Textures and compression',
     'surfaces': 'Surfaces, framebuffer and memory',
@@ -29,7 +29,7 @@ def category(test: dict) -> str:
     if suite.startswith('cpu'):
         return 'cpu'
     if any(s in suite for s in ('pfifo', 'report_query')):
-        return 'command'
+        return 'commands'
     if suite in ('high_vertex_count', 'primitive_type', 'tiny_draw', 'vertex_buffer_allocation'):
         return 'geometry'
     if 'texture' in suite or 's3tc_sync_factor' in identity:

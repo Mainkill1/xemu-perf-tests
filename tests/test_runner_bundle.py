@@ -71,5 +71,8 @@ class BundleTests(unittest.TestCase):
         shader_ids = next(c['tests'] for c in bundle['categories'] if c['id'] == 'shaders')
         self.assertTrue(any('shader_lifecycle' in id for id in shader_ids))
         self.assertEqual(sum(len(c['tests']) for c in bundle['categories']), json.loads(raw)['leaf_count'])
+        categories = {leaf: category['id'] for category in bundle['categories'] for leaf in category['tests']}
+        self.assertEqual(categories['busy_pfifo.pfifo_saturation'], 'commands')
+        self.assertEqual(categories['fill_rate.solid'], 'surfaces')
 
 if __name__ == '__main__': unittest.main()
