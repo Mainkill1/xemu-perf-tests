@@ -118,13 +118,13 @@ def entries():
         ("dma_range_guard", "report.dma-range-guard")],
         ("report", "gpu", "correctness", "xemu-only"))
     simple("shader_lifecycle", "ShaderLifecycle", [
-        ("pipeline_train", "pipeline.train"),
-        ("pipeline_capacity_c_minus_one", "pipeline.capacity-c-minus-one"),
-        ("pipeline_capacity_c", "pipeline.capacity-c"),
-        ("pipeline_capacity_c_plus_one", "pipeline.capacity-c-plus-one"),
-        ("pipeline_identical_replay", "pipeline.identical-replay"),
-        ("pipeline_uniform_only", "pipeline.uniform-only")],
-        ("shader-lifecycle", "gpu", "correctness", "xemu-only"))
+        ("readiness_train_visible", "readiness.train-visible"),
+        ("readiness_replay_visible", "readiness.replay-visible"),
+        ("readiness_identical_replay", "readiness.identical-replay"),
+        ("readiness_uniform_only", "readiness.uniform-only"),
+        ("readiness_early_demand", "readiness.early-demand")],
+        ("shader-lifecycle", "shader-readiness", "gpu", "correctness",
+         "xemu-only"))
 
     def staged(parent, legacy_parent, selection_group, stages, tags, description):
         out.append(group(parent, parent.split(".")[0], "GameLoadComposite", legacy_parent,
@@ -254,7 +254,7 @@ def entries():
 def validate(items):
     valid_tags = {"allocation", "correctness", "cpu", "gpu", "group", "hardware-safe", "memory-pressure",
                   "microbenchmark", "performance", "pfifo", "primitive", "scenario", "surface", "texture",
-                  "report", "shader-lifecycle", "vertex", "xemu-only"}
+                  "report", "shader-lifecycle", "shader-readiness", "vertex", "xemu-only"}
     ids, legacy = set(), set()
     for item in items:
         if item.id in ids or item.legacy_id in legacy:
@@ -648,18 +648,16 @@ def render():
         "output_directory_path": "e:/xemu_perf_tests",
     }
     shader_lifecycle_plans = {
-        "shader-lifecycle-pipeline-train.json":
-            "shader_lifecycle.pipeline_train",
-        "shader-lifecycle-pipeline-c-minus-one.json":
-            "shader_lifecycle.pipeline_capacity_c_minus_one",
-        "shader-lifecycle-pipeline-c.json":
-            "shader_lifecycle.pipeline_capacity_c",
-        "shader-lifecycle-pipeline-c-plus-one.json":
-            "shader_lifecycle.pipeline_capacity_c_plus_one",
-        "shader-lifecycle-pipeline-identical-replay.json":
-            "shader_lifecycle.pipeline_identical_replay",
-        "shader-lifecycle-pipeline-uniform-only.json":
-            "shader_lifecycle.pipeline_uniform_only",
+        "shader-lifecycle-readiness-train-visible.json":
+            "shader_lifecycle.readiness_train_visible",
+        "shader-lifecycle-readiness-replay-visible.json":
+            "shader_lifecycle.readiness_replay_visible",
+        "shader-lifecycle-readiness-identical-replay.json":
+            "shader_lifecycle.readiness_identical_replay",
+        "shader-lifecycle-readiness-uniform-only.json":
+            "shader_lifecycle.readiness_uniform_only",
+        "shader-lifecycle-readiness-early-demand.json":
+            "shader_lifecycle.readiness_early_demand",
     }
     for filename, test_id in shader_lifecycle_plans.items():
         output[ROOT / "resources" / filename] = resolved_plan(

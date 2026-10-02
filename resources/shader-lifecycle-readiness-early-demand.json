@@ -10,12 +10,12 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:f29b57c7ea2e76b4e3f7e71f272acd4967e5ebf88bcfa5e132707ea9a6f9eccd",
-    "catalog_id": "sha256:8307fde80201084ce39706e9490cbdf16cddfb1aa21fc19fecf34942fa2f3dd4",
+    "plan_id": "sha256:1780173740abb7cbcaaad6cbdfeba5d297e71129bc8063446fb2b603e4a53d03",
+    "catalog_id": "sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747",
     "selected_leaf_count": 1,
     "tests": [
       {
-        "id": "shader_lifecycle.pipeline_train"
+        "id": "shader_lifecycle.readiness_early_demand"
       }
     ]
   }
