@@ -27,13 +27,18 @@ class CatalogPlanContractTests(unittest.TestCase):
 
     catalog = json.loads((ROOT / "resources/catalog.json").read_text(encoding="utf-8"))
     tests = catalog["tests"]
-    self.assertEqual(catalog["leaf_count"], 162)
+    self.assertEqual(catalog["leaf_count"], 164)
     self.assertEqual(catalog["group_count"], 5)
-    self.assertEqual(len(tests), 167)
+    self.assertEqual(len(tests), 169)
     self.assertEqual(len({test["id"] for test in tests}), len(tests))
     self.assertEqual(len({test["legacy_ids"][0] for test in tests}), len(tests))
     self.assertTrue(all(re.fullmatch(r"[a-z0-9_.]+", test["id"]) for test in tests))
     self.assertTrue(all(test["description"] and test["tags"] for test in tests))
+    by_id = {test["id"]: test for test in tests}
+    for id in ("cpu_floating_point.x87_exception_status", "cpu_floating_point.x87_fault_checkpoint"):
+        self.assertEqual(by_id[id]["revision"], 1)
+        self.assertIn("correctness", by_id[id]["tags"])
+        self.assertIn("hardware-safe", by_id[id]["tags"])
 
     failure_guide = (ROOT / "docs/generated/test-failure-guide.md").read_text(encoding="utf-8")
     self.assertIn("# Test failure guide", failure_guide)

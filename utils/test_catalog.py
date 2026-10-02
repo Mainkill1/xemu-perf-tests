@@ -79,6 +79,10 @@ def entries():
          "Runs 16777168 status-to-AX reads with an independently fixed EAX/checksum oracle."),
         ("x87_compare_status_ax", "X87CompareStatusAX",
          "Runs 16777168 equal comparisons and status-to-AX reads with populated x87 registers."),
+        ("x87_exception_status", "X87ExceptionStatus",
+         "Checks 384 masked/pending nonwaiting x87 status vectors, including ES/B, TOP and upper EAX."),
+        ("x87_fault_checkpoint", "X87FaultCheckpoint",
+         "Checks four owned-page faults immediately after dirty x87 arithmetic and FNSTSW AX, including FP state and resumption."),
     ):
         out.append(leaf(f"cpu_floating_point.{stable}", "cpu_floating_point",
                         "CpuFloatingPoint", legacy, description,
@@ -785,6 +789,18 @@ def render():
          "cpu_floating_point.x87_status_ax",
          "cpu_floating_point.x87_compare_status_ax",
          "cpu_floating_point.x87_scalar", "cpu_floating_point.sse_scalar"])
+    output[ROOT / "resources/x87-exception-status-qualification.json"] = resolved_plan(
+        doc, {"skip_tests_by_default": True, "enable_autorun_immediately": True,
+              "warmup_iterations": 3, "measurement_iterations_multiplier": 4,
+              "gpu_completion_mode": "per_iteration",
+              "output_directory_path": "e:/xemu_perf_tests"},
+        ["cpu_floating_point.x87_exception_status"])
+    output[ROOT / "resources/x87-checkpoint-qualification.json"] = resolved_plan(
+        doc, {"skip_tests_by_default": True, "enable_autorun_immediately": True,
+              "warmup_iterations": 3, "measurement_iterations_multiplier": 4,
+              "gpu_completion_mode": "per_iteration",
+              "output_directory_path": "e:/xemu_perf_tests"},
+        ["cpu_floating_point.x87_exception_status", "cpu_floating_point.x87_fault_checkpoint"])
     return output
 
 

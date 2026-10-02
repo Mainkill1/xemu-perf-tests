@@ -9,6 +9,7 @@ static constexpr uint32_t kX87StatusOperations = 16777168;
 static constexpr uint32_t kX87StatusExpected = 0xf1100000;
 static constexpr uint32_t kX87CompareStatusExpected = 0xf0fb0000;
 static constexpr uint32_t kX87StatusVectorCases = 6153;
+static constexpr uint32_t kX87ExceptionStatusCases = 384;
 
 // FSAVE's 32-bit operand layout is 108 bytes, also in 64-bit long mode.
 struct alignas(16) X87SavedState {
@@ -120,6 +121,42 @@ static inline uint32_t CheckX87StatusVectors() {
   return failures;
 }
 
+struct X87StatusVectorResult {
+  uint32_t cases;
+  uint32_t failures;
+};
+
+static inline X87StatusVectorResult CheckX87ExceptionStatusVectors() {
+  X87SavedState saved;
+  SaveX87(saved);
+  X87StatusVectorResult result = {};
+  for (uint16_t flag : {uint16_t(1), uint16_t(2), uint16_t(4), uint16_t(8), uint16_t(16), uint16_t(32)}) {
+    for (bool pending : {false, true}) {
+      const uint16_t control = pending ? (0x037f & ~flag) : 0x037f;
+      for (uint16_t top = 0; top < 8; ++top) {
+        for (uint16_t condition : {uint16_t(0), uint16_t(0x0100), uint16_t(0x0400), uint16_t(0x4000)}) {
+          // Load a consistent environment: the selected exception flag is
+          // masked, or unmasked with both ES and its B reflection set.
+          // FNSTSW is nonwaiting in both AX and memory forms. Clear the pending
+          // exception before any later waiting x87 instruction or C code.
+          const uint16_t expected = (top << 11) | condition | flag | (pending ? 0x8080 : 0);
+          uint32_t environment[7] = {control, expected, 0xffff, 0, 0, 0, 0};
+          uint32_t eax = 0xa5a50000;
+          uint16_t memory_status = 0xffff;
+          asm volatile("fldenv %2\n\tfnstsw %%ax\n\tfnstsw %1\n\tfnclex"
+                       : "+a"(eax), "=m"(memory_status)
+                       : "m"(environment)
+                       : "memory");
+          ++result.cases;
+          result.failures += eax != (0xa5a50000U | expected) || memory_status != expected;
+        }
+      }
+    }
+  }
+  RestoreX87(saved);
+  return result;
+}
+
 struct X87StatusWorkResult {
   uint32_t eax;
   uint32_t checksum;
@@ -127,7 +164,7 @@ struct X87StatusWorkResult {
 
 // The asm is the same guest workload for hardware and both emulator builds.
 // Odd outer count avoids checksums disappearing through power-of-two wrap.
-__attribute__((noinline)) static X87StatusWorkResult RunX87StatusWork(bool compare) {
+__attribute__((noinline, unused)) static X87StatusWorkResult RunX87StatusWork(bool compare) {
   X87SavedState saved;
   SaveX87(saved);
   uint32_t eax = 0xa5a50000, checksum = 0, iterations = 1048573;

@@ -14,6 +14,8 @@ static const TestDescriptor kTestCatalog[] = {
   {"cpu_floating_point.x87_status_vectors", 2, "cpu_floating_point", "X87StatusVectors", "Checks 6153 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors.", "CpuFloatingPoint", "X87StatusVectors", "X87StatusVectors", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_status_ax", 2, "cpu_floating_point", "X87StatusAX", "Runs 16777168 status-to-AX reads with an independently fixed EAX/checksum oracle.", "CpuFloatingPoint", "X87StatusAX", "X87StatusAX", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_compare_status_ax", 2, "cpu_floating_point", "X87CompareStatusAX", "Runs 16777168 equal comparisons and status-to-AX reads with populated x87 registers.", "CpuFloatingPoint", "X87CompareStatusAX", "X87CompareStatusAX", TestKind::LEAF, 0, 0},
+  {"cpu_floating_point.x87_exception_status", 1, "cpu_floating_point", "X87ExceptionStatus", "Checks 384 masked/pending nonwaiting x87 status vectors, including ES/B, TOP and upper EAX.", "CpuFloatingPoint", "X87ExceptionStatus", "X87ExceptionStatus", TestKind::LEAF, 0, 0},
+  {"cpu_floating_point.x87_fault_checkpoint", 1, "cpu_floating_point", "X87FaultCheckpoint", "Checks four owned-page faults immediately after dirty x87 arithmetic and FNSTSW AX, including FP state and resumption.", "CpuFloatingPoint", "X87FaultCheckpoint", "X87FaultCheckpoint", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.direct_loop", 1, "cpu_translation_blocks", "DirectLoop", "Runs the DirectLoop workload and records its deterministic result.", "CpuTranslationBlocks", "DirectLoop", "DirectLoop", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.indirect_dispatch", 1, "cpu_translation_blocks", "IndirectDispatch", "Runs the IndirectDispatch workload and records its deterministic result.", "CpuTranslationBlocks", "IndirectDispatch", "IndirectDispatch", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.indirect_dispatch_stress", 1, "cpu_translation_blocks", "IndirectDispatchStress", "Runs the IndirectDispatchStress workload and records its deterministic result.", "CpuTranslationBlocks", "IndirectDispatchStress", "IndirectDispatchStress", TestKind::LEAF, 0, 0},
@@ -169,4 +171,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:8da669884f435f8325be23678bc828a99f4d714ed2257b7cb3d5de8362a56521";
+static constexpr const char *kTestCatalogId = "sha256:3ff2a2a35c40440e195b928aa88321c97b16228b81cef6e4b5de962834c3ffac";

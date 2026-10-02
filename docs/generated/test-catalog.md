@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:8da669884f435f8325be23678bc828a99f4d714ed2257b7cb3d5de8362a56521` contains 162 leaves and 5 groups.
+Catalog `sha256:3ff2a2a35c40440e195b928aa88321c97b16228b81cef6e4b5de962834c3ffac` contains 164 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -18,6 +18,8 @@ Catalog `sha256:8da669884f435f8325be23678bc828a99f4d714ed2257b7cb3d5de8362a56521
 | `cpu_floating_point.x87_status_vectors` | leaf | `CpuFloatingPoint::X87StatusVectors` |
 | `cpu_floating_point.x87_status_ax` | leaf | `CpuFloatingPoint::X87StatusAX` |
 | `cpu_floating_point.x87_compare_status_ax` | leaf | `CpuFloatingPoint::X87CompareStatusAX` |
+| `cpu_floating_point.x87_exception_status` | leaf | `CpuFloatingPoint::X87ExceptionStatus` |
+| `cpu_floating_point.x87_fault_checkpoint` | leaf | `CpuFloatingPoint::X87FaultCheckpoint` |
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |

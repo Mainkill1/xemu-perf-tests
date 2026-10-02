@@ -18,6 +18,44 @@ def module():
 
 
 class ReferenceTests(unittest.TestCase):
+    def test_fault_family_preserves_all_prior_oracles(self):
+        m = module()
+        existing = m.extend_reference(m.expected_records(), family='exception-status')
+        before = copy.deepcopy(existing)
+        try:
+            extended = m.extend_reference(existing, family='fault')
+        except ValueError:
+            self.fail('The fault-checkpoint reference family is missing')
+        self.assertEqual(existing, before)
+        self.assertEqual(extended[:-1], before)
+        record = extended[-1]
+        self.assertEqual(record['id'], 'cpu_floating_point.x87_fault_checkpoint')
+        self.assertEqual(record['metadata'], {'source_kat': '00000004',
+                                            'result_checksum': '00000000', 'oracle_status': 'PASS'})
+        self.assertEqual(record['framebuffer_fnv1a64'], m.solid_hash(0xff203040))
+        with self.assertRaises(ValueError):
+            m.extend_reference(extended, family='fault')
+
+    def test_exception_status_family_appends_only_its_new_oracle(self):
+        m = module()
+        existing = m.expected_records()
+        before = copy.deepcopy(existing)
+        try:
+            extended = m.extend_reference(existing, family='exception-status')
+        except TypeError:
+            self.fail('The exception-status reference family is missing')
+        self.assertEqual(existing, before)
+        self.assertEqual(extended[:3], before)
+        self.assertEqual(len(extended), 4)
+        record = extended[-1]
+        self.assertEqual(record['id'], 'cpu_floating_point.x87_exception_status')
+        self.assertEqual(record['revision'], 1)
+        self.assertEqual(record['metadata'], {'source_kat': '00000180',
+                                            'result_checksum': '00000000', 'oracle_status': 'PASS'})
+        self.assertEqual(record['framebuffer_fnv1a64'], m.solid_hash(0xff403020))
+        with self.assertRaises(ValueError):
+            m.extend_reference(extended, family='exception-status')
+
     def test_pixel_byte_order_and_published_scalar_oracle(self):
         # Tiny explicit BGRA vector, plus the existing scalar reference color.
         m = module()

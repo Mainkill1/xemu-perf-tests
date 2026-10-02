@@ -47,10 +47,60 @@ python3 -m unittest discover -s tests -p test_x87_status_workload.py -v
 
 This host check validates the fixture against real x87 instructions; it does not
 qualify an emulator. Native Xbox runs and hard/soft-FPU emulator runs are needed
-for that. These tests do not alter comparison exceptions, cover ES/B injection,
+for that. The original three leaves do not alter comparison exceptions,
 exercise every state save path or qualify precise fault handling. The reduced
 emulator candidate changes only AX reads and preserves the existing FP
 writeback checkpoint; memory forms remain conservative.
+
+## Retained exception and fault checks
+
+Two additional revision-one leaves keep correctness coverage separate from the
+fixed timing workloads above. `x87-checkpoint-qualification.json` selects both;
+`x87-exception-status-qualification.json` selects only the first. These use
+three warmups, ten measured samples, multiplier four and per-iteration completion.
+Their durations are diagnostic; passing them does not establish a speedup.
+
+| Leaf | Cases per body | Check |
+| --- | ---: | --- |
+| `cpu_floating_point.x87_exception_status` | 384 | Each of six exception flags, masked or pending/unmasked; eight TOP values and four condition patterns; exact ES/B, status and upper EAX in nonwaiting AX/memory reads |
+| `cpu_floating_point.x87_fault_checkpoint` | 4 | Dirty scalar or two live values, single/double precision, `FNSTSW AX`, then an actual inaccessible-page read; exact fault PC, saved FP control/status/tag/values, upper EAX and actual post-resume FP state |
+
+The exception-status case loads consistent architectural environments, reads
+status without `FWAIT`, then clears pending exceptions before any later waiting
+instruction or return. It preserves the caller's complete saved x87 state.
+
+The fault test allocates and releases its own inaccessible 4KiB page. The Xbox
+adapter uses the existing nxdk structured exception mechanism and only accepts
+a read access violation at the exact labeled load and owned page. It checks the
+kernel's captured FP state and advances the exception PC to the next instruction.
+Missing FP context is a failure, not a skipped check. Unexpected exceptions are
+not intercepted. One sequence doubles exact 3 to 6; the other produces ST0=6,
+ST1=3. No call or branch intervenes between dirty arithmetic, AX read and load.
+After resumption, EAX is checked again. All cases restore the surrounding x87
+state; allocation/release and capture-count failures remain failures.
+
+The native Linux adapter runs the same instruction regions against a protected
+page and inspects the signal's FP context. It corroborates the fixture's
+instruction/format expectations; it does not validate the Xbox adapter or xemu.
+Its negative controls omit dirty arithmetic, omit a stack update and destroy
+upper EAX, and reset the actual resumed FP state. Both adapters check an
+inline nonwaiting `FXSAVE` immediately after resumption, before `FNCLEX` cleanup,
+against the same literal control, status, tag and value expectations; captured state alone cannot pass the test.
+A further negative control corrupts only the OS continuation status after its
+initial capture has passed. Exception-status negative controls remove ES/B, TOP
+and upper EAX.
+These checks catch their intended corrupted states. They do not substitute for
+an emulator build deliberately missing its writeback checkpoint.
+
+```sh
+python3 -m unittest discover -s tests -p test_x87_exception_status.py -v
+python3 -m unittest discover -s tests -p test_x87_fault_workload.py -v
+```
+
+The Xbox guest build is available, but Deck/retail-Xbox validation of these two
+new leaves is pending. The active game and timing campaigns keep their original
+immutable ISO and reference; rebuilding these extra checks does not change those
+campaigns or make their prior results apply to a new fixture.
 
 ## Independent reference derivation
 
@@ -81,3 +131,18 @@ python3 utils/x87_status_reference.py --base PINNED_REFERENCE.json \
 
 No newly captured framebuffer reference is approved. Unrelated reference
 mismatches remain failures; this producer cannot replace their expected hashes.
+
+The optional `--family exception-status` and `--family fault` append only the
+selected new record, preserving all earlier records. Their expected case counts
+are 384 and 4, failure checksum zero, with fixed solid framebuffer colors
+`ff403020` and `ff203040`. They are derived from the literal test specification,
+not captured emulator output. Use distinct, previously nonexistent output files:
+
+```sh
+python3 utils/x87_status_reference.py --base PRIOR_REFERENCE.json \
+  --family exception-status --output EXCEPTION_REFERENCE.json \
+  --manifest EXCEPTION_REFERENCE.provenance.json
+python3 utils/x87_status_reference.py --base EXCEPTION_REFERENCE.json \
+  --family fault --output CHECKPOINT_REFERENCE.json \
+  --manifest CHECKPOINT_REFERENCE.provenance.json
+```

@@ -28,17 +28,26 @@ def solid_hash(argb):
     return fnv(pixel_bytes(argb) * (640 * 480))
 
 
-def expected_records():
+def expected_records(family='status'):
     operations = 1048573 * 16
     records = []
-    for suffix, name, revision, eax in [
+    definitions = [
         ('x87_status_vectors', 'X87StatusVectors', 2, None),
         ('x87_status_ax', 'X87StatusAX', 2, 0xa5a50000),
         ('x87_compare_status_ax', 'X87CompareStatusAX', 2, 0xa5a57000),
-    ]:
+    ]
+    if family == 'exception-status':
+        definitions = [('x87_exception_status', 'X87ExceptionStatus', 1, None)]
+    elif family == 'fault':
+        definitions = [('x87_fault_checkpoint', 'X87FaultCheckpoint', 1, None)]
+    elif family != 'status':
+        raise ValueError('Unknown reference family: ' + family)
+    for suffix, name, revision, eax in definitions:
         if eax is None:
-            color = 0xff102030
-            metadata = {'source_kat': '00001809', 'result_checksum': '00000000', 'oracle_status': 'PASS'}
+            color, cases = {'status': (0xff102030, 6153),
+                            'exception-status': (0xff403020, 384),
+                            'fault': (0xff203040, 4)}[family]
+            metadata = {'source_kat': f'{cases:08x}', 'result_checksum': '00000000', 'oracle_status': 'PASS'}
         else:
             checksum = (operations * eax) & 0xffffffff
             color = 0xff000000 | (checksum & 0xffffff)
@@ -54,12 +63,12 @@ def expected_records():
     return records
 
 
-def extend_reference(existing):
+def extend_reference(existing, family='status'):
     if not isinstance(existing, list) or not all(isinstance(r, dict) and isinstance(r.get('id'), str)
                                               for r in existing):
         raise ValueError('Reference must contain records with stable IDs')
     ids = {r['id'] for r in existing}
-    new = expected_records()
+    new = expected_records(family)
     if len(ids) != len(existing) or ids & {r['id'] for r in new}:
         raise ValueError('Duplicate ID or existing x87 oracle; never replace existing expected output')
     return copy.deepcopy(existing) + new
@@ -79,24 +88,31 @@ def main():
     parser.add_argument('--base', type=Path, required=True, help='Existing pinned reference, unchanged input')
     parser.add_argument('--output', type=Path, required=True, help='New reference file; must not exist')
     parser.add_argument('--manifest', type=Path, required=True, help='New provenance file; must not exist')
+    parser.add_argument('--family', choices=('status', 'exception-status', 'fault'), default='status',
+                        help='Append only this immutable oracle family; existing records stay unchanged')
     args = parser.parse_args()
     if args.output.exists() or args.manifest.exists() or args.output == args.manifest:
         parser.error('Outputs must be distinct new files')
     raw = args.base.read_bytes()
-    reference = extend_reference(json.loads(raw, object_pairs_hook=unique_object))
+    reference = extend_reference(json.loads(raw, object_pairs_hook=unique_object), args.family)
     output = (json.dumps(reference, indent=2) + '\n').encode()
     provenance = {'schema': 1, 'baseSha256': hashlib.sha256(raw).hexdigest(),
                   'outputSha256': hashlib.sha256(output).hexdigest(),
                   'origin': 'Independent architectural literals and solid-color framebuffer bytes',
                   'hardwareConformanceClaim': False, 'capturedXemuHashUsed': False,
                   'surface': '640x480 A8R8G8B8, little-endian BGRA, row bytes only, before overlay',
-                  'operationsPerBody': 16777168, 'records': expected_records()}
+                  'family': args.family, 'records': expected_records(args.family)}
+    if args.family == 'status':
+        provenance['operationsPerBody'] = 16777168
+    else:
+        provenance['casesPerBody'] = 384 if args.family == 'exception-status' else 4
     with args.output.open('xb') as file:
         file.write(output)
     with args.manifest.open('x') as file:
         json.dump(provenance, file, indent=2)
         file.write('\n')
-    print(json.dumps({'output': str(args.output), 'sha256': provenance['outputSha256'], 'added': 3}))
+    print(json.dumps({'output': str(args.output), 'sha256': provenance['outputSha256'],
+                      'added': len(provenance['records'])}))
 
 
 if __name__ == '__main__':
