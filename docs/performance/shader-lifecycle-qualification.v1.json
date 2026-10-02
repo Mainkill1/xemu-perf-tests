@@ -1,0 +1,179 @@
+{
+  "schema": "xemu-perf-tests.shader-lifecycle-qualification.v1",
+  "status": "audit-correction-not-runner-config",
+  "revision": 1,
+  "review_date": "2026-09-24",
+  "supersedes_ambiguous_interpretations": [
+    "empty-xemu-cache-means-driver-cold",
+    "96-recipes-means-96-shaders-or-families",
+    "prewarm-32-and-live-queue-capacity-are-the-same-boundary"
+  ],
+  "source_identity": {
+    "test_base_sha": "bf8dbe70f12f4d97f59f3f8e14b04fe9a04bf0f9",
+    "renderer_reference_sha": "134de6616e1d8f5bfe9d919a4e98e0ff7da3c928"
+  },
+  "reviewed_limits": {
+    "hybrid_pipeline_jobs": 16,
+    "fallback_family_requests": 16,
+    "prewarm_candidates_per_launch": 32,
+    "runtime_rule": "record compiled effective values; do not assume reviewed constants remain current",
+    "live_boundary": "C-1/C/C+1",
+    "prewarm_boundary": [31, 32, 33]
+  },
+  "cache_layers": [
+    {
+      "id": "xemu-resident",
+      "examples": ["shader-module-cache", "shader-binding-cache", "pipeline-binding-lru"],
+      "cold_control": "fresh-process-and-device-or-proven-new-exact-key"
+    },
+    {
+      "id": "xemu-persistent",
+      "examples": ["family-history", "spirv-artifacts"],
+      "cold_control": "private-empty-base-path-with-manifest"
+    },
+    {
+      "id": "application-vk-pipeline-cache",
+      "modes": ["normal", "empty", "null"],
+      "strict_disabled_mode": "null",
+      "strict_disabled_handle": "VK_NULL_HANDLE"
+    },
+    {
+      "id": "driver-internal",
+      "portable_disable": {
+        "extension": "VK_KHR_pipeline_binary",
+        "property": "pipelineBinaryInternalCacheControl",
+        "device_structure": "VkDevicePipelineBinaryInternalCacheControlKHR",
+        "required_value": "disableInternalCache=VK_TRUE"
+      },
+      "unsupported_label": "driver-cache-unknown-or-driver-natural-unseen-key"
+    }
+  ],
+  "cache_qualification_labels": {
+    "driver_internal_cache_disabled_verified": {
+      "requires": [
+        "VK_KHR_pipeline_binary enabled",
+        "pipelineBinaryInternalCacheControl true",
+        "disableInternalCache true in measured VkDeviceCreateInfo chain",
+        "effective state emitted by renderer",
+        "application pipeline cache mode recorded"
+      ]
+    },
+    "driver_natural_unseen_key": {
+      "requires": [
+        "fresh process and device",
+        "key unused by this campaign",
+        "compile-required probe recorded",
+        "internal cache not claimed disabled"
+      ]
+    },
+    "driver_cache_unknown": {
+      "meaning": "no verified portable or vendor-specific internal-cache control"
+    },
+    "mesa_disk_cache_disabled": {
+      "requires": ["MESA_SHADER_CACHE_DISABLE=1 recorded"],
+      "does_not_imply": "all driver in-memory or internal caches disabled"
+    }
+  },
+  "application_pipeline_cache_modes": {
+    "normal": "restored or process-populated VkPipelineCache is supplied",
+    "empty": "empty VkPipelineCache is supplied and may populate within process",
+    "null": "VK_NULL_HANDLE is supplied to every measured pipeline creation path"
+  },
+  "pipeline_probe": {
+    "flag": "VK_PIPELINE_CREATE_FAIL_ON_PIPELINE_COMPILE_REQUIRED_BIT",
+    "ready_result": "VK_SUCCESS",
+    "compile_result": "VK_PIPELINE_COMPILE_REQUIRED",
+    "rule": "probe is recorded separately and is not timed as the real compile"
+  },
+  "creation_feedback": {
+    "consume_duration_only_when": "VK_PIPELINE_CREATION_FEEDBACK_VALID_BIT",
+    "application_cache_hit_is_not": "proof of driver-internal cache miss",
+    "host_wall_span_required": true
+  },
+  "candidate_pool": {
+    "planned_guest_recipes": 96,
+    "meaning": "candidate inputs before native legality, liveness and identity census",
+    "does_not_claim": [
+      "96 unique shader modules",
+      "96 unique fallback families",
+      "96 unique full pipelines",
+      "96 driver compilation calls"
+    ]
+  },
+  "fixed_pack_types_after_pilot": [
+    "smoke",
+    "specialization",
+    "fallback-sharing",
+    "fallback-family-boundary",
+    "live-capacity",
+    "pipeline-only",
+    "execution-control"
+  ],
+  "identity_expectations": {
+    "uniform-only": "pixels may change; structural module and pipeline keys stay fixed",
+    "combiner-only": "specialized fragment identity changes; fallback family may remain fixed after canonicalization",
+    "vertex-program": "vertex module and full pipeline identity change",
+    "fragment-shell": "fragment shell and possibly fallback family change",
+    "pipeline-only": "stage module keys fixed; full pipeline key changes",
+    "fill-only": "no new module or pipeline key",
+    "identical-replay": "no new xemu identity after first ready instance"
+  },
+  "pilot_gates": [
+    "native-legality",
+    "observable-operation-liveness",
+    "identity-census",
+    "compile-required-classification",
+    "fixed-pack-resolution",
+    "measurement-sensitivity-calibration",
+    "fallback-specialized-output-parity",
+    "production-state-bucket-coverage",
+    "repeatability-and-noise-floor"
+  ],
+  "calibration_faults_ms": [10, 25],
+  "campaigns": {
+    "compiler_isolation": {
+      "preferred": [
+        "fresh process and device",
+        "private empty xemu artifacts",
+        "application cache null",
+        "verified internal cache disabled",
+        "one first demand per exact key"
+      ]
+    },
+    "real_user": {
+      "required": [
+        "normal driver behavior",
+        "application cache normal",
+        "cold persisted and resident states separated",
+        "identical fixed guest work"
+      ]
+    },
+    "correctness": {
+      "may_use_diagnostic_gates": true,
+      "may_make_performance_claims": false
+    }
+  },
+  "required_run_manifest_fields": [
+    "physical-device-and-driver-identity",
+    "Vulkan-version-and-enabled-extensions",
+    "pipelineCacheUUID",
+    "pipeline-binary-cache-properties",
+    "requested-and-effective-internal-cache-control",
+    "application-pipeline-cache-mode-and-seed-hash",
+    "xemu-history-and-spirv-manifest",
+    "vendor-environment-controls",
+    "process-and-renderer-generation",
+    "xemu-xiso-symbol-identities",
+    "instrumentation-validation-failpoint-state",
+    "compile-required-and-feedback-support",
+    "compiled-live-capacities-and-prewarm-allowance"
+  ],
+  "failure_label_for_missing_cache_evidence": "cache_qualification_incomplete",
+  "success_claims": {
+    "driver_cold_proven_by_empty_xemu_cache": false,
+    "96_unique_compiles_proven_by_recipe_count": false,
+    "synthetic_effectiveness_proven": false,
+    "native_pilot_completed": false,
+    "issue_198_fixed": false
+  }
+}

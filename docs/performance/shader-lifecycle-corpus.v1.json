@@ -1,0 +1,427 @@
+{
+  "schema": "xemu-perf-tests.shader-lifecycle-design.v1",
+  "status": "design-only-not-runner-config",
+  "revision": 1,
+  "review_date": "2026-09-24",
+  "test_base_sha": "bf8dbe70f12f4d97f59f3f8e14b04fe9a04bf0f9",
+  "renderer_reference_sha": "134de6616e1d8f5bfe9d919a4e98e0ff7da3c928",
+  "implementation_state": {
+    "guest_emitters": "not-implemented",
+    "renderer_lifecycle_events": "not-implemented",
+    "native_legality": "unqualified",
+    "gpu_oracles": "not-captured"
+  },
+  "core_recipe_count": 96,
+  "generation": {
+    "family_order": "array-order",
+    "variant_order": "cartesian-product-axis-order-rightmost-fastest",
+    "id_format": "shader.lifecycle.{family}.v{variant:02d}",
+    "seed_u32": 1397244994,
+    "prng": "xorshift32: x^=x<<13; x^=x>>17; x^=x<<5; mask uint32 after each operation",
+    "serialization": "explicit little-endian uint32 for generated input words; no native struct padding",
+    "case_seed": "uint32(seed_u32 xor ((family_index+1)*0x9e3779b9) xor (variant_index+1)); replace zero with seed_u32",
+    "identity_claim": "planned guest recipes; actual stage/family/pipeline/driver identities require measured ledger",
+    "legality_policy": "explicit emitter allowlist; initialized dependencies; reject invalid or over-budget recipes; no silent drop"
+  },
+  "families": [
+    {
+      "id": "combiner-chain",
+      "purpose": "Combiner depth and live dataflow",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "stages",
+          "values": [
+            1,
+            2,
+            4,
+            8
+          ]
+        },
+        {
+          "name": "graph",
+          "values": [
+            "modulate",
+            "add",
+            "interpolate"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "combiner-mapping",
+      "purpose": "Dot products, mux and alpha propagation",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "operation",
+          "values": [
+            "dot-ab",
+            "dot-cd",
+            "mux",
+            "blue-to-alpha"
+          ]
+        },
+        {
+          "name": "mapping",
+          "values": [
+            "unsigned",
+            "signed",
+            "expand"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "texture-fanout",
+      "purpose": "Texture shell and sample fanout",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "stages",
+          "values": [
+            1,
+            2,
+            3,
+            4
+          ]
+        },
+        {
+          "name": "sampling",
+          "values": [
+            "point-2d",
+            "linear-2d",
+            "point-cube"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "dependent-texture",
+      "purpose": "Explicitly allowlisted producer-consumer texture chains",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "chain",
+          "values": [
+            "dependent-ar",
+            "dependent-gb",
+            "dot-2d",
+            "dot-cube"
+          ]
+        },
+        {
+          "name": "coordinate_field",
+          "values": [
+            "affine",
+            "checker",
+            "radial-bounded"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "alpha-fog",
+      "purpose": "Discard and fog shell coverage",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "alpha_function",
+          "values": [
+            "less",
+            "greater",
+            "greater-equal"
+          ]
+        },
+        {
+          "name": "fog",
+          "values": [
+            "disabled",
+            "linear",
+            "exp",
+            "exp2"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "vertex-program",
+      "purpose": "Meaningful programmable vertex work; total encoded slot budget",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "instruction_budget",
+          "values": [
+            8,
+            32,
+            64,
+            128
+          ]
+        },
+        {
+          "name": "graph",
+          "values": [
+            "serial-mad",
+            "dot-merge",
+            "reciprocal-mix"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "fixed-function-lighting",
+      "purpose": "Generated transform-and-lighting vertex variants",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "lights",
+          "values": [
+            1,
+            4,
+            8
+          ]
+        },
+        {
+          "name": "recipe",
+          "values": [
+            "directional",
+            "point",
+            "spot",
+            "specular"
+          ]
+        }
+      ]
+    },
+    {
+      "id": "target-topology",
+      "purpose": "Attachment and topology coverage; not a one-factor attribution test",
+      "expected_recipe_count": 12,
+      "axes": [
+        {
+          "name": "color_format",
+          "values": [
+            "argb8888",
+            "rgb565"
+          ]
+        },
+        {
+          "name": "primitive",
+          "values": [
+            "triangles",
+            "lines",
+            "points"
+          ]
+        },
+        {
+          "name": "depth",
+          "values": [
+            "off",
+            "read-write"
+          ]
+        }
+      ]
+    }
+  ],
+  "profiles": {
+    "smoke": {
+      "variants_per_family": [
+        0
+      ],
+      "expected_recipe_count": 8
+    },
+    "core": {
+      "variants_per_family": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "expected_recipe_count": 96
+    },
+    "pressure": {
+      "base_profile": "core",
+      "repeat_epochs": 8,
+      "expected_recipe_demands": 768,
+      "unique_guest_recipes": 96
+    },
+    "unseen_phase": {
+      "train_variants_per_family": [
+        0,
+        1,
+        2,
+        3,
+        4,
+        5
+      ],
+      "new_variants_per_family": [
+        6,
+        7,
+        8,
+        9,
+        10,
+        11
+      ],
+      "train_count": 48,
+      "new_count": 48,
+      "host_key_novelty": "must-be-verified"
+    },
+    "prewarm_boundary": {
+      "eligible_distinct_family_counts": [
+        31,
+        32,
+        33
+      ],
+      "reviewed_candidate_allowance": 32,
+      "insufficient_native_families": "coverage_insufficient",
+      "queue_boundary": "query actual capacity C; test C-1/C/C+1"
+    }
+  },
+  "work": {
+    "draws_per_active_recipe_per_frame": 4,
+    "residency_guest_frames": 240,
+    "stream_reveal_frames": 96,
+    "compile_viewport": "small-fixed-documented",
+    "execution_viewport": [
+      640,
+      480
+    ],
+    "burst_recipe_counts": [
+      1,
+      8,
+      32,
+      96
+    ],
+    "wall_time_adaptation": false,
+    "target_warmups_for_cold_endpoint": 0
+  },
+  "controls": [
+    "identical-replay",
+    "uniform-only",
+    "pipeline-only",
+    "fill-only",
+    "dependency-consumer"
+  ],
+  "scenarios": [
+    "startup",
+    "first-use",
+    "burst",
+    "stream",
+    "residency",
+    "warm-replay",
+    "unseen-phase",
+    "prewarm-boundary",
+    "contention",
+    "lifecycle"
+  ],
+  "modes": {
+    "ubershader": [
+      "off",
+      "fallback",
+      "prewarm",
+      "always"
+    ],
+    "reference_miss_policy": "wait",
+    "lossy_separate_experiment": "continue-black",
+    "effective_state_required": true
+  },
+  "cache_treatments": [
+    "application-cold",
+    "history-with-missing-artifacts",
+    "persisted-warm",
+    "resident-warm",
+    "verified-driver-cold-or-unknown"
+  ],
+  "observations": {
+    "input_hash": true,
+    "work_checksum": true,
+    "result_checksum": true,
+    "framebuffer_hash": "fnv1a64",
+    "artifact_hash": "sha256",
+    "scopes": [
+      "first-output",
+      "fallback",
+      "first-specialized",
+      "settled",
+      "dependency-consumer"
+    ],
+    "oracle_provenance_required": true,
+    "missing_transition_value": null,
+    "route_names_in_pixel_hash": false,
+    "checksum_inside_performance_timing": false,
+    "forced_worker_gate_in_performance": false
+  },
+  "telemetry": {
+    "clock": "single-host-monotonic-domain",
+    "first_demand_boundary": "production draw selector; not guest port receipt",
+    "handoff_boundary": "first submitted draw using exact published specialized full pipeline",
+    "readiness_classes": [
+      "hit",
+      "missed",
+      "too_late",
+      "unsupported",
+      "queue_deferred",
+      "failed"
+    ],
+    "required_identity": [
+      "run_id",
+      "case_id",
+      "phase_id",
+      "draw_sequence",
+      "renderer_generation",
+      "request_id",
+      "worker_ticket",
+      "exact_shader_key",
+      "fallback_family_key",
+      "full_pipeline_key"
+    ],
+    "require_event_sequence_and_footer": true,
+    "require_zero_dropped_events_for_transition_pass": true,
+    "no_capability": "unsupported_telemetry",
+    "incomplete_events": "incomplete_telemetry",
+    "publication_without_use": "transition_not_observed",
+    "duration_without_valid_feedback": null
+  },
+  "campaign": {
+    "warm_excluded_warmups": 5,
+    "measured_independent_runs_per_condition_min": 15,
+    "order": "interleaved A/B or ABBA",
+    "cold_target_warmup_exception": true,
+    "hitch_threshold_ms": [
+      8.33,
+      16.67,
+      33.33,
+      50,
+      100
+    ],
+    "auto_launch_on_upload": false,
+    "user_cache_mutation": false,
+    "claim_performance_before_correctness": false
+  },
+  "negative_checks": [
+    "changed-pixel",
+    "stale-frame",
+    "wrong-recipe",
+    "ignored-uniform",
+    "clear-replaces-work",
+    "bad-early-good-final",
+    "module-only-ready",
+    "published-never-submitted",
+    "missing-event",
+    "nonzero-drop-count",
+    "misordered-case-marker",
+    "stale-generation"
+  ],
+  "success_claims": {
+    "implemented_shader_tests": false,
+    "measured_speedup": false,
+    "issue_198_fixed": false
+  }
+}
