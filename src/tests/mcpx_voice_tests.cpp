@@ -117,8 +117,20 @@ McpxVoiceTests::McpxVoiceTests(TestHost &host, std::string output_dir, const Con
 void McpxVoiceTests::FinishSetupFailure(const char *name, const char *reason) {
   TestHost::ProfileResults results{};
   std::ostringstream metadata;
-  metadata << "{\"oracle_status\":\"FAIL\",\"setup_failure\":\"" << reason
-           << "\",\"timing_comparable\":false,\"timing_reason\":\"setup failed before measurement\"}";
+  uint32_t pci_identity = 0;
+  uint32_t pci_command = 0;
+  uint32_t pci_bar = 0;
+  // Xbox PCI_SLOT_NUMBER packs device in bits 0..4, function in bits 5..7.
+  HalReadWritePCISpace(0, 5, 0, &pci_identity, sizeof(pci_identity), FALSE);
+  HalReadWritePCISpace(0, 5, 4, &pci_command, sizeof(pci_command), FALSE);
+  HalReadWritePCISpace(0, 5, 0x10, &pci_bar, sizeof(pci_bar), FALSE);
+  metadata << "{\"oracle_status\":\"FAIL\",\"setup_failure\":\"" << reason << "\",\"pci_identity\":" << pci_identity
+           << ",\"pci_command_status\":" << pci_command << ",\"pci_bar0\":" << pci_bar
+           << ",\"engine\":" << Read(kEngine) << ",\"voice_table\":" << Read(kVoiceTable)
+           << ",\"sge_table\":" << Read(kSgeTable) << ",\"gp_reset\":" << Read(kGpReset)
+           << ",\"ep_reset\":" << Read(kEpReset) << ",\"list_tops\":[" << Read(kListTops[0]) << ","
+           << Read(kListTops[1]) << "," << Read(kListTops[2])
+           << "],\"timing_comparable\":false,\"timing_reason\":\"setup failed before measurement\"}";
   host_.PrepareDraw(0xff800000);
   host_.FinishDraw(suite_name_, name, results, metadata.str());
 }
