@@ -8,7 +8,7 @@
 static constexpr uint32_t kX87StatusOperations = 1048336;
 static constexpr uint32_t kX87StatusExpected = 0xb5500000;
 static constexpr uint32_t kX87CompareStatusExpected = 0xb4e70000;
-static constexpr uint32_t kX87StatusVectorCases = 6147;
+static constexpr uint32_t kX87StatusVectorCases = 6153;
 
 // FSAVE's 32-bit operand layout is 108 bytes, also in 64-bit long mode.
 struct alignas(16) X87SavedState {
@@ -83,6 +83,39 @@ static inline uint32_t CheckX87StatusVectors() {
       :
       : "memory", "st", "st(1)");
   failures += eax != 0xa5a53800U || value != 0x40000000U;
+  // Distinct exact operands catch FXCH ownership errors that equal operands
+  // and commutative arithmetic cannot. Exercise both hard-FPU cache widths.
+  const uint32_t one = 0x3f800000, two = 0x40000000, three = 0x40400000;
+  for (uint16_t control : {uint16_t(0x007f), uint16_t(0x027f)}) {
+    uint32_t other = 0;
+    eax = 0xa5a50000;
+    asm volatile(
+        "fninit\n\tfldcw %4\n\tflds %5\n\tflds %6\n\t"
+        "fxch %%st(1)\n\tfsub %%st(1), %%st\n\tfnstsw %%ax\n\t"
+        "fstps %1\n\tfstps %2\n\tfnstsw %3"
+        : "+a"(eax), "=m"(value), "=m"(other), "=m"(status)
+        : "m"(control), "m"(two), "m"(three)
+        : "memory", "st", "st(1)");
+    failures += eax != 0xa5a53000U || value != 0xbf800000U || other != three || status != 0;
+    eax = 0xa5a50000;
+    asm volatile(
+        "fninit\n\tfldcw %4\n\tflds %5\n\tflds %6\n\tflds %7\n\t"
+        "fadd %%st(2), %%st\n\tfaddp\n\tfnstsw %%ax\n\t"
+        "fxam\n\tfstps %1\n\tfstps %2\n\tfnstsw %3"
+        : "+a"(eax), "=m"(value), "=m"(other), "=m"(status)
+        : "m"(control), "m"(three), "m"(two), "m"(one)
+        : "memory", "st", "st(1)", "st(2)");
+    // ST0=6, ST1=3. FXAM marks positive finite normal (C2), then both pop.
+    failures += eax != 0xa5a53000U || value != 0x40c00000U || other != three || status != 0x0400;
+    eax = 0xa5a50000;
+    asm volatile(
+        "fninit\n\tfldcw %2\n\tflds %3\n\tfadd %%st, %%st\n\t"
+        "fnstsw %%ax\n\tjmp 1f\n\t1:\n\tfstps %1"
+        : "+a"(eax), "=m"(value)
+        : "m"(control), "m"(three)
+        : "memory", "st");
+    failures += eax != 0xa5a53800U || value != 0x40c00000U;
+  }
   RestoreX87(saved);
   return failures;
 }

@@ -72,7 +72,7 @@ def entries():
            ("x87_scalar", "X87Scalar")], ("cpu", "performance", "hardware-safe"))
     for stable, legacy, description in (
         ("x87_status_vectors", "X87StatusVectors",
-         "Checks 6147 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors."),
+         "Checks 6153 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors."),
         ("x87_status_ax", "X87StatusAX",
          "Runs 1048336 status-to-AX reads with an independently fixed EAX/checksum oracle."),
         ("x87_compare_status_ax", "X87CompareStatusAX",

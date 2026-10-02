@@ -11,7 +11,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"pfifo_packet_boundary.incrementing_inline_fallback", 1, "pfifo_packet_boundary", "pfifo.incrementing-inline-fallback", "Exercises xemu's controlled PFIFO/PGRAPH packet boundary path.", "PFIFOPacketBoundary", "pfifo.incrementing-inline-fallback", "pfifo.incrementing-inline-fallback", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.sse_scalar", 1, "cpu_floating_point", "SSEScalar", "Runs the SSEScalar workload and records its deterministic result.", "CpuFloatingPoint", "SSEScalar", "SSEScalar", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_scalar", 1, "cpu_floating_point", "X87Scalar", "Runs the X87Scalar workload and records its deterministic result.", "CpuFloatingPoint", "X87Scalar", "X87Scalar", TestKind::LEAF, 0, 0},
-  {"cpu_floating_point.x87_status_vectors", 1, "cpu_floating_point", "X87StatusVectors", "Checks 6147 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors.", "CpuFloatingPoint", "X87StatusVectors", "X87StatusVectors", TestKind::LEAF, 0, 0},
+  {"cpu_floating_point.x87_status_vectors", 1, "cpu_floating_point", "X87StatusVectors", "Checks 6153 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors.", "CpuFloatingPoint", "X87StatusVectors", "X87StatusVectors", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_status_ax", 1, "cpu_floating_point", "X87StatusAX", "Runs 1048336 status-to-AX reads with an independently fixed EAX/checksum oracle.", "CpuFloatingPoint", "X87StatusAX", "X87StatusAX", TestKind::LEAF, 0, 0},
   {"cpu_floating_point.x87_compare_status_ax", 1, "cpu_floating_point", "X87CompareStatusAX", "Runs 1048336 equal comparisons and status-to-AX reads with populated x87 registers.", "CpuFloatingPoint", "X87CompareStatusAX", "X87CompareStatusAX", TestKind::LEAF, 0, 0},
   {"cpu_translation_blocks.direct_loop", 1, "cpu_translation_blocks", "DirectLoop", "Runs the DirectLoop workload and records its deterministic result.", "CpuTranslationBlocks", "DirectLoop", "DirectLoop", TestKind::LEAF, 0, 0},
@@ -169,4 +169,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:db9a1e0de283cda490e51ed76342d2296484cb6e8cd2b73e842f37f20ac969d6";
+static constexpr const char *kTestCatalogId = "sha256:508933def3890eb47d1db31abd4fa67711ffb434b6bdeab5fd8348bc031fe2dc";

@@ -5,7 +5,7 @@ xemu issue #236; emulator before/after measurements belong to its xemu PR.
 
 | Leaf | Work per sample | Independent checks |
 | --- | --- | --- |
-| `cpu_floating_point.x87_status_vectors` | 6,147 cases | 6,144 injected TOP/condition/masked exception-bit/control-word combinations; three live stack/cache/helper sequences; exact status and upper EAX |
+| `cpu_floating_point.x87_status_vectors` | 6,153 cases | 6,144 injected TOP/condition/masked exception-bit/control-word combinations; nine live stack/cache/helper sequences; exact status and upper EAX |
 | `cpu_floating_point.x87_status_ax` | 1,048,336 `FNSTSW AX` dispatches | EAX `a5a50000`, checksum `b5500000` |
 | `cpu_floating_point.x87_compare_status_ax` | 1,048,336 `FCOM ST1` + `FNSTSW AX` pairs | EAX `a5a57000`, checksum `b4e70000` |
 
@@ -29,6 +29,11 @@ all eight TOP values, all sixteen condition-bit combinations, four masked
 exception-bit patterns, and all four rounding modes/three defined precision
 controls. The additional sequences exercise push/pop/FXCH, stack rotation,
 subsequent dirty writeback and an `FXAM` helper boundary.
+Six of these live cases explicitly select single and double precision, use
+distinct exact operands with order-sensitive subtraction, preserve a second
+live slot, consume read-only operands, and cross a helper or explicit branch
+before checking writeback. This prevents equal operands and commutative
+arithmetic from concealing an incorrect `FXCH` mapping.
 
 The same header is compiled by the native instruction checker:
 
@@ -38,9 +43,10 @@ python3 -m unittest discover -s tests -p test_x87_status_workload.py -v
 
 This host check validates the fixture against real x87 instructions; it does not
 qualify an emulator. Native Xbox runs and hard/soft-FPU emulator runs are needed
-for that. These tests do not alter comparison exceptions, exercise every state
-save path or qualify destination-store fault handling. The proposed first emulator
-candidate changes only AX reads; memory forms remain conservative.
+for that. These tests do not alter comparison exceptions, cover ES/B injection,
+exercise every state save path or qualify precise fault handling. The reduced
+emulator candidate changes only AX reads and preserves the existing FP
+writeback checkpoint; memory forms remain conservative.
 
 No newly captured framebuffer reference is approved by this change. Existing
 references stay unchanged. Missing references must remain visible and block full
