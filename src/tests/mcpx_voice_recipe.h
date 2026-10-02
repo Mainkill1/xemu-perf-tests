@@ -13,6 +13,14 @@ static constexpr size_t kPageBytes = 4096;
 static constexpr size_t kLogicalPages = 3;
 static constexpr size_t kPhysicalPages = 5;
 
+inline bool MixValueMatches(uint32_t word, int16_t predictor) {
+  if (word & 0xff000000) return false;
+  const int32_t actual = (word & 0x800000) ? static_cast<int32_t>(word) - 0x1000000 : static_cast<int32_t>(word);
+  const int32_t expected = static_cast<int32_t>(predictor) * 256;
+  const int32_t difference = actual - expected;
+  return difference >= -32 && difference <= 32;
+}
+
 inline std::vector<uint8_t> EncodedBlock(bool stereo) {
   const size_t channels = stereo ? 2 : 1;
   std::vector<uint8_t> bytes(36 * channels, 0);
@@ -23,12 +31,10 @@ inline std::vector<uint8_t> EncodedBlock(bool stereo) {
   return bytes;
 }
 
-inline bool CopyLogicalBytes(uint8_t *allocation, size_t allocation_bytes,
-                             size_t logical_offset, const uint8_t *input, size_t bytes) {
-  if (!allocation || (bytes && !input) ||
-      allocation_bytes < kPhysicalPages * kPageBytes ||
-      logical_offset > kLogicalPages * kPageBytes ||
-      bytes > kLogicalPages * kPageBytes - logical_offset) {
+inline bool CopyLogicalBytes(uint8_t *allocation, size_t allocation_bytes, size_t logical_offset, const uint8_t *input,
+                             size_t bytes) {
+  if (!allocation || (bytes && !input) || allocation_bytes < kPhysicalPages * kPageBytes ||
+      logical_offset > kLogicalPages * kPageBytes || bytes > kLogicalPages * kPageBytes - logical_offset) {
     return false;
   }
   while (bytes) {

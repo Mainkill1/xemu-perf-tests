@@ -2,7 +2,7 @@
 
 ## Scope and source separation
 
-This planned suite drives the guest APU voice engine directly. NXDK's `XAudio`
+This suite drives the guest APU voice engine directly. NXDK's `XAudio`
 interface drives AC97 PCM playback and does not exercise MCPX nonstreaming
 ADPCM fetching. The fixture needs an output observation after the production
 SGE reader, ADPCM decoder, voice resampler and mix stage.
@@ -55,16 +55,23 @@ on retail hardware. Record raw mode `0x8` as an experimental xemu setup,
 not a newly asserted hardware enum. Full DSP mode is required in the host;
 the VP monitor mode clears these mix bins and must fail the output oracle.
 
-Refuse to replace a running voice engine. Save the prior engine/list/table
-and DSP-reset register values. After each case, disable the engine and
+Refuse to replace a running or configured voice engine: require zero
+voice/SGE table addresses, reset GP/EP, and reset or empty list tops.
+Save the prior inactive engine and front-end values. After each case, disable the engine and
 unlink all voice lists before a GP write obtains the APU frame mutex.
 This ordering prevents a frame already waiting in the throttle from
-starting a DMA read after the fence. Restore inactive prior state only
-after quiescence, then release the fixture allocation. Timeout/failure
-must follow the same cleanup path.
+starting a DMA read after the fence. Keep all list tops empty, restore
+zero table addresses and prior inactive engine/front-end values, then
+release the fixture allocation. Reset list-top value zero is normalized
+to the empty sentinel; configured application state is never taken over.
+Timeout/failure follows the same cleanup path. If stop verification fails,
+retain the small allocation until process reset rather than free a possible
+DMA target.
 
 ## Timing and qualification
 
+Require at least 1024 samples of observed progress with a three-second
+guest timeout per profile body, then inspect all 64 left/right mix words.
 Record bounded guest completion latency and output observations. Progress
 polling and host audio pacing mean this is **NOT COMPARABLE as a throughput
 benchmark**; there is no fabricated ADPCM speedup from guest wait time.
@@ -77,3 +84,8 @@ runner on Deck `10.0.0.123`, captured output assertions, a negative control
 for silent/misrouted output, and safe cleanup verification. Keep a genuine
 test-suite PR draft until these gates are complete. Publish emulator
 measurements in the owning xemu PR.
+
+The generated selection is `resources/mcpx-voice-correctness.json`. This
+branch adds five leaves to the actual parent catalog of 159 leaves and
+five groups: the new catalog has 164 leaves and five groups. Historical
+release images with other catalogs are not interchangeable with this build.

@@ -44,12 +44,16 @@
 
 **Interfaces:** `McpxVoiceTests` follows existing TestSuite registration. Five leaves consume Task 1 bytes and emit progress, source hash, signed mix observations, cleanup outcome and completion latency.
 
-- [ ] Add RED contracts for exact five routes, xemu-only/correctness metadata and no fake throughput class.
-- [ ] Implement the bounded guest setup, progress polling and independent mix oracle from the spec; include failure cleanup and inactive-engine refusal.
-- [ ] Regenerate catalog; run all host contracts and pinned-NXDK Release build.
+- [x] Add RED contracts for exact five routes, xemu-only/correctness metadata and no fake throughput class.
+- [x] Implement the bounded guest setup, progress polling and independent mix oracle from the spec; include failure cleanup and inactive-engine refusal.
+- [x] Regenerate catalog; run all host contracts and pinned-NXDK Release build.
 - [ ] Run original/candidate on Deck after the ongoing PGR2 cohort completes; preserve every failure and deliberately exercise silent-output rejection.
 - [ ] Verify cleanup, leave the actual test implementation in a separate draft PR, and link qualification in xemu PR #275.
 
 ## Execution record
 
-Recipe contracts: RED missing header (compiler failure), then three focused checks GREEN; full baseline was 140 checks, expanded suite 143 checks passes. Catalog check passes on the unchanged catalog. Task 2 remains unimplemented and no native fixture coverage is claimed.
+Recipe contracts: RED missing header (compiler failure), then three focused checks GREEN; baseline was 140 checks, recipe suite 143 checks passed. Task 2 registration was RED with five missing routes, then GREEN after implementation; the expanded host suite is 144 passing checks. Catalog generation changes 159 parent leaves to 164 leaves; groups remain five. No native fixture coverage is claimed.
+
+Ruling: require inactive/unconfigured state and retain empty list tops after cleanup, rather than restoring arbitrary prior lists. A frame waiting inside the throttle can run once after SECTL disable; restoring old list pointers before it runs could revive DMA. This costs compatibility with applications that already configured the APU; the experimental fixture reports refusal instead of taking over their state. Failed stop verification retains allocations until process reset.
+
+Release XISO builds successfully with pinned NXDK and all 144 contracts pass. The new MCPX source emits no compiler warnings; unchanged workload sources and the existing linker emit retained warnings. Native gates and final independent review remain incomplete.

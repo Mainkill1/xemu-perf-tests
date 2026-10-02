@@ -1,5 +1,6 @@
 """Compile the independent fixture recipe and verify known input/layout facts."""
 import pathlib
+import json
 import shutil
 import struct
 import subprocess
@@ -39,6 +40,17 @@ int main() {
   if (McpxVoiceRecipe::CopyLogicalBytes(memory.data(), memory.size(),
                                       0, nullptr, 1)) return 5;
   if (memory != before) return 6;
+  if (!McpxVoiceRecipe::MixValueMatches(0x100000, 4096) ||
+      !McpxVoiceRecipe::MixValueMatches(0xf00000, -4096)) return 7;
+  if (McpxVoiceRecipe::MixValueMatches(0, 4096) ||
+      McpxVoiceRecipe::MixValueMatches(0, -4096)) return 8;
+  if (McpxVoiceRecipe::MixValueMatches(0xf00000, 4096) ||
+      McpxVoiceRecipe::MixValueMatches(0x100000, -4096)) return 9;
+  if (!McpxVoiceRecipe::MixValueMatches(0x100020, 4096) ||
+      McpxVoiceRecipe::MixValueMatches(0x100021, 4096) ||
+      !McpxVoiceRecipe::MixValueMatches(0x0fffe0, 4096) ||
+      McpxVoiceRecipe::MixValueMatches(0x0fffdf, 4096) ||
+      McpxVoiceRecipe::MixValueMatches(0xff100000, 4096)) return 10;
 }
 ''')
         compiler = shutil.which('g++') or shutil.which('clang++')
@@ -84,6 +96,31 @@ int main() {
         self.assertEqual(memory, expected)
         self.assertEqual(memory[4096:8192], bytes([0xa5]) * 4096)
         self.assertEqual(memory[12288:16384], bytes([0xa5]) * 4096)
+
+
+class McpxVoiceRegistrationTests(unittest.TestCase):
+    def test_five_routes_are_xemu_correctness_observations(self):
+        catalog = json.loads((ROOT / 'resources/catalog.json').read_text())
+        actual = {d['id']: d for d in catalog['tests'] if d['suite_id'] == 'mcpx_voice'}
+        expected = {
+            'mono_aligned': 'MonoAligned', 'stereo_aligned': 'StereoAligned',
+            'mono_page_crossing': 'MonoPageCrossing',
+            'stereo_page_crossing': 'StereoPageCrossing', 'pcm_control': 'PcmControl'}
+        self.assertEqual(set(actual), {'mcpx_voice.' + name for name in expected})
+        for stable, legacy in expected.items():
+            descriptor = actual['mcpx_voice.' + stable]
+            self.assertEqual(descriptor['legacy_ids'], ['McpxVoice::' + legacy])
+            self.assertEqual(descriptor['supported_targets'], ['xemu'])
+            self.assertEqual(descriptor['measurement_class'], 'correctness')
+            self.assertNotIn('performance', descriptor['tags'])
+            self.assertIn({'name': 'apu.mix', 'kind': 'structured', 'scope_version': 1},
+                          descriptor['observations'])
+        self.assertIn('REG_TEST(McpxVoiceTests)', (ROOT / 'src/main.cpp').read_text())
+        self.assertIn('tests/mcpx_voice_tests.cpp', (ROOT / 'src/CMakeLists.txt').read_text())
+        config = json.loads((ROOT / 'resources/mcpx-voice-correctness.json').read_text())
+        self.assertEqual(config['resolved_plan']['selected_leaf_count'], 5)
+        self.assertEqual(config['settings']['warmup_iterations'], 0)
+        self.assertEqual(config['settings']['measurement_iterations_multiplier'], 1)
 
 
 if __name__ == '__main__':

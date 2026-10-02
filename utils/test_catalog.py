@@ -73,6 +73,12 @@ def entries():
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
            ("indirect_dispatch", "IndirectDispatch"),
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))
+    for stable, legacy in [("mono_aligned", "MonoAligned"), ("stereo_aligned", "StereoAligned"),
+                           ("mono_page_crossing", "MonoPageCrossing"),
+                           ("stereo_page_crossing", "StereoPageCrossing"), ("pcm_control", "PcmControl")]:
+        out.append(leaf(f"mcpx_voice.{stable}", "mcpx_voice", "McpxVoice", legacy,
+                        "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.",
+                        ("audio", "correctness", "xemu-only")))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
     simple("pipeline_texture_switch", "PipelineTextureSwitch", [
@@ -252,7 +258,7 @@ def entries():
 
 
 def validate(items):
-    valid_tags = {"allocation", "correctness", "cpu", "gpu", "group", "hardware-safe", "memory-pressure",
+    valid_tags = {"allocation", "audio", "correctness", "cpu", "gpu", "group", "hardware-safe", "memory-pressure",
                   "microbenchmark", "performance", "pfifo", "primitive", "scenario", "surface", "texture",
                   "report", "shader-lifecycle", "shader-readiness", "vertex", "xemu-only"}
     ids, legacy = set(), set()
@@ -294,6 +300,8 @@ def catalog(items):
             if item.suite_id == "report_query":
                 d["observations"].append({"name": "report.memory", "kind": "structured",
                                           "scope_version": 1})
+            if item.suite_id == "mcpx_voice":
+                d["observations"].append({"name": "apu.mix", "kind": "structured", "scope_version": 1})
         tests.append(d)
     raw = json.dumps(tests, sort_keys=True, separators=(",", ":")).encode()
     return {"schema_version": 1, "catalog_id": "sha256:" + hashlib.sha256(raw).hexdigest(),
@@ -666,6 +674,11 @@ def render():
         "skip_tests_by_default": True,
         "output_directory_path": "e:/xemu_perf_tests",
     }
+    voice_settings = dict(base_settings, enable_xemu_only_tests=True,
+                          enable_autorun_immediately=True, warmup_iterations=0,
+                          measurement_iterations_multiplier=1, gpu_completion_mode="per_iteration")
+    output[ROOT / "resources/mcpx-voice-correctness.json"] = resolved_plan(
+        doc, voice_settings, [x["id"] for x in doc["tests"] if x["suite_id"] == "mcpx_voice"])
     profiles = {
         "fast-smoke": (1, 1, "enqueue"),
         "quick": (128, 64, "batch_complete"),
