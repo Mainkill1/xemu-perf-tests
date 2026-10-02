@@ -1,6 +1,7 @@
 #include "cpu_floating_point_tests.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 
 #include "debug_output.h"
@@ -98,8 +99,12 @@ void CpuFloatingPointTests::TestX87StatusVectors() {
   ASSERT(failures == 0);
   PrintMsg("CPU_WORK CpuFloatingPoint::X87StatusVectors cases=%lu failures=%lu\n",
            kX87StatusVectorCases, failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"source_kat\":\"00001809\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           failures, failures ? "FAIL" : "PASS");
   host_.PrepareDraw(0xFF102030);
-  host_.FinishDraw(suite_name_, "X87StatusVectors", results);
+  host_.FinishDraw(suite_name_, "X87StatusVectors", results, metadata);
 }
 
 void CpuFloatingPointTests::TestX87StatusWork(bool compare) {
@@ -116,8 +121,12 @@ void CpuFloatingPointTests::TestX87StatusWork(bool compare) {
   ASSERT(failures == 0);
   PrintMsg("CPU_WORK CpuFloatingPoint::%s operations=%lu checksum=%08lx eax=%08lx failures=%lu\n",
            name, kX87StatusOperations, value.checksum, value.eax, failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"work_checksum\":\"%08lx\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           value.checksum, value.eax, failures ? "FAIL" : "PASS");
   host_.PrepareDraw(0xFF000000 | (value.checksum & 0x00FFFFFF));
-  host_.FinishDraw(suite_name_, name, results);
+  host_.FinishDraw(suite_name_, name, results, metadata);
 }
 
 void CpuFloatingPointTests::TestX87Scalar() {

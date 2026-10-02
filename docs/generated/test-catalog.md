@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:508933def3890eb47d1db31abd4fa67711ffb434b6bdeab5fd8348bc031fe2dc` contains 162 leaves and 5 groups.
+Catalog `sha256:8da669884f435f8325be23678bc828a99f4d714ed2257b7cb3d5de8362a56521` contains 162 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |

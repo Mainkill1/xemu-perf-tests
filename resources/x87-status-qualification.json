@@ -2,15 +2,15 @@
   "settings": {
     "skip_tests_by_default": true,
     "enable_autorun_immediately": true,
-    "warmup_iterations": 2,
-    "measurement_iterations_multiplier": 1,
-    "gpu_completion_mode": "batch_complete",
+    "warmup_iterations": 3,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "per_iteration",
     "output_directory_path": "e:/xemu_perf_tests"
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:15b994e84a74761fa834cc4b83469203983f9fc5ee22459b2d23bf65d3274d04",
-    "catalog_id": "sha256:508933def3890eb47d1db31abd4fa67711ffb434b6bdeab5fd8348bc031fe2dc",
+    "plan_id": "sha256:ae5fc5109e0aebd5d1575d1cb31359e0bfa564041bb45afbc29a959094f39c5a",
+    "catalog_id": "sha256:8da669884f435f8325be23678bc828a99f4d714ed2257b7cb3d5de8362a56521",
     "selected_leaf_count": 5,
     "tests": [
       {

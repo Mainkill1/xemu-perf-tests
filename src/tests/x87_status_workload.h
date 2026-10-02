@@ -5,9 +5,9 @@
 #include <cstdint>
 #include <initializer_list>
 
-static constexpr uint32_t kX87StatusOperations = 1048336;
-static constexpr uint32_t kX87StatusExpected = 0xb5500000;
-static constexpr uint32_t kX87CompareStatusExpected = 0xb4e70000;
+static constexpr uint32_t kX87StatusOperations = 16777168;
+static constexpr uint32_t kX87StatusExpected = 0xf1100000;
+static constexpr uint32_t kX87CompareStatusExpected = 0xf0fb0000;
 static constexpr uint32_t kX87StatusVectorCases = 6153;
 
 // FSAVE's 32-bit operand layout is 108 bytes, also in 64-bit long mode.
@@ -130,7 +130,7 @@ struct X87StatusWorkResult {
 __attribute__((noinline)) static X87StatusWorkResult RunX87StatusWork(bool compare) {
   X87SavedState saved;
   SaveX87(saved);
-  uint32_t eax = 0xa5a50000, checksum = 0, iterations = 65521;
+  uint32_t eax = 0xa5a50000, checksum = 0, iterations = 1048573;
   asm volatile("fninit" : : : "memory");
   if (compare) {
     asm volatile(
