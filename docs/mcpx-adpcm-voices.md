@@ -49,7 +49,13 @@ coverage. Hash all generated encoded bytes independently of mix output.
 ## Guest engine and observation
 
 Use voice 64 in the 2D list, unity sustain, zero pitch, bypass filters,
-nonstreaming input, and separate left/right mix bins. Keep GP and EP DSP
+nonstreaming input, and separate left/right mix bins. Set both observed
+bins' submix headroom to zero using their VP methods; voice attenuation
+alone does not determine gain when boot headroom remains. The fixture owns
+this idle mix configuration and leaves those two headroom values at zero
+after cleanup; it does not promise to preserve unknown inactive DSP/mix state.
+It restores table addresses and engine/front-end/GP reset registers, keeps
+all voice lists empty, and never takes over active work. Keep GP and EP DSP
 processors reset, and observe the GP mix-buffer MMIO window written by the
 voice stage. Do not load proprietary DSP programs or retail assets.
 

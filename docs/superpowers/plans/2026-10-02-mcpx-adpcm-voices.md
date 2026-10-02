@@ -89,3 +89,11 @@ and the GP reset word, and still rejects enabled processors or linked voices.
 This supersedes the initial zero-table-only ownership ruling above. Compiled
 ownership contracts were RED with the missing predicate before implementation.
 Raw native audits and original failures belong to the owning xemu PR.
+
+The first native pipeline observation was RED against the declared unity mix
+oracle while engine progress and cleanup passed. The fixture now explicitly
+programs zero submix headroom for its two observed bins; boot gain state must
+not determine the generated-input contract. This setting belongs to the
+fixture's idle mix configuration and remains zero afterward, rather than
+pretending to restore an unreadable prior headroom value. Original raw failures
+remain in xemu evidence; the expected mathematical oracle is unchanged.

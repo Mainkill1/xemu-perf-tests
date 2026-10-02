@@ -21,6 +21,7 @@ constexpr uint32_t kSgeTable = 0x2030;
 constexpr uint32_t kGpReset = 0x3fffc;
 constexpr uint32_t kEpReset = 0x5fffc;
 constexpr uint32_t kMix = 0x35000;
+constexpr uint32_t kSubmixHeadroom = 0x20200;
 constexpr uint32_t kVoice = 64;
 constexpr uint32_t kProgressSamples = 1024;
 constexpr uint32_t kTimeoutUs = 3000000;
@@ -203,6 +204,10 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   Write(kVoiceTable, Physical(memory.voices));
   Write(kSgeTable, Physical(memory.sge));
   Write(kFrontEnd, memory.old_front_end & ~0xe0U);
+  // Headroom is independent of voice attenuation. BIOS defaults can leave
+  // a gain divisor here; explicitly choose unity for the observed bins.
+  Write(kSubmixHeadroom, 0);
+  Write(kSubmixHeadroom + 4, 0);
   // Reject stale output from the preceding case, including equal mono bins.
   for (unsigned word = 0; word < 64; ++word) Write(kMix + word * 4, 0);
   Write(kListTops[0], kVoice);
