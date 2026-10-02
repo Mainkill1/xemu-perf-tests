@@ -27,6 +27,7 @@ jobs:
         run: |
           python3 utils/test_catalog.py --check
           python3 -m unittest discover -s tests -p 'test_runner_bundle.py' -v
+          python3 -m unittest discover -s tests -p 'test_x87_status_workload.py' -v
       - name: Compile
         run: |
           export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"

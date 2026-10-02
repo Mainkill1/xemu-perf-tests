@@ -5,6 +5,7 @@
 
 #include "debug_output.h"
 #include "test_host.h"
+#include "x87_status_workload.h"
 
 static constexpr char kX87ScalarTest[] = "X87Scalar";
 static constexpr char kSseScalarTest[] = "SSEScalar";
@@ -83,6 +84,40 @@ CpuFloatingPointTests::CpuFloatingPointTests(TestHost &host, std::string output_
     : TestSuite(host, std::move(output_dir), "CpuFloatingPoint", config) {
   tests_[kX87ScalarTest] = [this]() { TestX87Scalar(); };
   tests_[kSseScalarTest] = [this]() { TestSseScalar(); };
+  tests_["X87StatusVectors"] = [this]() { TestX87StatusVectors(); };
+  tests_["X87StatusAX"] = [this]() { TestX87StatusWork(false); };
+  tests_["X87CompareStatusAX"] = [this]() { TestX87StatusWork(true); };
+}
+
+void CpuFloatingPointTests::TestX87StatusVectors() {
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  auto results = Profile("X87StatusVectors", kProfileIterations, [&]() {
+    failures |= CheckX87StatusVectors();
+  });
+  ASSERT(failures == 0);
+  PrintMsg("CPU_WORK CpuFloatingPoint::X87StatusVectors cases=%lu failures=%lu\n",
+           kX87StatusVectorCases, failures);
+  host_.PrepareDraw(0xFF102030);
+  host_.FinishDraw(suite_name_, "X87StatusVectors", results);
+}
+
+void CpuFloatingPointTests::TestX87StatusWork(bool compare) {
+  const char* name = compare ? "X87CompareStatusAX" : "X87StatusAX";
+  const uint32_t expected = compare ? kX87CompareStatusExpected : kX87StatusExpected;
+  const uint32_t expected_eax = compare ? 0xa5a57000U : 0xa5a50000U;
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  X87StatusWorkResult value = {};
+  auto results = Profile(name, kProfileIterations, [&]() {
+    value = RunX87StatusWork(compare);
+    failures |= value.checksum != expected || value.eax != expected_eax;
+  });
+  ASSERT(failures == 0);
+  PrintMsg("CPU_WORK CpuFloatingPoint::%s operations=%lu checksum=%08lx eax=%08lx failures=%lu\n",
+           name, kX87StatusOperations, value.checksum, value.eax, failures);
+  host_.PrepareDraw(0xFF000000 | (value.checksum & 0x00FFFFFF));
+  host_.FinishDraw(suite_name_, name, results);
 }
 
 void CpuFloatingPointTests::TestX87Scalar() {

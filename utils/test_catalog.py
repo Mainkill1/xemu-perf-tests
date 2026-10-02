@@ -70,6 +70,17 @@ def entries():
             ("pfifo", "gpu", "correctness", "xemu-only")))
     simple("cpu_floating_point", "CpuFloatingPoint", [("sse_scalar", "SSEScalar"),
            ("x87_scalar", "X87Scalar")], ("cpu", "performance", "hardware-safe"))
+    for stable, legacy, description in (
+        ("x87_status_vectors", "X87StatusVectors",
+         "Checks 6147 x87 status/TOP/condition/exception-bit, upper-EAX and cache-lifetime vectors."),
+        ("x87_status_ax", "X87StatusAX",
+         "Runs 1048336 status-to-AX reads with an independently fixed EAX/checksum oracle."),
+        ("x87_compare_status_ax", "X87CompareStatusAX",
+         "Runs 1048336 equal comparisons and status-to-AX reads with populated x87 registers."),
+    ):
+        out.append(leaf(f"cpu_floating_point.{stable}", "cpu_floating_point",
+                        "CpuFloatingPoint", legacy, description,
+                        ("cpu", "correctness", "performance", "hardware-safe")))
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
            ("indirect_dispatch", "IndirectDispatch"),
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))
@@ -763,6 +774,15 @@ def render():
         }
         output[ROOT / f"resources/vulkan-submission-lifetimes-{profile}.json"] = \
             resolved_plan(doc, settings, submission_ids)
+    output[ROOT / "resources/x87-status-qualification.json"] = resolved_plan(
+        doc, {"skip_tests_by_default": True, "enable_autorun_immediately": True,
+              "warmup_iterations": 2, "measurement_iterations_multiplier": 1,
+              "gpu_completion_mode": "batch_complete",
+              "output_directory_path": "e:/xemu_perf_tests"},
+        ["cpu_floating_point.x87_status_vectors",
+         "cpu_floating_point.x87_status_ax",
+         "cpu_floating_point.x87_compare_status_ax",
+         "cpu_floating_point.x87_scalar", "cpu_floating_point.sse_scalar"])
     return output
 
 

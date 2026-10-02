@@ -15,6 +15,8 @@ class CpuFloatingPointTests : public TestSuite {
  private:
   void TestX87Scalar();
   void TestSseScalar();
+  void TestX87StatusVectors();
+  void TestX87StatusWork(bool compare);
 };
 
 #endif  // XEMU_PERF_TESTS_CPU_FLOATING_POINT_TESTS_H
