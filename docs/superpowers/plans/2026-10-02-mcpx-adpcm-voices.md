@@ -47,8 +47,8 @@
 - [x] Add RED contracts for exact five routes, xemu-only/correctness metadata and no fake throughput class.
 - [x] Implement the bounded guest setup, progress polling and independent mix oracle from the spec; include failure cleanup and inactive-engine refusal.
 - [x] Regenerate catalog; run all host contracts and pinned-NXDK Release build.
-- [ ] Run original/candidate on Deck after the ongoing PGR2 cohort completes; preserve every failure and deliberately exercise silent-output rejection.
-- [ ] Verify cleanup, leave the actual test implementation in a separate draft PR, and link qualification in xemu PR #275.
+- [x] Run original/candidate on Deck after the ongoing PGR2 cohort completes; preserve every failure and deliberately exercise silent-output rejection.
+- [x] Verify cleanup, leave the actual test implementation in a separate draft PR, and link qualification in xemu PR #275.
 
 ## Execution record
 
@@ -97,3 +97,11 @@ not determine the generated-input contract. This setting belongs to the
 fixture's idle mix configuration and remains zero afterward, rather than
 pretending to restore an unreadable prior headroom value. Original raw failures
 remain in xemu evidence; the expected mathematical oracle is unchanged.
+
+The retained experimental fixture is in draft PR #52. Native qualification
+and original failed attempts are preserved with the owning emulator PR:
+[xemu guest-voice evidence](https://github.com/Mainkill1/xemu/tree/b51d7d96f28bdd131b3e468bb7ee4e15d3fb73ba/docs/evidence/issue197-deck-guest-voices-20261002).
+Canonical missing-reference failures remain unchanged; no framebuffer oracle
+was replaced. Completion waits remain NOT COMPARABLE for performance. This
+completes the planned experimental implementation, not audible or retail
+hardware qualification, and the test PR remains draft for later review.
