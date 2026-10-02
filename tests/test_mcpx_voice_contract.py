@@ -66,6 +66,13 @@ int main() {
           crossed[8192 + offset - 16] != block[offset]) return 14;
     }
   }
+  if (!McpxVoiceRecipe::EngineCanBeOwned(7, 0, 1, 0x3fc8000, 0x3fc4000, {65535, 65535, 65535}) ||
+      !McpxVoiceRecipe::EngineCanBeOwned(0, 0, 0, 0, 0, {0, 0, 0})) return 15;
+  if (McpxVoiceRecipe::EngineCanBeOwned(8, 0, 1, 0, 0, {65535, 65535, 65535}) ||
+      McpxVoiceRecipe::EngineCanBeOwned(7, 3, 1, 0, 0, {65535, 65535, 65535}) ||
+      McpxVoiceRecipe::EngineCanBeOwned(7, 0, 3, 0, 0, {65535, 65535, 65535}) ||
+      McpxVoiceRecipe::EngineCanBeOwned(7, 0, 1, 0, 0, {64, 65535, 65535}) ||
+      McpxVoiceRecipe::EngineCanBeOwned(7, 0, 1, 0x3fc8000, 0x3fc4000, {0, 65535, 65535})) return 16;
 }
 ''')
         compiler = shutil.which('g++') or shutil.which('clang++')

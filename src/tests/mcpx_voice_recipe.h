@@ -3,6 +3,7 @@
 #define XEMU_PERF_TESTS_MCPX_VOICE_RECIPE_H
 
 #include <algorithm>
+#include <array>
 #include <cstddef>
 #include <cstdint>
 #include <cstring>
@@ -14,6 +15,16 @@ static constexpr size_t kLogicalPages = 3;
 static constexpr size_t kPhysicalPages = 5;
 
 inline uint32_t LoopSamples(bool page_crossing) { return page_crossing ? 64 : 4096; }
+
+inline bool EngineCanBeOwned(uint32_t engine, uint32_t gp_reset, uint32_t ep_reset, uint32_t voice_table,
+                             uint32_t sge_table, const std::array<uint32_t, 3> &tops) {
+  // Both release bits must be set to run either DSP. A single release bit
+  // still leaves its processor disabled. Nonempty lists remain forbidden.
+  if ((engine & 0x18) || (gp_reset & 3) == 3 || (ep_reset & 3) == 3) return false;
+  // Top zero denotes reset only before tables exist; otherwise it links voice 0.
+  if ((voice_table || sge_table) && std::find(tops.begin(), tops.end(), 0) != tops.end()) return false;
+  return std::all_of(tops.begin(), tops.end(), [](uint32_t top) { return top == 0 || top == 0xffff; });
+}
 
 inline bool MixValueMatches(uint32_t word, int16_t predictor) {
   if (word & 0xff000000) return false;

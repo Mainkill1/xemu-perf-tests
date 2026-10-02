@@ -59,15 +59,18 @@ on retail hardware. Record raw mode `0x8` as an experimental xemu setup,
 not a newly asserted hardware enum. Full DSP mode is required in the host;
 the VP monitor mode clears these mix bins and must fail the output oracle.
 
-Refuse to replace a running or configured voice engine: require zero
-voice/SGE table addresses, reset GP/EP, and reset or empty list tops.
-Save the prior inactive engine and front-end values. After each case, disable the engine and
+Refuse a running engine, either enabled DSP, or nonempty voice lists. Nonzero
+table addresses alone do not establish active work: a BIOS can leave them
+behind with the engine stopped and all lists empty. Save the prior inactive
+engine, front-end, voice/SGE table addresses and GP reset value. The processor
+is disabled unless both reset-release bits are set; leave EP unchanged.
+After each case, disable the engine and
 unlink all voice lists before a GP write obtains the APU frame mutex.
 This ordering prevents a frame already waiting in the throttle from
 starting a DMA read after the fence. Keep all list tops empty, restore
-zero table addresses and prior inactive engine/front-end values, then
+the saved table addresses and prior inactive engine/front-end/GP values, then
 release the fixture allocation. Reset list-top value zero is normalized
-to the empty sentinel; configured application state is never taken over.
+to the empty sentinel; running engines and linked application voices are never taken over.
 Timeout/failure follows the same cleanup path. If stop verification fails,
 retain the small allocation until process reset rather than free a possible
 DMA target.

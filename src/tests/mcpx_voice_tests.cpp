@@ -44,28 +44,31 @@ void Check(uint32_t expected, uint32_t actual, XemuPerfAssertion id) {
   AssertXemuPerfEqual(expected, actual, id, "MCPX voice observation", __FILE__, __LINE__);
 }
 
-// This fixture owns only a reset/unconfigured engine. It does not take over
-// an application voice table, even if that application temporarily stopped it.
+// Own only a stopped engine with disabled DSPs and empty lists. BIOS table
+// addresses can survive boot; save/restore those without reviving any lists.
 struct VoiceMemory {
   uint8_t *voices = nullptr;
   uint8_t *sge = nullptr;
   uint8_t *samples = nullptr;
   uint32_t old_engine = 0;
   uint32_t old_front_end = 0;
+  uint32_t old_voice_table = 0;
+  uint32_t old_sge_table = 0;
+  uint32_t old_gp_reset = 0;
   bool armed = false;
   bool safe_to_free = true;
 
   bool Available() const {
-    if ((Read(kEngine) & 0x18) || Read(kVoiceTable) || Read(kSgeTable) || Read(kGpReset) || Read(kEpReset))
-      return false;
-    for (auto top : kListTops) {
-      if (Read(top) != 0 && Read(top) != 0xffff) return false;
-    }
-    return true;
+    return McpxVoiceRecipe::EngineCanBeOwned(Read(kEngine), Read(kGpReset), Read(kEpReset), Read(kVoiceTable),
+                                             Read(kSgeTable),
+                                             {Read(kListTops[0]), Read(kListTops[1]), Read(kListTops[2])});
   }
   bool Initialize() {
     old_engine = Read(kEngine);
     old_front_end = Read(kFrontEnd);
+    old_voice_table = Read(kVoiceTable);
+    old_sge_table = Read(kSgeTable);
+    old_gp_reset = Read(kGpReset);
     voices = Allocate(256 * 128);
     sge = Allocate(4096);
     samples = Allocate(kSampleBytes);
@@ -83,12 +86,14 @@ struct VoiceMemory {
       Write(top + 8, 0xffff);
     }
     Write(kGpReset, 0);
-    Write(kVoiceTable, 0);
-    Write(kSgeTable, 0);
+    Write(kVoiceTable, old_voice_table);
+    Write(kSgeTable, old_sge_table);
+    Write(kGpReset, old_gp_reset);
     Write(kFrontEnd, old_front_end);
     Write(kEngine, old_engine);
     armed = false;
-    bool stopped = !(Read(kEngine) & 0x18) && !Read(kVoiceTable) && !Read(kSgeTable);
+    bool stopped = Read(kEngine) == old_engine && Read(kVoiceTable) == old_voice_table &&
+                   Read(kSgeTable) == old_sge_table && Read(kGpReset) == old_gp_reset;
     for (auto top : kListTops) stopped = stopped && Read(top) == 0xffff;
     safe_to_free = stopped;
     return stopped;

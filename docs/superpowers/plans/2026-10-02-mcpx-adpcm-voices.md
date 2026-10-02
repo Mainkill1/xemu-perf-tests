@@ -81,3 +81,11 @@ build has no MCPX compiler warnings; the existing `.edata` linker warning remain
 The rebuilt image is 3,735,552 bytes, SHA-256
 `4bc1fec5f070a695699d57c78ef19183c1f43631e853bd20ed749d55f4eb056a`.
 No native fixture pass is claimed yet.
+
+The native setup refusal prompted a read-only boot-state audit. The revised
+ownership contract accepts a stopped engine with disabled DSPs and empty
+lists even when old BIOS table addresses remain, saves/restores those addresses
+and the GP reset word, and still rejects enabled processors or linked voices.
+This supersedes the initial zero-table-only ownership ruling above. Compiled
+ownership contracts were RED with the missing predicate before implementation.
+Raw native audits and original failures belong to the owning xemu PR.
