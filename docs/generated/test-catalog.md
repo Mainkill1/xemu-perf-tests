@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747` contains 159 leaves and 5 groups.
+Catalog `sha256:4279bbcaf241ad2955c407bb6da50c4bb6131ed597a23121a50b147001e5c9cf` contains 164 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -18,6 +18,11 @@ Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |
+| `mcpx_voice.mono_aligned` | leaf | `McpxVoice::MonoAligned` |
+| `mcpx_voice.stereo_aligned` | leaf | `McpxVoice::StereoAligned` |
+| `mcpx_voice.mono_page_crossing` | leaf | `McpxVoice::MonoPageCrossing` |
+| `mcpx_voice.stereo_page_crossing` | leaf | `McpxVoice::StereoPageCrossing` |
+| `mcpx_voice.pcm_control` | leaf | `McpxVoice::PcmControl` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |
