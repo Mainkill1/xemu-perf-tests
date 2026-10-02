@@ -8,6 +8,23 @@ import unittest
 ROOT = Path(__file__).resolve().parents[1]
 
 class BundleTests(unittest.TestCase):
+    @staticmethod
+    def iso_with_catalog(catalog):
+        image = bytearray(35 * 2048)
+        descriptor = 32 * 2048
+        image[descriptor:descriptor + 20] = b'MICROSOFT*XBOX*MEDIA'
+        image[descriptor + 2028:descriptor + 2048] = b'MICROSOFT*XBOX*MEDIA'
+        image[descriptor + 20:descriptor + 24] = (33).to_bytes(4, 'little')
+        name = b'catalog.json'
+        image[descriptor + 24:descriptor + 28] = (14 + len(name)).to_bytes(4, 'little')
+        root = 33 * 2048
+        image[root + 4:root + 8] = (34).to_bytes(4, 'little')
+        image[root + 8:root + 12] = len(catalog).to_bytes(4, 'little')
+        image[root + 13] = len(name)
+        image[root + 14:root + 14 + len(name)] = name
+        image[34 * 2048:34 * 2048 + len(catalog)] = catalog
+        return bytes(image)
+
     def module(self):
         spec = importlib.util.spec_from_file_location('bundle', ROOT / 'utils/package_runner_suite.py')
         module = importlib.util.module_from_spec(spec)
@@ -57,13 +74,25 @@ class BundleTests(unittest.TestCase):
         with tempfile.TemporaryDirectory() as directory:
             root = Path(directory)
             iso, catalog = root / 'input.iso', root / 'catalog.json'
-            iso.write_bytes(b'immutable')
             raw = json.dumps(self.fixture()).encode()
+            original = self.iso_with_catalog(raw)
+            iso.write_bytes(original)
             catalog.write_bytes(raw)
             module.package(iso, catalog, root / 'bundle', 'b' * 40)
-            self.assertEqual((root / 'bundle/suite.iso').read_bytes(), b'immutable')
+            self.assertEqual((root / 'bundle/suite.iso').read_bytes(), original)
             self.assertEqual((root / 'bundle/catalog.json').read_bytes(), raw)
-            self.assertEqual(iso.read_bytes(), b'immutable')
+            self.assertEqual(iso.read_bytes(), original)
+
+    def test_packaging_rejects_catalog_that_is_not_embedded_in_iso(self):
+        module = self.module()
+        with tempfile.TemporaryDirectory() as directory:
+            root = Path(directory)
+            catalog = json.dumps(self.fixture()).encode()
+            (root / 'input.iso').write_bytes(self.iso_with_catalog(catalog))
+            (root / 'catalog.json').write_bytes(catalog + b' ')
+            with self.assertRaisesRegex(ValueError, 'embedded'):
+                module.package(root / 'input.iso', root / 'catalog.json', root / 'bundle', 'b' * 40)
+            self.assertFalse((root / 'bundle').exists())
 
     def test_real_shader_catalog_has_complete_category_coverage(self):
         raw = (ROOT / 'resources/catalog.json').read_bytes()

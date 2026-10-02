@@ -10,6 +10,7 @@ import json
 from pathlib import Path
 import re
 import shutil
+import struct
 
 CATEGORIES = {
     'cpu': 'CPU and translation',
@@ -39,6 +40,43 @@ def category(test: dict) -> str:
     if suite == 'game_load' or suite.startswith('game_load_'):
         return 'scenarios'
     raise ValueError('Unclassified suite: ' + suite + '; extend the category map before packaging.')
+
+
+def embedded_catalog(iso: bytes) -> bytes:
+    """Read the bounded root catalog from the XDVDFS directory in the actual ISO."""
+    def span(offset: int, size: int) -> bytes:
+        if offset < 0 or size < 0 or offset + size > len(iso):
+            raise ValueError('XISO embedded catalog points outside the image.')
+        return iso[offset:offset + size]
+
+    volume = span(32 * 2048, 2048)
+    magic = b'MICROSOFT*XBOX*MEDIA'
+    if volume[:20] != magic or volume[2028:2048] != magic:
+        raise ValueError('Expected a self-contained XISO with an embedded catalog.')
+    root_sector, root_size = struct.unpack_from('<II', volume, 20)
+    if not 14 <= root_size <= 1024 * 1024:
+        raise ValueError('XISO root directory exceeds the embedded catalog reader limit.')
+    directory = span(root_sector * 2048, root_size)
+    pending, visited, catalog = [0], set(), None
+    while pending:
+        offset = pending.pop()
+        if offset in visited or len(visited) >= 65536 or offset < 0 or offset + 14 > len(directory):
+            raise ValueError('Invalid XISO embedded catalog directory graph.')
+        visited.add(offset)
+        left, right, sector, size, flags, name_size = struct.unpack_from('<HHIIBB', directory, offset)
+        if not name_size or offset + 14 + name_size > len(directory):
+            raise ValueError('Invalid XISO embedded catalog entry.')
+        name = directory[offset + 14:offset + 14 + name_size].lower()
+        if name == b'catalog.json':
+            if catalog is not None or flags & 0x10 or not 2 <= size <= 1024 * 1024:
+                raise ValueError('Ambiguous or invalid XISO embedded catalog.')
+            catalog = span(sector * 2048, size)
+        for child in (left, right):
+            if child:
+                pending.append(child * 4)
+    if catalog is None:
+        raise ValueError('XISO has no embedded root catalog.json.')
+    return catalog
 
 
 def manifest(iso: bytes, catalog_bytes: bytes, source_commit: str) -> dict:
@@ -86,6 +124,8 @@ def package(iso: Path, catalog: Path, output: Path, source_commit: str) -> dict:
     if iso.is_symlink() or catalog.is_symlink():
         raise ValueError('Package inputs must be regular files, not links.')
     data, raw = iso.read_bytes(), catalog.read_bytes()
+    if embedded_catalog(data) != raw:
+        raise ValueError('Selected catalog bytes differ from the ISO embedded catalog.')
     value = manifest(data, raw, source_commit)
     output.mkdir(parents=True, exist_ok=False)
     try:
