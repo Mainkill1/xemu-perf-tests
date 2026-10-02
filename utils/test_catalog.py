@@ -195,7 +195,19 @@ def entries():
                ("gpu", "primitive", "performance", "hardware-safe"))
 
     simple("texture_cubemap_fallback", "TextureCubemapFallback",
-           [("unbordered_subblock_dxt1", "UnborderedSubblockDxt1")],
+           [("unbordered_subblock_dxt1", "UnborderedSubblockDxt1"),
+            ("bordered_rgba8_size1", "BorderedRgba8Size1"),
+            ("bordered_rgba8_size2", "BorderedRgba8Size2"),
+            ("bordered_rgba8_size4", "BorderedRgba8Size4"),
+            ("bordered_rgba8_size8", "BorderedRgba8Size8"),
+            ("bordered_palette_size1", "BorderedPaletteSize1"),
+            ("bordered_palette_size2", "BorderedPaletteSize2"),
+            ("bordered_palette_size4", "BorderedPaletteSize4"),
+            ("bordered_palette_size8", "BorderedPaletteSize8"),
+            ("bordered_r6g5b5_size1", "BorderedR6G5B5Size1"),
+            ("bordered_r6g5b5_size2", "BorderedR6G5B5Size2"),
+            ("bordered_r6g5b5_size4", "BorderedR6G5B5Size4"),
+            ("bordered_r6g5b5_size8", "BorderedR6G5B5Size8")],
            ("texture", "correctness", "performance", "xemu-only"))
 
     simple("surface", "SurfaceRendering", [("basic", "SurfaceRendering"),

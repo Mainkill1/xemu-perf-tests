@@ -2,6 +2,7 @@
 #define XEMU_PERF_TESTS_TEXTURE_CUBEMAP_FALLBACK_TESTS_H
 
 #include "test_suite.h"
+#include <cstdint>
 
 class TextureCubemapFallbackTests : public TestSuite {
  public:
@@ -13,6 +14,8 @@ class TextureCubemapFallbackTests : public TestSuite {
 
  private:
   void RunSubblockDxt1();
+  void RunBorderedTexture(uint32_t logical_size, const char *test_name,
+                          uint32_t format);
 };
 
 #endif  // XEMU_PERF_TESTS_TEXTURE_CUBEMAP_FALLBACK_TESTS_H

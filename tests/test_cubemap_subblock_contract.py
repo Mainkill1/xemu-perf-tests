@@ -41,7 +41,77 @@ def fnv1a(data: bytes) -> int:
     return value
 
 
+def bordered_source(size: int) -> bytes:
+    levels = size.bit_length()
+    level_widths = [16 >> level for level in range(levels)]
+    face_bytes = sum(width * width * 4 for width in level_widths)
+    face_stride = (face_bytes + 127) & ~127
+    source = bytearray(face_stride * 6)
+
+    for face in range(6):
+        level_offset = face * face_stride
+        for level, width in enumerate(level_widths):
+            logical = max(1, size >> level)
+            border = (4 >> level) if level < 3 else 0
+            skip = min(border, width - logical)
+            red = 3 + face * 4
+            for y in range(width):
+                for x in range(width):
+                    if skip <= x < skip + logical and skip <= y < skip + logical:
+                        green = 5 + level * 14 + y - skip
+                        blue = 2 + x - skip
+                        # Xbox A8R8G8B8 payload uses bit replication from RGB565.
+                        value = (0xFF000000 | ((red * 8 + red // 4) << 16) |
+                                 ((green * 4 + green // 16) << 8) |
+                                 (blue * 8 + blue // 4))
+                    else:
+                        value = 0xFF000000
+                    morton = sum(((x >> bit) & 1) << (2 * bit) |
+                                 ((y >> bit) & 1) << (2 * bit + 1)
+                                 for bit in range(4))
+                    offset = level_offset + 4 * morton
+                    source[offset:offset + 4] = struct.pack("<I", value)
+            level_offset += width * width * 4
+    return bytes(source)
+
+
 class CubemapSubblockContractTests(unittest.TestCase):
+    def test_bordered_source_fixed_kats(self) -> None:
+        expected = (0xAE745524, 0xCCA3A610, 0x32FF9E3C, 0xE80E51B4)
+        for index, size in enumerate((1, 2, 4, 8)):
+            self.assertEqual(fnv1a(bordered_source(size)), expected[index])
+            self.assertIn(f"0x{expected[index]:08X}", source_text())
+
+    def test_bordered_oracle_samples_position_coded_edges(self) -> None:
+        source = "".join(source_text().split())
+        self.assertIn("BorderedCellColor(face,level,x-skip,y-skip)", source)
+        self.assertIn("kBorderedSampleCoords", source)
+        self.assertIn("CubeDirection(face,", source)
+        self.assertIn("BorderedCellColor(face,level,sample_x,sample_y)", source)
+
+    def test_bordered_rgba8_routes_cover_terminal_mips(self) -> None:
+        by_id = {item["id"]: item for item in CATALOG["tests"]}
+        for size in (1, 2, 4, 8):
+            stable_id = f"texture_cubemap_fallback.bordered_rgba8_size{size}"
+            item = by_id.get(stable_id)
+            self.assertIsNotNone(item, stable_id)
+            self.assertEqual(item["supported_targets"], ["xemu"])
+            self.assertEqual(item["execution"]["legacy_suite"],
+                             "TextureCubemapFallback")
+            self.assertEqual(item["execution"]["legacy_test"],
+                             f"BorderedRgba8Size{size}")
+
+    def test_converted_cubemap_routes_cover_all_logical_sizes(self) -> None:
+        by_id = {item["id"]: item for item in CATALOG["tests"]}
+        for format_id, label in (("palette", "Palette"), ("r6g5b5", "R6G5B5")):
+            for size in (1, 2, 4, 8):
+                stable_id = f"texture_cubemap_fallback.bordered_{format_id}_size{size}"
+                item = by_id.get(stable_id)
+                self.assertIsNotNone(item, stable_id)
+                self.assertEqual(item["supported_targets"], ["xemu"])
+                self.assertEqual(item["execution"]["legacy_suite"], "TextureCubemapFallback")
+                self.assertEqual(item["execution"]["legacy_test"], f"Bordered{label}Size{size}")
+
     def test_stable_catalog_route_is_registered(self) -> None:
         by_id = {item["id"]: item for item in CATALOG["tests"]}
         item = by_id.get("texture_cubemap_fallback.unbordered_subblock_dxt1")
