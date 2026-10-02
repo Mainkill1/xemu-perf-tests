@@ -14,6 +14,7 @@
 namespace {
 constexpr uintptr_t kApuBase = 0xfe800000;
 constexpr uint32_t kEngine = 0x2000;
+constexpr uint32_t kEngineSampleCount = 0x200c;
 constexpr uint32_t kFrontEnd = 0x1100;
 constexpr uint32_t kVoiceTable = 0x202c;
 constexpr uint32_t kSgeTable = 0x2030;
@@ -21,7 +22,6 @@ constexpr uint32_t kGpReset = 0x3fffc;
 constexpr uint32_t kEpReset = 0x5fffc;
 constexpr uint32_t kMix = 0x35000;
 constexpr uint32_t kVoice = 64;
-constexpr uint32_t kLoopSamples = 4096;
 constexpr uint32_t kProgressSamples = 1024;
 constexpr uint32_t kTimeoutUs = 3000000;
 constexpr size_t kSampleBytes = 5 * 4096;
@@ -114,19 +114,35 @@ McpxVoiceTests::McpxVoiceTests(TestHost &host, std::string output_dir, const Con
   tests_["PcmControl"] = [this]() { TestVoice("PcmControl", false, false, true); };
 }
 
+void McpxVoiceTests::FinishSetupFailure(const char *name, const char *reason) {
+  TestHost::ProfileResults results{};
+  std::ostringstream metadata;
+  metadata << "{\"oracle_status\":\"FAIL\",\"setup_failure\":\"" << reason
+           << "\",\"timing_comparable\":false,\"timing_reason\":\"setup failed before measurement\"}";
+  host_.PrepareDraw(0xff800000);
+  host_.FinishDraw(suite_name_, name, results, metadata.str());
+}
+
 void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing, bool pcm) {
   host_.PrepareDraw(0xff101010);
   VoiceMemory memory;
   bool available = memory.Available();
   Check(1, available, XemuPerfAssertion::MCPX_INACTIVE);
-  if (!available) return;
+  if (!available) {
+    FinishSetupFailure(name, "engine already configured");
+    return;
+  }
   bool allocated = memory.Initialize();
   Check(1, allocated, XemuPerfAssertion::MCPX_INPUT);
-  if (!allocated) return;
+  if (!allocated) {
+    FinishSetupFailure(name, "contiguous allocation failed");
+    return;
+  }
 
+  const uint32_t loop_samples = McpxVoiceRecipe::LoopSamples(page_crossing);
   std::vector<uint8_t> payload;
   if (pcm) {
-    payload.resize(kLoopSamples * 2);
+    payload.resize(loop_samples * 2);
     for (size_t i = 0; i < payload.size(); i += 2) payload[i + 1] = 0x10;
   } else {
     auto block = McpxVoiceRecipe::EncodedBlock(stereo);
@@ -140,7 +156,10 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   uint32_t base = page_crossing ? 4080 : 0;
   bool copied = McpxVoiceRecipe::CopyLogicalBytes(memory.samples, kSampleBytes, base, payload.data(), payload.size());
   Check(1, copied, XemuPerfAssertion::MCPX_INPUT);
-  if (!copied) return;
+  if (!copied) {
+    FinishSetupFailure(name, "logical payload copy failed");
+    return;
+  }
   auto *entries = reinterpret_cast<uint32_t *>(memory.sge);
   for (uint32_t page = 0; page < 3; ++page) entries[page * 2] = Physical(memory.samples + page * 8192);
 
@@ -153,7 +172,9 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   voice[0x20 / 4] = base;
   voice[0x54 / 4] = (1 << 21) | (5 << 24) | (5U << 28);
   voice[0x58 / 4] = 0xff000000;
-  voice[0x5c / 4] = 0xff000000 | (kLoopSamples - 1);
+  // Crossing leaves replay the first block, so the entire observed mix
+  // remains dependent on the scattered-page read rather than later blocks.
+  voice[0x5c / 4] = 0xff000000 | (loop_samples - 1);
   voice[0x60 / 4] = 0x000f000f;
   voice[0x64 / 4] = 0xffffffff;
   voice[0x68 / 4] = 0xffffffff;
@@ -165,6 +186,8 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   Write(kVoiceTable, Physical(memory.voices));
   Write(kSgeTable, Physical(memory.sge));
   Write(kFrontEnd, memory.old_front_end & ~0xe0U);
+  // Reject stale output from the preceding case, including equal mono bins.
+  for (unsigned word = 0; word < 64; ++word) Write(kMix + word * 4, 0);
   Write(kListTops[0], kVoice);
   // Experimental xemu mode, not an independently verified hardware enum.
   asm volatile("" : : : "memory");
@@ -173,12 +196,12 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   uint32_t observed_progress = 0;
   auto results = Profile(name, 1, [&]() {
     auto start = std::chrono::steady_clock::now();
-    uint32_t previous = reinterpret_cast<volatile uint32_t *>(voice)[0x58 / 4] & 0xfff;
+    uint32_t first = Read(kEngineSampleCount);
     observed_progress = 0;
     while (observed_progress < kProgressSamples) {
-      uint32_t current = reinterpret_cast<volatile uint32_t *>(voice)[0x58 / 4] & 0xfff;
-      observed_progress += (current - previous) & 0xfff;
-      previous = current;
+      // CBO can alias 0 -> 0 when this short loop completes between polls.
+      // XGSCNT reports processed engine frames independently of loop length.
+      observed_progress = Read(kEngineSampleCount) - first;
       auto elapsed =
           std::chrono::duration_cast<std::chrono::microseconds>(std::chrono::steady_clock::now() - start).count();
       if (elapsed >= kTimeoutUs) break;
@@ -208,8 +231,8 @@ void McpxVoiceTests::TestVoice(const char *name, bool stereo, bool page_crossing
   Check(1, guard, XemuPerfAssertion::MCPX_GUARD);
   std::ostringstream metadata;
   metadata << "{\"oracle\":\"constant-IMA-predictor-regression\",\"source_fnv32\":" << input_hash
-           << ",\"observed_sample_progress\":" << observed_progress << ",\"mix_words\":" << observations.str()
-           << ",\"cleanup_passed\":" << (stopped ? "true" : "false")
+           << ",\"engine_sample_progress\":" << observed_progress << ",\"loop_samples\":" << loop_samples
+           << ",\"mix_words\":" << observations.str() << ",\"cleanup_passed\":" << (stopped ? "true" : "false")
            << ",\"mix_tolerance_24bit_units\":32,\"full_dsp_required\":true,"
            << "\"timing_comparable\":false,\"timing_reason\":\"timer-paced progress polling\"}";
   host_.PrepareDraw(XemuPerfTestFailed() ? 0xff800000 : 0xff208060);

@@ -56,4 +56,28 @@ Recipe contracts: RED missing header (compiler failure), then three focused chec
 
 Ruling: require inactive/unconfigured state and retain empty list tops after cleanup, rather than restoring arbitrary prior lists. A frame waiting inside the throttle can run once after SECTL disable; restoring old list pointers before it runs could revive DMA. This costs compatibility with applications that already configured the APU; the experimental fixture reports refusal instead of taking over their state. Failed stop verification retains allocations until process reset.
 
-Release XISO builds successfully with pinned NXDK and all 144 contracts pass. The new MCPX source emits no compiler warnings; unchanged workload sources and the existing linker emit retained warnings. Native gates and final independent review remain incomplete.
+The first Release XISO builds successfully with pinned NXDK and all 144 contracts pass. The new MCPX source emits no compiler warnings; unchanged workload sources and the existing linker emit retained warnings. Native gates remain incomplete.
+
+Independent whole-branch review at `8294b8a` found one Important coverage gap:
+checking only the later mix window could miss corruption of the first crossing
+block. A single fix pass makes crossing leaves replay that 64-sample block,
+clears the prior mix before arming, and uses engine XGSCNT progress because
+the short-loop voice offset can alias between polls. The compiled LoopSamples
+contract was RED (missing implementation), then GREEN after the fix; the
+scattered first-block contract also proves a contiguous read encounters poison.
+Review also found that setup failure skipped per-leaf output. Refusal/allocation/
+copy failures now emit FAIL metadata, zero measured samples and TEST_END through
+the normal result writer. No new native result is claimed by this fix.
+
+The broader discovery command also exposed a packaging gap: the strict runner
+bundle category map rejected the new MCPX suite. That failure is retained;
+an explicit audio category and real-catalog package coverage fix the omission.
+Existing runner versions may expose this newly added suite under `other`;
+select the five exact IDs instead of assuming an audio category in the runner.
+
+After this fix pass, full host discovery passes **177 tests**, catalog generation
+check passes, and the pinned-NXDK Release XISO rebuild succeeds. Incremental
+build has no MCPX compiler warnings; the existing `.edata` linker warning remains.
+The rebuilt image is 3,735,552 bytes, SHA-256
+`4bc1fec5f070a695699d57c78ef19183c1f43631e853bd20ed749d55f4eb056a`.
+No native fixture pass is claimed yet.

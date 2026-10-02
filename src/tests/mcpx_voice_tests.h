@@ -8,6 +8,7 @@ class McpxVoiceTests : public TestSuite {
   McpxVoiceTests(TestHost &host, std::string output_dir, const Config &config);
 
  private:
+  void FinishSetupFailure(const char *name, const char *reason);
   void TestVoice(const char *name, bool stereo, bool page_crossing, bool pcm);
 };
 #endif

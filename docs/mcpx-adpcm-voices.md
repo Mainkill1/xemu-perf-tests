@@ -30,13 +30,17 @@ The mathematical unity-gain 24-bit mix values are `0x100000` (left) and
 allows the voice resampler's floating point arithmetic; it is a narrow
 regression observation, not an exact resampler accuracy oracle or proof of
 audible quality. Check every sample in both 32-word mix bins and require
-observed voice progress. Silent output, swapped channels and bad routing
+observed engine progress plus fresh nonzero output. Silent output, swapped channels and bad routing
 must fail. Mono uses +4096 on both output bins. A mono signed-16 PCM case
 is the unaffected reader control.
 
-Five leaves: mono aligned, stereo aligned, mono initial page crossing,
-stereo initial page crossing, and signed-16 mono PCM. Page-crossing cases
-start at byte 4080. Logical pages map to physical pages 0, 2 and 4 in a
+Five leaves: mono aligned, stereo aligned, mono repeated page crossing,
+stereo repeated page crossing, and signed-16 mono PCM. Page-crossing cases
+start at byte 4080 and loop only the first 64-sample block. Every fetch feeding
+the observed mix therefore crosses the scattered-page boundary; later fresh
+block predictors cannot hide a corrupted initial fetch. Other leaves loop
+4096 samples. All cases hash the full generated input, even when replaying
+only its first block. Logical pages map to physical pages 0, 2 and 4 in a
 five-page allocation. Pages 1 and 3 contain poison bytes and must stay
 unchanged. The regular stereo sequence can also cross a later logical page;
 "aligned" means initial block alignment, not whole-sequence single-page
@@ -70,8 +74,14 @@ DMA target.
 
 ## Timing and qualification
 
-Require at least 1024 samples of observed progress with a three-second
+Clear all 64 mix words before arming the engine. Require at least 1024
+samples of engine progress from `NV_PAPU_XGSCNT` with a three-second
 guest timeout per profile body, then inspect all 64 left/right mix words.
+This frame counter avoids short-loop voice-offset aliasing; it does not
+claim to count decoded voice fetches. Fresh expected nonzero mix output
+is the separate voice-pipeline observation. Setup refusals and allocation/
+copy failures emit a failing per-leaf record and `TEST_END` with zero measured
+samples and a reason, instead of silently omitting the leaf.
 Record bounded guest completion latency and output observations. Progress
 polling and host audio pacing mean this is **NOT COMPARABLE as a throughput
 benchmark**; there is no fabricated ADPCM speedup from guest wait time.

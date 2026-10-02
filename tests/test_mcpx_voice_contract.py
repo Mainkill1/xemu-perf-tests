@@ -51,6 +51,21 @@ int main() {
       !McpxVoiceRecipe::MixValueMatches(0x0fffe0, 4096) ||
       McpxVoiceRecipe::MixValueMatches(0x0fffdf, 4096) ||
       McpxVoiceRecipe::MixValueMatches(0xff100000, 4096)) return 10;
+  if (McpxVoiceRecipe::LoopSamples(true) != 64 ||
+      McpxVoiceRecipe::LoopSamples(false) != 4096) return 11;
+  for (bool stereo : {false, true}) {
+    auto block = McpxVoiceRecipe::EncodedBlock(stereo);
+    // Every replayed block crosses the logical boundary and a physically
+    // contiguous read encounters poison instead of its encoded tail.
+    if (4080 + block.size() <= 4096) return 12;
+    std::vector<uint8_t> crossed(5 * 4096, 0xa5);
+    if (!McpxVoiceRecipe::CopyLogicalBytes(crossed.data(), crossed.size(),
+                                         4080, block.data(), block.size())) return 13;
+    for (size_t offset = 16; offset < block.size(); ++offset) {
+      if (crossed[4080 + offset] == block[offset] ||
+          crossed[8192 + offset - 16] != block[offset]) return 14;
+    }
+  }
 }
 ''')
         compiler = shutil.which('g++') or shutil.which('clang++')

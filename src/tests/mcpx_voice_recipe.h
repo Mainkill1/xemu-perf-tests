@@ -13,6 +13,8 @@ static constexpr size_t kPageBytes = 4096;
 static constexpr size_t kLogicalPages = 3;
 static constexpr size_t kPhysicalPages = 5;
 
+inline uint32_t LoopSamples(bool page_crossing) { return page_crossing ? 64 : 4096; }
+
 inline bool MixValueMatches(uint32_t word, int16_t predictor) {
   if (word & 0xff000000) return false;
   const int32_t actual = (word & 0x800000) ? static_cast<int32_t>(word) - 0x1000000 : static_cast<int32_t>(word);
