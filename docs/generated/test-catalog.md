@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747` contains 159 leaves and 5 groups.
+Catalog `sha256:5f579ca71a19d22c66ffa213aaa665983125bacb9c962bfd690798b7e3770012` contains 163 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -18,6 +18,10 @@ Catalog `sha256:2490192671df057163aa6c7bb2f144491dfa35f42ef2f9318a87f50ec92e7747
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |
+| `cpu_translation_blocks.jump_cache_collision2` | leaf | `CpuTranslationBlocks::JumpCacheCollision2` |
+| `cpu_translation_blocks.jump_cache_collision8` | leaf | `CpuTranslationBlocks::JumpCacheCollision8` |
+| `cpu_translation_blocks.jump_cache_collision10` | leaf | `CpuTranslationBlocks::JumpCacheCollision10` |
+| `cpu_translation_blocks.jump_cache_noncollision8` | leaf | `CpuTranslationBlocks::JumpCacheNoncollision8` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |

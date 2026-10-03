@@ -99,6 +99,7 @@ add_library(
         tests/cpu_floating_point_tests.h
         tests/cpu_translation_block_tests.cpp
         tests/cpu_translation_block_tests.h
+        tests/cpu_jump_cache_workload.h
         tests/fill_rate_tests.cpp
         tests/fill_rate_tests.h
         tests/game_load_composite_tests.cpp
