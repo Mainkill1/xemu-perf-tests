@@ -1,7 +1,11 @@
 #include "cpu_translation_block_tests.h"
 
-#include <cstdint>
+#include <windows.h>
 
+#include <cstdint>
+#include <cstdio>
+
+#include "cpu_jump_cache_workload.h"
 #include "debug_output.h"
 #include "test_host.h"
 
@@ -82,6 +86,10 @@ CpuTranslationBlockTests::CpuTranslationBlockTests(TestHost &host, std::string o
   tests_[kDirectLoopTest] = [this]() { TestDirectLoop(); };
   tests_[kIndirectDispatchTest] = [this]() { TestIndirectDispatch(); };
   tests_[kIndirectDispatchStressTest] = [this]() { TestIndirectDispatchStress(); };
+  tests_["JumpCacheCollision2"] = [this]() { TestJumpCache("JumpCacheCollision2", 2, true, 0x4F71ED44); };
+  tests_["JumpCacheCollision8"] = [this]() { TestJumpCache("JumpCacheCollision8", 8, true, 0x52F08FDA); };
+  tests_["JumpCacheCollision10"] = [this]() { TestJumpCache("JumpCacheCollision10", 10, true, 0x9D8149E6); };
+  tests_["JumpCacheNoncollision8"] = [this]() { TestJumpCache("JumpCacheNoncollision8", 8, false, 0x52F08FDA); };
 }
 
 void CpuTranslationBlockTests::TestDirectLoop() {
@@ -127,4 +135,40 @@ void CpuTranslationBlockTests::TestIndirectDispatchStress() {
            kIndirectStressOperations, checksum);
   host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
   host_.FinishDraw(suite_name_, kIndirectDispatchStressTest, results);
+}
+
+void CpuTranslationBlockTests::TestJumpCache(const char* name, unsigned targets, bool collide, uint32_t expected) {
+  auto* code = static_cast<uint8_t*>(
+      VirtualAlloc(nullptr, CpuJumpCache::kPageBytes, MEM_RESERVE | MEM_COMMIT, PAGE_EXECUTE_READWRITE));
+  ASSERT(CpuJumpCache::Initialize(code, targets, collide));
+  const uintptr_t base = reinterpret_cast<uintptr_t>(code);
+  const unsigned first_slot = CpuJumpCache::Slot(base);
+  for (unsigned i = 0; i < targets; ++i) {
+    const uintptr_t pc = base + CpuJumpCache::Offset(i, collide);
+    ASSERT((pc & ~uintptr_t(4095)) == base);
+    ASSERT((CpuJumpCache::Slot(pc) == first_slot) == (collide || i == 0));
+    PrintMsg("CPU_TARGET %s index=%u pc=%08lx jump_slot=%u\n", name, i, static_cast<uint32_t>(pc),
+             CpuJumpCache::Slot(pc));
+  }
+  const uint32_t work_checksum = CpuJumpCache::WorkChecksum(code);
+  host_.PrepareDraw(0xFF101010);
+  uint32_t checksum = 0;
+  bool mismatch = false;
+  auto results = Profile(name, kProfileIterations, [&]() {
+    checksum = CpuJumpCache::Run(code, targets, collide, CpuJumpCache::kOperations);
+    g_cpu_result = checksum;
+    mismatch |= checksum != expected;
+  });
+  ASSERT(!mismatch);
+  ASSERT(CpuJumpCache::WorkChecksum(code) == work_checksum);
+  ASSERT(VirtualFree(code, 0, MEM_RELEASE));
+  char metadata[256];
+  snprintf(metadata, sizeof(metadata),
+           "{\"oracle_status\":\"PASS\",\"operations\":%lu,\"targets\":%u,\"colliding\":%s,"
+           "\"work_checksum\":\"%08lx\",\"result_checksum\":\"%08lx\",\"expected_checksum\":\"%08lx\"}",
+           CpuJumpCache::kOperations, targets, collide ? "true" : "false", work_checksum, checksum, expected);
+  PrintMsg("CPU_WORK CpuTranslationBlocks::%s operations=%lu checksum=%08lx\n", name, CpuJumpCache::kOperations,
+           checksum);
+  host_.PrepareDraw(0xFF000000 | (checksum & 0x00FFFFFF));
+  host_.FinishDraw(suite_name_, name, results, metadata);
 }

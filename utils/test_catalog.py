@@ -73,6 +73,18 @@ def entries():
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
            ("indirect_dispatch", "IndirectDispatch"),
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))
+    for stable, legacy, count, collide in (
+        ("jump_cache_collision2", "JumpCacheCollision2", 2, True),
+        ("jump_cache_collision8", "JumpCacheCollision8", 8, True),
+        ("jump_cache_collision10", "JumpCacheCollision10", 10, True),
+        ("jump_cache_noncollision8", "JumpCacheNoncollision8", 8, False),
+    ):
+        out.append(leaf(
+            f"cpu_translation_blocks.{stable}", "cpu_translation_blocks", "CpuTranslationBlocks", legacy,
+            f"Executes 8 million round-robin indirect calls through {count} immutable IA-32 routines "
+            f"with {'equal' if collide else 'distinct'} xemu 4096-slot jump-cache hashes; validates an "
+            "independent recurrence checksum. Code setup, geometry and byte hashing are outside timing.",
+            ("cpu", "performance", "hardware-safe")))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
     simple("pipeline_texture_switch", "PipelineTextureSwitch", [
@@ -277,7 +289,8 @@ def catalog(items):
              "kind": item.kind, "legacy_ids": [item.legacy_id],
              "suite_id": item.suite_id, "display_name": item.legacy_result, "description": item.description,
              "tags": list(item.tags), "supported_targets": ["xemu"] if "xemu-only" in item.tags else ["xemu", "xbox"],
-             "isolation": "same_process", "timeout_ms": 300000 if item.suite_id == "pfifo_packet_boundary" else
+             "isolation": "same_process", "timeout_ms": 120000 if item.id.startswith("cpu_translation_blocks.jump_cache_") else
+                           300000 if item.suite_id == "pfifo_packet_boundary" else
                                                       (120000 if "stress" in item.id else 30000),
              "measurement_class": "correctness" if "performance" not in item.tags else
                                   ("scenario" if {"scenario", "memory-pressure"} & set(item.tags) else "micro")}
@@ -330,6 +343,11 @@ def failure_diagnosis(test):
             "At least one child checkpoint failed, a child result is missing, or group completion was recorded incorrectly. "
             "Inspect the child records in order; the group has no independent timing oracle."
         )
+
+    if test_id.startswith("cpu_translation_blocks.jump_cache_"):
+        return ("Generated IA-32 execution, target geometry or recurrence checksum failed. Inspect indirect "
+                "TB dispatch, stale translation rejection and state restoration. Physical Xbox execution is "
+                "also valid; the collision geometry describes xemu@76c23c7d, not a hardware CPU cache.")
 
     exact = {
         "busy_pfifo.pfifo_saturation":

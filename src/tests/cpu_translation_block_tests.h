@@ -16,6 +16,7 @@ class CpuTranslationBlockTests : public TestSuite {
   void TestDirectLoop();
   void TestIndirectDispatch();
   void TestIndirectDispatchStress();
+  void TestJumpCache(const char* name, unsigned targets, bool collide, uint32_t expected);
 };
 
 #endif  // XEMU_PERF_TESTS_CPU_TRANSLATION_BLOCK_TESTS_H
