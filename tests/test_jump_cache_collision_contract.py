@@ -102,6 +102,32 @@ int main(int argc, char **argv) {
         self.assertTrue(all(x['kind'] == 'leaf' and x['revision'] == 1 and
                             x['timeout_ms'] == 120000 for x in entries))
 
+    def test_source_reference_qualifies_work_without_observed_output(self):
+        # Catches missing leaves, incorrect work hashes/KATs, and copied
+        # framebuffer or timing output. Expectations were independently
+        # established by the emitted-code execution tests above.
+        from utils.cpu_jump_cache_reference import records
+        expected = {'jump_cache_collision2': (2, True, '25d77da1', '4f71ed44'),
+                    'jump_cache_collision8': (8, True, '8526a9d7', '52f08fda'),
+                    'jump_cache_collision10': (10, True, '80931474', '9d8149e6'),
+                    'jump_cache_noncollision8': (8, False, 'd9b2a53b', '52f08fda')}
+        actual = records()
+        self.assertEqual({x['id'].split('.')[-1] for x in actual}, set(expected))
+        for item in actual:
+            count, collide, work, result = expected[item['id'].split('.')[-1]]
+            self.assertNotIn('framebuffer_fnv1a64', item)
+            self.assertNotIn('raw_results', item)
+            self.assertEqual(item['sample_count'], 10)
+            self.assertEqual(item['metadata']['oracle_status'], 'PASS')
+            self.assertEqual(item['metadata']['work_checksum'], work)
+            self.assertEqual(item['metadata']['result_checksum'], result)
+            self.assertEqual(item['metadata']['operations'], 8000000)
+            data = self.emitted(count, collide)
+            fnv = 2166136261
+            for byte in data:
+                fnv = ((fnv ^ byte) * 16777619) & 0xFFFFFFFF
+            self.assertEqual(fnv, int(work, 16))
+
     def test_invalid_target_counts_fail(self):
         for count in (-1, 0, 11):
             result = subprocess.run([str(self.emitter), str(count), '1'], capture_output=True)

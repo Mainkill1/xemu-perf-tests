@@ -58,8 +58,25 @@ paired benchmark yet. Build an immutable Release XISO and bind its embedded
 catalog hash, executable/source/toolchain identities and prepared private HDD
 through the maintained runner. Run each new leaf and an unaffected existing
 control, retain every output, and verify the independent execution checksums.
-Obtain applicable framebuffer/reference qualification before paired admission;
-never promote observed output to a golden merely because it repeats.
+The four new CPU leaves support an arithmetic-only runner reference from
+`utils/cpu_jump_cache_reference.py`. It independently evaluates the 8M-operation
+recurrence and specifies the entire immutable generated page, with byte and
+execution hashes checked against actual emitted-code execution by the retained
+host tests. It accepts no guest result input, records no framebuffer/timing
+values, and refuses to overwrite a pinned file. This contract qualifies CPU work;
+it does not qualify rendering. Native framebuffer output stays raw evidence and
+is never promoted to a golden. Existing leaves still require their original
+applicable references; the new tool does not waive those failures.
+
+```sh
+python3 utils/cpu_jump_cache_reference.py --output cpu-jump-cache-reference-v1.json
+```
+
+Before balanced testing, pin this reference's SHA-256 in a new suite/template
+revision, keep historical suites unchanged, and verify each guest checksum.
+The native pilot including DirectLoop remains a missing-reference failure;
+a subsequent four-leaf arithmetic campaign is a new purpose and immutable
+selection, not a replacement attempt or framebuffer approval.
 
 Use fresh A/A and physical ABBA then BAAB on Deck `.123`; compare matched
 uninstrumented parent, inline-only, recovery-bypass and real candidate as needed.
