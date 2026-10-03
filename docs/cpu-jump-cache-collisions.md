@@ -13,8 +13,9 @@ Each iteration makes **8,000,000 round-robin indirect calls**, starting with
 `0x12345678`. A target loads its cdecl argument, XORs `(target_index+1)*0x9E3779B9`,
 rotates left by seven, adds `0x7F4A7C15`, and returns. Arithmetic wraps at 32 bits;
 the caller supplies `state XOR operation_index`. The test profiles ten samples
-using the existing multiplier/warmup/completion settings. Setup, address checks,
-byte hashing, output and release are excluded; one checksum comparison per whole
+using the existing multiplier/warmup/completion settings. Allocation/code generation, address checks, byte hashing, output and release
+are excluded. Initializing the small volatile target-pointer table remains inside
+each timed iteration (equal for the two eight-target cases); one checksum comparison per whole
 work iteration records any failed sample. Code bytes are immutable during timing.
 
 One 4 KiB `VirtualAlloc` page contains 18-byte routines. With the 4 KiB page and
@@ -32,7 +33,11 @@ The expected values above come from the independent Python integer recurrence
 in `tests/test_jump_cache_collision_contract.py`. Host checks compile the actual
 production emitter, execute its generated IA-32 code using an ELF32 Linux harness
 without a 32-bit C library, and compare full budgets plus short known answers.
-They independently extract hash bits for four virtual-page bases, check invalid
+The ELF32 assembly harness has its own dispatch loop: it validates the emitter
+and checksum recurrence, not production `Run()` or `Profile()`. Source and NXDK
+object inspection cover the production call sequence and operation bound; native
+guest execution remains required. Host tests independently extract hash bits for
+four virtual-page bases, check invalid
 counts, and verify all four catalog mappings. The host requires x86 Linux,
 GNU `as`/`ld` and a C++17 compiler. It does not measure xemu performance.
 
