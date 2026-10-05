@@ -31,11 +31,11 @@ class AudioMcpxProbeContractTests(unittest.TestCase):
         self.assertNotRegex(source, r"slot\s*=\s*(?:0x)?a0\b")
 
     def test_probe_is_read_only(self):
-        header = (ROOT / "src" / "tests" / "audio_mcpx_apu_device.h").read_text(encoding="utf-8")
         source = (ROOT / "src" / "tests" / "audio_mcpx_apu_device.cpp").read_text(encoding="utf-8")
-        self.assertNotIn("Write32", header)
-        self.assertNotIn("Write32", source)
-        calls = re.findall(r"HalReadWritePCISpace\((.*?)\);", source, flags=re.S)
+        probe = source.split("bool McpxApuDevice::ProbeAndMap", 1)[1].split(
+            "bool McpxApuDevice::Open", 1)[0]
+        self.assertNotIn("Write32", probe)
+        calls = re.findall(r"HalReadWritePCISpace\((.*?)\);", probe, flags=re.S)
         self.assertGreaterEqual(len(calls), 3)
         self.assertTrue(all(re.search(r"FALSE\s*$", call.strip()) for call in calls))
 

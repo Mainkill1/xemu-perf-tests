@@ -1,5 +1,7 @@
 #include "audio_mcpx_apu_device.h"
 
+#include "audio_apu_ownership.h"
+
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wignored-attributes"
 #include <xboxkrnl/xboxkrnl.h>
@@ -11,8 +13,6 @@ namespace {
 constexpr uint32_t kPciVendorDevice = 0x00;
 constexpr uint32_t kPciCommand = 0x04;
 constexpr uint32_t kPciBar0 = 0x10;
-
-constexpr uint16_t kPciCommandMemorySpace = 1U << 1;
 
 constexpr uint32_t kNvPapuFectl = 0x00001100;
 constexpr uint32_t kNvPapuSectl = 0x00002000;
@@ -67,29 +67,14 @@ bool McpxApuDevice::ProbeAndMap(std::string &error) {
   uint32_t bar0 = 0;
   HalReadWritePCISpace(pci_info_.bus, pci_info_.slot_number, kPciBar0,
                        &bar0, sizeof(bar0), FALSE);
-  if ((bar0 & 1U) != 0) {
-    error = "MCPX APU BAR0 unexpectedly reports I/O space";
-    return false;
-  }
-  if ((bar0 & 0x6U) == 0x4U) {
-    error = "MCPX APU BAR0 unexpectedly reports a 64-bit memory BAR";
-    return false;
-  }
-
-  pci_info_.bar0_physical = bar0 & ~0x0FU;
-  if (pci_info_.bar0_physical == 0 ||
-      pci_info_.bar0_physical == 0xFFFFFFF0U) {
-    error = "MCPX APU BAR0 is not assigned";
-    return false;
-  }
-
   HalReadWritePCISpace(pci_info_.bus, pci_info_.slot_number, kPciCommand,
                        &pci_info_.pci_command, sizeof(pci_info_.pci_command),
                        FALSE);
-  if ((pci_info_.pci_command & kPciCommandMemorySpace) == 0) {
-    error = "MCPX APU PCI memory-space decoding is disabled";
+  if (!ValidateApuPciResource(0x01B010DEU, bar0, pci_info_.pci_command,
+                              error)) {
     return false;
   }
+  pci_info_.bar0_physical = bar0 & ~0x0FU;
 
   mmio_ = static_cast<volatile uint8_t *>(
       MmMapIoSpace(pci_info_.bar0_physical, kMmioBytes,
@@ -101,12 +86,41 @@ bool McpxApuDevice::ProbeAndMap(std::string &error) {
   return true;
 }
 
+bool McpxApuDevice::Open(std::string &error) {
+  if (!ProbeAndMap(error)) return false;
+  ApuStateSnapshot initial{};
+  if (!ReadApuState(*this, initial)) {
+    error = "MCPX APU ownership snapshot is unreadable";
+    Close();
+    return false;
+  }
+  const auto decision = CheckApuOwnership(initial.registers, initial.lists);
+  if (!decision.admitted) {
+    error = decision.reason;
+    Close();
+    return false;
+  }
+  ownership_admitted_ = true;
+  return true;
+}
+
 void McpxApuDevice::Close() {
+  ownership_admitted_ = false;
   if (mmio_) {
     MmUnmapIoSpace(const_cast<uint8_t *>(mmio_), kMmioBytes);
     mmio_ = nullptr;
   }
   pci_info_ = {};
+}
+
+bool McpxApuDevice::Write32(uint32_t offset, uint32_t value) {
+  if (!mmio_ || !ownership_admitted_ || !IsApuRegisterWriteAllowed(offset)) {
+    return false;
+  }
+  volatile uint32_t *target =
+      reinterpret_cast<volatile uint32_t *>(mmio_ + offset);
+  *target = value;
+  return true;
 }
 
 uint32_t McpxApuDevice::Read32(uint32_t offset) const {

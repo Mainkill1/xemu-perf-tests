@@ -112,6 +112,8 @@ add_library(
         perf_tests
         tests/audio_fixture_loader.cpp
         tests/audio_fixture_loader.h
+        tests/audio_apu_ownership.cpp
+        tests/audio_apu_ownership.h
         tests/audio_infrastructure_probe.cpp
         tests/audio_infrastructure_probe.h
         tests/audio_mcpx_apu_device.cpp

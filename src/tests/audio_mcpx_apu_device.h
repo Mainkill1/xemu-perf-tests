@@ -26,10 +26,18 @@ struct McpxApuRegisterSnapshot {
   uint32_t epsaddr{0};
 };
 
-// Read-only discovery helper for the raw MCPX APU backend. It intentionally
-// exposes no register-write method. Voice programming belongs in the backend
-// implementation after its reset/restore contract is proven.
-class McpxApuDevice {
+class ApuRegisterIo {
+ public:
+  virtual ~ApuRegisterIo() = default;
+  virtual bool Open(std::string &error) = 0;
+  virtual uint32_t Read32(uint32_t offset) const = 0;
+  virtual bool Write32(uint32_t offset, uint32_t value) = 0;
+  virtual void Close() = 0;
+};
+
+// Guest-visible PCI/BAR adapter. ProbeAndMap remains read-only; Open() also
+// admits ownership before any write becomes available.
+class McpxApuDevice : public ApuRegisterIo {
  public:
   static constexpr uint16_t kVendorId = 0x10DE;
   static constexpr uint16_t kDeviceId = 0x01B0;
@@ -42,17 +50,20 @@ class McpxApuDevice {
   McpxApuDevice &operator=(const McpxApuDevice &) = delete;
 
   bool ProbeAndMap(std::string &error);
-  void Close();
+  bool Open(std::string &error) override;
+  void Close() override;
 
   [[nodiscard]] bool IsMapped() const { return mmio_ != nullptr; }
   [[nodiscard]] const McpxApuPciInfo &PciInfo() const { return pci_info_; }
 
   bool Snapshot(McpxApuRegisterSnapshot &snapshot, std::string &error) const;
-  uint32_t Read32(uint32_t offset) const;
+  uint32_t Read32(uint32_t offset) const override;
+  bool Write32(uint32_t offset, uint32_t value) override;
 
  private:
   McpxApuPciInfo pci_info_{};
   volatile uint8_t *mmio_{nullptr};
+  bool ownership_admitted_{false};
 };
 
 }  // namespace AudioTorture
