@@ -18,14 +18,19 @@ class AudioRawS16Tests(unittest.TestCase):
                  "-I", str(ROOT / "src" / "tests"),
                  str(ROOT / "tests" / "audio_raw_s16_probe.cpp"),
                  str(ROOT / "src" / "tests" / "audio_mcpx_raw_backend.cpp"),
+                 str(ROOT / "src" / "tests" / "audio_session_guard.cpp"),
                  str(ROOT / "src" / "tests" / "audio_apu_ownership.cpp"),
                  str(ROOT / "src" / "tests" / "audio_torture_support.cpp"),
                  "-o", str(executable)], capture_output=True, text=True)
             self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
             fixture = ROOT / "resources" / "audio" / "raw" / "vp_s16_mono_48k_256.raw"
-            result = subprocess.run([str(executable), str(fixture)], capture_output=True, text=True)
-            self.assertEqual(result.returncode, 0, result.stderr)
-            self.assertIn("raw S16 observed, rejected, and retained safely", result.stdout)
+            for scenario in (None, "gate-restore", "headroom-readback", "poison"):
+                command = [str(executable), str(fixture)]
+                if scenario:
+                    command.append(scenario)
+                result = subprocess.run(command, capture_output=True, text=True)
+                self.assertEqual(result.returncode, 0, f"{scenario}: {result.stderr}")
+                self.assertIn("raw S16 observed, rejected, and retained safely", result.stdout)
 
 
 if __name__ == "__main__":

@@ -123,6 +123,8 @@ add_library(
         tests/audio_mcpx_apu_device.h
         tests/audio_mcpx_raw_backend.cpp
         tests/audio_mcpx_raw_backend.h
+        tests/audio_session_guard.cpp
+        tests/audio_session_guard.h
         tests/audio_s16_control_oracle.h
         tests/audio_vp_scaling_tests.cpp
         tests/audio_vp_scaling_tests.h

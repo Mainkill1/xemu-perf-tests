@@ -21,6 +21,8 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   bool bad_output{false};
   bool fail_stop{false};
   bool fail_setup{false};
+  bool fail_gate_restore{false};
+  bool ignore_headroom_restore{false};
   bool tearing_while_running{false};
   bool delayed_final_counter{false};
   mutable bool running{false};
@@ -56,6 +58,10 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
     writes.push_back(offset);
     if (offset == 0x202C && value != 0 && fail_setup) return false;
     if (offset == 0x2000 && value == 0 && fail_stop && running) return false;
+    if (offset == 0x1510 && value == 0 && fail_gate_restore &&
+        registers[offset] == 1) return false;
+    if (offset == 0x20200 && value == 0xA0A0U && ignore_headroom_restore)
+      return true;
     registers[offset] = value;
     if (offset == 0x2000) {
       if (running && value == 0 && delayed_final_counter) stop_counter_reads_left = 2;
@@ -120,13 +126,51 @@ bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
   }
   return success;
 }
+
+void RunRestoreFailureScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
+                               const std::vector<uint8_t> &source,
+                               bool fail_gate_write) {
+  FakeIo io(source);
+  FakeAllocator allocator;
+  io.fail_gate_restore = fail_gate_write;
+  io.ignore_headroom_restore = !fail_gate_write;
+  if (!fail_gate_write) io.registers[0x20200] = 0xA0A0U;
+  AudioTorture::McpxRawBackend backend(io, allocator, source.data(), source.size());
+  AudioTorture::WorkloadResult result{};
+  std::string error;
+  assert(!backend.Run(descriptor, result, error));
+  assert(!result.cleanup_passed && !result.cleanup_registers_restored);
+  assert(allocator.freed == 0);
+}
+
+void RunPoisonScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
+                       const std::vector<uint8_t> &source) {
+  FakeIo first_io(source);
+  FakeAllocator first_allocator;
+  first_io.fail_stop = true;
+  AudioTorture::McpxRawBackend first(first_io, first_allocator,
+                                     source.data(), source.size());
+  AudioTorture::WorkloadResult first_result{};
+  std::string error;
+  assert(!first.Run(descriptor, first_result, error));
+  assert(!first_result.cleanup_passed && first_allocator.freed == 0);
+
+  FakeIo second_io(source);
+  FakeAllocator second_allocator;
+  AudioTorture::McpxRawBackend second(second_io, second_allocator,
+                                      source.data(), source.size());
+  AudioTorture::WorkloadResult second_result{};
+  assert(!second.Run(descriptor, second_result, error));
+  assert(!second_result.cleanup_passed);
+  assert(second_io.writes.empty() && second_allocator.allocated.empty());
+}
 }  // namespace
 
 int main(int argc, char **argv) {
   AudioTorture::SignalState nyquist_state{};
   assert(AudioTorture::NextS16(AudioTorture::SignalKind::kNearNyquist045,
                                 nyquist_state, 0, 48000) != 0);
-  assert(argc == 2);
+  assert(argc == 2 || argc == 3);
   std::ifstream stream(argv[1], std::ios::binary);
   std::vector<uint8_t> source((std::istreambuf_iterator<char>(stream)),
                               std::istreambuf_iterator<char>());
@@ -154,7 +198,16 @@ int main(int argc, char **argv) {
   assert(!RunScenario(*descriptor, source, true, false, false, false, false));
   assert(!RunScenario(*descriptor, source, false, true, false, false, false));
   assert(!RunScenario(*descriptor, source, false, false, true, false, false));
-  assert(!RunScenario(*descriptor, source, false, false, false, true, false));
   assert(!RunScenario(*descriptor, source, false, false, false, false, true));
+  if (argc == 2)
+    assert(!RunScenario(*descriptor, source, false, false, false, true, false));
+  if (argc == 3) {
+    const std::string scenario = argv[2];
+    if (scenario == "gate-restore") RunRestoreFailureScenario(*descriptor, source, true);
+    else if (scenario == "headroom-readback")
+      RunRestoreFailureScenario(*descriptor, source, false);
+    else if (scenario == "poison") RunPoisonScenario(*descriptor, source);
+    else assert(false);
+  }
   std::cout << "raw S16 observed, rejected, and retained safely\n";
 }

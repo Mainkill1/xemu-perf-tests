@@ -5,6 +5,7 @@
 #include <cstring>
 
 #include "audio_s16_control_oracle.h"
+#include "audio_session_guard.h"
 
 namespace AudioTorture {
 namespace {
@@ -71,6 +72,10 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
                          WorkloadResult &result, std::string &error) {
   result = {};
   error.clear();
+  if (AudioSessionPoisoned()) {
+    error = "audio session blocked after unsafe prior teardown";
+    return false;
+  }
   if (std::strcmp(descriptor.id, "audio.vp_scaling.s16_mono.v001") != 0 ||
       descriptor.backend != BackendKind::kMcpxApuRaw ||
       descriptor.workload.format != SampleFormat::kS16 ||
@@ -179,8 +184,11 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   const bool readable = ReadApuState(io_, after);
   result.observed_voice_terminal = readable && after.lists.vp_lists[0] == kEmptyVoice &&
                                    after.registers.sectl == before.registers.sectl;
-  result.cleanup_registers_restored = readable &&
+  result.cleanup_registers_restored = stopped && readable &&
                                       ApuStateRestored(before, after) &&
+                                      io_.Read32(kFrontEndGate) == old_gate &&
+                                      io_.Read32(kHeadroom) == old_headroom_left &&
+                                      io_.Read32(kHeadroom + 4) == old_headroom_right &&
                                       result.observed_voice_terminal;
   result.cleanup_dma_guard_passed = IsGuardIntact(samples);
   result.cleanup_passed = result.cleanup_stop_writes_passed &&
@@ -192,6 +200,7 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     allocator_.Free(sge);
     allocator_.Free(voices);
   } else {
+    PoisonAudioSession();
     error = "APU stop/readback or DMA guard failed; allocations retained";
   }
   io_.Close();
