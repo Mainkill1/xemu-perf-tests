@@ -8,9 +8,9 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:0b8fc676db3ca2b24c00cf6ba0e339180e3af0d434eec0e2d206e407f963efb4",
-    "catalog_id": "sha256:9ad5d9373f0d860cc8ff0dacd4a71b67cc1ad52c83947ce68ebbd197df9f58ee",
-    "selected_leaf_count": 12,
+    "plan_id": "sha256:15ad16137d97b36a1ea5df6c6416d3d02fd936b593cfc6d4771fbcbf04681441",
+    "catalog_id": "sha256:080ef94be0c6743f9d0e5aad600abfdd05fc7dad5fa57070601d8b2aead5bb55",
+    "selected_leaf_count": 13,
     "tests": [
       {
         "id": "game_load.cross_title_hotpath.queued_vertex_cpu_writes"
@@ -44,6 +44,9 @@
       },
       {
         "id": "vertex_buffer_allocation.ordered_same_page_overwrite"
+      },
+      {
+        "id": "vertex_buffer_allocation.three_generation_overwrite"
       },
       {
         "id": "tiny_draw.inline_buffers.vertex_shader"
