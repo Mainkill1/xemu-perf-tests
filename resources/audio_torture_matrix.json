@@ -1,0 +1,582 @@
+{
+  "schema_version": 1,
+  "status": "framework",
+  "purpose": "Deterministic audio microstress coverage for xemu correctness and focused performance attribution.",
+  "truth_contract": {
+    "correctness_before_timing": true,
+    "no_path_claim_without_execution_proof": true,
+    "performance_capture_must_not_write_audio_files": true,
+    "pcm_bitrate_is_derived": true,
+    "ac97_backend_must_not_claim_vp_coverage": true
+  },
+  "ground_truth": {
+    "nxdk_xaudio": {
+      "repository": "abaire/nxdk",
+      "revision": "73c95900965a16be3a3e34b8d4d5d41bc18498be",
+      "path": "lib/hal/audio.h",
+      "supported_sample_format": "s16",
+      "supported_channels": 2,
+      "nominal_output_rate_hz": 48000,
+      "notes": "Pinned NXDK XAudio documents sampleSizeInBits and numChannels as ignored; current supported samples are 16-bit stereo. audio.c feeds AC97 PCM/SPDIF descriptors."
+    },
+    "mcpx_apu": {
+      "repository": "Mainkill1/xemu",
+      "revision": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+      "path": "hw/xbox/mcpx/apu/apu_regs.h",
+      "max_voices": 256,
+      "max_3d_voices": 64,
+      "samples_per_frame": 32,
+      "mixbins": 32,
+      "max_mixbins_per_voice": 8,
+      "hrtf_entries": 128,
+      "formats": [
+        "u8",
+        "s16",
+        "s24",
+        "s32",
+        "adpcm"
+      ],
+      "notes": "Pinned xemu constants are implementation targets; presence in xemu does not itself prove guest test coverage."
+    }
+  },
+  "backends": {
+    "ac97_dma": {
+      "implementation_state": "planned_blocked_on_teardown",
+      "supported_formats": [
+        {
+          "sample_format": "s16",
+          "channels": 2,
+          "sample_rate_hz": 48000
+        }
+      ],
+      "legitimate_paths": [
+        "ac97.descriptor",
+        "ac97.irq",
+        "ac97.underrun"
+      ],
+      "forbidden_claim_prefixes": [
+        "apu.vp.",
+        "apu.gp.",
+        "apu.ep."
+      ],
+      "teardown_required": true,
+      "full_suite_registration_allowed": false,
+      "registration_blocker": "Pinned NXDK XAudio exposes pause but no public deinit; its interrupt object is internal. Use a test-owned teardown-capable AC97 path or terminal-process isolation before registration."
+    },
+    "mcpx_apu_raw": {
+      "implementation_state": "planned",
+      "discovery": "guest-visible PCI BAR",
+      "supported_formats": [
+        {
+          "sample_format": "u8",
+          "channels": 1
+        },
+        {
+          "sample_format": "u8",
+          "channels": 2
+        },
+        {
+          "sample_format": "s16",
+          "channels": 1
+        },
+        {
+          "sample_format": "s16",
+          "channels": 2
+        },
+        {
+          "sample_format": "s24",
+          "channels": 1
+        },
+        {
+          "sample_format": "s24",
+          "channels": 2
+        },
+        {
+          "sample_format": "s32",
+          "channels": 1
+        },
+        {
+          "sample_format": "s32",
+          "channels": 2
+        },
+        {
+          "sample_format": "adpcm",
+          "channels": 1
+        },
+        {
+          "sample_format": "adpcm",
+          "channels": 2
+        }
+      ],
+      "legitimate_paths": [
+        "apu.vp.voice",
+        "apu.vp.decode.pcm8",
+        "apu.vp.decode.pcm16",
+        "apu.vp.decode.pcm24",
+        "apu.vp.decode.adpcm",
+        "apu.vp.resample",
+        "apu.vp.filter",
+        "apu.vp.hrtf",
+        "apu.vp.mix",
+        "apu.vp.sge_read",
+        "apu.gp.frame",
+        "apu.ep.frame",
+        "apu.dma",
+        "apu.lock_wait",
+        "apu.worker_wait",
+        "apu.vp.decode.pcm32",
+        "apu.vp.mode.stream",
+        "apu.vp.mode.loop",
+        "apu.vp.mode.linked",
+        "apu.vp.mode.persist",
+        "apu.vp.mode.clear_mix",
+        "apu.vp.mode.multipass",
+        "apu.vp.control.lock",
+        "apu.vp.control.on_off",
+        "apu.vp.control.pause",
+        "apu.vp.control.release"
+      ],
+      "teardown_required": true,
+      "full_suite_registration_allowed": false,
+      "registration_blocker": "Raw guest-visible PCI/MMIO setup, completion proof, and state restoration are not implemented yet."
+    }
+  },
+  "axes": {
+    "voice_count_sweep": [
+      0,
+      1,
+      2,
+      4,
+      8,
+      16,
+      31,
+      32,
+      33,
+      63,
+      64,
+      65,
+      95,
+      96,
+      127,
+      128,
+      129,
+      191,
+      192,
+      193,
+      255,
+      256
+    ],
+    "allocation_boundary_probe": [
+      255,
+      256,
+      257
+    ],
+    "source_rates_hz": [
+      8000,
+      11025,
+      12000,
+      16000,
+      22050,
+      24000,
+      32000,
+      44100,
+      48000
+    ],
+    "vp_buffer_samples": [
+      31,
+      32,
+      33,
+      63,
+      64,
+      65,
+      127,
+      128,
+      129
+    ],
+    "ac97_refill_bytes": [
+      32,
+      64,
+      128,
+      256,
+      512,
+      2048,
+      8192
+    ],
+    "mixbin_fanout": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "memory_layouts": [
+      "shared",
+      "contiguous_unique",
+      "scattered"
+    ],
+    "signals": [
+      "silence",
+      "dc_positive",
+      "dc_negative",
+      "impulse",
+      "square",
+      "lfsr_noise",
+      "low_amplitude_noise",
+      "tone",
+      "multitone",
+      "near_nyquist_045",
+      "near_nyquist_049"
+    ]
+  },
+  "telemetry": {
+    "state": "proposed",
+    "counters": [
+      "apu.frame",
+      "apu.vp.voice",
+      "apu.vp.decode.pcm8",
+      "apu.vp.decode.pcm16",
+      "apu.vp.decode.pcm24",
+      "apu.vp.decode.adpcm",
+      "apu.vp.resample",
+      "apu.vp.filter",
+      "apu.vp.hrtf",
+      "apu.vp.mix",
+      "apu.vp.sge_read",
+      "apu.gp.frame",
+      "apu.ep.frame",
+      "apu.dma",
+      "apu.lock_wait",
+      "apu.worker_wait",
+      "ac97.descriptor",
+      "ac97.irq",
+      "ac97.underrun",
+      "apu.vp.decode.pcm32",
+      "apu.vp.mode.stream",
+      "apu.vp.mode.loop",
+      "apu.vp.mode.linked",
+      "apu.vp.mode.persist",
+      "apu.vp.mode.clear_mix",
+      "apu.vp.mode.multipass",
+      "apu.vp.control.lock",
+      "apu.vp.control.on_off",
+      "apu.vp.control.pause",
+      "apu.vp.control.release"
+    ],
+    "cost_fields": [
+      "apu_frame_ns",
+      "vp_total_ns",
+      "voice_decode_ns",
+      "voice_filter_ns",
+      "voice_hrtf_ns",
+      "voice_mix_ns",
+      "sample_fetch_ns",
+      "sample_fetch_count",
+      "sge_lookup_ns",
+      "sge_crossings",
+      "mixbin_reduce_ns",
+      "gp_ns",
+      "ep_ns",
+      "dsp_dma_ns",
+      "guest_lock_wait_ns",
+      "worker_wait_ns",
+      "active_voice_count",
+      "voice_samples_processed",
+      "deadline_misses"
+    ]
+  },
+  "families": [
+    {
+      "id": "audio.ac97_dma",
+      "backend": "ac97_dma",
+      "implementation_state": "planned",
+      "required_paths": [
+        "ac97.descriptor"
+      ],
+      "stress_axes": [
+        "ac97_refill_bytes",
+        "memory_layouts"
+      ]
+    },
+    {
+      "id": "audio.vp_scaling",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.voice",
+        "apu.vp.mix"
+      ],
+      "stress_axes": [
+        "voice_count_sweep",
+        "memory_layouts"
+      ]
+    },
+    {
+      "id": "audio.format_rate",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.voice",
+        "apu.vp.resample"
+      ],
+      "stress_axes": [
+        "source_rates_hz"
+      ]
+    },
+    {
+      "id": "audio.pitch_resample",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.resample"
+      ],
+      "stress_axes": [
+        "source_rates_hz",
+        "signals"
+      ]
+    },
+    {
+      "id": "audio.buffer_boundary",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.sge_read"
+      ],
+      "stress_axes": [
+        "vp_buffer_samples",
+        "memory_layouts"
+      ]
+    },
+    {
+      "id": "audio.streaming_dma",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.sge_read",
+        "apu.dma"
+      ],
+      "stress_axes": [
+        "voice_count_sweep",
+        "memory_layouts"
+      ]
+    },
+    {
+      "id": "audio.mixbin_fanout",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.mix"
+      ],
+      "stress_axes": [
+        "voice_count_sweep",
+        "mixbin_fanout"
+      ]
+    },
+    {
+      "id": "audio.filter_envelope",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.filter"
+      ],
+      "stress_axes": [
+        "voice_count_sweep"
+      ]
+    },
+    {
+      "id": "audio.hrtf_3d",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.hrtf",
+        "apu.vp.mix"
+      ],
+      "stress_axes": [
+        "voice_count_sweep"
+      ]
+    },
+    {
+      "id": "audio.voice_modes",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.mode.stream",
+        "apu.vp.mode.loop",
+        "apu.vp.mode.linked",
+        "apu.vp.mode.persist",
+        "apu.vp.mode.clear_mix",
+        "apu.vp.mode.multipass"
+      ],
+      "stress_axes": []
+    },
+    {
+      "id": "audio.voice_control",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.control.lock",
+        "apu.vp.control.on_off",
+        "apu.vp.control.pause",
+        "apu.vp.control.release"
+      ],
+      "stress_axes": []
+    },
+    {
+      "id": "audio.voice_churn",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.voice",
+        "apu.lock_wait",
+        "apu.worker_wait"
+      ],
+      "stress_axes": [
+        "voice_count_sweep"
+      ]
+    },
+    {
+      "id": "audio.memory_locality",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.sge_read"
+      ],
+      "stress_axes": [
+        "voice_count_sweep",
+        "memory_layouts"
+      ]
+    },
+    {
+      "id": "audio.gp_ep",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.gp.frame",
+        "apu.ep.frame",
+        "apu.dma"
+      ],
+      "stress_axes": []
+    },
+    {
+      "id": "audio.everything_max",
+      "backend": "mcpx_apu_raw",
+      "implementation_state": "planned",
+      "required_paths": [
+        "apu.vp.voice",
+        "apu.vp.mix",
+        "apu.vp.sge_read",
+        "apu.gp.frame",
+        "apu.ep.frame",
+        "apu.dma"
+      ],
+      "stress_axes": [
+        "voice_count_sweep",
+        "source_rates_hz",
+        "mixbin_fanout",
+        "memory_layouts",
+        "signals"
+      ]
+    }
+  ],
+  "fast_gate": [
+    "audio.ac97_dma",
+    "audio.vp_scaling",
+    "audio.format_rate",
+    "audio.hrtf_3d",
+    "audio.mixbin_fanout",
+    "audio.memory_locality",
+    "audio.streaming_dma",
+    "audio.voice_modes",
+    "audio.voice_control",
+    "audio.voice_churn",
+    "audio.gp_ep"
+  ],
+  "curated_case_sets": {
+    "format_voice_counts": [
+      1,
+      256
+    ],
+    "rate_probe_voice_count": 64,
+    "hrtf_voice_counts": [
+      1,
+      16,
+      32,
+      64
+    ],
+    "filter_voice_counts": [
+      1,
+      64,
+      256
+    ],
+    "churn_voice_counts": [
+      32,
+      64,
+      128,
+      256
+    ],
+    "streaming_cases": [
+      {
+        "voice_count": 1,
+        "refill_samples": 32
+      },
+      {
+        "voice_count": 32,
+        "refill_samples": 32
+      },
+      {
+        "voice_count": 64,
+        "refill_samples": 32
+      },
+      {
+        "voice_count": 128,
+        "refill_samples": 32
+      },
+      {
+        "voice_count": 256,
+        "refill_samples": 32
+      },
+      {
+        "voice_count": 256,
+        "refill_samples": 64
+      },
+      {
+        "voice_count": 256,
+        "refill_samples": 128
+      },
+      {
+        "voice_count": 256,
+        "refill_samples": 256
+      }
+    ],
+    "gp_ep_modes": [
+      "vp_only",
+      "vp_gp",
+      "vp_gp_ep_stereo",
+      "vp_gp_ep_surround"
+    ],
+    "voice_modes": [
+      "buffer_linear",
+      "stream_linear",
+      "buffer_loop",
+      "stream_loop",
+      "linked",
+      "persist",
+      "clear_mix",
+      "multipass"
+    ],
+    "voice_control": [
+      "lock_reconfigure",
+      "on_off",
+      "pause_resume",
+      "release"
+    ]
+  },
+  "known_gaps": {
+    "get_voice_position": {
+      "backend": "mcpx_apu_raw",
+      "xemu_revision": "b4d69b2440a33ad93987b269c2ecac97c45367bc",
+      "method": "NV1BA0_PIO_GET_VOICE_POSITION",
+      "implementation_state": "xemu_unhandled_assert",
+      "normal_gate_allowed": false,
+      "notes": "Pinned xemu routes GET_VOICE_POSITION into the unhandled-method assertion. Track as a known-gap probe; do not place it in the normal audio gate until implemented."
+    }
+  }
+}

@@ -143,6 +143,7 @@ compare nanosecond-scale noise or separately calibrated candidate work.
 - [Operator workflows](docs/running-tests.md)
 - [Generated catalog](docs/generated/test-catalog.md)
 - [Add or extend a test](docs/adding-tests.md)
+- [Planned audio workload matrix (no executable leaves)](docs/audio-torture-workloads.md)
 - [Machine-readable catalog](resources/catalog.json)
 - [Resolved smoke-plan example](resources/plans/smoke.json)
 

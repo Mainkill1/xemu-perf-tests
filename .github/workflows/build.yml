@@ -30,6 +30,8 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_x87_status*.py' -v
           python3 -m unittest discover -s tests -p 'test_x87_exception_status.py' -v
           python3 -m unittest discover -s tests -p 'test_x87_fault_workload.py' -v
+          python3 -m unittest discover -s tests -p 'test_audio_torture_contract.py' -v
+          python3 utils/audio_torture_cases.py --check
       - name: Compile
         run: |
           export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
