@@ -137,7 +137,11 @@ class McpxVoiceRegistrationTests(unittest.TestCase):
             self.assertNotIn('performance', descriptor['tags'])
             self.assertIn({'name': 'apu.mix', 'kind': 'structured', 'scope_version': 1},
                           descriptor['observations'])
-        self.assertIn('REG_TEST(McpxVoiceTests)', (ROOT / 'src/main.cpp').read_text())
+        main = (ROOT / 'src/main.cpp').read_text()
+        opt_in = main.split('if (runtime_config.enable_xemu_only_tests()) {', 1)[1].split('\n  }', 1)[0]
+        self.assertIn('REG_TEST(McpxVoiceTests)', opt_in)
+        runtime = (ROOT / 'src/runtime_config.cpp').read_text()
+        self.assertIn('== "McpxVoice"', runtime)
         self.assertIn('tests/mcpx_voice_tests.cpp', (ROOT / 'src/CMakeLists.txt').read_text())
         config = json.loads((ROOT / 'resources/mcpx-voice-correctness.json').read_text())
         self.assertEqual(config['resolved_plan']['selected_leaf_count'], 5)

@@ -237,12 +237,12 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(BusyPfifoTests)
   REG_TEST(CpuFloatingPointTests)
   REG_TEST(CpuTranslationBlockTests)
-  REG_TEST(McpxVoiceTests)
   REG_TEST(FillRateTests)
   REG_TEST(GameLoadCompositeTests)
   REG_TEST(HighVertexCountTests)
   REG_TEST(PfifoArrayElementTests)
   if (runtime_config.enable_xemu_only_tests()) {
+    REG_TEST(McpxVoiceTests)
     REG_TEST(PfifoPacketBoundaryTests)
     REG_TEST(ShaderLifecycleTests)
     REG_TEST(TextureCubemapFallbackTests)

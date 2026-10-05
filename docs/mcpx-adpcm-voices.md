@@ -104,6 +104,6 @@ a negative native control for silent or misrouted output remain outstanding.
 Publish emulator measurements in the owning xemu PR.
 
 The generated selection is `resources/mcpx-voice-correctness.json`. This
-branch adds five leaves to the actual parent catalog of 159 leaves and
-five groups: the new catalog has 164 leaves and five groups. Historical
+integration adds five leaves to the current parent catalog of 185 leaves and
+five groups: the new catalog has 190 leaves and five groups. Historical
 release images with other catalogs are not interchangeable with this build.
