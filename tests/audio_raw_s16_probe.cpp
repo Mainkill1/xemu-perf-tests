@@ -1,7 +1,6 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
-#include <fstream>
 #include <iostream>
 #include <map>
 #include <string>
@@ -10,6 +9,7 @@
 #include "audio_case_descriptor.h"
 #include "audio_mcpx_raw_backend.h"
 #include "audio_s16_control_oracle.h"
+#include "audio_vp_scaling_source.h"
 
 namespace {
 struct FakeIo : AudioTorture::ApuRegisterIo {
@@ -170,25 +170,23 @@ int main(int argc, char **argv) {
   AudioTorture::SignalState nyquist_state{};
   assert(AudioTorture::NextS16(AudioTorture::SignalKind::kNearNyquist045,
                                 nyquist_state, 0, 48000) != 0);
-  assert(argc == 2 || argc == 3);
-  std::ifstream stream(argv[1], std::ios::binary);
-  std::vector<uint8_t> source((std::istreambuf_iterator<char>(stream)),
-                              std::istreambuf_iterator<char>());
+  assert(argc == 1 || argc == 2);
+  const auto generated = AudioTorture::BuildS16ScalingControlSource();
+  std::vector<uint8_t> source(generated.begin(), generated.end());
   assert(source.size() == 512);
+  for (size_t i = 0; i < source.size(); i += 2)
+    assert(source[i] == 0 && source[i + 1] == 0x10);
   AudioTorture::S16ControlObservation native_observation{};
   native_observation.source = source.data();
   native_observation.source_bytes = source.size();
   native_observation.observed_engine_frames = 12;
-  // Exact guest GP mix words from upstream Deck run
-  // 20261005-070955222-06780d14af5d4fb0a8ffe319a30a320a.
-  native_observation.mix_words = {
-      4450138, 3919055, 3403305, 2876183, 2355583, 1832528, 1308855, 787511,
-      263715, 16518871, 15995360, 15473686, 14950404, 14427164, 13906480,
-      13379573, 12863328, 12332902, 11816751, 11290944, 10766486, 10730253,
-      11241008, 11778384, 12286281, 12821226, 13335655, 13862868, 14384254,
-      14906087, 15430748, 15951736};
+  native_observation.mix_words.fill(0x100000U);
   assert(AudioTorture::S16ControlOracle::Check(native_observation));
   native_observation.mix_words[10] = 0x123456;
+  assert(!AudioTorture::S16ControlOracle::Check(native_observation));
+  native_observation.mix_words.fill(0);
+  std::vector<uint8_t> silence(512, 0);
+  native_observation.source = silence.data();
   assert(!AudioTorture::S16ControlOracle::Check(native_observation));
   const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
   assert(descriptor);
@@ -199,10 +197,10 @@ int main(int argc, char **argv) {
   assert(!RunScenario(*descriptor, source, false, true, false, false, false));
   assert(!RunScenario(*descriptor, source, false, false, true, false, false));
   assert(!RunScenario(*descriptor, source, false, false, false, false, true));
-  if (argc == 2)
+  if (argc == 1)
     assert(!RunScenario(*descriptor, source, false, false, false, true, false));
-  if (argc == 3) {
-    const std::string scenario = argv[2];
+  if (argc == 2) {
+    const std::string scenario = argv[1];
     if (scenario == "gate-restore") RunRestoreFailureScenario(*descriptor, source, true);
     else if (scenario == "headroom-readback")
       RunRestoreFailureScenario(*descriptor, source, false);

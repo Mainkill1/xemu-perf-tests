@@ -23,9 +23,8 @@ class AudioRawS16Tests(unittest.TestCase):
                  str(ROOT / "src" / "tests" / "audio_torture_support.cpp"),
                  "-o", str(executable)], capture_output=True, text=True)
             self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
-            fixture = ROOT / "resources" / "audio" / "raw" / "vp_s16_mono_48k_256.raw"
             for scenario in (None, "gate-restore", "headroom-readback", "poison"):
-                command = [str(executable), str(fixture)]
+                command = [str(executable)]
                 if scenario:
                     command.append(scenario)
                 result = subprocess.run(command, capture_output=True, text=True)

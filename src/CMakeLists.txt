@@ -129,6 +129,7 @@ add_library(
         tests/audio_vp_scaling_tests.cpp
         tests/audio_vp_scaling_tests.h
         tests/audio_vp_scaling_result.h
+        tests/audio_vp_scaling_source.h
         tests/audio_torture_backend.h
         tests/audio_torture_support.cpp
         tests/audio_torture_support.h

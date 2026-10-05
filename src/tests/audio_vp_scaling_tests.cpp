@@ -1,7 +1,6 @@
 #include "audio_vp_scaling_tests.h"
 
 #include <utility>
-#include <vector>
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wignored-attributes"
@@ -9,10 +8,10 @@
 #pragma clang diagnostic pop
 
 #include "audio_case_descriptor.h"
-#include "audio_fixture_loader.h"
 #include "audio_mcpx_apu_device.h"
 #include "audio_mcpx_raw_backend.h"
 #include "audio_vp_scaling_result.h"
+#include "audio_vp_scaling_source.h"
 
 namespace {
 
@@ -43,20 +42,15 @@ void AudioVpScalingTests::S16MonoV001() {
   std::string error;
   bool ran = false;
   const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
-  const auto *fixture = AudioTorture::FindAudioFixture("vp.s16.mono.48k.256");
   if (!descriptor || !descriptor->executable) {
     error = "S16 mono guest descriptor is not executable";
-  } else if (!fixture) {
-    error = "S16 mono fixture is missing";
   } else {
-    std::vector<uint8_t> source;
-    if (AudioTorture::LoadAudioFixture(*fixture, source, error)) {
-      AudioTorture::McpxApuDevice device;
-      XboxAudioDmaAllocator allocator;
-      AudioTorture::McpxRawBackend backend(device, allocator, source.data(),
-                                            source.size());
-      ran = backend.Run(*descriptor, result, error);
-    }
+    const auto source = AudioTorture::BuildS16ScalingControlSource();
+    AudioTorture::McpxApuDevice device;
+    XboxAudioDmaAllocator allocator;
+    AudioTorture::McpxRawBackend backend(device, allocator, source.data(),
+                                        source.size());
+    ran = backend.Run(*descriptor, result, error);
   }
 
   TestHost::ProfileResults profile{};
