@@ -216,5 +216,32 @@ systemd-run --user --unit=xemu-research-runner-20261003-e17919c \
 curl --fail http://127.0.0.1:9368/api/v1/status
 ```
 
-Do not restart it automatically as part of reading this handoff. Cleanup results
-will be recorded here after the stopped-state and retained-input checks finish.
+Do not restart it automatically as part of reading this handoff.
+
+### Completed cleanup receipt
+
+Cleanup on 2026-10-05 stopped the idle runner before deletion and left only the
+latest candidate package, result directory and runtime directory. It removed
+1,080 older packages, 1,082 older result/metadata entries, 96 older runtime
+entries, 29 obsolete test disk assets, old pending registries/queue locks,
+31 obsolete runner-install/archive/tool entries and 15 latest-log/cache/upload
+staging entries. Logs, metrics, crash diagnostics and the latest diagnostic ZIP
+were deleted; the last guest receipt, assessments and provenance JSON remain.
+The current runner installation/config and required legal system inputs remain.
+
+| Check | Result |
+| --- | --- |
+| Free space before | 33,805,205,504 bytes |
+| Free space after | 330,598,551,552 bytes |
+| Reclaimed space | 296,793,346,048 bytes (about 297 GB / 276.4 GiB) |
+| Latest package | All 44 immutable job-input SHA-256 checks still match |
+| Latest guest receipt | SHA-256 unchanged: `fa2ae149c85f9db26901eca374f866c635662ce501689b7bec9b7e4a3f3a259e` |
+| Required disk assets | Exactly the four listed above retained; hashes checked |
+| Runner | Stopped; no XemuTestRunner or xemu process and HTTP port 9368 closed |
+
+Deletion was permanent, not a move to trash. Older raw diagnostics cannot be
+recovered from this Deck. The final paired receipts and assessments survive in
+this PR; deleted campaigns, other old results and caches require regeneration
+or an independent backup. No games, saves or paths outside
+`/home/deck/xemu-research` were touched. The root repository's dirty nxdk checkout
+was also left untouched.
