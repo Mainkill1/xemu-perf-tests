@@ -14,6 +14,8 @@ struct S16ScalingObservation {
   uint32_t requested_voice_count{0};
   uint32_t observed_voice_count{0};
   uint32_t observed_engine_frames{0};
+  uint32_t left_gain_divisor{1};
+  uint32_t right_gain_divisor{1};
   std::array<uint32_t, 32> left_mix_words{};
   std::array<uint32_t, 32> right_mix_words{};
 };
@@ -41,18 +43,52 @@ class S16ScalingOracle {
         2 * o.requested_voice_count : 32;
     for (size_t channel = 0; channel < 2; ++channel) {
       const auto &words = channel ? o.right_mix_words : o.left_mix_words;
-      const int32_t want = channel && o.channels == 2 ? -expected : expected;
+      const uint32_t divisor = channel ? o.right_gain_divisor : o.left_gain_divisor;
+      if (!divisor || divisor > 128 || (divisor & (divisor - 1))) return false;
+      const int32_t lane_tolerance = (tolerance + divisor - 1) / divisor;
+      const int32_t want = (channel && o.channels == 2 ? -expected : expected) /
+                           static_cast<int32_t>(divisor);
       for (uint32_t word : words) {
         if (word & 0xFF000000U) return false;
         const int32_t actual = word & 0x800000U ?
             static_cast<int32_t>(word) - 0x1000000 : static_cast<int32_t>(word);
         const int32_t delta = actual - want;
-        if (delta < -tolerance || delta > tolerance) return false;
+        if (delta < -lane_tolerance || delta > lane_tolerance) return false;
       }
     }
     return true;
   }
 };
+
+// Infer only an allowed power-of-two output gain from an independently
+// observed one-voice +4096/-4096 reference. This is not a register readback.
+inline bool InferS16ReferenceDivisors(const S16ScalingObservation &reference,
+                                    uint32_t &left, uint32_t &right) {
+  left = right = 0;
+  if (reference.requested_voice_count != 1 || reference.observed_voice_count != 1 ||
+      reference.observed_engine_frames < 8) return false;
+  for (unsigned channel = 0; channel < 2; ++channel) {
+    const auto &words = channel ? reference.right_mix_words : reference.left_mix_words;
+    for (uint32_t divisor = 1; divisor <= 128; divisor *= 2) {
+      const int32_t want = (channel && reference.channels == 2 ? -1048576 : 1048576) /
+                           static_cast<int32_t>(divisor);
+      const int32_t tolerance = (32 + divisor - 1) / divisor;
+      bool match = true;
+      for (uint32_t word : words) {
+        const int32_t actual = word & 0x800000U ?
+            static_cast<int32_t>(word & 0xFFFFFFU) - 0x1000000 : static_cast<int32_t>(word);
+        match = match && !(word & 0xFF000000U) &&
+                actual >= want - tolerance && actual <= want + tolerance;
+      }
+      if (match) { (channel ? right : left) = divisor; break; }
+    }
+  }
+  if (!left || !right) return false;
+  auto checked = reference;
+  checked.left_gain_divisor = left;
+  checked.right_gain_divisor = right;
+  return S16ScalingOracle::Check(checked);
+}
 
 }  // namespace AudioTorture
 

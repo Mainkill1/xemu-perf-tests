@@ -67,6 +67,7 @@ struct WorkloadSpec {
 
 struct WorkloadResult {
   uint64_t source_checksum{0};
+  uint64_t reference_source_checksum{0};
   uint64_t submitted_sample_frames{0};
   uint64_t completed_sample_frames{0};
   uint32_t peak_active_voices{0};
@@ -78,6 +79,14 @@ struct WorkloadResult {
   uint32_t accepted_voice_count{0};
   uint32_t refused_voice_count{0};
   uint32_t observed_voice_count{0};
+  uint32_t reference_submitted_sample_frames{0};
+  uint32_t reference_observed_engine_frames{0};
+  uint32_t reference_observed_voice_count{0};
+  uint32_t reference_left_gain_divisor{0};
+  uint32_t reference_right_gain_divisor{0};
+  std::array<uint32_t, 32> reference_left_mix_words{};
+  std::array<uint32_t, 32> reference_right_mix_words{};
+  bool reference_oracle_passed{false};
   std::array<uint32_t, 32> observed_mix_words{};
   std::array<uint32_t, 32> observed_right_mix_words{};
   bool resource_control_passed{false};

@@ -140,7 +140,7 @@ def entries():
         name = ("S16MonoAllocationV257" if params.get("expected_allocation_failure", False) else
                 f"S16{'Mono' if params['channels'] == 1 else 'Stereo'}V{params['voice_count']:03d}")
         description = ("Checks a no-device-work guest voice-slot boundary and unchanged APU/mix state." if control else
-                       "Checks raw MCPX S16 voices against individual source-offset progress, stereo mix amplitude, and DMA-safe teardown.")
+                       "Checks raw MCPX S16 voices against individual source-offset progress, signed mix amplitude normalized to a recorded single-voice reference, and DMA-safe teardown.")
         out.append(leaf(case["id"], "audio.vp_scaling", "AudioVpScaling", name,
                         description + " Timing is diagnostic only; original-Xbox execution is unqualified.",
                         ("audio", "correctness", "hardware-safe")))

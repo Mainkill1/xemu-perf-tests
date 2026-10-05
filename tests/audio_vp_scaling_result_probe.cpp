@@ -45,10 +45,18 @@ int main() {
   const std::string teardown_json = BuildScalingLeafMetadata(descriptor, false, teardown, "stop failed");
   assert(teardown_json.find("\"failure_phase\":\"teardown\"") != std::string::npos);
   assert(teardown_json.find("\"cleanup_passed\":false") != std::string::npos);
+  teardown.submitted_sample_frames = 0;
+  teardown.reference_submitted_sample_frames = 257;
+  assert(BuildScalingLeafMetadata(descriptor, false, teardown, "reference stop failed").find(
+      "\"failure_phase\":\"teardown\"") != std::string::npos);
 
   WorkloadResult good = output;
   good.output_oracle_passed = true;
   good.requested_voice_count = good.accepted_voice_count = good.observed_voice_count = 1;
+  good.reference_oracle_passed = true;
+  good.reference_observed_voice_count = 1;
+  good.reference_observed_engine_frames = 8;
+  good.reference_submitted_sample_frames = 257;
   const std::string good_json = BuildScalingLeafMetadata(descriptor, true, good, "");
   assert(good_json.find("\"oracle_status\":\"PASS\"") != std::string::npos);
   assert(good_json.find("\"completed_sample_frames\":0") != std::string::npos);
@@ -64,5 +72,8 @@ int main() {
     assert(BuildScalingLeafMetadata(d, true, control, "").find("\"oracle_status\":\"FAIL\"") != std::string::npos);
   }
   good.observed_voice_count = 0;
+  assert(BuildScalingLeafMetadata(descriptor, true, good, "").find("\"oracle_status\":\"FAIL\"") != std::string::npos);
+  good.observed_voice_count = 1;
+  good.reference_oracle_passed = false;
   assert(BuildScalingLeafMetadata(descriptor, true, good, "").find("\"oracle_status\":\"FAIL\"") != std::string::npos);
 }

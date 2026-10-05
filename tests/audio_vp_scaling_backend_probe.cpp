@@ -78,7 +78,7 @@ struct Io : AudioTorture::ApuRegisterIo {
     samples += 32;
     const auto chain = Chain();
     for (size_t i = 0; i < chain.size(); ++i) {
-      if (skip_last_voice && i + 1 == chain.size()) continue;
+      if (skip_last_voice && chain.size() > 1 && i + 1 == chain.size()) continue;
       const auto handle = chain[i];
       auto *voice = allocator.Resolve(registers[0x202C]) + handle * 128;
       uint32_t old{};
@@ -101,7 +101,7 @@ struct Io : AudioTorture::ApuRegisterIo {
     const auto *source = allocator.Resolve(source_address);
     assert(source);
     for (size_t i = 0; i < chain.size(); ++i) {
-      if (skip_last_voice && i + 1 == chain.size()) continue;
+      if (skip_last_voice && chain.size() > 1 && i + 1 == chain.size()) continue;
       const bool stereo = (Word(chain[i], 4) & (1U << 27)) != 0;
       const uint32_t bins = Word(chain[i], 0);
       const uint32_t format = Word(chain[i], 4);
@@ -178,8 +178,10 @@ void Run(const AudioTorture::AudioCaseDescriptor &d, bool skip, bool reverse) {
     assert(result.observed_voice_count == 0 && result.observed_engine_frames == 0);
   } else {
     assert(result.accepted_voice_count == d.workload.voice_count);
-    assert(result.observed_voice_count == d.workload.voice_count - (skip ? 1 : 0));
-    assert(allocator.frees == 3 && result.submitted_sample_frames == 257);
+    assert(result.observed_voice_count == (reverse ? 0 : d.workload.voice_count - (skip ? 1 : 0)));
+    assert(result.reference_submitted_sample_frames == 257 && result.reference_observed_voice_count == 1);
+    assert(result.reference_oracle_passed == !reverse);
+    assert(allocator.frees == 3 && result.submitted_sample_frames == (reverse ? 0U : 257U));
   }
 }
 }
@@ -210,8 +212,9 @@ int main(int argc, char **argv) {
       assert(BuildS16ScalingSource(d->workload, source, error));
       McpxRawBackend backend(io, a, source.data(), source.size());
       WorkloadResult result{};
-      assert(!backend.Run(*d, result, error));
-      assert(result.cleanup_passed && !result.output_oracle_passed && a.frees == 3);
+      assert(backend.Run(*d, result, error));
+      assert(result.cleanup_passed && result.output_oracle_passed && a.frees == 3);
+      assert(result.reference_left_gain_divisor == 8 && result.reference_right_gain_divisor == 4);
       assert(io.headroom[0] == 3 && io.headroom[1] == 2);
     }
     else if (scenario == "poison") {

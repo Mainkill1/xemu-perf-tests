@@ -40,6 +40,53 @@ bool WriteListEmpty(ApuRegisterIo &io) {
   return okay;
 }
 
+void ObserveVoices(ApuRegisterIo &io, const uint8_t *voices,
+                   S16ScalingObservation &observed) {
+  const uint32_t first_sample = io.Read32(kEngineSamples);
+  const auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(3);
+  uint32_t progressed = 0;
+  std::array<bool, 256> advanced{};
+  do {
+    progressed = io.Read32(kEngineSamples) - first_sample;
+    for (uint32_t i = 0; i < observed.requested_voice_count; ++i) {
+      const auto *offset = reinterpret_cast<const volatile uint32_t *>(
+          voices + ScalingVoiceHandle(i) * 128 + 0x58);
+      const uint32_t current = *offset & 0xFFFFFFU;
+      if (!advanced[i] && current > 0 && current < kS16ScalingSourceFrames) {
+        advanced[i] = true;
+        ++observed.observed_voice_count;
+      }
+    }
+  } while ((progressed < kRequiredEngineSamples ||
+            observed.observed_voice_count != observed.requested_voice_count) &&
+           std::chrono::steady_clock::now() < deadline);
+  observed.observed_engine_frames = progressed / kVpSamplesPerFrame;
+}
+
+bool StopEngine(ApuRegisterIo &io, bool &quiet) {
+  bool stopped = io.Write32(kEngine, 0);
+  stopped = WriteListEmpty(io) && stopped;
+  quiet = false;
+  // The disable write can leave a final frame in flight. Require a stable
+  // counter after bounded settling before capture or DMA-buffer reuse.
+  for (unsigned attempt = 0; attempt < 10 && !quiet; ++attempt) {
+    auto deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(3);
+    while (std::chrono::steady_clock::now() < deadline) {}
+    const uint32_t first = io.Read32(kEngineSamples);
+    deadline = std::chrono::steady_clock::now() + std::chrono::milliseconds(3);
+    while (std::chrono::steady_clock::now() < deadline) {}
+    quiet = ApuCounterQuiet(first, io.Read32(kEngineSamples));
+  }
+  return stopped;
+}
+
+void CaptureMix(const ApuRegisterIo &io, S16ScalingObservation &observed) {
+  for (uint32_t i = 0; i < 32; ++i) {
+    observed.left_mix_words[i] = io.Read32(kMix + i * 4);
+    observed.right_mix_words[i] = io.Read32(kMix + (32 + i) * 4);
+  }
+}
+
 }  // namespace
 
 bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
@@ -146,7 +193,11 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   std::memset(voices, 0xA5, kVoiceBytes + kPageBytes);
   std::memset(sge, 0xA5, kPageBytes);
   std::memset(samples, 0xA5, kPageBytes);
-  if (!PrepareS16ScalingVoiceTable(spec, voices, kVoiceBytes,
+  WorkloadSpec reference_spec = spec;
+  reference_spec.voice_count = 1;
+  std::vector<uint8_t> reference_source;
+  if (!BuildS16ScalingSource(reference_spec, reference_source, error) ||
+      !PrepareS16ScalingVoiceTable(reference_spec, voices, kVoiceBytes,
                                   kS16ScalingSourceFrames, error)) {
     allocator_.Free(samples);
     allocator_.Free(sge);
@@ -154,10 +205,11 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     io_.Close();
     return false;
   }
-  std::memcpy(samples, source_, source_bytes_);
+  std::memcpy(samples, reference_source.data(), reference_source.size());
   reinterpret_cast<uint32_t *>(sge)[0] = sample_physical;
   reinterpret_cast<uint32_t *>(sge)[1] = 0;
   result.source_checksum = Fnv1a64(source_, source_bytes_);
+  result.reference_source_checksum = Fnv1a64(reference_source.data(), reference_source.size());
 
   const uint32_t old_gate = io_.Read32(kFrontEndGate);
   bool writes_ok = true;
@@ -173,61 +225,63 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   writes_ok = io_.Write32(kListBase, ScalingVoiceHandle(0)) && writes_ok;
   std::atomic_thread_fence(std::memory_order_seq_cst);
   if (writes_ok) writes_ok = io_.Write32(kEngine, 0x0000000FU);
-  if (writes_ok) result.submitted_sample_frames = kS16ScalingSourceFrames;
+  if (writes_ok) result.reference_submitted_sample_frames = kS16ScalingSourceFrames;
+
+  bool prior_stop_ok = true;
+  if (writes_ok) {
+    S16ScalingObservation reference{};
+    reference.source = reference_source.data();
+    reference.source_bytes = reference_source.size();
+    reference.channels = spec.channels;
+    reference.requested_voice_count = 1;
+    ObserveVoices(io_, voices, reference);
+    result.reference_observed_voice_count = reference.observed_voice_count;
+    result.reference_observed_engine_frames = reference.observed_engine_frames;
+    bool quiet = false;
+    prior_stop_ok = StopEngine(io_, quiet);
+    if (prior_stop_ok && quiet) {
+      CaptureMix(io_, reference);
+      result.reference_left_mix_words = reference.left_mix_words;
+      result.reference_right_mix_words = reference.right_mix_words;
+      result.reference_oracle_passed = InferS16ReferenceDivisors(reference,
+          result.reference_left_gain_divisor, result.reference_right_gain_divisor);
+    } else {
+      // An unproved stop forbids reusing even retained DMA targets.
+      prior_stop_ok = false;
+    }
+    if (result.reference_oracle_passed) {
+      writes_ok = PrepareS16ScalingVoiceTable(spec, voices, kVoiceBytes,
+                                               kS16ScalingSourceFrames, error);
+      std::memcpy(samples, source_, source_bytes_);
+      for (uint32_t word = 0; word < 64; ++word)
+        writes_ok = io_.Write32(kMix + word * 4, 0) && writes_ok;
+      writes_ok = io_.Write32(kListBase, ScalingVoiceHandle(0)) && writes_ok;
+      std::atomic_thread_fence(std::memory_order_seq_cst);
+      if (writes_ok) writes_ok = io_.Write32(kEngine, 0x0000000FU);
+      if (writes_ok) result.submitted_sample_frames = kS16ScalingSourceFrames;
+    }
+  }
 
   S16ScalingObservation observed{};
   observed.source = source_;
   observed.source_bytes = source_bytes_;
   observed.channels = spec.channels;
   observed.requested_voice_count = spec.voice_count;
-  if (writes_ok) {
-    const uint32_t first_sample = io_.Read32(kEngineSamples);
-    const auto deadline = std::chrono::steady_clock::now() +
-                          std::chrono::seconds(3);
-    uint32_t progressed = 0;
-    std::array<bool, 256> advanced{};
-    do {
-      progressed = io_.Read32(kEngineSamples) - first_sample;
-      for (uint32_t i = 0; i < spec.voice_count; ++i) {
-        const auto *offset = reinterpret_cast<const volatile uint32_t *>(
-            voices + ScalingVoiceHandle(i) * 128 + 0x58);
-        const uint32_t current = *offset & 0xFFFFFFU;
-        if (!advanced[i] && current > 0 && current < kS16ScalingSourceFrames) {
-          advanced[i] = true;
-          ++result.observed_voice_count;
-        }
-      }
-    } while ((progressed < kRequiredEngineSamples ||
-              result.observed_voice_count != spec.voice_count) &&
-             std::chrono::steady_clock::now() < deadline);
-    observed.observed_engine_frames = progressed / kVpSamplesPerFrame;
+  observed.left_gain_divisor = result.reference_left_gain_divisor;
+  observed.right_gain_divisor = result.reference_right_gain_divisor;
+  if (writes_ok && result.reference_oracle_passed) {
+    ObserveVoices(io_, voices, observed);
+    result.observed_voice_count = observed.observed_voice_count;
     result.observed_engine_frames = observed.observed_engine_frames;
     result.peak_active_voices = result.observed_voice_count;
-    observed.observed_voice_count = result.observed_voice_count;
   }
 
-  bool stopped = io_.Write32(kEngine, 0);
-  stopped = WriteListEmpty(io_) && stopped;
+  bool stopped = StopEngine(io_, result.cleanup_counter_quiet);
+  stopped = stopped && prior_stop_ok;
   result.cleanup_stop_writes_passed = stopped;
-  // The disable write can leave one final frame in flight. Observe two
-  // samples after a settling interval; bounded retries retain DMA on doubt.
-  for (unsigned attempt = 0; attempt < 10 && !result.cleanup_counter_quiet;
-       ++attempt) {
-    auto deadline = std::chrono::steady_clock::now() +
-                    std::chrono::milliseconds(3);
-    while (std::chrono::steady_clock::now() < deadline) {}
-    const uint32_t first = io_.Read32(kEngineSamples);
-    deadline = std::chrono::steady_clock::now() +
-               std::chrono::milliseconds(3);
-    while (std::chrono::steady_clock::now() < deadline) {}
-    result.cleanup_counter_quiet = ApuCounterQuiet(first, io_.Read32(kEngineSamples));
-  }
   if (stopped && result.cleanup_counter_quiet &&
       result.observed_engine_frames >= 8) {
-    for (uint32_t i = 0; i < 32; ++i) {
-      observed.left_mix_words[i] = io_.Read32(kMix + i * 4);
-      observed.right_mix_words[i] = io_.Read32(kMix + (32 + i) * 4);
-    }
+    CaptureMix(io_, observed);
     result.observed_mix_words = observed.left_mix_words;
     result.observed_right_mix_words = observed.right_mix_words;
     result.output_oracle_passed = S16ScalingOracle::Check(observed);
@@ -264,6 +318,10 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
 
   if (!result.cleanup_passed) return false;
   if (!writes_ok) { error = "APU setup write failed"; return false; }
+  if (!result.reference_oracle_passed) {
+    error = "single-voice reference did not establish stable signed PCM gain";
+    return false;
+  }
   if (result.observed_engine_frames < 8) {
     error = "APU did not advance eight engine frames";
     return false;

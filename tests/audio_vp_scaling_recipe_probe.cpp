@@ -99,4 +99,29 @@ int main() {
   observed.left_mix_words.fill(0);
   observed.right_mix_words.fill(0);
   assert(!S16ScalingOracle::Check(observed));
+
+  WorkloadSpec reference_spec = spec;
+  reference_spec.voice_count = 1;
+  std::vector<uint8_t> reference_source;
+  assert(BuildS16ScalingSource(reference_spec, reference_source, error));
+  S16ScalingObservation reference{};
+  reference.source = reference_source.data();
+  reference.source_bytes = reference_source.size();
+  reference.channels = 2;
+  reference.requested_voice_count = reference.observed_voice_count = 1;
+  reference.observed_engine_frames = 8;
+  reference.left_mix_words.fill(0x80000U);
+  reference.right_mix_words.fill(0xFC0000U);
+  uint32_t left{}, right{};
+  assert(InferS16ReferenceDivisors(reference, left, right));
+  assert(left == 2 && right == 4);
+  observed.left_gain_divisor = left;
+  observed.right_gain_divisor = right;
+  observed.left_mix_words = reference.left_mix_words;
+  observed.right_mix_words = reference.right_mix_words;
+  assert(S16ScalingOracle::Check(observed));
+  observed.left_gain_divisor = 3;
+  assert(!S16ScalingOracle::Check(observed));
+  reference.left_mix_words.fill(0);
+  assert(!InferS16ReferenceDivisors(reference, left, right));
 }
