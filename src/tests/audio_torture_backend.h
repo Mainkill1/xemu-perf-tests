@@ -39,6 +39,7 @@ struct BackendCapabilities {
 
 struct WorkloadSpec {
   SampleFormat format{SampleFormat::kS16};
+  ContainerFormat container_format{ContainerFormat::kUnspecified};
   SourceLayout source_layout{SourceLayout::kShared};
   SignalKind signal{SignalKind::kSilence};
   uint32_t channels{2};
@@ -47,13 +48,20 @@ struct WorkloadSpec {
   uint32_t audio_frames{1};
   uint32_t mixbin_fanout{1};
   uint32_t refill_bytes{0};
+  uint32_t buffer_samples{0};
+  uint32_t refill_samples{0};
+  uint32_t three_d_voice_count{0};
+  uint32_t allocation_attempt_count{0};
   uint32_t tone_frequency_hz{1000};
   uint32_t voice_mode_flags{kVoiceModeNone};
   VoiceControlSequence control_sequence{VoiceControlSequence::kNone};
+  PipelineMode pipeline_mode{PipelineMode::kVpOnly};
   bool enable_3d{false};
   bool enable_hrtf{false};
   bool enable_filter{false};
   bool mutate_voice_state{false};
+  bool mixed_formats{false};
+  bool mixed_rates{false};
 };
 
 struct WorkloadResult {

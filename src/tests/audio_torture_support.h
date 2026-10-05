@@ -27,6 +27,21 @@ enum class SampleFormat : uint8_t {
   kAdpcm,
 };
 
+enum class ContainerFormat : uint8_t {
+  kUnspecified,
+  kB8,
+  kB16,
+  kB32,
+  kAdpcm,
+};
+
+enum class PipelineMode : uint8_t {
+  kVpOnly,
+  kVpGp,
+  kVpGpEpStereo,
+  kVpGpEpSurround,
+};
+
 enum class SourceLayout : uint8_t {
   kShared,
   kContiguousUnique,
@@ -58,6 +73,8 @@ enum class SignalKind : uint8_t {
   kImpulse,
   kSquare,
   kLfsrNoise,
+  kNearNyquist045,
+  kNearNyquist049,
 };
 
 struct SignalState {
