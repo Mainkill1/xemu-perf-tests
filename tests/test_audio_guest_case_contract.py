@@ -25,7 +25,7 @@ class AudioGuestCaseContractTests(unittest.TestCase):
             )
             result = subprocess.run([str(executable)], check=True,
                                     capture_output=True, text=True)
-            self.assertIn("138 descriptors, 15 families, 1 executable", result.stdout)
+            self.assertIn("138 descriptors, 15 families, 45 executable", result.stdout)
 
     def test_check_rejects_stale_generated_table(self):
         with tempfile.TemporaryDirectory() as temporary:

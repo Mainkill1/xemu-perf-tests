@@ -25,10 +25,11 @@ int main() {
     ac97 += item.backend == BackendKind::kAc97Dma;
     raw += item.backend == BackendKind::kMcpxApuRaw;
     executable += item.executable;
+    assert(item.executable == (item.family == AudioFamily::kVpScaling));
   }
   assert(AudioCaseCount() == 138);
   assert(counts == expected);
-  assert(ac97 == 10 && raw == 128 && executable == 1);
+  assert(ac97 == 10 && raw == 128 && executable == 45);
   const auto *control = FindAudioCase("audio.vp_scaling.s16_mono.v001");
   assert(control && control->workload.voice_count == 1);
   assert(control->executable);
@@ -53,5 +54,5 @@ int main() {
   assert(pitch && pitch->workload.signal == SignalKind::kNearNyquist049);
   assert(FindAudioCase("audio.not_a_case") == nullptr);
   assert(std::strlen(AudioCaseManifestDigest()) == 64);
-  std::cout << "138 descriptors, 15 families, 1 executable\n";
+  std::cout << "138 descriptors, 15 families, 45 executable\n";
 }

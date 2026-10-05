@@ -11,6 +11,7 @@
 #include "audio_mcpx_apu_device.h"
 #include "audio_mcpx_raw_backend.h"
 #include "audio_vp_scaling_result.h"
+#include "audio_vp_scaling_route.h"
 #include "audio_vp_scaling_source.h"
 
 namespace {
@@ -33,29 +34,36 @@ class XboxAudioDmaAllocator final : public AudioTorture::AudioDmaAllocator {
 AudioVpScalingTests::AudioVpScalingTests(TestHost &host, std::string output_dir,
                                          const Config &config)
     : TestSuite(host, std::move(output_dir), "AudioVpScaling", config) {
-  tests_["S16MonoV001"] = [this]() { S16MonoV001(); };
+  for (size_t i = 0; i < AudioTorture::AudioCaseCount(); ++i) {
+    const auto &descriptor = AudioTorture::AudioCaseAt(i);
+    if (descriptor.family != AudioTorture::AudioFamily::kVpScaling ||
+        !descriptor.executable) continue;
+    const auto name = AudioTorture::ScalingLegacyName(descriptor);
+    tests_[name] = [this, descriptor, name]() { RunCase(descriptor, name); };
+  }
 }
 
-void AudioVpScalingTests::S16MonoV001() {
+void AudioVpScalingTests::RunCase(const AudioTorture::AudioCaseDescriptor &descriptor,
+                                 const std::string &legacy_name) {
   host_.PrepareDraw(0xff101010);
   AudioTorture::WorkloadResult result{};
   std::string error;
   bool ran = false;
-  const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
-  if (!descriptor || !descriptor->executable) {
-    error = "S16 mono guest descriptor is not executable";
+  if (!descriptor.executable) {
+    error = "scaling guest descriptor is not executable";
   } else {
     std::vector<uint8_t> source;
-    if (AudioTorture::BuildS16ScalingSource(descriptor->workload, source, error)) {
+    if (descriptor.expected_allocation_denial ||
+        AudioTorture::BuildS16ScalingSource(descriptor.workload, source, error)) {
       AudioTorture::McpxApuDevice device;
       XboxAudioDmaAllocator allocator;
       AudioTorture::McpxRawBackend backend(device, allocator, source.data(),
                                           source.size());
-      ran = backend.Run(*descriptor, result, error);
+      ran = backend.Run(descriptor, result, error);
     }
   }
 
   TestHost::ProfileResults profile{};
-  host_.FinishDraw(suite_name_, "S16MonoV001", profile,
-                   AudioTorture::BuildS16LeafMetadata(ran, result, error));
+  host_.FinishDraw(suite_name_, legacy_name, profile,
+                   AudioTorture::BuildScalingLeafMetadata(descriptor, ran, result, error));
 }

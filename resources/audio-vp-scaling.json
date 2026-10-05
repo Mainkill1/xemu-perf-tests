@@ -1,0 +1,154 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "output_directory_path": "e:/xemu_perf_tests",
+    "enable_xemu_only_tests": true,
+    "enable_autorun_immediately": true,
+    "warmup_iterations": 0,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "per_iteration"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:79304b0cf4e542d098fab42a4680a06db305ffd8cff034081e20e8368f006a4e",
+    "catalog_id": "sha256:60f50a167e9e08b1b0bbf732fc28cfa8469b5d838490f68206d254db55a6722d",
+    "selected_leaf_count": 45,
+    "tests": [
+      {
+        "id": "audio.vp_scaling.s16_mono.v000"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v001"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v002"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v004"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v008"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v016"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v031"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v032"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v033"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v063"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v064"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v065"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v095"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v096"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v127"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v128"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v129"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v191"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v192"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v193"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v255"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.v256"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v000"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v001"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v002"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v004"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v008"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v016"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v031"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v032"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v033"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v063"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v064"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v065"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v095"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v096"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v127"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v128"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v129"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v191"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v192"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v193"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v255"
+      },
+      {
+        "id": "audio.vp_scaling.s16_stereo.v256"
+      },
+      {
+        "id": "audio.vp_scaling.s16_mono.allocation_v257"
+      }
+    ]
+  }
+}

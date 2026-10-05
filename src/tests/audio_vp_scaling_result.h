@@ -4,7 +4,7 @@
 #include <sstream>
 #include <string>
 
-#include "audio_torture_backend.h"
+#include "audio_case_descriptor.h"
 
 namespace AudioTorture {
 
@@ -23,10 +23,20 @@ inline std::string EscapeAudioResultString(const std::string &value) {
   return out.str();
 }
 
-inline std::string BuildS16LeafMetadata(bool ran, const WorkloadResult &result,
+inline std::string BuildScalingLeafMetadata(const AudioCaseDescriptor &descriptor,
+                                        bool ran, const WorkloadResult &result,
                                         const std::string &error) {
-  const bool passed = ran && result.observed_engine_frames >= 8 &&
-                      result.output_oracle_passed && result.cleanup_passed;
+  const bool control = !descriptor.workload.voice_count || descriptor.expected_allocation_denial;
+  const bool counts_ok = control ?
+      result.resource_control_passed && result.observed_voice_count == 0 &&
+      result.requested_voice_count == (descriptor.expected_allocation_denial ? 257U : 0U) &&
+      result.accepted_voice_count == (descriptor.expected_allocation_denial ? 256U : 0U) &&
+      result.refused_voice_count == (descriptor.expected_allocation_denial ? 1U : 0U) &&
+      result.submitted_sample_frames == 0 && result.observed_engine_frames == 0 :
+      result.observed_engine_frames >= 8 && result.requested_voice_count == descriptor.workload.voice_count &&
+      result.accepted_voice_count == descriptor.workload.voice_count && result.refused_voice_count == 0 &&
+      result.observed_voice_count == descriptor.workload.voice_count;
+  const bool passed = ran && counts_ok && result.output_oracle_passed && result.cleanup_passed;
   const char *phase = "none";
   if (!passed) {
     phase = result.submitted_sample_frames == 0 ? "setup" :
@@ -40,6 +50,13 @@ inline std::string BuildS16LeafMetadata(bool ran, const WorkloadResult &result,
       << ",\"submitted_sample_frames\":" << result.submitted_sample_frames
       << ",\"completed_sample_frames\":" << result.completed_sample_frames
       << ",\"observed_engine_frames\":" << result.observed_engine_frames
+      << ",\"requested_voice_count\":" << result.requested_voice_count
+      << ",\"accepted_voice_count\":" << result.accepted_voice_count
+      << ",\"refused_voice_count\":" << result.refused_voice_count
+      << ",\"observed_voice_count\":" << result.observed_voice_count
+      << ",\"channels\":" << descriptor.workload.channels
+      << ",\"resource_control_passed\":" << (result.resource_control_passed ? "true" : "false")
+      << ",\"resource_control_scope\":\"guest_voice_slot_pool\""
       << ",\"observed_voice_terminal\":" << (result.observed_voice_terminal ? "true" : "false")
       << ",\"output_oracle_passed\":" << (result.output_oracle_passed ? "true" : "false")
       << ",\"cleanup_passed\":" << (result.cleanup_passed ? "true" : "false")
@@ -51,6 +68,11 @@ inline std::string BuildS16LeafMetadata(bool ran, const WorkloadResult &result,
   for (size_t index = 0; index < result.observed_mix_words.size(); ++index) {
     if (index) out << ',';
     out << result.observed_mix_words[index];
+  }
+  out << "],\"observed_right_mix_words\":[";
+  for (size_t index = 0; index < result.observed_right_mix_words.size(); ++index) {
+    if (index) out << ',';
+    out << result.observed_right_mix_words[index];
   }
   out << "],\"timing_comparable\":false}";
   return out.str();

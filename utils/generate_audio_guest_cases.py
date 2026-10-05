@@ -14,7 +14,8 @@ from audio_torture_cases import build_cases, load_matrix, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "src" / "generated" / "audio_case_catalog.inc"
-EXECUTABLE_IDS = frozenset({"audio.vp_scaling.s16_mono.v001"})
+EXECUTABLE_IDS = frozenset(case["id"] for case in build_cases(load_matrix())
+                           if case["family"] == "audio.vp_scaling")
 
 FAMILIES = {
     "audio.ac97_dma": "kAc97Dma",

@@ -50,9 +50,10 @@ class AudioReferenceBackendContractTests(unittest.TestCase):
         catalog = json.loads(
             (ROOT / "resources" / "catalog.json").read_text(encoding="utf-8")
         )
+        self.assertTrue(any(test["suite_id"] == "audio.vp_scaling" for test in catalog["tests"]))
         self.assertEqual(
             [test["id"] for test in catalog["tests"] if test["id"].startswith("audio.")],
-            ["audio.vp_scaling.s16_mono.v001"],
+            [test["id"] for test in catalog["tests"] if test["suite_id"] == "audio.vp_scaling"],
             "the legacy bootstrap must not become catalog coverage",
         )
 

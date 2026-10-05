@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193` contains 193 leaves and 5 groups.
+Catalog `sha256:60f50a167e9e08b1b0bbf732fc28cfa8469b5d838490f68206d254db55a6722d` contains 237 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -36,7 +36,51 @@ Catalog `sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193
 | `mcpx_voice.mono_page_crossing` | leaf | `McpxVoice::MonoPageCrossing` |
 | `mcpx_voice.stereo_page_crossing` | leaf | `McpxVoice::StereoPageCrossing` |
 | `mcpx_voice.pcm_control` | leaf | `McpxVoice::PcmControl` |
+| `audio.vp_scaling.s16_mono.v000` | leaf | `AudioVpScaling::S16MonoV000` |
 | `audio.vp_scaling.s16_mono.v001` | leaf | `AudioVpScaling::S16MonoV001` |
+| `audio.vp_scaling.s16_mono.v002` | leaf | `AudioVpScaling::S16MonoV002` |
+| `audio.vp_scaling.s16_mono.v004` | leaf | `AudioVpScaling::S16MonoV004` |
+| `audio.vp_scaling.s16_mono.v008` | leaf | `AudioVpScaling::S16MonoV008` |
+| `audio.vp_scaling.s16_mono.v016` | leaf | `AudioVpScaling::S16MonoV016` |
+| `audio.vp_scaling.s16_mono.v031` | leaf | `AudioVpScaling::S16MonoV031` |
+| `audio.vp_scaling.s16_mono.v032` | leaf | `AudioVpScaling::S16MonoV032` |
+| `audio.vp_scaling.s16_mono.v033` | leaf | `AudioVpScaling::S16MonoV033` |
+| `audio.vp_scaling.s16_mono.v063` | leaf | `AudioVpScaling::S16MonoV063` |
+| `audio.vp_scaling.s16_mono.v064` | leaf | `AudioVpScaling::S16MonoV064` |
+| `audio.vp_scaling.s16_mono.v065` | leaf | `AudioVpScaling::S16MonoV065` |
+| `audio.vp_scaling.s16_mono.v095` | leaf | `AudioVpScaling::S16MonoV095` |
+| `audio.vp_scaling.s16_mono.v096` | leaf | `AudioVpScaling::S16MonoV096` |
+| `audio.vp_scaling.s16_mono.v127` | leaf | `AudioVpScaling::S16MonoV127` |
+| `audio.vp_scaling.s16_mono.v128` | leaf | `AudioVpScaling::S16MonoV128` |
+| `audio.vp_scaling.s16_mono.v129` | leaf | `AudioVpScaling::S16MonoV129` |
+| `audio.vp_scaling.s16_mono.v191` | leaf | `AudioVpScaling::S16MonoV191` |
+| `audio.vp_scaling.s16_mono.v192` | leaf | `AudioVpScaling::S16MonoV192` |
+| `audio.vp_scaling.s16_mono.v193` | leaf | `AudioVpScaling::S16MonoV193` |
+| `audio.vp_scaling.s16_mono.v255` | leaf | `AudioVpScaling::S16MonoV255` |
+| `audio.vp_scaling.s16_mono.v256` | leaf | `AudioVpScaling::S16MonoV256` |
+| `audio.vp_scaling.s16_stereo.v000` | leaf | `AudioVpScaling::S16StereoV000` |
+| `audio.vp_scaling.s16_stereo.v001` | leaf | `AudioVpScaling::S16StereoV001` |
+| `audio.vp_scaling.s16_stereo.v002` | leaf | `AudioVpScaling::S16StereoV002` |
+| `audio.vp_scaling.s16_stereo.v004` | leaf | `AudioVpScaling::S16StereoV004` |
+| `audio.vp_scaling.s16_stereo.v008` | leaf | `AudioVpScaling::S16StereoV008` |
+| `audio.vp_scaling.s16_stereo.v016` | leaf | `AudioVpScaling::S16StereoV016` |
+| `audio.vp_scaling.s16_stereo.v031` | leaf | `AudioVpScaling::S16StereoV031` |
+| `audio.vp_scaling.s16_stereo.v032` | leaf | `AudioVpScaling::S16StereoV032` |
+| `audio.vp_scaling.s16_stereo.v033` | leaf | `AudioVpScaling::S16StereoV033` |
+| `audio.vp_scaling.s16_stereo.v063` | leaf | `AudioVpScaling::S16StereoV063` |
+| `audio.vp_scaling.s16_stereo.v064` | leaf | `AudioVpScaling::S16StereoV064` |
+| `audio.vp_scaling.s16_stereo.v065` | leaf | `AudioVpScaling::S16StereoV065` |
+| `audio.vp_scaling.s16_stereo.v095` | leaf | `AudioVpScaling::S16StereoV095` |
+| `audio.vp_scaling.s16_stereo.v096` | leaf | `AudioVpScaling::S16StereoV096` |
+| `audio.vp_scaling.s16_stereo.v127` | leaf | `AudioVpScaling::S16StereoV127` |
+| `audio.vp_scaling.s16_stereo.v128` | leaf | `AudioVpScaling::S16StereoV128` |
+| `audio.vp_scaling.s16_stereo.v129` | leaf | `AudioVpScaling::S16StereoV129` |
+| `audio.vp_scaling.s16_stereo.v191` | leaf | `AudioVpScaling::S16StereoV191` |
+| `audio.vp_scaling.s16_stereo.v192` | leaf | `AudioVpScaling::S16StereoV192` |
+| `audio.vp_scaling.s16_stereo.v193` | leaf | `AudioVpScaling::S16StereoV193` |
+| `audio.vp_scaling.s16_stereo.v255` | leaf | `AudioVpScaling::S16StereoV255` |
+| `audio.vp_scaling.s16_stereo.v256` | leaf | `AudioVpScaling::S16StereoV256` |
+| `audio.vp_scaling.s16_mono.allocation_v257` | leaf | `AudioVpScaling::S16MonoAllocationV257` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |

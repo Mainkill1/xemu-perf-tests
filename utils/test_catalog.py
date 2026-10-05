@@ -8,6 +8,11 @@ import json
 from dataclasses import dataclass
 from pathlib import Path
 
+try:
+    from utils.audio_torture_cases import build_cases, load_matrix
+except ImportError:
+    from audio_torture_cases import build_cases, load_matrix
+
 ROOT = Path(__file__).resolve().parents[1]
 X87_STATUS_IDS = {"cpu_floating_point.x87_status_vectors", "cpu_floating_point.x87_status_ax",
                   "cpu_floating_point.x87_compare_status_ax"}
@@ -127,10 +132,18 @@ def entries():
         out.append(leaf(f"mcpx_voice.{stable}", "mcpx_voice", "McpxVoice", legacy,
                         "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.",
                         ("audio", "correctness", "xemu-only")))
-    out.append(leaf(
-        "audio.vp_scaling.s16_mono.v001", "audio.vp_scaling", "AudioVpScaling", "S16MonoV001",
-        "Checks one raw MCPX S16 mono voice against guest-observed progress, GP mix output, and DMA-safe teardown; timing is diagnostic only.",
-        ("audio", "correctness", "hardware-safe")))
+    for case in build_cases(load_matrix()):
+        if case["family"] != "audio.vp_scaling":
+            continue
+        params = case["params"]
+        control = not params["voice_count"] or params.get("expected_allocation_failure", False)
+        name = ("S16MonoAllocationV257" if params.get("expected_allocation_failure", False) else
+                f"S16{'Mono' if params['channels'] == 1 else 'Stereo'}V{params['voice_count']:03d}")
+        description = ("Checks a no-device-work guest voice-slot boundary and unchanged APU/mix state." if control else
+                       "Checks raw MCPX S16 voices against individual source-offset progress, stereo mix amplitude, and DMA-safe teardown.")
+        out.append(leaf(case["id"], "audio.vp_scaling", "AudioVpScaling", name,
+                        description + " Timing is diagnostic only; original-Xbox execution is unqualified.",
+                        ("audio", "correctness", "hardware-safe")))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
     simple("pipeline_texture_switch", "PipelineTextureSwitch", [
@@ -821,6 +834,8 @@ def render():
         doc, voice_settings, [x["id"] for x in doc["tests"] if x["suite_id"] == "mcpx_voice"])
     output[ROOT / "resources/audio-vp-scaling-s16-mono-v001.json"] = resolved_plan(
         doc, voice_settings, ["audio.vp_scaling.s16_mono.v001"])
+    output[ROOT / "resources/audio-vp-scaling.json"] = resolved_plan(
+        doc, voice_settings, [test["id"] for test in doc["tests"] if test["suite_id"] == "audio.vp_scaling"])
     profiles = {
         "fast-smoke": (1, 1, "enqueue"),
         "quick": (128, 64, "batch_complete"),

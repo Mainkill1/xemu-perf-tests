@@ -12,12 +12,25 @@ LEAF = "audio.vp_scaling.s16_mono.v001"
 
 
 class AudioS16LeafContractTests(unittest.TestCase):
-    def test_only_first_family_leaf_is_cataloged_and_explicitly_selected(self):
+    def test_only_scaling_family_is_cataloged_and_explicitly_selected(self):
         catalog = json.loads((ROOT / "resources/catalog.json").read_text())
         audio_cases = build_cases(json.loads((ROOT / "resources/audio_torture_matrix.json").read_text()))
         catalog_ids = {test["id"] for test in catalog["tests"]}
         self.assertEqual(len(audio_cases), 138)
-        self.assertEqual(catalog_ids & {case["id"] for case in audio_cases}, {LEAF})
+        scaling_ids = {case["id"] for case in audio_cases if case["family"] == "audio.vp_scaling"}
+        self.assertEqual(len(scaling_ids), 45)
+        self.assertEqual(catalog_ids & {case["id"] for case in audio_cases}, scaling_ids)
+        routes = set()
+        for case in audio_cases:
+            if case["id"] not in scaling_ids:
+                continue
+            entry = next(test for test in catalog["tests"] if test["id"] == case["id"])
+            name = ("S16MonoAllocationV257" if "allocation_v257" in case["id"] else
+                    f"S16{'Mono' if case['params']['channels'] == 1 else 'Stereo'}V{case['params']['voice_count']:03d}")
+            self.assertEqual(entry["execution"], {"legacy_suite": "AudioVpScaling", "legacy_test": name})
+            self.assertEqual(entry["measurement_class"], "correctness")
+            routes.add(name)
+        self.assertEqual(len(routes), 45)
         leaf = next(test for test in catalog["tests"] if test["id"] == LEAF)
         self.assertEqual(leaf["suite_id"], "audio.vp_scaling")
         self.assertEqual(leaf["execution"], {"legacy_suite": "AudioVpScaling", "legacy_test": "S16MonoV001"})
@@ -26,7 +39,9 @@ class AudioS16LeafContractTests(unittest.TestCase):
         self.assertIn({"name": "apu.mix", "kind": "structured", "scope_version": 1}, leaf["observations"])
 
         smoke = json.loads((ROOT / "resources/plans/smoke.json").read_text())["resolved_plan"]
-        self.assertNotIn(LEAF, {test["id"] for test in smoke["tests"]})
+        self.assertFalse(scaling_ids & {test["id"] for test in smoke["tests"]})
+        family_plan = json.loads((ROOT / "resources/audio-vp-scaling.json").read_text())
+        self.assertEqual({test["id"] for test in family_plan["resolved_plan"]["tests"]}, scaling_ids)
         selected = json.loads((ROOT / "resources/audio-vp-scaling-s16-mono-v001.json").read_text())
         self.assertEqual([test["id"] for test in selected["resolved_plan"]["tests"]], [LEAF])
         self.assertTrue(selected["settings"]["enable_xemu_only_tests"])
@@ -37,11 +52,12 @@ class AudioS16LeafContractTests(unittest.TestCase):
         main = (ROOT / "src/main.cpp").read_text()
         runtime = (ROOT / "src/runtime_config.cpp").read_text()
         self.assertIn('"AudioVpScaling"', source)
-        self.assertIn('tests_["S16MonoV001"]', source)
-        self.assertIn('FindAudioCase("audio.vp_scaling.s16_mono.v001")', source)
+        self.assertIn('AudioFamily::kVpScaling', source)
+        self.assertIn('ScalingLegacyName(descriptor)', source)
+        self.assertIn('RunCase(descriptor, name)', source)
         self.assertIn('BuildS16ScalingSource(', source)
         self.assertIn('McpxRawBackend', source)
-        self.assertEqual(source.count('host_.FinishDraw(suite_name_, "S16MonoV001"'), 1)
+        self.assertEqual(source.count('host_.FinishDraw(suite_name_, legacy_name'), 1)
         self.assertNotIn("ASSERT(", source)
         self.assertNotIn("McpxVoiceTests", source)
         self.assertIn('REG_TEST(AudioVpScalingTests)', main)
