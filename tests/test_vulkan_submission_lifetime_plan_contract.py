@@ -18,6 +18,7 @@ EXPECTED_IDS = {
     "surface.surface_download_path",
     "vertex_buffer_allocation.disjoint_same_page",
     "vertex_buffer_allocation.ordered_same_page_overwrite",
+    "vertex_buffer_allocation.three_generation_overwrite",
     "tiny_draw.inline_buffers.vertex_shader",
 }
 
