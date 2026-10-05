@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:080ef94be0c6743f9d0e5aad600abfdd05fc7dad5fa57070601d8b2aead5bb55` contains 174 leaves and 5 groups.
+Catalog `sha256:9c6c8d5202116ba2aecd899e06491e6d223373fa455df580a3cb8ce0f2643c21` contains 180 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -18,6 +18,12 @@ Catalog `sha256:080ef94be0c6743f9d0e5aad600abfdd05fc7dad5fa57070601d8b2aead5bb55
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |
+| `cpu_translation_blocks.code_stable` | leaf | `CpuTranslationBlocks::CodeStable` |
+| `cpu_translation_blocks.code_rewrite` | leaf | `CpuTranslationBlocks::CodeRewrite` |
+| `cpu_translation_blocks.jump_cache_collision2` | leaf | `CpuTranslationBlocks::JumpCacheCollision2` |
+| `cpu_translation_blocks.jump_cache_collision8` | leaf | `CpuTranslationBlocks::JumpCacheCollision8` |
+| `cpu_translation_blocks.jump_cache_collision10` | leaf | `CpuTranslationBlocks::JumpCacheCollision10` |
+| `cpu_translation_blocks.jump_cache_noncollision8` | leaf | `CpuTranslationBlocks::JumpCacheNoncollision8` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |
