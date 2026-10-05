@@ -256,7 +256,7 @@ The implementation should be layered:
 
 ```text
 15 catalog families with independently selectable suites
-  +-- AudioVpScalingTests (first S16 mono leaf executable)
+  +-- AudioVpScalingTests (45 individually selectable leaves)
   +-- other family suites (planned)
   |
   +-- shared typed 138-case descriptor and deterministic fixtures
@@ -268,10 +268,10 @@ The backend must have a real teardown/reset path before it is enabled in the
 full suite. Leaving the audio device in a modified state for later unrelated
 tests is a suite correctness bug.
 
-### First VP-scaling leaf: Deck evidence, 2026-10-05 UTC
+### Historical first VP-scaling leaf: Deck evidence, 2026-10-05 UTC
 
-Only `audio.vp_scaling.s16_mono.v001` is executable in the new hardware-safe
-family catalog. The other 137 matrix cases remain planned; this leaf is
+At this foundation checkpoint only `audio.vp_scaling.s16_mono.v001` was executable
+in the new hardware-safe family catalog. The other 137 matrix cases were planned; this leaf was
 correctness-only, opt-in for current Deck development, and excluded from the
 default smoke plan. Its guest oracle requires observed engine progress, all
 32 stopped-frame GP mix samples to match a fixed nonzero S16 control level
@@ -311,7 +311,7 @@ fractionally shifted triangle window does not reliably match integer source
 samples. That oracle was replaced with a fixed S16 +4096 control input for the
 scaling leaf; changing-waveform resampling requires its own family oracle.
 
-The current validated source commit is
+The final single-voice foundation source commit was
 `cef52da71fbbbc0820600b1ef3fa791cc1963231`, with normal-XISO SHA-256
 `370f38401c666e76e201fc01544060d588e090fb7abc029d336d84caefff1a2b`.
 Catalog/configuration identities and effective settings remain those listed
@@ -330,6 +330,72 @@ subsequent-case rejection; all 251 host tests and both Release XISO builds pass.
 The expected mix level is `1048576`; tolerance remains 32 S16 levels. These
 receipts still have missing runner-side oracle coverage and do not establish
 timing eligibility, analog fidelity, or original-Xbox qualification.
+
+### VP-scaling section: 45 selectable leaves
+
+All 45 `audio.vp_scaling` cases now have independent routes in
+`AudioVpScalingTests`; `resources/audio-vp-scaling.json` selects only this
+section. The remaining 93 audio descriptors stay planned. PR #55 stays draft.
+The normal and optional-audio Release images build, and all 253 host checks pass.
+
+Active cases use a 257-frame source, amplitude `4096 / voice_count`, positive
+mono/left and negative stereo right. Every submitted voice must advance its
+uncached source offset, and the engine must advance at least eight frames.
+Slots 64..255 use ordinary routes 0/1; slots 0..63 use ordinary routes 4/5,
+with HRTF-specific routes muted and null HRTF handles. This avoids depending
+on write-only global HRTF routing and headroom settings.
+
+Submix headroom methods also lack a readable prior value. The session leaves
+them untouched. Each active case first observes an independent one-voice S16
+4096 reference, accepting only stable signed output with a gain divisor that
+is a power of two from 1 through 128. It then stops and proves counter quiescence
+before reusing DMA for the requested count. The case oracle checks its actual
+mix against the independently inferred divisor, with tight scaled tolerance.
+The reference samples, observed progress, divisor, and source checksum are
+recorded separately. This proves count/channel correctness relative to a
+recorded fixture gain, not absolute analog gain; a uniform gain defect could
+match a different allowed divisor. Zero/denial controls submit neither a
+reference nor case work and preserve device/mix state.
+
+Two diagnostic revisions were retained before the final targeted pass.
+At `82303cc`, all 256 voice offsets advanced, but output matched only 192
+contributing voices because the lower slots' first four routes were overridden.
+At `1c3e83c`, corrected routing and preserved firmware headroom produced a
+half-scale mix, demonstrating why a unity assumption was invalid. These are
+attributed guest-setup/oracle failures, not candidate-only emulator regressions.
+
+The validated source is `69eb30e367f584da9f3754608b395753c2e008dd`.
+Normal-XISO SHA-256:
+`449d36d4ce699690810efbd44c21c629ea023df80f523202e89aae84127547c8`.
+Catalog ID:
+`sha256:6db2528a4daf04c37a193b77f761b39eeb3b8168332b0cbdd58a06bf3a8d3709`;
+catalog-file SHA-256:
+`e928773511a16155e1693f6b952e90954fab86bbdcc90d323696fc7de8bb6a96`.
+Both runs use the pinned upstream/candidate executables listed above,
+configuration SHA-256 `0318e8887b2144ba6a5cb6536df14b04b80eadf8a21debb242f4e80904034dce`,
+warmup 0, multiplier 1, per-iteration completion, and resolved plan
+`sha256:77f24fbc43d9a16f3119c62e4a7115e7cb5681c0e329fd545606143c57eea2e4`.
+
+| Exact retained run | Selected guest results |
+| --- | --- |
+| [Upstream `20261005-085633811-73f576269693440bbcbe72e27c230c90`](http://10.0.0.123:9368/api/v1/runs/20261005-085633811-73f576269693440bbcbe72e27c230c90/artifacts/guest/results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 14/10 |
+| [Candidate `20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44`](http://10.0.0.123:9368/api/v1/runs/20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44/artifacts/guest/results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 11/10 |
+
+The four selections are mono zero, mono 256, stereo 256, and the 257-slot denial.
+Each active reference infers divisor 2 in both lanes. Mono case mix is
+`524288` in both lanes; stereo case mix is `524288` left and `16252928`
+(signed 24-bit `-524288`) right. The denial accepts 256 guest-pool slots and
+refuses exactly one, while observing/submitting no device voices. All teardown
+flags pass in all eight selected receipts. Runner receipt matching and exact
+four-leaf coverage pass, but pinned oracles for these selections remain absent:
+`xiso_oracle_coverage=false`, overall failed/ineligible. Only these four leaves
+were run natively in this partition, not all 45. Full 138-case comparison,
+runner qualification, original-Xbox execution and timing claims remain withheld.
+
+Independent review caught the low-slot routing issue and the inherited
+write-only headroom mutation; regression tests cover both corrections. A
+minor diagnostic gap remains: admission/poison failures report requested count
+zero, while retaining the correct selected case ID and a FAIL verdict.
 
 ## Path-proof contract
 
