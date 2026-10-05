@@ -1,18 +1,19 @@
 #include "audio_mcpx_raw_backend.h"
 
 #include <array>
+#include <atomic>
 #include <chrono>
 #include <cstring>
 
 #include "audio_s16_control_oracle.h"
 #include "audio_session_guard.h"
+#include "audio_voice_slot_pool.h"
+#include "audio_vp_scaling_recipe.h"
 
 namespace AudioTorture {
 namespace {
-constexpr uint32_t kVoiceIndex = 64;
 constexpr uint32_t kVoiceBytes = 256 * 128;
 constexpr uint32_t kPageBytes = 4096;
-constexpr uint32_t kSampleBytes = 512;
 constexpr uint32_t kEngine = 0x2000;
 constexpr uint32_t kEngineSamples = 0x200C;
 constexpr uint32_t kFrontEnd = 0x1100;
@@ -25,37 +26,11 @@ constexpr uint32_t kListBase = 0x2054;
 constexpr uint32_t kEmptyVoice = 0xFFFF;
 constexpr uint32_t kRequiredEngineSamples = 256;
 
-bool IsGuardIntact(const uint8_t *samples) {
-  for (size_t i = kSampleBytes; i < kPageBytes; ++i) {
+bool IsGuardIntact(const uint8_t *samples, size_t used, size_t capacity) {
+  for (size_t i = used; i < capacity; ++i) {
     if (samples[i] != 0xA5U) return false;
   }
   return true;
-}
-
-void PrepareVoice(uint8_t *voices, uint8_t *sge, uint8_t *samples,
-                  const uint8_t *source, uint32_t sample_physical) {
-  std::memset(voices, 0, kVoiceBytes);
-  std::memset(sge, 0, kPageBytes);
-  std::memset(samples, 0xA5, kPageBytes);
-  std::memcpy(samples, source, kSampleBytes);
-  reinterpret_cast<uint32_t *>(sge)[0] = sample_physical;
-
-  // One 2D mono voice; these bit positions are guest-visible MCPX fields.
-  auto *voice = reinterpret_cast<uint32_t *>(voices + kVoiceIndex * 128);
-  voice[0x00 / 4] = (1U << 5) | (31U << 10) | (31U << 16) |
-                     (31U << 21) | (31U << 26);
-  voice[0x04 / 4] = 31U | (31U << 5) | (1U << 25) |
-                     (1U << 28) | (1U << 30);
-  voice[0x0C / 4] = 0xFF000000U;
-  voice[0x14 / 4] = 0xFF000000U;
-  voice[0x20 / 4] = 0;
-  voice[0x54 / 4] = (1U << 21) | (5U << 24) | (5U << 28);
-  voice[0x58 / 4] = 0xFF000000U;
-  voice[0x5C / 4] = 0xFF000000U | 255U;
-  voice[0x60 / 4] = 0x000F000FU;
-  voice[0x64 / 4] = 0xFFFFFFFFU;
-  voice[0x68 / 4] = 0xFFFFFFFFU;
-  voice[0x7C / 4] = kEmptyVoice;
 }
 
 bool WriteListEmpty(ApuRegisterIo &io) {
@@ -76,19 +51,79 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     error = "audio session blocked after unsafe prior teardown";
     return false;
   }
-  if (std::strcmp(descriptor.id, "audio.vp_scaling.s16_mono.v001") != 0 ||
+  const auto &spec = descriptor.workload;
+  if (descriptor.family != AudioFamily::kVpScaling ||
       descriptor.backend != BackendKind::kMcpxApuRaw ||
-      descriptor.workload.format != SampleFormat::kS16 ||
-      descriptor.workload.channels != 1 || descriptor.workload.voice_count != 1 ||
-      !source_ || source_bytes_ != kSampleBytes) {
-    error = "raw S16 control requires its exact 256-frame mono descriptor and source";
+      spec.format != SampleFormat::kS16 || spec.voice_count > 256 ||
+      (spec.channels != 1 && spec.channels != 2) || spec.source_rate_hz != 48000 ||
+      spec.source_layout != SourceLayout::kShared || spec.enable_3d ||
+      spec.enable_hrtf || spec.enable_filter || spec.mutate_voice_state ||
+      spec.voice_mode_flags || spec.control_sequence != VoiceControlSequence::kNone ||
+      spec.pipeline_mode != PipelineMode::kVpOnly) {
+    error = "raw scaling requires its bounded shared S16 mono/stereo descriptor";
+    return false;
+  }
+  const bool control = !spec.voice_count || descriptor.expected_allocation_denial;
+  if (descriptor.expected_allocation_denial &&
+      (spec.voice_count != 256 || spec.channels != 1 ||
+       descriptor.allocation_attempt_count != 257)) {
+    error = "allocation denial requires exactly 257 requests for 256 slots";
+    return false;
+  }
+  if (!control && (!source_ ||
+      source_bytes_ != kS16ScalingSourceFrames * spec.channels * 2)) {
+    error = "raw scaling requires its deterministic 257-frame source";
     return false;
   }
 
   ApuStateSnapshot before{};
   if (!OpenAndCheckApuOwnership(io_, before, error)) return false;
 
-  auto *voices = static_cast<uint8_t *>(allocator_.Allocate(kVoiceBytes));
+  VoiceSlotPool slots;
+  result.requested_voice_count = descriptor.expected_allocation_denial ?
+      descriptor.allocation_attempt_count : spec.voice_count;
+  for (uint32_t request = 0; request < result.requested_voice_count; ++request) {
+    uint16_t handle{};
+    if (slots.Allocate(handle)) ++result.accepted_voice_count;
+    else ++result.refused_voice_count;
+  }
+
+  if (control) {
+    std::array<uint32_t, 64> old_mix{};
+    for (uint32_t i = 0; i < old_mix.size(); ++i) old_mix[i] = io_.Read32(kMix + i * 4);
+    const uint32_t old_gate = io_.Read32(kFrontEndGate);
+    const uint32_t old_left = io_.Read32(kHeadroom);
+    const uint32_t old_right = io_.Read32(kHeadroom + 4);
+    ApuStateSnapshot after{};
+    const bool readable = ReadApuState(io_, after);
+    bool mix_unchanged = true;
+    for (uint32_t i = 0; i < old_mix.size(); ++i) {
+      const uint32_t value = io_.Read32(kMix + i * 4);
+      mix_unchanged = mix_unchanged && value == old_mix[i];
+      (i < 32 ? result.observed_mix_words : result.observed_right_mix_words)[i % 32] = value;
+    }
+    result.cleanup_stop_writes_passed = true;  // No work was armed.
+    result.cleanup_counter_quiet = readable && ApuCounterQuiet(before.registers.xgscnt, after.registers.xgscnt);
+    result.cleanup_registers_restored = readable && ApuStateRestored(before, after) &&
+        io_.Read32(kFrontEndGate) == old_gate && io_.Read32(kHeadroom) == old_left &&
+        io_.Read32(kHeadroom + 4) == old_right;
+    result.cleanup_dma_guard_passed = true;  // No DMA was allocated.
+    result.cleanup_passed = result.cleanup_counter_quiet && result.cleanup_registers_restored;
+    result.output_oracle_passed = mix_unchanged;
+    result.observed_voice_terminal = result.cleanup_registers_restored;
+    result.resource_control_passed = descriptor.expected_allocation_denial ?
+        result.accepted_voice_count == 256 && result.refused_voice_count == 1 :
+        result.accepted_voice_count == 0 && result.refused_voice_count == 0;
+    io_.Close();
+    if (!result.cleanup_passed) PoisonAudioSession();
+    if (!result.cleanup_passed || !result.output_oracle_passed || !result.resource_control_passed) {
+      error = "resource control changed APU state or returned an incorrect denial";
+      return false;
+    }
+    return true;
+  }
+
+  auto *voices = static_cast<uint8_t *>(allocator_.Allocate(kVoiceBytes + kPageBytes));
   auto *sge = static_cast<uint8_t *>(allocator_.Allocate(kPageBytes));
   auto *samples = static_cast<uint8_t *>(allocator_.Allocate(kPageBytes));
   if (!voices || !sge || !samples) {
@@ -112,7 +147,20 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     io_.Close();
     return false;
   }
-  PrepareVoice(voices, sge, samples, source_, sample_physical);
+  std::memset(voices, 0xA5, kVoiceBytes + kPageBytes);
+  std::memset(sge, 0xA5, kPageBytes);
+  std::memset(samples, 0xA5, kPageBytes);
+  if (!PrepareS16ScalingVoiceTable(spec, voices, kVoiceBytes,
+                                  kS16ScalingSourceFrames, error)) {
+    allocator_.Free(samples);
+    allocator_.Free(sge);
+    allocator_.Free(voices);
+    io_.Close();
+    return false;
+  }
+  std::memcpy(samples, source_, source_bytes_);
+  reinterpret_cast<uint32_t *>(sge)[0] = sample_physical;
+  reinterpret_cast<uint32_t *>(sge)[1] = 0;
   result.source_checksum = Fnv1a64(source_, source_bytes_);
 
   const uint32_t old_gate = io_.Read32(kFrontEndGate);
@@ -126,28 +174,44 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   writes_ok = io_.Write32(kFrontEndGate, 1) && writes_ok;
   writes_ok = io_.Write32(kHeadroom, 0) && writes_ok;
   writes_ok = io_.Write32(kHeadroom + 4, 0) && writes_ok;
-  for (uint32_t word = 0; word < 32; ++word)
+  for (uint32_t word = 0; word < 64; ++word)
     writes_ok = io_.Write32(kMix + word * 4, 0) && writes_ok;
   writes_ok = WriteListEmpty(io_) && writes_ok;
   writes_ok = io_.Write32(kFrontEnd, 0x0000100FU) && writes_ok;
-  writes_ok = io_.Write32(kListBase, kVoiceIndex) && writes_ok;
+  writes_ok = io_.Write32(kListBase, ScalingVoiceHandle(0)) && writes_ok;
+  std::atomic_thread_fence(std::memory_order_seq_cst);
   if (writes_ok) writes_ok = io_.Write32(kEngine, 0x0000000FU);
-  if (writes_ok) result.submitted_sample_frames = 256;
+  if (writes_ok) result.submitted_sample_frames = kS16ScalingSourceFrames;
 
-  S16ControlObservation observed{};
+  S16ScalingObservation observed{};
   observed.source = source_;
   observed.source_bytes = source_bytes_;
+  observed.channels = spec.channels;
+  observed.requested_voice_count = spec.voice_count;
   if (writes_ok) {
     const uint32_t first_sample = io_.Read32(kEngineSamples);
     const auto deadline = std::chrono::steady_clock::now() +
                           std::chrono::seconds(3);
     uint32_t progressed = 0;
+    std::array<bool, 256> advanced{};
     do {
       progressed = io_.Read32(kEngineSamples) - first_sample;
-    } while (progressed < kRequiredEngineSamples &&
+      for (uint32_t i = 0; i < spec.voice_count; ++i) {
+        const auto *offset = reinterpret_cast<const volatile uint32_t *>(
+            voices + ScalingVoiceHandle(i) * 128 + 0x58);
+        const uint32_t current = *offset & 0xFFFFFFU;
+        if (!advanced[i] && current > 0 && current < kS16ScalingSourceFrames) {
+          advanced[i] = true;
+          ++result.observed_voice_count;
+        }
+      }
+    } while ((progressed < kRequiredEngineSamples ||
+              result.observed_voice_count != spec.voice_count) &&
              std::chrono::steady_clock::now() < deadline);
     observed.observed_engine_frames = progressed / kVpSamplesPerFrame;
     result.observed_engine_frames = observed.observed_engine_frames;
+    result.peak_active_voices = result.observed_voice_count;
+    observed.observed_voice_count = result.observed_voice_count;
   }
 
   bool stopped = io_.Write32(kEngine, 0);
@@ -168,10 +232,13 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   }
   if (stopped && result.cleanup_counter_quiet &&
       result.observed_engine_frames >= 8) {
-    for (uint32_t i = 0; i < observed.mix_words.size(); ++i)
-      observed.mix_words[i] = io_.Read32(kMix + i * 4);
-    result.observed_mix_words = observed.mix_words;
-    result.output_oracle_passed = S16ControlOracle::Check(observed);
+    for (uint32_t i = 0; i < 32; ++i) {
+      observed.left_mix_words[i] = io_.Read32(kMix + i * 4);
+      observed.right_mix_words[i] = io_.Read32(kMix + (32 + i) * 4);
+    }
+    result.observed_mix_words = observed.left_mix_words;
+    result.observed_right_mix_words = observed.right_mix_words;
+    result.output_oracle_passed = S16ScalingOracle::Check(observed);
   }
   stopped = io_.Write32(kVoiceTable, before.registers.vpvaddr) && stopped;
   stopped = io_.Write32(kSgeTable, before.registers.vpsgeaddr) && stopped;
@@ -190,7 +257,9 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
                                       io_.Read32(kHeadroom) == old_headroom_left &&
                                       io_.Read32(kHeadroom + 4) == old_headroom_right &&
                                       result.observed_voice_terminal;
-  result.cleanup_dma_guard_passed = IsGuardIntact(samples);
+  result.cleanup_dma_guard_passed = IsGuardIntact(samples, source_bytes_, kPageBytes) &&
+      IsGuardIntact(sge, 8, kPageBytes) &&
+      IsGuardIntact(voices, kVoiceBytes, kVoiceBytes + kPageBytes);
   result.cleanup_passed = result.cleanup_stop_writes_passed &&
                           result.cleanup_counter_quiet &&
                           result.cleanup_registers_restored &&
@@ -209,6 +278,10 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   if (!writes_ok) { error = "APU setup write failed"; return false; }
   if (result.observed_engine_frames < 8) {
     error = "APU did not advance eight engine frames";
+    return false;
+  }
+  if (result.observed_voice_count != spec.voice_count) {
+    error = "not all submitted VP voices advanced their source offsets";
     return false;
   }
   if (!result.output_oracle_passed) {

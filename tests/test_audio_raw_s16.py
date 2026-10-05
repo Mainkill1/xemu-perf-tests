@@ -18,6 +18,7 @@ class AudioRawS16Tests(unittest.TestCase):
                  "-I", str(ROOT / "src" / "tests"),
                  str(ROOT / "tests" / "audio_raw_s16_probe.cpp"),
                  str(ROOT / "src" / "tests" / "audio_mcpx_raw_backend.cpp"),
+                 str(ROOT / "src" / "tests" / "audio_vp_scaling_recipe.cpp"),
                  str(ROOT / "src" / "tests" / "audio_session_guard.cpp"),
                  str(ROOT / "src" / "tests" / "audio_apu_ownership.cpp"),
                  str(ROOT / "src" / "tests" / "audio_torture_support.cpp"),

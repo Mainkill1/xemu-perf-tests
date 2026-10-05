@@ -1,6 +1,7 @@
 #include <array>
 #include <cassert>
 #include <cstdint>
+#include <functional>
 #include <iostream>
 #include <map>
 #include <string>
@@ -28,6 +29,7 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   mutable bool running{false};
   mutable uint32_t frames{0};
   mutable unsigned stop_counter_reads_left{0};
+  std::function<void()> on_progress;
   explicit FakeIo(const std::vector<uint8_t> &bytes) : source(bytes) {
     for (uint32_t offset = 0x2054; offset <= 0x2074; offset += 4) registers[offset] = 0xFFFF;
   }
@@ -35,16 +37,19 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   uint32_t Read32(uint32_t offset) const override {
     if (offset == 0x2054 && busy) return 64;
     if (offset == 0x200C) {
-      if (running && !stall) return frames += 32;
+      if (running && !stall) {
+        if (on_progress) on_progress();
+        return frames += 32;
+      }
       if (stop_counter_reads_left) {
         --stop_counter_reads_left;
         return frames += 32;
       }
       return frames;
     }
-    if (offset >= 0x35000 && offset < 0x35080) {
+    if (offset >= 0x35000 && offset < 0x35100) {
       if (tearing_while_running && running && offset == 0x35000) return 0x123456U;
-      const size_t sample_index = (offset - 0x35000) / 4;
+      const size_t sample_index = ((offset - 0x35000) / 4) % 32;
       const uint16_t bits = static_cast<uint16_t>(source[2 * sample_index]) |
                             (static_cast<uint16_t>(source[2 * sample_index + 1]) << 8);
       const int32_t sample = static_cast<int16_t>(bits);
@@ -88,6 +93,14 @@ struct FakeAllocator : AudioTorture::AudioDmaAllocator {
   void Free(void *pointer) override { ++freed; delete[] static_cast<uint8_t *>(pointer); }
 };
 
+void ConnectProgress(FakeIo &io, FakeAllocator &allocator) {
+  io.on_progress = [&allocator]() {
+    auto *voice = static_cast<uint8_t *>(allocator.allocated.at(0)) + 64 * 128;
+    auto *cbo = reinterpret_cast<uint32_t *>(voice + 0x58);
+    *cbo = (*cbo & 0xFF000000U) | (((*cbo & 0xFFFFFFU) + 32) % 257);
+  };
+}
+
 bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
                  const std::vector<uint8_t> &source, bool busy, bool stall,
                  bool bad_output, bool fail_stop, bool fail_setup,
@@ -95,6 +108,7 @@ bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
                  bool delayed_final_counter = false) {
   FakeIo io(source);
   FakeAllocator allocator;
+  ConnectProgress(io, allocator);
   io.busy = busy;
   io.stall = stall;
   io.bad_output = bad_output;
@@ -132,6 +146,7 @@ void RunRestoreFailureScenario(const AudioTorture::AudioCaseDescriptor &descript
                                bool fail_gate_write) {
   FakeIo io(source);
   FakeAllocator allocator;
+  ConnectProgress(io, allocator);
   io.fail_gate_restore = fail_gate_write;
   io.ignore_headroom_restore = !fail_gate_write;
   if (!fail_gate_write) io.registers[0x20200] = 0xA0A0U;
@@ -147,6 +162,7 @@ void RunPoisonScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
                        const std::vector<uint8_t> &source) {
   FakeIo first_io(source);
   FakeAllocator first_allocator;
+  ConnectProgress(first_io, first_allocator);
   first_io.fail_stop = true;
   AudioTorture::McpxRawBackend first(first_io, first_allocator,
                                      source.data(), source.size());
@@ -171,25 +187,29 @@ int main(int argc, char **argv) {
   assert(AudioTorture::NextS16(AudioTorture::SignalKind::kNearNyquist045,
                                 nyquist_state, 0, 48000) != 0);
   assert(argc == 1 || argc == 2);
-  const auto generated = AudioTorture::BuildS16ScalingControlSource();
-  std::vector<uint8_t> source(generated.begin(), generated.end());
-  assert(source.size() == 512);
+  const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
+  assert(descriptor);
+  std::vector<uint8_t> source;
+  std::string error;
+  assert(AudioTorture::BuildS16ScalingSource(descriptor->workload, source, error));
+  assert(source.size() == 514);
   for (size_t i = 0; i < source.size(); i += 2)
     assert(source[i] == 0 && source[i + 1] == 0x10);
-  AudioTorture::S16ControlObservation native_observation{};
+  AudioTorture::S16ScalingObservation native_observation{};
   native_observation.source = source.data();
   native_observation.source_bytes = source.size();
   native_observation.observed_engine_frames = 12;
-  native_observation.mix_words.fill(0x100000U);
-  assert(AudioTorture::S16ControlOracle::Check(native_observation));
-  native_observation.mix_words[10] = 0x123456;
-  assert(!AudioTorture::S16ControlOracle::Check(native_observation));
-  native_observation.mix_words.fill(0);
-  std::vector<uint8_t> silence(512, 0);
+  native_observation.requested_voice_count = 1;
+  native_observation.observed_voice_count = 1;
+  native_observation.left_mix_words.fill(0x100000U);
+  native_observation.right_mix_words.fill(0x100000U);
+  assert(AudioTorture::S16ScalingOracle::Check(native_observation));
+  native_observation.left_mix_words[10] = 0x123456;
+  assert(!AudioTorture::S16ScalingOracle::Check(native_observation));
+  native_observation.left_mix_words.fill(0);
+  std::vector<uint8_t> silence(514, 0);
   native_observation.source = silence.data();
-  assert(!AudioTorture::S16ControlOracle::Check(native_observation));
-  const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
-  assert(descriptor);
+  assert(!AudioTorture::S16ScalingOracle::Check(native_observation));
   assert(RunScenario(*descriptor, source, false, false, false, false, false));
   assert(RunScenario(*descriptor, source, false, false, false, false, false,
                      true, true));

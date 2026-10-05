@@ -45,12 +45,14 @@ void AudioVpScalingTests::S16MonoV001() {
   if (!descriptor || !descriptor->executable) {
     error = "S16 mono guest descriptor is not executable";
   } else {
-    const auto source = AudioTorture::BuildS16ScalingControlSource();
-    AudioTorture::McpxApuDevice device;
-    XboxAudioDmaAllocator allocator;
-    AudioTorture::McpxRawBackend backend(device, allocator, source.data(),
-                                        source.size());
-    ran = backend.Run(*descriptor, result, error);
+    std::vector<uint8_t> source;
+    if (AudioTorture::BuildS16ScalingSource(descriptor->workload, source, error)) {
+      AudioTorture::McpxApuDevice device;
+      XboxAudioDmaAllocator allocator;
+      AudioTorture::McpxRawBackend backend(device, allocator, source.data(),
+                                          source.size());
+      ran = backend.Run(*descriptor, result, error);
+    }
   }
 
   TestHost::ProfileResults profile{};

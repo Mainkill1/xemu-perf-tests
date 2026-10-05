@@ -107,6 +107,7 @@ int main() {
   assert(IsApuRegisterWriteAllowed(0x20200));
   assert(IsApuRegisterWriteAllowed(0x35000));
   assert(IsApuRegisterWriteAllowed(0x3507C));
-  assert(!IsApuRegisterWriteAllowed(0x35080));
+  assert(IsApuRegisterWriteAllowed(0x350FC));
+  assert(!IsApuRegisterWriteAllowed(0x35100));
   std::cout << "ownership rejection and restoration guarded\n";
 }

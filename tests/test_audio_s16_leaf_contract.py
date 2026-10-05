@@ -39,7 +39,7 @@ class AudioS16LeafContractTests(unittest.TestCase):
         self.assertIn('"AudioVpScaling"', source)
         self.assertIn('tests_["S16MonoV001"]', source)
         self.assertIn('FindAudioCase("audio.vp_scaling.s16_mono.v001")', source)
-        self.assertIn('BuildS16ScalingControlSource()', source)
+        self.assertIn('BuildS16ScalingSource(', source)
         self.assertIn('McpxRawBackend', source)
         self.assertEqual(source.count('host_.FinishDraw(suite_name_, "S16MonoV001"'), 1)
         self.assertNotIn("ASSERT(", source)

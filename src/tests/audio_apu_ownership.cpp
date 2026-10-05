@@ -31,8 +31,8 @@ bool ValidateApuPciResource(uint32_t vendor_device, uint32_t raw_bar0,
 
 bool IsApuRegisterWriteAllowed(uint32_t offset) {
   if ((offset & 3U) || offset > kApuAperture - sizeof(uint32_t)) return false;
-  if (offset >= 0x35000 && offset <= 0x3507C) return true;
-  // Only registers used by the admitted one-voice session are writable.
+  if (offset >= 0x35000 && offset <= 0x350FC) return true;
+  // Only registers used by the admitted scaling session are writable.
   switch (offset) {
     case 0x1100: case 0x1510: case 0x2000:
     case 0x20200: case 0x20204:
