@@ -4,6 +4,8 @@ Only as/ld and the host C++ compiler are needed; the IA-32 harness uses Linux
 syscalls and no 32-bit C runtime. These are execution/KAT tests, not xemu timing.
 """
 import pathlib
+import platform
+import shutil
 import struct
 import subprocess
 import tempfile
@@ -21,6 +23,9 @@ def reference(operations, count):
     return value
 
 
+@unittest.skipUnless(platform.system() == 'Linux' and platform.machine().lower() in
+                     ('x86_64', 'i386', 'i686') and all(shutil.which(tool) for tool in ('c++', 'as', 'ld')),
+                     'requires Linux x86, a C++ compiler, GNU as, and GNU ld')
 class JumpCacheCollisionContract(unittest.TestCase):
     @classmethod
     def setUpClass(cls):

@@ -46,7 +46,7 @@ python3 utils/test_catalog.py --check
 python3 -m unittest discover -s tests -p 'test_*contract.py'
 ```
 
-The generated catalog now has **163 leaves and five structural groups**. Shared
+The generated catalog now has **180 leaves and five structural groups**. Shared
 plans change only to bind the new catalog identity. Existing runtime workloads
 and pinned historical ISO/catalog/reference identities remain separate. Do not
 replace the old qualification image or its golden output with this build.
