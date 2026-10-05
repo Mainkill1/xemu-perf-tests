@@ -123,18 +123,38 @@ class AudioTortureContractTests(unittest.TestCase):
 
         cases = module.build_cases(self.matrix)
         module.validate(self.matrix, cases)
-        self.assertEqual(len(cases), 109)
-        self.assertEqual(len({case["id"] for case in cases}), 109)
+        self.assertEqual(len(cases), 138)
+        self.assertEqual(len({case["id"] for case in cases}), 138)
 
         by_family = {}
         for case in cases:
             by_family[case["family"]] = by_family.get(case["family"], 0) + 1
-        self.assertEqual(by_family["audio.vp_scaling"], 16)
+        self.assertEqual(by_family["audio.vp_scaling"], 45)
         self.assertEqual(by_family["audio.format_rate"], 29)
         self.assertEqual(by_family["audio.hrtf_3d"], 4)
         self.assertEqual(by_family["audio.voice_modes"], 8)
         self.assertEqual(by_family["audio.voice_control"], 4)
         self.assertEqual(by_family["audio.everything_max"], 1)
+        scaling = [case for case in cases if case["family"] == "audio.vp_scaling"]
+        for channels in (1, 2):
+            counts = {case["params"]["voice_count"] for case in scaling
+                      if case["params"]["channels"] == channels}
+            self.assertEqual(counts, set(self.matrix["axes"]["voice_count_sweep"]))
+        allocation = [case for case in scaling if case["params"].get("expected_allocation_failure")]
+        self.assertEqual(len(allocation), 1)
+        self.assertEqual(allocation[0]["params"]["allocation_attempt_count"], 257)
+        self.assertEqual(allocation[0]["params"]["voice_count"], 256)
+        self.assertEqual(allocation[0]["required_paths"], ["apu.vp.voice", "apu.vp.mix"])
+
+        gp_ep_paths = {
+            case["params"]["pipeline_mode"]: set(case["required_paths"])
+            for case in cases if case["family"] == "audio.gp_ep"
+        }
+        self.assertNotIn("apu.gp.frame", gp_ep_paths["vp_only"])
+        self.assertNotIn("apu.ep.frame", gp_ep_paths["vp_only"])
+        self.assertIn("apu.gp.frame", gp_ep_paths["vp_gp"])
+        self.assertNotIn("apu.ep.frame", gp_ep_paths["vp_gp"])
+        self.assertIn("apu.ep.frame", gp_ep_paths["vp_gp_ep_stereo"])
 
     def test_validator_rejects_cases_that_claim_executable_or_vp_coverage(self):
         path = ROOT / "utils" / "audio_torture_cases.py"
@@ -157,6 +177,30 @@ class AudioTortureContractTests(unittest.TestCase):
                     target["params"][field] = value
                 with self.assertRaises(ValueError):
                     module.validate(self.matrix, cases)
+
+    def test_validator_rejects_unsupported_raw_configurations_and_path_claims(self):
+        path = ROOT / "utils" / "audio_torture_cases.py"
+        spec = importlib.util.spec_from_file_location("audio_torture_cases", path)
+        module = importlib.util.module_from_spec(spec)
+        assert spec.loader
+        spec.loader.exec_module(module)
+
+        for changes in (
+            {"sample_format": "s16", "channels": 3},
+            {"mixbin_fanout": 9},
+            {"allocation_attempt_count": 257},
+        ):
+            with self.subTest(changes=changes):
+                cases = copy.deepcopy(module.build_cases(self.matrix))
+                cases[11]["params"].update(changes)
+                with self.assertRaises(ValueError):
+                    module.validate(self.matrix, cases)
+
+        cases = copy.deepcopy(module.build_cases(self.matrix))
+        gp_only = next(case for case in cases if case["id"] == "audio.gp_ep.vp_only")
+        gp_only["required_paths"].append("apu.gp.frame")
+        with self.assertRaises(ValueError):
+            module.validate(self.matrix, cases)
 
     def test_unhandled_voice_position_is_not_in_normal_gate(self):
         gap = self.matrix["known_gaps"]["get_voice_position"]

@@ -32,6 +32,48 @@ def _case(case_id: str, family: str, backend: str, **params) -> dict:
     }
 
 
+def _intended_paths(matrix: dict, case: dict) -> list[str]:
+    family = case["family"]
+    params = case["params"]
+    if family == "audio.vp_scaling" and params["voice_count"] == 0:
+        return []
+    if family == "audio.gp_ep":
+        paths = ["apu.vp.voice", "apu.vp.mix"]
+        mode = params["pipeline_mode"]
+        if mode != "vp_only":
+            paths.extend(["apu.gp.frame", "apu.dma"])
+        if mode.startswith("vp_gp_ep_"):
+            paths.append("apu.ep.frame")
+        return paths
+    if family == "audio.voice_modes":
+        mode = case["id"].removeprefix("audio.voice_modes.")
+        path_by_mode = {
+            "stream_linear": "apu.vp.mode.stream",
+            "stream_loop": "apu.vp.mode.stream",
+            "buffer_loop": "apu.vp.mode.loop",
+            "linked": "apu.vp.mode.linked",
+            "persist": "apu.vp.mode.persist",
+            "clear_mix": "apu.vp.mode.clear_mix",
+            "multipass": "apu.vp.mode.multipass",
+        }
+        paths = ["apu.vp.voice"]
+        if mode in path_by_mode:
+            paths.append(path_by_mode[mode])
+        if mode == "stream_loop":
+            paths.append("apu.vp.mode.loop")
+        return paths
+    if family == "audio.voice_control":
+        control = params["control_sequence"]
+        path_by_control = {
+            "lock_reconfigure": "apu.vp.control.lock",
+            "on_off": "apu.vp.control.on_off",
+            "pause_resume": "apu.vp.control.pause",
+            "release": "apu.vp.control.release",
+        }
+        return ["apu.vp.voice", path_by_control[control]]
+    return next(f["required_paths"] for f in matrix["families"] if f["id"] == family).copy()
+
+
 def build_cases(matrix: dict) -> list[dict]:
     axes = matrix["axes"]
     curated = matrix["curated_case_sets"]
@@ -53,7 +95,7 @@ def build_cases(matrix: dict) -> list[dict]:
         ))
 
     for channels, label in ((1, "mono"), (2, "stereo")):
-        for voices in curated["vp_scaling_voice_counts"]:
+        for voices in axes["voice_count_sweep"]:
             cases.append(_case(
                 f"audio.vp_scaling.s16_{label}.v{voices:03d}",
                 "audio.vp_scaling", "mcpx_apu_raw",
@@ -61,6 +103,13 @@ def build_cases(matrix: dict) -> list[dict]:
                 sample_rate_hz=48000, voice_count=voices,
                 source_layout="shared",
             ))
+    cases.append(_case(
+        "audio.vp_scaling.s16_mono.allocation_v257",
+        "audio.vp_scaling", "mcpx_apu_raw",
+        sample_format="s16", channels=1, sample_rate_hz=48000,
+        voice_count=256, allocation_attempt_count=257,
+        expected_allocation_failure=True, source_layout="shared",
+    ))
 
     container_by_format = {
         "u8": "b8",
@@ -201,6 +250,8 @@ def build_cases(matrix: dict) -> list[dict]:
         mixbin_fanout=8, enable_hrtf=True, enable_filter=True,
         mutate_voice_state=True, pipeline_mode="vp_gp_ep_surround",
     ))
+    for case in cases:
+        case["required_paths"] = _intended_paths(matrix, case)
     return cases
 
 
@@ -226,6 +277,12 @@ def validate(matrix: dict, cases: list[dict]) -> None:
             raise ValueError(f"backend mismatch for {case_id}")
         if case["backend"] not in backend_by_id:
             raise ValueError(f"unknown backend for {case_id}")
+        expected_paths = _intended_paths(matrix, case)
+        if case.get("required_paths") != expected_paths:
+            raise ValueError(f"incorrect intended paths for {case_id}")
+        legitimate_paths = backend_by_id[case["backend"]]["legitimate_paths"]
+        if not set(expected_paths).issubset(legitimate_paths):
+            raise ValueError(f"unsupported intended path for {case_id}")
 
         params = case["params"]
         voices = params.get("voice_count", 0)
@@ -242,6 +299,21 @@ def validate(matrix: dict, cases: list[dict]) -> None:
             sample_format = params.get("sample_format")
             if sample_format and sample_format not in matrix["ground_truth"]["mcpx_apu"]["formats"]:
                 raise ValueError(f"unsupported planned VP sample format for {case_id}: {sample_format}")
+            channels = params.get("channels")
+            if sample_format is not None or channels is not None:
+                requested_format = {"sample_format": sample_format, "channels": channels}
+                if requested_format not in backend_by_id["mcpx_apu_raw"]["supported_formats"]:
+                    raise ValueError(f"unsupported raw format/channel pair for {case_id}")
+            fanout = params.get("mixbin_fanout")
+            if fanout is not None and not (1 <= fanout <= matrix["ground_truth"]["mcpx_apu"]["max_mixbins_per_voice"]):
+                raise ValueError(f"mixbin fanout exceeds MCPX limit for {case_id}")
+            allocation_attempt = params.get("allocation_attempt_count")
+            expected_failure = params.get("expected_allocation_failure", False)
+            if allocation_attempt is not None or expected_failure:
+                if (case["family"] != "audio.vp_scaling" or not expected_failure
+                        or allocation_attempt != matrix["ground_truth"]["mcpx_apu"]["max_voices"] + 1
+                        or voices != matrix["ground_truth"]["mcpx_apu"]["max_voices"]):
+                    raise ValueError(f"invalid allocation-boundary probe for {case_id}")
 
         if case["backend"] == "ac97_dma":
             supported = backend_by_id["ac97_dma"]["supported_formats"]

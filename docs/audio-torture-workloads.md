@@ -243,7 +243,10 @@ tests is a suite correctness bug.
 
 ## Path-proof contract
 
-Each audio leaf declares the paths it intends to cover. Future xemu
+Each proposed audio leaf declares the paths it intends to cover; family-level
+path lists describe the union of targets, not a claim that every leaf hits
+every path. The zero-voice case intentionally declares no VP execution path.
+Future xemu
 instrumentation should return counters for those paths. A leaf may be timed
 without host path counters, but it may not make a path-specific optimization
 claim unless the requested counter moved.
@@ -350,7 +353,7 @@ benchmarking.
 
 ## Curated initial case set
 
-The machine-readable matrix expands to **109 planned cases**. This is
+The machine-readable matrix expands to **138 planned cases**. This is
 deliberately not the full Cartesian product. It fixes the first implementation
 targets so another agent cannot quietly reduce or multiply the workload while
 claiming the same test semantics.
@@ -358,7 +361,7 @@ claiming the same test semantics.
 The initial expansion includes:
 
 - 10 AC'97 DMA/refill/locality cases
-- 16 PCM16 mono/stereo VP scaling cases
+- 45 PCM16 mono/stereo VP scaling and allocation-boundary cases
 - 29 format/rate cases
 - 2 near-Nyquist resampler cases
 - 9 31/32/33-style buffer-boundary cases
