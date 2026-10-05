@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd` contains 171 leaves and 5 groups.
+Catalog `sha256:9ad5d9373f0d860cc8ff0dacd4a71b67cc1ad52c83947ce68ebbd197df9f58ee` contains 172 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -180,3 +180,4 @@ Catalog `sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd
 | `vertex_buffer_allocation.tiny.inline_elements` | leaf | `Vertex buffer allocation::TinyAlloc-inlineelements` |
 | `vertex_buffer_allocation.disjoint_same_page` | leaf | `Vertex buffer allocation::XemuVertexRamDisjointSamePage` |
 | `vertex_buffer_allocation.rising_transient_growth` | leaf | `Vertex buffer allocation::XemuRisingTransientBufferGrowth` |
+| `vertex_buffer_allocation.ordered_same_page_overwrite` | leaf | `Vertex buffer allocation::XemuVertexRamOrderedSamePageOverwrite` |

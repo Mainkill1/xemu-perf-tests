@@ -14,6 +14,8 @@ static constexpr char kTinyAllocationTest[] = "TinyAlloc";
 static constexpr char kMixedVertexCountTest[] = "MixedVtxAlloc";
 static constexpr char kDisjointSamePageTest[] =
     "XemuVertexRamDisjointSamePage";
+static constexpr char kOrderedSamePageOverwriteTest[] =
+    "XemuVertexRamOrderedSamePageOverwrite";
 static constexpr char kRisingTransientGrowthTest[] =
     "XemuRisingTransientBufferGrowth";
 static constexpr uint32_t kGeometrySeed = 0x5642414CU;
@@ -200,6 +202,8 @@ VertexBufferAllocationTests::VertexBufferAllocationTests(TestHost &host, std::st
   }
   tests_[kDisjointSamePageTest] =
       [this]() { TestDisjointSamePageVertexUpdates(); };
+  tests_[kOrderedSamePageOverwriteTest] =
+      [this]() { TestOrderedSamePageVertexOverwrite(); };
   tests_[kRisingTransientGrowthTest] =
       [this]() { TestRisingTransientBufferGrowth(); };
 }
@@ -278,6 +282,86 @@ void VertexBufferAllocationTests::TestDisjointSamePageVertexUpdates() {
   });
 
   host_.FinishDraw(suite_name_, kDisjointSamePageTest, results);
+}
+
+void VertexBufferAllocationTests::TestOrderedSamePageVertexOverwrite() {
+  static constexpr uint32_t kAttributes =
+      TestHost::POSITION | TestHost::DIFFUSE;
+  static constexpr uint32_t kBackground = 0xFF182028U;
+  static constexpr uint32_t kFirstColor = 0xFFFF0000U;
+  static constexpr uint32_t kSecondColor = 0xFF0000FFU;
+
+  TestSuite::Initialize();
+  host_.SetupFixedFunctionPassthrough();
+  host_.SetVertexShaderProgram(std::make_shared<PassthroughVertexShader>());
+  host_.SetBlend(false);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+  host_.PrepareDraw(kBackground);
+
+  // Reuse exactly four guest vertices, and therefore the same guest page,
+  // across both draws. The two nonoverlapping screen locations distinguish
+  // a correctly ordered overwrite from a later host write changing the first
+  // draw's vertex input before its Vulkan command buffer executes.
+  auto buffer = host_.AllocateVertexBuffer(4);
+  buffer->SetPositionIncludesW(true);
+  host_.SetVertexBuffer(buffer);
+  auto write_quad = [&buffer](float left, float top, float red, float blue) {
+    auto vertex = buffer->Lock();
+    const float positions[4][2] = {
+        {left, top}, {left + 48.f, top},
+        {left + 48.f, top + 48.f}, {left, top + 48.f}};
+    for (uint32_t corner = 0; corner < 4; ++corner, ++vertex) {
+      vertex->SetPosition(positions[corner][0], positions[corner][1], 0.f);
+      vertex->SetDiffuse(red, 0.f, blue, 1.f);
+    }
+    buffer->Unlock();
+  };
+
+  // Complete a prior batch containing a vertex update so the activity gate
+  // has a real read-tracking history. Its pixels are cleared before the oracle.
+  write_quad(16.f, 16.f, 1.f, 0.f);
+  host_.DrawArrays(kAttributes, TestHost::PRIMITIVE_QUADS);
+  host_.WaitForGpu();
+
+  const auto results = Profile(kOrderedSamePageOverwriteTest, 1, [&] {
+    host_.PrepareDraw(kBackground);
+    write_quad(64.f, 64.f, 1.f, 0.f);
+    host_.DrawArrays(kAttributes, TestHost::PRIMITIVE_QUADS);
+    // Drain the guest FIFO without requesting GPU completion. The first draw
+    // must be recorded before its guest vertex memory is overwritten.
+    while (pb_busy()) {
+    }
+    write_quad(192.f, 64.f, 0.f, 1.f);
+    host_.DrawArrays(kAttributes, TestHost::PRIMITIVE_QUADS);
+    host_.WaitForGpu();
+  });
+
+  const auto *const base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t pitch = pb_back_buffer_pitch();
+  auto read_argb = [base, pitch](uint32_t x, uint32_t y) {
+    const auto *const pixel = base + y * pitch + x * sizeof(uint32_t);
+    return (static_cast<uint32_t>(pixel[3]) << 24) |
+           (static_cast<uint32_t>(pixel[2]) << 16) |
+           (static_cast<uint32_t>(pixel[1]) << 8) |
+           static_cast<uint32_t>(pixel[0]);
+  };
+  SetXemuPerfEventContext(0xB005U, 0x524F574FU);
+  AssertXemuPerfEqual(kFirstColor, read_argb(88, 88),
+                      XemuPerfAssertion::VERTEX_ORDERED_FIRST,
+                      "first draw retained red vertex data", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kSecondColor, read_argb(216, 88),
+                      XemuPerfAssertion::VERTEX_ORDERED_SECOND,
+                      "second draw used blue overwritten vertex data", __FILE__,
+                      __LINE__);
+  AssertXemuPerfEqual(kBackground, read_argb(152, 88),
+                      XemuPerfAssertion::VERTEX_ORDERED_BACKGROUND,
+                      "untouched region retained background", __FILE__,
+                      __LINE__);
+  host_.FinishDraw(suite_name_, kOrderedSamePageOverwriteTest, results);
+  host_.ClearVertexBuffer();
 }
 
 static std::shared_ptr<VertexBuffer> CreateGeometry(

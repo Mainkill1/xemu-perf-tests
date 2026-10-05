@@ -176,6 +176,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.tiny.inline_elements", 1, "vertex_buffer_allocation", "TinyAlloc-inlineelements", "Runs the TinyAlloc-inlineelements workload and records its deterministic result.", "Vertex buffer allocation", "TinyAlloc-inlineelements", "TinyAlloc-inlineelements", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.disjoint_same_page", 1, "vertex_buffer_allocation", "XemuVertexRamDisjointSamePage", "Runs the XemuVertexRamDisjointSamePage workload and records its deterministic result.", "Vertex buffer allocation", "XemuVertexRamDisjointSamePage", "XemuVertexRamDisjointSamePage", TestKind::LEAF, 0, 0},
   {"vertex_buffer_allocation.rising_transient_growth", 1, "vertex_buffer_allocation", "XemuRisingTransientBufferGrowth", "Crosses exact Vulkan transient-buffer capacities with repeated small increases and one large increase.", "Vertex buffer allocation", "XemuRisingTransientBufferGrowth", "XemuRisingTransientBufferGrowth", TestKind::LEAF, 0, 0},
+  {"vertex_buffer_allocation.ordered_same_page_overwrite", 1, "vertex_buffer_allocation", "XemuVertexRamOrderedSamePageOverwrite", "Draws, drains the FIFO without GPU completion, overwrites the same vertex page, and checks both ordered colors.", "Vertex buffer allocation", "XemuVertexRamOrderedSamePageOverwrite", "XemuVertexRamOrderedSamePageOverwrite", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:f8636cdd127be157dc1c55742c32e3ffc907cb4f16e812e0bfc342b83b7660bd";
+static constexpr const char *kTestCatalogId = "sha256:9ad5d9373f0d860cc8ff0dacd4a71b67cc1ad52c83947ce68ebbd197df9f58ee";
