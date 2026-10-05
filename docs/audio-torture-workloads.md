@@ -274,7 +274,7 @@ Only `audio.vp_scaling.s16_mono.v001` is executable in the new hardware-safe
 family catalog. The other 137 matrix cases remain planned; this leaf is
 correctness-only, opt-in for current Deck development, and excluded from the
 default smoke plan. Its guest oracle requires observed engine progress, all
-32 stopped-frame GP mix samples to match a contiguous S16 fixture window
+32 stopped-frame GP mix samples to match a fixed nonzero S16 control level
 within 32 S16 levels of fixed-point error, and verified stop, register
 restoration, quiet counter, and DMA guard before memory release.
 
@@ -305,11 +305,31 @@ queried service endpoints. No original Xbox was available; hardware
 qualification remains withheld. Do not promote this PR or the other 137 cases
 from these two runs.
 
-After this capture, branch commit `4e04027149e024dceb5de0b704a9ac6cc493c1be`
-added restore-write/readback checks and a process-lifetime lockout after unsafe
-teardown. The 251-test host suite and both Release XISO builds pass for that
-commit, but the new XISO has **not** had a Deck rerun. The native receipts above
-apply to the earlier exact image only; the latest image is not native-qualified.
+The captures above are historical triangle-source evidence. Two later targeted
+runs at `4e04027` passed teardown but failed that oracle because a filtered,
+fractionally shifted triangle window does not reliably match integer source
+samples. That oracle was replaced with a fixed S16 +4096 control input for the
+scaling leaf; changing-waveform resampling requires its own family oracle.
+
+The current validated source commit is
+`cef52da71fbbbc0820600b1ef3fa791cc1963231`, with normal-XISO SHA-256
+`370f38401c666e76e201fc01544060d588e090fb7abc029d336d84caefff1a2b`.
+Catalog/configuration identities and effective settings remain those listed
+above; the new resolved chunk plan is
+`sha256:4cabf57913464d645e624e117589b1c9ce699e87a49bd6cc1bff29edf4f74d55`.
+It includes restore-write/readback checks for every modified control
+and a process-lifetime audio lockout after unsafe teardown. Host fault
+injection checks failed writes, ineffective restore writes, retained DMA, and
+subsequent-case rejection; all 251 host tests and both Release XISO builds pass.
+
+| Current exact image | Retained guest result |
+| --- | --- |
+| Upstream | [Run `20261005-080026986-8ce5e2444fa8421dbbc4d4ad6625548e`](http://10.0.0.123:9368/api/v1/runs/20261005-080026986-8ce5e2444fa8421dbbc4d4ad6625548e/artifacts/guest/results.txt): `PASS`, 14 engine frames, all 32 mix words `1048577`, every cleanup check passes |
+| Candidate | [Run `20261005-080119187-ff2cf36b52b44108b66f088914dd0bef`](http://10.0.0.123:9368/api/v1/runs/20261005-080119187-ff2cf36b52b44108b66f088914dd0bef/artifacts/guest/results.txt): `PASS`, 14 engine frames, all 32 mix words `1048577`, every cleanup check passes |
+
+The expected mix level is `1048576`; tolerance remains 32 S16 levels. These
+receipts still have missing runner-side oracle coverage and do not establish
+timing eligibility, analog fidelity, or original-Xbox qualification.
 
 ## Path-proof contract
 
