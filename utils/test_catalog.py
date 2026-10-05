@@ -86,7 +86,9 @@ def entries():
     ):
         out.append(leaf(f"cpu_floating_point.{stable}", "cpu_floating_point",
                         "CpuFloatingPoint", legacy, description,
-                        ("cpu", "correctness", "performance", "hardware-safe")))
+                        ("cpu", "correctness", "performance", "hardware-safe") if stable in
+                        ("x87_status_vectors", "x87_status_ax", "x87_compare_status_ax") else
+                        ("cpu", "correctness", "hardware-safe")))
     simple("cpu_translation_blocks", "CpuTranslationBlocks", [("direct_loop", "DirectLoop"),
            ("indirect_dispatch", "IndirectDispatch"),
            ("indirect_dispatch_stress", "IndirectDispatchStress")], ("cpu", "performance", "hardware-safe"))

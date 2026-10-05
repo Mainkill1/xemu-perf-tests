@@ -192,4 +192,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.gpu_surface_vertex_attribute_readback", 1, "vertex_buffer_allocation", "XemuGpuSurfaceVertexAttributeReadback", "Uses a GPU-authored surface as a stride-zero diffuse vertex attribute and checks readback before CPU decoding.", "Vertex buffer allocation", "XemuGpuSurfaceVertexAttributeReadback", "XemuGpuSurfaceVertexAttributeReadback", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:d439948b55f86f0dde1c3e1a7b5b53d98e639698c17df9f00968541e841077c3";
+static constexpr const char *kTestCatalogId = "sha256:ef400e60062987f6b8f738ee433c424b5130c034218586b85dee76e88e2de500";

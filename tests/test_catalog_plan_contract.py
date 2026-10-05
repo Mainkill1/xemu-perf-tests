@@ -39,6 +39,7 @@ class CatalogPlanContractTests(unittest.TestCase):
         self.assertEqual(by_id[id]["revision"], 1)
         self.assertIn("correctness", by_id[id]["tags"])
         self.assertIn("hardware-safe", by_id[id]["tags"])
+        self.assertEqual(by_id[id]["measurement_class"], "correctness")
 
     failure_guide = (ROOT / "docs/generated/test-failure-guide.md").read_text(encoding="utf-8")
     self.assertIn("# Test failure guide", failure_guide)
