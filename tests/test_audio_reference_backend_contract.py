@@ -74,8 +74,13 @@ class AudioReferenceBackendContractTests(unittest.TestCase):
         self.assertIn("spec.mutate_voice_state", source)
         self.assertIn("spec.enable_hrtf", source)
         self.assertIn("spec.mixbin_fanout != 1", source)
-        self.assertIn("nxAudioShutdown()", source)
-        self.assertIn('extern "C"', source)
+        self.assertIn("AudioNxBridgeShutdown()", source)
+        self.assertNotIn("#include <nxaudio.h>", source)
+        bridge = (
+            ROOT / "src" / "tests" / "audio_nxaudio_bridge.c"
+        ).read_text(encoding="utf-8")
+        self.assertIn("#include <nxaudio.h>", bridge)
+        self.assertIn("nxAudioShutdown()", bridge)
 
 
 if __name__ == "__main__":
