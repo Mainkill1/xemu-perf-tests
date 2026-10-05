@@ -1,0 +1,34 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "output_directory_path": "e:/xemu_perf_tests",
+    "enable_xemu_only_tests": true,
+    "enable_autorun_immediately": true,
+    "warmup_iterations": 0,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "per_iteration"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:47527df9c270c47db7ed759dc8409b8d1401c15a4b4922c1535240122e36d5d5",
+    "catalog_id": "sha256:a30f79979b31aa68d353e5fbd7107e4bac0d23b9d690e31f0fc06bbbe471e4c0",
+    "selected_leaf_count": 5,
+    "tests": [
+      {
+        "id": "mcpx_voice.mono_aligned"
+      },
+      {
+        "id": "mcpx_voice.stereo_aligned"
+      },
+      {
+        "id": "mcpx_voice.mono_page_crossing"
+      },
+      {
+        "id": "mcpx_voice.stereo_page_crossing"
+      },
+      {
+        "id": "mcpx_voice.pcm_control"
+      }
+    ]
+  }
+}

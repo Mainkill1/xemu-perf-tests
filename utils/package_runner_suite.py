@@ -20,11 +20,14 @@ CATEGORIES = {
     'surfaces': 'Surfaces, framebuffer and memory',
     'scenarios': 'Game-like scenarios',
     'shaders': 'Shaders and pipelines',
+    'audio': 'MCPX voice input and mixing',
 }
 
 
 def category(test: dict) -> str:
     suite, identity = test['suite_id'].lower(), test['id'].lower()
+    if suite == 'mcpx_voice':
+        return 'audio'
     if 'shader' in suite or suite in ('uniform_thrash', 'pipeline_texture_switch'):
         return 'shaders'
     if suite.startswith('cpu'):
