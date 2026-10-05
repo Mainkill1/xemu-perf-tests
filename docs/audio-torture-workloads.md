@@ -1,6 +1,10 @@
 # Audio torture workload plan
 
-> **Status: draft / one native-tested correctness leaf.**
+> **Status: draft / 45 executable VP-scaling leaves, 93 cases still planned.**
+>
+> Four boundary leaves have targeted guest PASS evidence on both pinned xemu
+> builds; the full family is not natively qualified. See the
+> [PR #55 handoff](pr55-audio-handoff.md) for current coverage and next steps.
 >
 > This document deliberately separates proven capabilities from planned coverage.
 > A test must not advertise an APU code path until the guest workload actually
@@ -35,7 +39,7 @@ The suite is split into two explicit backends:
 | Backend | Initial status | Legitimate coverage |
 | --- | --- | --- |
 | `ac97_dma` | workload is implementable, full-suite registration blocked on teardown | 16-bit stereo PCM output, descriptor/ring pressure, refill cadence, callback/interrupt pressure, buffer locality, underrun/drain behavior |
-| `mcpx_apu_raw` | one S16 mono voice leaf implemented; the other raw cases remain planned | VP voices, mono/stereo voice formats, PCM8/16/24/32, ADPCM, pitch/resampling, voice modes/control, SGE/SSL fetch, mixbins, filters/envelopes/LFO, 3D/HRTF, GP/EP DSP and related DMA |
+| `mcpx_apu_raw` | 45 S16 mono/stereo scaling leaves implemented; non-scaling cases remain planned | Current: S16 static VP count/channel correctness. Target: other formats, rates, modes/control, SGE/SSL, mixbins, filters/envelopes/LFO, HRTF and DSP |
 | `nxaudio_reference` | optional bootstrap backend implemented; execution validation pending | full MCPX/GP/AC97 initialization and teardown plus static U8/S16/S24/S32/ADPCM reference voices |
 
 The xemu APU model currently defines 256 hardware voices, 64 3D voices, 32
@@ -270,6 +274,11 @@ tests is a suite correctness bug.
 
 ### Historical first VP-scaling leaf: Deck evidence, 2026-10-05 UTC
 
+Historical Deck artifact URLs below were retired during the requested cleanup
+on 2026-10-05. Only the latest candidate package/run remains on the device.
+The final paired boundary receipts are preserved byte-exact in
+[the repository evidence directory](evidence/pr55-audio-2026-10-05/README.md).
+
 At this foundation checkpoint only `audio.vp_scaling.s16_mono.v001` was executable
 in the new hardware-safe family catalog. The other 137 matrix cases were planned; this leaf was
 correctness-only, opt-in for current Deck development, and excluded from the
@@ -376,10 +385,10 @@ configuration SHA-256 `0318e8887b2144ba6a5cb6536df14b04b80eadf8a21debb242f4e8090
 warmup 0, multiplier 1, per-iteration completion, and resolved plan
 `sha256:77f24fbc43d9a16f3119c62e4a7115e7cb5681c0e329fd545606143c57eea2e4`.
 
-| Exact retained run | Selected guest results |
+| Exact run (receipts retained in this repository) | Selected guest results |
 | --- | --- |
-| [Upstream `20261005-085633811-73f576269693440bbcbe72e27c230c90`](http://10.0.0.123:9368/api/v1/runs/20261005-085633811-73f576269693440bbcbe72e27c230c90/artifacts/guest/results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 14/10 |
-| [Candidate `20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44`](http://10.0.0.123:9368/api/v1/runs/20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44/artifacts/guest/results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 11/10 |
+| [Upstream `20261005-085633811-73f576269693440bbcbe72e27c230c90`](evidence/pr55-audio-2026-10-05/upstream-results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 14/10 |
+| [Candidate `20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44`](evidence/pr55-audio-2026-10-05/candidate-results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 11/10 |
 
 The four selections are mono zero, mono 256, stereo 256, and the 257-slot denial.
 Each active reference infers divisor 2 in both lanes. Mono case mix is
@@ -509,7 +518,7 @@ benchmarking.
 
 ## Curated initial case set
 
-The machine-readable matrix expands to **138 planned cases**. This is
+The machine-readable matrix expands to **138 cases: 45 executable and 93 planned**. This is
 deliberately not the full Cartesian product. It fixes the first implementation
 targets so another agent cannot quietly reduce or multiply the workload while
 claiming the same test semantics.
@@ -533,9 +542,9 @@ The initial expansion includes:
 - 1 all-path ceiling case
 
 Run `python3 utils/audio_torture_cases.py --check` to validate the proposed
-case set or `--json` to inspect every fixed parameter set. These are proposed
-leaves only; the catalog remains intentionally unchanged until their hardware
-backends are real.
+case set or `--json` to inspect every fixed parameter set. Only the 45 VP-scaling
+leaves are promoted into the executable catalog. Other families remain planned
+until their hardware backends, per-case oracles and teardown exist.
 
 ## Maximum-load case
 
