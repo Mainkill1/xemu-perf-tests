@@ -28,9 +28,11 @@ bool ValidateApuPciResource(uint32_t vendor_device, uint32_t raw_bar0,
 
 bool IsApuRegisterWriteAllowed(uint32_t offset) {
   if ((offset & 3U) || offset > kApuAperture - sizeof(uint32_t)) return false;
-  // Initial adapter admits only address and list-head registers. Engine
-  // control/voice writes require a separately validated session contract.
+  if (offset >= 0x35000 && offset <= 0x3507C) return true;
+  // Only registers used by the admitted one-voice session are writable.
   switch (offset) {
+    case 0x1100: case 0x1510: case 0x2000:
+    case 0x20200: case 0x20204:
     case 0x202C: case 0x2030: case 0x2034:
     case 0x2040: case 0x2044: case 0x2048: case 0x204C:
     case 0x2054: case 0x2058: case 0x205C:
@@ -60,7 +62,8 @@ ApuOwnershipDecision CheckApuOwnership(const McpxApuRegisterSnapshot &registers,
 bool ApuStateRestored(const ApuStateSnapshot &before, const ApuStateSnapshot &after) {
   const auto &a = before.registers;
   const auto &b = after.registers;
-  return a.fectl == b.fectl && a.sectl == b.sectl && a.xgscnt == b.xgscnt &&
+  // XGSCNT is a monotonic observation counter, not restorable control state.
+  return a.fectl == b.fectl && a.sectl == b.sectl &&
          a.vpvaddr == b.vpvaddr && a.vpsgeaddr == b.vpsgeaddr &&
          a.vpssladdr == b.vpssladdr && a.gpsaddr == b.gpsaddr &&
          a.epsaddr == b.epsaddr &&

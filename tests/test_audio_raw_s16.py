@@ -1,0 +1,32 @@
+"""The raw S16 path must use observations and retain DMA on uncertain stop."""
+
+from pathlib import Path
+import subprocess
+import tempfile
+import unittest
+
+
+ROOT = Path(__file__).resolve().parents[1]
+
+
+class AudioRawS16Tests(unittest.TestCase):
+    def test_device_progress_output_and_teardown_are_required(self):
+        with tempfile.TemporaryDirectory() as temporary:
+            executable = Path(temporary) / "audio_raw_s16_probe"
+            compile_result = subprocess.run(
+                ["g++", "-std=c++17", "-Wall", "-Wextra", "-Werror",
+                 "-I", str(ROOT / "src" / "tests"),
+                 str(ROOT / "tests" / "audio_raw_s16_probe.cpp"),
+                 str(ROOT / "src" / "tests" / "audio_mcpx_raw_backend.cpp"),
+                 str(ROOT / "src" / "tests" / "audio_apu_ownership.cpp"),
+                 str(ROOT / "src" / "tests" / "audio_torture_support.cpp"),
+                 "-o", str(executable)], capture_output=True, text=True)
+            self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
+            fixture = ROOT / "resources" / "audio" / "raw" / "vp_s16_mono_48k_256.raw"
+            result = subprocess.run([str(executable), str(fixture)], capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn("raw S16 observed, rejected, and retained safely", result.stdout)
+
+
+if __name__ == "__main__":
+    unittest.main()

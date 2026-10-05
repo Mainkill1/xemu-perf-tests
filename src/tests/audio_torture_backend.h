@@ -72,6 +72,10 @@ struct WorkloadResult {
   uint32_t underruns{0};
   uint32_t completion_timeouts{0};
   uint32_t backend_errors{0};
+  uint32_t observed_engine_frames{0};
+  bool observed_voice_terminal{false};
+  bool output_oracle_passed{false};
+  bool cleanup_passed{false};
 };
 
 // Hardware backends must be explicit lifecycle owners. A backend must never

@@ -61,6 +61,13 @@ int16_t NextS16(SignalKind kind, SignalState &state, uint32_t frequency_hz,
       value = (state.phase & 0x80000000U) ? -magnitude : magnitude;
       state.phase += PhaseStep(frequency_hz, sample_rate_hz);
       break;
+    case SignalKind::kNearNyquist045:
+    case SignalKind::kNearNyquist049: {
+      value = (state.phase & 0x80000000U) ? -magnitude : magnitude;
+      const uint32_t numerator = kind == SignalKind::kNearNyquist045 ? 45U : 49U;
+      state.phase += PhaseStep(sample_rate_hz * numerator / 100U, sample_rate_hz);
+      break;
+    }
     case SignalKind::kLfsrNoise: {
       state.noise = NextNoise(state.noise);
       const int32_t signed_noise =

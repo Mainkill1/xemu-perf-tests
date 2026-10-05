@@ -118,6 +118,9 @@ add_library(
         tests/audio_infrastructure_probe.h
         tests/audio_mcpx_apu_device.cpp
         tests/audio_mcpx_apu_device.h
+        tests/audio_mcpx_raw_backend.cpp
+        tests/audio_mcpx_raw_backend.h
+        tests/audio_s16_control_oracle.h
         tests/audio_torture_backend.h
         tests/audio_torture_support.cpp
         tests/audio_torture_support.h

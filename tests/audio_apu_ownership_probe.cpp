@@ -63,6 +63,9 @@ int main() {
   auto changed = initial;
   changed.registers.vpsgeaddr = 0x1000;
   assert(!ApuStateRestored(initial, changed));
+  changed = initial;
+  changed.registers.xgscnt = 17;
+  assert(ApuStateRestored(initial, changed));
   assert(ApuStateRestored(initial, initial));
 
   assert(ValidateApuPciResource(0x01B010DE, 0xFE800000, 0x0002, error));
@@ -73,5 +76,12 @@ int main() {
   assert(!IsApuRegisterWriteAllowed(0x2001));
   assert(!IsApuRegisterWriteAllowed(0x80000));
   assert(!IsApuRegisterWriteAllowed(0x5000));
+  assert(IsApuRegisterWriteAllowed(0x1100));
+  assert(IsApuRegisterWriteAllowed(0x1510));
+  assert(IsApuRegisterWriteAllowed(0x2000));
+  assert(IsApuRegisterWriteAllowed(0x20200));
+  assert(IsApuRegisterWriteAllowed(0x35000));
+  assert(IsApuRegisterWriteAllowed(0x3507C));
+  assert(!IsApuRegisterWriteAllowed(0x35080));
   std::cout << "ownership rejection and restoration guarded\n";
 }
