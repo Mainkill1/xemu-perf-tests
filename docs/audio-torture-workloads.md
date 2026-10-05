@@ -1,6 +1,6 @@
 # Audio torture workload plan
 
-> **Status: draft / implementation framework.**
+> **Status: draft / one native-tested correctness leaf.**
 >
 > This document deliberately separates proven capabilities from planned coverage.
 > A test must not advertise an APU code path until the guest workload actually
@@ -35,7 +35,7 @@ The suite is split into two explicit backends:
 | Backend | Initial status | Legitimate coverage |
 | --- | --- | --- |
 | `ac97_dma` | workload is implementable, full-suite registration blocked on teardown | 16-bit stereo PCM output, descriptor/ring pressure, refill cadence, callback/interrupt pressure, buffer locality, underrun/drain behavior |
-| `mcpx_apu_raw` | framework defined; low-level guest driver required | VP voices, mono/stereo voice formats, PCM8/16/24/32, ADPCM, pitch/resampling, voice modes/control, SGE/SSL fetch, mixbins, filters/envelopes/LFO, 3D/HRTF, GP/EP DSP and related DMA |
+| `mcpx_apu_raw` | one S16 mono voice leaf implemented; the other raw cases remain planned | VP voices, mono/stereo voice formats, PCM8/16/24/32, ADPCM, pitch/resampling, voice modes/control, SGE/SSL fetch, mixbins, filters/envelopes/LFO, 3D/HRTF, GP/EP DSP and related DMA |
 | `nxaudio_reference` | optional bootstrap backend implemented; execution validation pending | full MCPX/GP/AC97 initialization and teardown plus static U8/S16/S24/S32/ADPCM reference voices |
 
 The xemu APU model currently defines 256 hardware voices, 64 3D voices, 32
@@ -228,10 +228,13 @@ isolation contract.
 
 ## Safe discovery and reference bootstrap
 
-`McpxApuDevice` provides a read-only bring-up path: scan PCI bus 0 for
-`10de:01b0`, validate/map BAR0, and snapshot key APU registers without
-exposing a register-write API. `ProbeAudioInfrastructure()` combines that with
-fixture checksum validation.
+`McpxApuDevice::ProbeAndMap()` remains read-only: it scans PCI bus 0 for
+`10de:01b0`, validates/maps BAR0, and snapshots key APU registers.
+`McpxApuDevice::Open()` admits only a stopped, empty-list cold state or the
+exact quiescent firmware profile observed on the Deck, including a quiet sample
+counter across a 3 ms interval. Its narrow register-write allowlist becomes
+available only after admission. `ProbeAudioInfrastructure()` combines read-only
+discovery with fixture checksum validation.
 
 For an end-to-end development smoke, build with
 `-DAUDIO_BOOTSTRAP_SMOKE=ON`. That opt-in build pins
@@ -245,33 +248,62 @@ builds do not acquire the Cargo/DSP-assembler dependency.
 
 ## Raw MCPX APU milestone
 
-The raw backend must resolve the APU PCI BAR at runtime and program only
+The raw backend resolves the APU PCI BAR at runtime and programs only
 documented/validated guest-visible state. Hard-coded xemu host addresses are
 not acceptable.
 
 The implementation should be layered:
 
 ```text
-AudioTortureTests
+15 catalog families with independently selectable suites
+  +-- AudioVpScalingTests (first S16 mono leaf executable)
+  +-- other family suites (planned)
   |
-  +-- deterministic source generator
-  +-- workload/case descriptor
-  +-- oracle accumulator
-  |
-  +-- Ac97DmaBackend
-  |
-  +-- McpxApuBackend
-        +-- PCI/MMIO discovery
-        +-- SGE/SSL allocator
-        +-- voice descriptor builder
-        +-- FE method writer
-        +-- GP/EP helpers
-        +-- teardown/reset
+  +-- shared typed 138-case descriptor and deterministic fixtures
+  +-- guarded raw MCPX and future test-owned AC'97 backends
+  +-- family-specific output/state oracles and teardown
 ```
 
 The backend must have a real teardown/reset path before it is enabled in the
 full suite. Leaving the audio device in a modified state for later unrelated
 tests is a suite correctness bug.
+
+### First VP-scaling leaf: Deck evidence, 2026-10-05 UTC
+
+Only `audio.vp_scaling.s16_mono.v001` is executable in the new hardware-safe
+family catalog. The other 137 matrix cases remain planned; this leaf is
+correctness-only, opt-in for current Deck development, and excluded from the
+default smoke plan. Its guest oracle requires observed engine progress, all
+32 stopped-frame GP mix samples to match a contiguous S16 fixture window
+within 32 S16 levels of fixed-point error, and verified stop, register
+restoration, quiet counter, and DMA guard before memory release.
+
+The exact normal XISO was built from source commit
+`29185f2054771802a2bd8018895d42bcc142cb0c`, SHA-256
+`deca474cf431e20e66dcc3f8868516928dda45f00ff4fb0a28464136a0fa499c`.
+Its catalog ID is
+`sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193`
+and catalog-file SHA-256 is
+`f0b4b51a2167c117ace9c2d402609019ed07721c2e568e3b91fae72bd45b4e23`.
+Both campaigns selected this leaf alone with zero warmups, multiplier 1,
+per-iteration GPU completion, the same configuration SHA-256
+`0318e8887b2144ba6a5cb6536df14b04b80eadf8a21debb242f4e80904034dce`,
+and the same resolved chunk plan
+`sha256:31d0ea61d406bb3801215651872f1061f4a849cc9bd75d7314472ec65598acbc`.
+
+| Deck executable | Exact executable SHA-256 | Observed guest result |
+| --- | --- | --- |
+| Upstream xemu `ee5ce48b48784f999af374c1452003f8b2b1230f` | `5b6ccf357cfab428e92692b82dc3a5cc75cb50e4065608defbf1cc66b68a597c` | [Run `20261005-071324531-f9499e62b4fb417c8c5c730c3fa036ba`](http://10.0.0.123:9368/api/v1/runs/20261005-071324531-f9499e62b4fb417c8c5c730c3fa036ba/artifacts/guest/results.txt): guest `PASS`, 19 observed engine frames, output and teardown pass |
+| Candidate xemu `c4cdef6cad3dd22d516e16ec2cb1aa9c06ec11f6` | `95f81f33d932cb297d6f637eb0635ac2faa2b895d330bae6871e3012d6353667` | [Run `20261005-071414774-abe49da94d904d298218103da8a4ac7d`](http://10.0.0.123:9368/api/v1/runs/20261005-071414774-abe49da94d904d298218103da8a4ac7d/artifacts/guest/results.txt): guest `PASS`, 13 observed engine frames, output and teardown pass |
+
+These are complete selected-leaf guest receipts, **not** runner-qualified
+baseline or performance comparisons. The runner API v1 reports the new leaf
+has no pinned runner-side reference oracle, so both unpaired campaigns have
+`xiso_oracle_coverage=false` and an overall failed/ineligible assessment even
+though each guest leaf passed. Runner binary version was not exposed by the
+queried service endpoints. No original Xbox was available; hardware
+qualification remains withheld. Do not promote this PR or the other 137 cases
+from these two runs.
 
 ## Path-proof contract
 
