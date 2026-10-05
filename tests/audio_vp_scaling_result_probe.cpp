@@ -15,10 +15,12 @@ int main() {
   output.submitted_sample_frames = 256;
   output.observed_engine_frames = 8;
   output.cleanup_passed = true;
+  output.cleanup_counter_quiet = true;
   output.observed_mix_words[0] = 0x123456;
   const std::string output_json = BuildS16LeafMetadata(false, output, "wrong mix");
   assert(output_json.find("\"failure_phase\":\"observation\"") != std::string::npos);
   assert(output_json.find("\"observed_mix_words\":[1193046,") != std::string::npos);
+  assert(output_json.find("\"cleanup_counter_quiet\":true") != std::string::npos);
 
   WorkloadResult teardown = output;
   teardown.output_oracle_passed = true;

@@ -78,6 +78,10 @@ struct WorkloadResult {
   bool observed_voice_terminal{false};
   bool output_oracle_passed{false};
   bool cleanup_passed{false};
+  bool cleanup_stop_writes_passed{false};
+  bool cleanup_counter_quiet{false};
+  bool cleanup_registers_restored{false};
+  bool cleanup_dma_guard_passed{false};
 };
 
 // Hardware backends must be explicit lifecycle owners. A backend must never

@@ -143,21 +143,31 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
              std::chrono::steady_clock::now() < deadline);
     observed.observed_engine_frames = progressed / kVpSamplesPerFrame;
     result.observed_engine_frames = observed.observed_engine_frames;
-    if (progressed >= kRequiredEngineSamples) {
-      for (uint32_t i = 0; i < observed.mix_words.size(); ++i)
-        observed.mix_words[i] = io_.Read32(kMix + i * 4);
-      result.observed_mix_words = observed.mix_words;
-      result.output_oracle_passed = S16ControlOracle::Check(observed);
-    }
   }
 
   bool stopped = io_.Write32(kEngine, 0);
   stopped = WriteListEmpty(io_) && stopped;
-  const uint32_t quiet_start = io_.Read32(kEngineSamples);
-  const auto quiet_deadline = std::chrono::steady_clock::now() +
-                              std::chrono::milliseconds(3);
-  while (std::chrono::steady_clock::now() < quiet_deadline) {}
-  const bool counter_quiet = io_.Read32(kEngineSamples) == quiet_start;
+  result.cleanup_stop_writes_passed = stopped;
+  // The disable write can leave one final frame in flight. Observe two
+  // samples after a settling interval; bounded retries retain DMA on doubt.
+  for (unsigned attempt = 0; attempt < 10 && !result.cleanup_counter_quiet;
+       ++attempt) {
+    auto deadline = std::chrono::steady_clock::now() +
+                    std::chrono::milliseconds(3);
+    while (std::chrono::steady_clock::now() < deadline) {}
+    const uint32_t first = io_.Read32(kEngineSamples);
+    deadline = std::chrono::steady_clock::now() +
+               std::chrono::milliseconds(3);
+    while (std::chrono::steady_clock::now() < deadline) {}
+    result.cleanup_counter_quiet = ApuCounterQuiet(first, io_.Read32(kEngineSamples));
+  }
+  if (stopped && result.cleanup_counter_quiet &&
+      result.observed_engine_frames >= 8) {
+    for (uint32_t i = 0; i < observed.mix_words.size(); ++i)
+      observed.mix_words[i] = io_.Read32(kMix + i * 4);
+    result.observed_mix_words = observed.mix_words;
+    result.output_oracle_passed = S16ControlOracle::Check(observed);
+  }
   stopped = io_.Write32(kVoiceTable, before.registers.vpvaddr) && stopped;
   stopped = io_.Write32(kSgeTable, before.registers.vpsgeaddr) && stopped;
   stopped = io_.Write32(kFrontEndGate, old_gate) && stopped;
@@ -169,9 +179,14 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   const bool readable = ReadApuState(io_, after);
   result.observed_voice_terminal = readable && after.lists.vp_lists[0] == kEmptyVoice &&
                                    after.registers.sectl == before.registers.sectl;
-  result.cleanup_passed = stopped && counter_quiet && readable &&
-                          ApuStateRestored(before, after) &&
-                          result.observed_voice_terminal && IsGuardIntact(samples);
+  result.cleanup_registers_restored = readable &&
+                                      ApuStateRestored(before, after) &&
+                                      result.observed_voice_terminal;
+  result.cleanup_dma_guard_passed = IsGuardIntact(samples);
+  result.cleanup_passed = result.cleanup_stop_writes_passed &&
+                          result.cleanup_counter_quiet &&
+                          result.cleanup_registers_restored &&
+                          result.cleanup_dma_guard_passed;
   if (result.cleanup_passed) {
     allocator_.Free(samples);
     allocator_.Free(sge);

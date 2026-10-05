@@ -20,16 +20,27 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   bool bad_output{false};
   bool fail_stop{false};
   bool fail_setup{false};
+  bool tearing_while_running{false};
+  bool delayed_final_counter{false};
   mutable bool running{false};
   mutable uint32_t frames{0};
+  mutable unsigned stop_counter_reads_left{0};
   explicit FakeIo(const std::vector<uint8_t> &bytes) : source(bytes) {
     for (uint32_t offset = 0x2054; offset <= 0x2074; offset += 4) registers[offset] = 0xFFFF;
   }
   bool Open(std::string &error) override { error.clear(); return true; }
   uint32_t Read32(uint32_t offset) const override {
     if (offset == 0x2054 && busy) return 64;
-    if (offset == 0x200C) return running && !stall ? (frames += 32) : frames;
+    if (offset == 0x200C) {
+      if (running && !stall) return frames += 32;
+      if (stop_counter_reads_left) {
+        --stop_counter_reads_left;
+        return frames += 32;
+      }
+      return frames;
+    }
     if (offset >= 0x35000 && offset < 0x35080) {
+      if (tearing_while_running && running && offset == 0x35000) return 0x123456U;
       const size_t sample_index = (offset - 0x35000) / 4;
       const uint16_t bits = static_cast<uint16_t>(source[2 * sample_index]) |
                             (static_cast<uint16_t>(source[2 * sample_index + 1]) << 8);
@@ -45,7 +56,10 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
     if (offset == 0x202C && value != 0 && fail_setup) return false;
     if (offset == 0x2000 && value == 0 && fail_stop && running) return false;
     registers[offset] = value;
-    if (offset == 0x2000) running = value != 0;
+    if (offset == 0x2000) {
+      if (running && value == 0 && delayed_final_counter) stop_counter_reads_left = 2;
+      running = value != 0;
+    }
     return true;
   }
   void Close() override {}
@@ -69,7 +83,9 @@ struct FakeAllocator : AudioTorture::AudioDmaAllocator {
 
 bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
                  const std::vector<uint8_t> &source, bool busy, bool stall,
-                 bool bad_output, bool fail_stop, bool fail_setup) {
+                 bool bad_output, bool fail_stop, bool fail_setup,
+                 bool tearing_while_running = false,
+                 bool delayed_final_counter = false) {
   FakeIo io(source);
   FakeAllocator allocator;
   io.busy = busy;
@@ -77,6 +93,8 @@ bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
   io.bad_output = bad_output;
   io.fail_stop = fail_stop;
   io.fail_setup = fail_setup;
+  io.tearing_while_running = tearing_while_running;
+  io.delayed_final_counter = delayed_final_counter;
   AudioTorture::McpxRawBackend backend(io, allocator, source.data(), source.size());
   AudioTorture::WorkloadResult result{};
   std::string error;
@@ -86,11 +104,14 @@ bool RunScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
     assert(!success && io.writes.empty() && allocator.allocated.empty());
   } else if (fail_stop) {
     assert(!success && !result.cleanup_passed && allocator.freed == 0);
+    assert(!result.cleanup_stop_writes_passed);
   } else if (fail_setup) {
     assert(!success && result.cleanup_passed && allocator.freed == 3);
     assert(result.submitted_sample_frames == 0);
   } else {
     assert(result.cleanup_passed && allocator.freed == 3);
+    assert(result.cleanup_stop_writes_passed && result.cleanup_counter_quiet &&
+           result.cleanup_registers_restored && result.cleanup_dma_guard_passed);
     if (stall) assert(!success && result.observed_engine_frames == 0);
     else if (bad_output) assert(!success && !result.output_oracle_passed);
     else assert(success && result.observed_engine_frames >= 8 &&
@@ -112,6 +133,8 @@ int main(int argc, char **argv) {
   const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
   assert(descriptor);
   assert(RunScenario(*descriptor, source, false, false, false, false, false));
+  assert(RunScenario(*descriptor, source, false, false, false, false, false,
+                     true, true));
   assert(!RunScenario(*descriptor, source, true, false, false, false, false));
   assert(!RunScenario(*descriptor, source, false, true, false, false, false));
   assert(!RunScenario(*descriptor, source, false, false, true, false, false));
