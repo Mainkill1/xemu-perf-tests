@@ -17,7 +17,7 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   }
   uint32_t Read32(uint32_t offset) const override {
     reads.push_back(offset);
-    return 0;
+    return offset >= 0x2054 && offset <= 0x2074 ? 0xFFFF : 0;
   }
   bool Write32(uint32_t offset, uint32_t) override {
     writes.push_back(offset);
@@ -31,6 +31,8 @@ int main() {
   using namespace AudioTorture;
   McpxApuRegisterSnapshot registers{};
   VoiceListSnapshot lists{};
+  assert(!CheckApuOwnership(registers, lists).admitted);
+  lists.vp_lists.fill(0xFFFF);
   assert(CheckApuOwnership(registers, lists).admitted);
   registers.fectl = 0x80;
   assert(!CheckApuOwnership(registers, lists).admitted);
@@ -40,7 +42,7 @@ int main() {
   registers.sectl = 0;
   lists.vp_lists[0] = 1;
   assert(!CheckApuOwnership(registers, lists).admitted);
-  lists.vp_lists[0] = 0;
+  lists.vp_lists[0] = 0xFFFF;
   lists.gp_reset = 3;
   assert(!CheckApuOwnership(registers, lists).admitted);
   lists.gp_reset = 0;

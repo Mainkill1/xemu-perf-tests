@@ -48,7 +48,8 @@ ApuOwnershipDecision CheckApuOwnership(const McpxApuRegisterSnapshot &registers,
     return {false, "APU engine is not in the idle control state"};
   }
   for (uint32_t head : lists.vp_lists) {
-    if (head != 0) return {false, "APU voice list is not empty"};
+    // 0xFFFF is the empty-list sentinel; voice index zero is valid.
+    if (head != 0xFFFFU) return {false, "APU voice list is not empty"};
   }
   if (lists.gp_reset != 0 || lists.ep_reset != 0) {
     return {false, "GP or EP is released from reset"};
