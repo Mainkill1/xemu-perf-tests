@@ -107,5 +107,6 @@ class BundleTests(unittest.TestCase):
         self.assertEqual(categories['pvideo.resize_toggle'], 'surfaces')
         self.assertEqual(categories['mcpx_voice.mono_aligned'], 'audio')
         self.assertEqual(categories['mcpx_voice.pcm_control'], 'audio')
+        self.assertEqual(categories['audio.vp_scaling.s16_mono.v001'], 'audio')
 
 if __name__ == '__main__': unittest.main()

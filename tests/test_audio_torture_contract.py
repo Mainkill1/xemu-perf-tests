@@ -215,7 +215,10 @@ class AudioTortureContractTests(unittest.TestCase):
 
         catalog = json.loads((ROOT / "resources" / "catalog.json").read_text(encoding="utf-8"))
         catalog_ids = {entry["id"] for entry in catalog["tests"]}
-        self.assertFalse(any(test_id.startswith("audio.") for test_id in catalog_ids))
+        self.assertEqual(
+            {test_id for test_id in catalog_ids if test_id.startswith("audio.")},
+            {"audio.vp_scaling.s16_mono.v001"},
+        )
 
         main_source = (ROOT / "src" / "main.cpp").read_text(encoding="utf-8")
         self.assertNotIn("REG_TEST(AudioTortureTests)", main_source)

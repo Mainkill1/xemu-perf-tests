@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Compile the planned audio matrix into a typed, non-executable guest table."""
+"""Compile the audio matrix into typed guest descriptors with explicit promotion."""
 
 from __future__ import annotations
 
@@ -14,6 +14,7 @@ from audio_torture_cases import build_cases, load_matrix, validate
 
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_OUTPUT = ROOT / "src" / "generated" / "audio_case_catalog.inc"
+EXECUTABLE_IDS = frozenset({"audio.vp_scaling.s16_mono.v001"})
 
 FAMILIES = {
     "audio.ac97_dma": "kAc97Dma",
@@ -121,6 +122,8 @@ def generate() -> str:
     validate(matrix, cases)
     if len(cases) != 138 or len(FAMILIES) != 15:
         raise ValueError("audio case count or family count changed; review the guest contract")
+    if not EXECUTABLE_IDS <= {case["id"] for case in cases}:
+        raise ValueError("an executable audio case is missing from the matrix")
     manifest = json.dumps(cases, sort_keys=True, separators=(",", ":"), ensure_ascii=True)
     digest = hashlib.sha256(manifest.encode("utf-8")).hexdigest()
     lines = [
@@ -145,7 +148,7 @@ def generate() -> str:
             "  {" + ", ".join((
                 json.dumps(case["id"]), f"AudioFamily::{family}", f"BackendKind::{backend}",
                 _workload(case), denial, attempts, optional, f"OracleProfile::{family}",
-                json.dumps(paths), "false",
+                json.dumps(paths), "true" if case["id"] in EXECUTABLE_IDS else "false",
             )) + "},"
         )
     lines.append("};")
@@ -165,7 +168,7 @@ def main() -> int:
         return 0
     args.output.parent.mkdir(parents=True, exist_ok=True)
     args.output.write_bytes(rendered)
-    print(f"generated 138 planned audio descriptors: {args.output}")
+    print(f"generated 138 audio descriptors: {args.output}")
     return 0
 
 

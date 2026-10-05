@@ -127,6 +127,10 @@ def entries():
         out.append(leaf(f"mcpx_voice.{stable}", "mcpx_voice", "McpxVoice", legacy,
                         "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.",
                         ("audio", "correctness", "xemu-only")))
+    out.append(leaf(
+        "audio.vp_scaling.s16_mono.v001", "audio.vp_scaling", "AudioVpScaling", "S16MonoV001",
+        "Checks one raw MCPX S16 mono voice against guest-observed progress, GP mix output, and DMA-safe teardown; timing is diagnostic only.",
+        ("audio", "correctness", "hardware-safe")))
     simple("fill_rate", "FillRate", [("solid", "FillRate-Solid"),
            ("textured", "FillRate-Textured")], ("gpu", "performance", "hardware-safe"))
     simple("pipeline_texture_switch", "PipelineTextureSwitch", [
@@ -383,7 +387,7 @@ def catalog(items):
             if item.suite_id == "report_query":
                 d["observations"].append({"name": "report.memory", "kind": "structured",
                                           "scope_version": 1})
-            if item.suite_id == "mcpx_voice":
+            if item.suite_id in ("mcpx_voice", "audio.vp_scaling"):
                 d["observations"].append({"name": "apu.mix", "kind": "structured", "scope_version": 1})
         tests.append(d)
     raw = json.dumps(tests, sort_keys=True, separators=(",", ":")).encode()
@@ -435,6 +439,13 @@ def failure_diagnosis(test):
             "The MCPX voice setup, sample progress, mix output, or cleanup check failed. "
             "Inspect APU ownership guards, scattered SGE input, ADPCM/PCM decode, GP mix-bin routing, "
             "and DMA-safe list teardown. Timing is diagnostic only."
+        )
+
+    if test_id.startswith("audio.vp_scaling."):
+        return (
+            "The guarded raw MCPX voice setup, observed engine progress, S16 mix output, or DMA-safe teardown failed. "
+            "Inspect the APU ownership snapshot, VP voice/SGE tables, GP mixbin, counter observation, and retained DMA allocations. "
+            "Timing is diagnostic only; original-Xbox qualification is not yet available."
         )
 
     if test["suite_id"] == "pvideo":
@@ -808,6 +819,8 @@ def render():
                           measurement_iterations_multiplier=1, gpu_completion_mode="per_iteration")
     output[ROOT / "resources/mcpx-voice-correctness.json"] = resolved_plan(
         doc, voice_settings, [x["id"] for x in doc["tests"] if x["suite_id"] == "mcpx_voice"])
+    output[ROOT / "resources/audio-vp-scaling-s16-mono-v001.json"] = resolved_plan(
+        doc, voice_settings, ["audio.vp_scaling.s16_mono.v001"])
     profiles = {
         "fast-smoke": (1, 1, "enqueue"),
         "quick": (128, 64, "batch_complete"),

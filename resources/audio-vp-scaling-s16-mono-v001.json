@@ -2,21 +2,20 @@
   "settings": {
     "skip_tests_by_default": true,
     "output_directory_path": "e:/xemu_perf_tests",
-    "warmup_iterations": 1,
-    "measurement_iterations_multiplier": 2,
+    "enable_xemu_only_tests": true,
+    "enable_autorun_immediately": true,
+    "warmup_iterations": 0,
+    "measurement_iterations_multiplier": 1,
     "gpu_completion_mode": "per_iteration"
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:78015ff785ee78f65888e87e93a7a9aa0dc07be950891fe7e6bb3ee74cf4d528",
+    "plan_id": "sha256:53b5ca223f55d562e9f1b2a94cf6ff8334d9a8277cc27f69af2f7324a91a22a6",
     "catalog_id": "sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193",
-    "selected_leaf_count": 2,
+    "selected_leaf_count": 1,
     "tests": [
       {
-        "id": "pipeline_texture_switch.palette_only_update"
-      },
-      {
-        "id": "pipeline_texture_switch.shared_page_overlap"
+        "id": "audio.vp_scaling.s16_mono.v001"
       }
     ]
   }

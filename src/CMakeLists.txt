@@ -124,6 +124,9 @@ add_library(
         tests/audio_mcpx_raw_backend.cpp
         tests/audio_mcpx_raw_backend.h
         tests/audio_s16_control_oracle.h
+        tests/audio_vp_scaling_tests.cpp
+        tests/audio_vp_scaling_tests.h
+        tests/audio_vp_scaling_result.h
         tests/audio_torture_backend.h
         tests/audio_torture_support.cpp
         tests/audio_torture_support.h

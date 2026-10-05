@@ -50,9 +50,10 @@ class AudioReferenceBackendContractTests(unittest.TestCase):
         catalog = json.loads(
             (ROOT / "resources" / "catalog.json").read_text(encoding="utf-8")
         )
-        self.assertFalse(
-            any("audio" in test["id"] for test in catalog["tests"]),
-            "development bootstrap must not become stable catalog coverage",
+        self.assertEqual(
+            [test["id"] for test in catalog["tests"] if test["id"].startswith("audio.")],
+            ["audio.vp_scaling.s16_mono.v001"],
+            "the legacy bootstrap must not become catalog coverage",
         )
 
     def test_bootstrap_uses_exact_s16_fixture_and_one_voice(self):

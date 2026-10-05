@@ -28,9 +28,10 @@ int main() {
   }
   assert(AudioCaseCount() == 138);
   assert(counts == expected);
-  assert(ac97 == 10 && raw == 128 && executable == 0);
+  assert(ac97 == 10 && raw == 128 && executable == 1);
   const auto *control = FindAudioCase("audio.vp_scaling.s16_mono.v001");
   assert(control && control->workload.voice_count == 1);
+  assert(control->executable);
   assert(control->workload.channels == 1);
   assert(control->workload.format == SampleFormat::kS16);
   const auto *zero = FindAudioCase("audio.vp_scaling.s16_mono.v000");
@@ -52,5 +53,5 @@ int main() {
   assert(pitch && pitch->workload.signal == SignalKind::kNearNyquist049);
   assert(FindAudioCase("audio.not_a_case") == nullptr);
   assert(std::strlen(AudioCaseManifestDigest()) == 64);
-  std::cout << "138 descriptors, 15 families, 0 executable\n";
+  std::cout << "138 descriptors, 15 families, 1 executable\n";
 }

@@ -32,6 +32,7 @@ static const TestDescriptor kTestCatalog[] = {
   {"mcpx_voice.mono_page_crossing", 1, "mcpx_voice", "MonoPageCrossing", "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.", "McpxVoice", "MonoPageCrossing", "MonoPageCrossing", TestKind::LEAF, 0, 0},
   {"mcpx_voice.stereo_page_crossing", 1, "mcpx_voice", "StereoPageCrossing", "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.", "McpxVoice", "StereoPageCrossing", "StereoPageCrossing", TestKind::LEAF, 0, 0},
   {"mcpx_voice.pcm_control", 1, "mcpx_voice", "PcmControl", "Exercises the guest MCPX nonstreaming voice pipeline and checks constant decoded mix output; completion wait is not comparable throughput.", "McpxVoice", "PcmControl", "PcmControl", TestKind::LEAF, 0, 0},
+  {"audio.vp_scaling.s16_mono.v001", 1, "audio.vp_scaling", "S16MonoV001", "Checks one raw MCPX S16 mono voice against guest-observed progress, GP mix output, and DMA-safe teardown; timing is diagnostic only.", "AudioVpScaling", "S16MonoV001", "S16MonoV001", TestKind::LEAF, 0, 0},
   {"fill_rate.solid", 1, "fill_rate", "FillRate-Solid", "Runs the FillRate-Solid workload and records its deterministic result.", "FillRate", "FillRate-Solid", "FillRate-Solid", TestKind::LEAF, 0, 0},
   {"fill_rate.textured", 1, "fill_rate", "FillRate-Textured", "Runs the FillRate-Textured workload and records its deterministic result.", "FillRate", "FillRate-Textured", "FillRate-Textured", TestKind::LEAF, 0, 0},
   {"pipeline_texture_switch.texture_switch", 1, "pipeline_texture_switch", "pipeline.texture-switch", "Runs the pipeline.texture-switch workload and records its deterministic result.", "PipelineTextureSwitch", "pipeline.texture-switch", "pipeline.texture-switch", TestKind::LEAF, 0, 0},
@@ -199,4 +200,4 @@ static const TestDescriptor kTestCatalog[] = {
   {"vertex_buffer_allocation.gpu_surface_vertex_attribute_readback", 1, "vertex_buffer_allocation", "XemuGpuSurfaceVertexAttributeReadback", "Uses a GPU-authored surface as a stride-zero diffuse vertex attribute and checks readback before CPU decoding.", "Vertex buffer allocation", "XemuGpuSurfaceVertexAttributeReadback", "XemuGpuSurfaceVertexAttributeReadback", TestKind::LEAF, 0, 0},
 };
 static constexpr size_t kTestCatalogSize = sizeof(kTestCatalog) / sizeof(kTestCatalog[0]);
-static constexpr const char *kTestCatalogId = "sha256:34b0dd575eeca9fe861638b6551b4212ad4d80d3fec605779132db250ceb52d8";
+static constexpr const char *kTestCatalogId = "sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193";

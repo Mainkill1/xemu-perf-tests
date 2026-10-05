@@ -24,6 +24,7 @@
 #include "test_driver.h"
 #include "test_host.h"
 #include "tests/audio_bootstrap_smoke.h"
+#include "tests/audio_vp_scaling_tests.h"
 #include "tests/busy_pfifo_tests.h"
 #include "tests/cpu_floating_point_tests.h"
 #include "tests/cpu_translation_block_tests.h"
@@ -261,6 +262,7 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(HighVertexCountTests)
   REG_TEST(PfifoArrayElementTests)
   if (runtime_config.enable_xemu_only_tests()) {
+    REG_TEST(AudioVpScalingTests)
     REG_TEST(McpxVoiceTests)
     REG_TEST(PfifoPacketBoundaryTests)
     REG_TEST(PvideoTests)

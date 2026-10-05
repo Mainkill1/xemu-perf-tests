@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:34b0dd575eeca9fe861638b6551b4212ad4d80d3fec605779132db250ceb52d8` contains 192 leaves and 5 groups.
+Catalog `sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193` contains 193 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -36,6 +36,7 @@ Catalog `sha256:34b0dd575eeca9fe861638b6551b4212ad4d80d3fec605779132db250ceb52d8
 | `mcpx_voice.mono_page_crossing` | leaf | `McpxVoice::MonoPageCrossing` |
 | `mcpx_voice.stereo_page_crossing` | leaf | `McpxVoice::StereoPageCrossing` |
 | `mcpx_voice.pcm_control` | leaf | `McpxVoice::PcmControl` |
+| `audio.vp_scaling.s16_mono.v001` | leaf | `AudioVpScaling::S16MonoV001` |
 | `fill_rate.solid` | leaf | `FillRate::FillRate-Solid` |
 | `fill_rate.textured` | leaf | `FillRate::FillRate-Textured` |
 | `pipeline_texture_switch.texture_switch` | leaf | `PipelineTextureSwitch::pipeline.texture-switch` |
