@@ -1,29 +1,24 @@
 {
   "settings": {
     "enable_autorun_immediately": true,
-    "warmup_iterations": 0,
     "enable_xemu_only_tests": true,
+    "skip_tests_by_default": true,
+    "warmup_iterations": 0,
     "measurement_iterations_multiplier": 1,
     "gpu_completion_mode": "per_iteration",
     "output_directory_path": "e:/xemu_perf_tests"
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:7afe41837df4eac9c5d27aae8f33f85683dc6abdc9ef06cf5a1aae55356697e2",
+    "plan_id": "sha256:cf41a5df0673523355d5431976b8a24d3bfaddb7550cc090992931e4e3d37891",
     "catalog_id": "sha256:34b0dd575eeca9fe861638b6551b4212ad4d80d3fec605779132db250ceb52d8",
-    "selected_leaf_count": 4,
+    "selected_leaf_count": 2,
     "tests": [
       {
-        "id": "pfifo_packet_boundary.array_element16_overflow"
+        "id": "pvideo.steady_upload"
       },
       {
-        "id": "pfifo_packet_boundary.array_element32_overflow"
-      },
-      {
-        "id": "pfifo_packet_boundary.inline_array_overflow"
-      },
-      {
-        "id": "pfifo_packet_boundary.incrementing_inline_fallback"
+        "id": "pvideo.resize_toggle"
       }
     ]
   }

@@ -103,6 +103,8 @@ class BundleTests(unittest.TestCase):
         categories = {leaf: category['id'] for category in bundle['categories'] for leaf in category['tests']}
         self.assertEqual(categories['busy_pfifo.pfifo_saturation'], 'commands')
         self.assertEqual(categories['fill_rate.solid'], 'surfaces')
+        self.assertEqual(categories['pvideo.steady_upload'], 'surfaces')
+        self.assertEqual(categories['pvideo.resize_toggle'], 'surfaces')
         self.assertEqual(categories['mcpx_voice.mono_aligned'], 'audio')
         self.assertEqual(categories['mcpx_voice.pcm_control'], 'audio')
 
