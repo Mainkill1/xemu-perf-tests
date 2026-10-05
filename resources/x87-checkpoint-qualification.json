@@ -2,20 +2,22 @@
   "settings": {
     "skip_tests_by_default": true,
     "enable_autorun_immediately": true,
-    "enable_xemu_only_tests": true,
-    "warmup_iterations": 0,
-    "measurement_iterations_multiplier": 1,
+    "warmup_iterations": 3,
+    "measurement_iterations_multiplier": 4,
     "gpu_completion_mode": "per_iteration",
     "output_directory_path": "e:/xemu_perf_tests"
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:3759fcb050868362611bfddf2b3bfbd48335a0509836a1fe07fafed82702d3eb",
+    "plan_id": "sha256:7532f33a1b3914ede82f69c8c8b8ac348273bfa4aa8b437081bf90a33c2287e9",
     "catalog_id": "sha256:d439948b55f86f0dde1c3e1a7b5b53d98e639698c17df9f00968541e841077c3",
-    "selected_leaf_count": 1,
+    "selected_leaf_count": 2,
     "tests": [
       {
-        "id": "shader_lifecycle.readiness_identical_replay"
+        "id": "cpu_floating_point.x87_exception_status"
+      },
+      {
+        "id": "cpu_floating_point.x87_fault_checkpoint"
       }
     ]
   }

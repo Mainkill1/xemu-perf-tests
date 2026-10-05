@@ -1,0 +1,33 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "enable_autorun_immediately": true,
+    "warmup_iterations": 3,
+    "measurement_iterations_multiplier": 4,
+    "gpu_completion_mode": "per_iteration",
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:f056cd96c447fc363a2eb87881c0e883e9997d813d98c1443e204c056d173688",
+    "catalog_id": "sha256:d439948b55f86f0dde1c3e1a7b5b53d98e639698c17df9f00968541e841077c3",
+    "selected_leaf_count": 5,
+    "tests": [
+      {
+        "id": "cpu_floating_point.x87_status_vectors"
+      },
+      {
+        "id": "cpu_floating_point.x87_status_ax"
+      },
+      {
+        "id": "cpu_floating_point.x87_compare_status_ax"
+      },
+      {
+        "id": "cpu_floating_point.x87_scalar"
+      },
+      {
+        "id": "cpu_floating_point.sse_scalar"
+      }
+    ]
+  }
+}

@@ -97,6 +97,9 @@ add_library(
         tests/busy_pfifo_tests.h
         tests/cpu_floating_point_tests.cpp
         tests/cpu_floating_point_tests.h
+        tests/x87_status_workload.h
+        tests/x87_fault_workload.h
+        tests/x87_fault_guest.cpp
         tests/cpu_translation_block_tests.cpp
         tests/cpu_code_rewrite_workload.h
         tests/cpu_jump_cache_workload.h
