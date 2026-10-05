@@ -24,7 +24,7 @@ class AudioRawS16Tests(unittest.TestCase):
                  str(ROOT / "src" / "tests" / "audio_torture_support.cpp"),
                  "-o", str(executable)], capture_output=True, text=True)
             self.assertEqual(compile_result.returncode, 0, compile_result.stderr)
-            for scenario in (None, "gate-restore", "headroom-readback", "poison"):
+            for scenario in (None, "gate-restore", "headroom-untouched", "poison"):
                 command = [str(executable)]
                 if scenario:
                     command.append(scenario)

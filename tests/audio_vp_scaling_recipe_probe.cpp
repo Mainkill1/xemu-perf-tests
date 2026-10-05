@@ -54,6 +54,13 @@ int main() {
   for (unsigned i = 0; i < 256; ++i) {
     const auto handle = ScalingVoiceHandle(i);
     assert(Word(voices.data(), handle, 0x1C) == 0xFFFF);
+    if (handle < 64) {
+      // HRTF bypass does not bypass the first four slots' special routing.
+      assert((Word(voices.data(), handle, 0) >> 21 & 31) == 0);
+      assert((Word(voices.data(), handle, 0) >> 26 & 31) == 1);
+      assert(Word(voices.data(), handle, 0x60) == 0xFFFFFFFFU);
+      assert(Word(voices.data(), handle, 0x68) == 0x000F000FU);
+    }
     assert(Word(voices.data(), handle, 0x7C) ==
            (i == 255 ? 0xFFFFU : ScalingVoiceHandle(i + 1)));
   }

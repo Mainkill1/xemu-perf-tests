@@ -23,7 +23,6 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
   bool fail_stop{false};
   bool fail_setup{false};
   bool fail_gate_restore{false};
-  bool ignore_headroom_restore{false};
   bool tearing_while_running{false};
   bool delayed_final_counter{false};
   mutable bool running{false};
@@ -65,8 +64,6 @@ struct FakeIo : AudioTorture::ApuRegisterIo {
     if (offset == 0x2000 && value == 0 && fail_stop && running) return false;
     if (offset == 0x1510 && value == 0 && fail_gate_restore &&
         registers[offset] == 1) return false;
-    if (offset == 0x20200 && value == 0xA0A0U && ignore_headroom_restore)
-      return true;
     registers[offset] = value;
     if (offset == 0x2000) {
       if (running && value == 0 && delayed_final_counter) stop_counter_reads_left = 2;
@@ -148,14 +145,20 @@ void RunRestoreFailureScenario(const AudioTorture::AudioCaseDescriptor &descript
   FakeAllocator allocator;
   ConnectProgress(io, allocator);
   io.fail_gate_restore = fail_gate_write;
-  io.ignore_headroom_restore = !fail_gate_write;
   if (!fail_gate_write) io.registers[0x20200] = 0xA0A0U;
   AudioTorture::McpxRawBackend backend(io, allocator, source.data(), source.size());
   AudioTorture::WorkloadResult result{};
   std::string error;
-  assert(!backend.Run(descriptor, result, error));
-  assert(!result.cleanup_passed && !result.cleanup_registers_restored);
-  assert(allocator.freed == 0);
+  if (fail_gate_write) {
+    assert(!backend.Run(descriptor, result, error));
+    assert(!result.cleanup_passed && !result.cleanup_registers_restored);
+    assert(allocator.freed == 0);
+  } else {
+    assert(backend.Run(descriptor, result, error));
+    assert(result.cleanup_passed && allocator.freed == 3);
+    assert(io.registers[0x20200] == 0xA0A0U);
+    for (const auto offset : io.writes) assert(offset != 0x20200 && offset != 0x20204);
+  }
 }
 
 void RunPoisonScenario(const AudioTorture::AudioCaseDescriptor &descriptor,
@@ -222,7 +225,7 @@ int main(int argc, char **argv) {
   if (argc == 2) {
     const std::string scenario = argv[1];
     if (scenario == "gate-restore") RunRestoreFailureScenario(*descriptor, source, true);
-    else if (scenario == "headroom-readback")
+    else if (scenario == "headroom-untouched")
       RunRestoreFailureScenario(*descriptor, source, false);
     else if (scenario == "poison") RunPoisonScenario(*descriptor, source);
     else assert(false);

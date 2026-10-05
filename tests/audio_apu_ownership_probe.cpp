@@ -104,7 +104,8 @@ int main() {
   assert(IsApuRegisterWriteAllowed(0x1100));
   assert(IsApuRegisterWriteAllowed(0x1510));
   assert(IsApuRegisterWriteAllowed(0x2000));
-  assert(IsApuRegisterWriteAllowed(0x20200));
+  assert(!IsApuRegisterWriteAllowed(0x20200));
+  assert(!IsApuRegisterWriteAllowed(0x20204));
   assert(IsApuRegisterWriteAllowed(0x35000));
   assert(IsApuRegisterWriteAllowed(0x3507C));
   assert(IsApuRegisterWriteAllowed(0x350FC));

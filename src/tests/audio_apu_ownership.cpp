@@ -35,7 +35,6 @@ bool IsApuRegisterWriteAllowed(uint32_t offset) {
   // Only registers used by the admitted scaling session are writable.
   switch (offset) {
     case 0x1100: case 0x1510: case 0x2000:
-    case 0x20200: case 0x20204:
     case 0x202C: case 0x2030: case 0x2034:
     case 0x2040: case 0x2044: case 0x2048: case 0x204C:
     case 0x2054: case 0x2058: case 0x205C:

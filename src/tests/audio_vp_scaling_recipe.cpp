@@ -51,9 +51,13 @@ bool PrepareS16ScalingVoiceTable(const WorkloadSpec &spec, uint8_t *voice_memory
     auto word = [voice](size_t offset, uint32_t value) {
       std::memcpy(voice + offset, &value, sizeof(value));
     };
-    // Compatibility-required MCPX fields: two unity-gain routes, all other
-    // routes attenuated, static looping S16, and HRTF explicitly bypassed.
-    word(0x00, (1U << 5) | (31U << 10) | (31U << 16) |
+    // The lower 64 slots reserve routes 0..3 for global HRTF submixes even
+    // with a null filter handle. Use ordinary routes 4/5 there, preserving
+    // left/right channel parity without touching write-only global state.
+    const bool low_slot = ScalingVoiceHandle(ordinal) < 64;
+    word(0x00, low_slot ? 31U | (31U << 5) | (31U << 10) |
+                   (31U << 16) | (1U << 26) :
+                   (1U << 5) | (31U << 10) | (31U << 16) |
                    (31U << 21) | (31U << 26));
     word(0x04, 0x520003FFU | (spec.channels == 2 ? 0x08010000U : 0));
     word(0x0C, 0xFF000000U);
@@ -62,9 +66,9 @@ bool PrepareS16ScalingVoiceTable(const WorkloadSpec &spec, uint8_t *voice_memory
     word(0x54, (1U << 21) | (5U << 24) | (5U << 28));
     word(0x58, 0xFF000000U);
     word(0x5C, 0xFF000000U | (source_frames - 1));
-    word(0x60, 0x000F000FU);
+    word(0x60, low_slot ? 0xFFFFFFFFU : 0x000F000FU);
     word(0x64, 0xFFFFFFFFU);
-    word(0x68, 0xFFFFFFFFU);
+    word(0x68, low_slot ? 0x000F000FU : 0xFFFFFFFFU);
     word(0x7C, ordinal + 1 == spec.voice_count ? 0xFFFFU :
                    ScalingVoiceHandle(ordinal + 1));
   }

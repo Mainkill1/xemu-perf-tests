@@ -18,7 +18,7 @@ class AudioVpScalingBackendTests(unittest.TestCase):
             command += [str(ROOT / f"src/tests/{s}.cpp") for s in sources]
             result = subprocess.run(command + ["-o", str(binary)], capture_output=True, text=True)
             self.assertEqual(result.returncode, 0, result.stderr)
-            for scenario in (None, "skip", "reverse", "poison"):
+            for scenario in (None, "skip", "reverse", "poison", "headroom"):
                 result = subprocess.run([str(binary)] + ([scenario] if scenario else []),
                                         capture_output=True, text=True)
                 self.assertEqual(result.returncode, 0, f"{scenario}: {result.stderr}")

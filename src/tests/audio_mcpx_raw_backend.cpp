@@ -20,7 +20,6 @@ constexpr uint32_t kFrontEnd = 0x1100;
 constexpr uint32_t kFrontEndGate = 0x1510;
 constexpr uint32_t kVoiceTable = 0x202C;
 constexpr uint32_t kSgeTable = 0x2030;
-constexpr uint32_t kHeadroom = 0x20200;
 constexpr uint32_t kMix = 0x35000;
 constexpr uint32_t kListBase = 0x2054;
 constexpr uint32_t kEmptyVoice = 0xFFFF;
@@ -92,8 +91,6 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     std::array<uint32_t, 64> old_mix{};
     for (uint32_t i = 0; i < old_mix.size(); ++i) old_mix[i] = io_.Read32(kMix + i * 4);
     const uint32_t old_gate = io_.Read32(kFrontEndGate);
-    const uint32_t old_left = io_.Read32(kHeadroom);
-    const uint32_t old_right = io_.Read32(kHeadroom + 4);
     ApuStateSnapshot after{};
     const bool readable = ReadApuState(io_, after);
     bool mix_unchanged = true;
@@ -105,8 +102,7 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     result.cleanup_stop_writes_passed = true;  // No work was armed.
     result.cleanup_counter_quiet = readable && ApuCounterQuiet(before.registers.xgscnt, after.registers.xgscnt);
     result.cleanup_registers_restored = readable && ApuStateRestored(before, after) &&
-        io_.Read32(kFrontEndGate) == old_gate && io_.Read32(kHeadroom) == old_left &&
-        io_.Read32(kHeadroom + 4) == old_right;
+        io_.Read32(kFrontEndGate) == old_gate;
     result.cleanup_dma_guard_passed = true;  // No DMA was allocated.
     result.cleanup_passed = result.cleanup_counter_quiet && result.cleanup_registers_restored;
     result.output_oracle_passed = mix_unchanged;
@@ -164,16 +160,12 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   result.source_checksum = Fnv1a64(source_, source_bytes_);
 
   const uint32_t old_gate = io_.Read32(kFrontEndGate);
-  const uint32_t old_headroom_left = io_.Read32(kHeadroom);
-  const uint32_t old_headroom_right = io_.Read32(kHeadroom + 4);
   bool writes_ok = true;
   // From this first address write onward, preserve all DMA allocations until
   // stop/readback demonstrates that no voice can still reach them.
   writes_ok = io_.Write32(kVoiceTable, voice_physical) && writes_ok;
   writes_ok = io_.Write32(kSgeTable, sge_physical) && writes_ok;
   writes_ok = io_.Write32(kFrontEndGate, 1) && writes_ok;
-  writes_ok = io_.Write32(kHeadroom, 0) && writes_ok;
-  writes_ok = io_.Write32(kHeadroom + 4, 0) && writes_ok;
   for (uint32_t word = 0; word < 64; ++word)
     writes_ok = io_.Write32(kMix + word * 4, 0) && writes_ok;
   writes_ok = WriteListEmpty(io_) && writes_ok;
@@ -243,8 +235,6 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   stopped = io_.Write32(kVoiceTable, before.registers.vpvaddr) && stopped;
   stopped = io_.Write32(kSgeTable, before.registers.vpsgeaddr) && stopped;
   stopped = io_.Write32(kFrontEndGate, old_gate) && stopped;
-  stopped = io_.Write32(kHeadroom, old_headroom_left) && stopped;
-  stopped = io_.Write32(kHeadroom + 4, old_headroom_right) && stopped;
   stopped = io_.Write32(kFrontEnd, before.registers.fectl) && stopped;
   stopped = io_.Write32(kEngine, before.registers.sectl) && stopped;
   ApuStateSnapshot after{};
@@ -254,8 +244,6 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
   result.cleanup_registers_restored = stopped && readable &&
                                       ApuStateRestored(before, after) &&
                                       io_.Read32(kFrontEndGate) == old_gate &&
-                                      io_.Read32(kHeadroom) == old_headroom_left &&
-                                      io_.Read32(kHeadroom + 4) == old_headroom_right &&
                                       result.observed_voice_terminal;
   result.cleanup_dma_guard_passed = IsGuardIntact(samples, source_bytes_, kPageBytes) &&
       IsGuardIntact(sge, 8, kPageBytes) &&

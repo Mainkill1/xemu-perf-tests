@@ -48,6 +48,7 @@ struct Io : AudioTorture::ApuRegisterIo {
   bool skip_last_voice{false};
   bool reverse_stereo{false};
   bool fail_stop_once{false};
+  unsigned headroom[2]{};
   explicit Io(Allocator &a) : allocator(a) {
     for (uint32_t r = 0x2054; r <= 0x2074; r += 4) registers[r] = 0xFFFF;
     registers[0x1510] = 0x37;
@@ -102,19 +103,37 @@ struct Io : AudioTorture::ApuRegisterIo {
     for (size_t i = 0; i < chain.size(); ++i) {
       if (skip_last_voice && i + 1 == chain.size()) continue;
       const bool stereo = (Word(chain[i], 4) & (1U << 27)) != 0;
-      for (unsigned channel = 0; channel < 2; ++channel) {
-        const unsigned lane = stereo ? (reverse_stereo ? 1 - channel : channel) : 0;
+      const uint32_t bins = Word(chain[i], 0);
+      const uint32_t format = Word(chain[i], 4);
+      const uint32_t a = Word(chain[i], 0x60), b = Word(chain[i], 0x64), c = Word(chain[i], 0x68);
+      const unsigned volumes[8] = {
+          (a >> 4) & 0xFFF, (a >> 20) & 0xFFF,
+          (b >> 4) & 0xFFF, (b >> 20) & 0xFFF,
+          (c >> 4) & 0xFFF, (c >> 20) & 0xFFF,
+          ((c & 15) << 8) | ((b & 15) << 4) | (a & 15),
+          (((c >> 16) & 15) << 8) | (((b >> 16) & 15) << 4) | ((a >> 16) & 15)};
+      const unsigned routes[8] = {bins & 31, (bins >> 5) & 31, (bins >> 10) & 31,
+          (bins >> 16) & 31, (bins >> 21) & 31, (bins >> 26) & 31,
+          format & 31, (format >> 5) & 31};
+      for (unsigned route = 0; route < 8; ++route) {
+        // Lower slots override the first four routes with prior global HRTF
+        // submix state. A 2D test must not depend on that write-only state.
+        const unsigned channel = chain[i] < 64 && route < 4 ? 31 : routes[route];
+        if (channel >= 2 || volumes[route] == 0xFFF) continue;
+        assert(volumes[route] == 0);
+        const unsigned lane = stereo ? (reverse_stereo ? 1 - (route % 2) : route % 2) : 0;
         const uint16_t value = source[lane * 2] | (static_cast<uint16_t>(source[lane * 2 + 1]) << 8);
         sums[channel] += static_cast<int16_t>(value) * 256;
       }
     }
     for (unsigned channel = 0; channel < 2; ++channel)
       for (unsigned sample = 0; sample < 32; ++sample)
-        mix[channel * 32 + sample] = static_cast<uint32_t>(sums[channel]) & 0xFFFFFF;
+        mix[channel * 32 + sample] = static_cast<uint32_t>(sums[channel] / (1 << headroom[channel])) & 0xFFFFFF;
   }
   bool Open(std::string &error) override { ++opens; error.clear(); return true; }
   uint32_t Read32(uint32_t offset) const override {
     if (offset == 0x200C) { Advance(); return samples; }
+    if (offset == 0x20200 || offset == 0x20204) return 0;  // Write-only PIO methods.
     if (offset >= 0x35000 && offset < 0x35100) {
       Capture(); return mix[(offset - 0x35000) / 4];
     }
@@ -122,6 +141,7 @@ struct Io : AudioTorture::ApuRegisterIo {
   }
   bool Write32(uint32_t offset, uint32_t value) override {
     writes.push_back(offset);
+    if (offset == 0x20200 || offset == 0x20204) headroom[(offset - 0x20200) / 4] = value & 7;
     if (offset == 0x2000 && value == 0 && running) {
       if (fail_stop_once) { fail_stop_once = false; return false; }
       Capture();
@@ -180,6 +200,20 @@ int main(int argc, char **argv) {
     const std::string scenario = argv[1];
     if (scenario == "skip") Run(*d, true, false);
     else if (scenario == "reverse") Run(*d, false, true);
+    else if (scenario == "headroom") {
+      Allocator a;
+      Io io(a);
+      io.headroom[0] = 3;
+      io.headroom[1] = 2;
+      std::vector<uint8_t> source;
+      std::string error;
+      assert(BuildS16ScalingSource(d->workload, source, error));
+      McpxRawBackend backend(io, a, source.data(), source.size());
+      WorkloadResult result{};
+      assert(!backend.Run(*d, result, error));
+      assert(result.cleanup_passed && !result.output_oracle_passed && a.frees == 3);
+      assert(io.headroom[0] == 3 && io.headroom[1] == 2);
+    }
     else if (scenario == "poison") {
       Allocator a;
       Io io(a);
