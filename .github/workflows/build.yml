@@ -32,6 +32,10 @@ jobs:
           python3 -m unittest discover -s tests -p 'test_x87_fault_workload.py' -v
           python3 -m unittest discover -s tests -p 'test_audio_torture_contract.py' -v
           python3 utils/audio_torture_cases.py --check
+          python3 utils/generate_audio_fixtures.py --check
+          python3 -m unittest discover -s tests -p 'test_audio_fixture_contract.py' -v
+          python3 -m unittest discover -s tests -p 'test_audio_mcpx_probe_contract.py' -v
+          python3 -m unittest discover -s tests -p 'test_audio_reference_backend_contract.py' -v
       - name: Compile
         run: |
           export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
@@ -51,6 +55,37 @@ jobs:
         with:
           name: xemu_perf_tests_xiso
           path: build/src/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
+  BuildAudioBootstrap:
+    name: Build audio bootstrap XISO
+    runs-on: ubuntu-latest
+    steps:
+      - name: Clone tree
+        uses: actions/checkout@v7
+        with:
+          submodules: recursive
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y llvm lld cargo
+          pip3 install -r requirements.txt --break-system-packages
+      - name: Validate audio contracts
+        run: |
+          python3 utils/generate_audio_fixtures.py --check
+          python3 -m unittest discover -s tests -p 'test_audio_fixture_contract.py' -v
+          python3 -m unittest discover -s tests -p 'test_audio_mcpx_probe_contract.py' -v
+          python3 -m unittest discover -s tests -p 'test_audio_reference_backend_contract.py' -v
+      - name: Compile audio bootstrap
+        run: |
+          export NXDK_DIR="${GITHUB_WORKSPACE}/third_party/nxdk"
+          cmake -B build-audio -DCMAKE_BUILD_TYPE=Release -DAUDIO_BOOTSTRAP_SMOKE=ON -DCMAKE_TOOLCHAIN_FILE="${NXDK_DIR}/share/toolchain-nxdk.cmake"
+          cmake --build build-audio -- -j$(grep -c processor /proc/cpuinfo)
+      - name: Upload audio bootstrap XISO
+        uses: actions/upload-artifact@v7
+        with:
+          name: xemu_audio_bootstrap_xiso
+          path: build-audio/src/xiso/xemu-perf-tests_xiso/xemu-perf-tests_xiso.iso
+          if-no-files-found: error
+
   DeployDocs:
     runs-on: ubuntu-latest
     needs: [BuildISO]

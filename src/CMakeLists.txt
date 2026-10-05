@@ -18,6 +18,12 @@ option(
         OFF
 )
 
+option(
+        AUDIO_BOOTSTRAP_SMOKE
+        "Development only: run the read-only APU probe and one S16 MCPX voice before the normal UI"
+        OFF
+)
+
 include(XBEUtils REQUIRED)
 
 find_package(NXDK REQUIRED)
@@ -37,6 +43,17 @@ FetchContent_Declare(
 set(NO_OPT ON CACHE INTERNAL "Force pbkitplusplus debug build")
 
 FetchContent_MakeAvailable(pbkitplusplus)
+
+# Optional bootstrap/reference MCPX backend.
+if (AUDIO_BOOTSTRAP_SMOKE)
+    set(NXAUDIO_BUILD_EXAMPLES OFF CACHE BOOL "Disable nxdk-audio examples" FORCE)
+    FetchContent_Declare(
+            nxaudio_source
+            GIT_REPOSITORY https://github.com/Ryzee119/nxdk-audio.git
+            GIT_TAG fc2deca2cc1e434805ac03ca7c2f500b3b028f36
+    )
+    FetchContent_MakeAvailable(nxaudio_source)
+endif ()
 
 configure_file(configure.h.in configure.h)
 
@@ -93,6 +110,15 @@ generate_nv2a_vshinc_files(
 
 add_library(
         perf_tests
+        tests/audio_fixture_loader.cpp
+        tests/audio_fixture_loader.h
+        tests/audio_infrastructure_probe.cpp
+        tests/audio_infrastructure_probe.h
+        tests/audio_mcpx_apu_device.cpp
+        tests/audio_mcpx_apu_device.h
+        tests/audio_torture_backend.h
+        tests/audio_torture_support.cpp
+        tests/audio_torture_support.h
         tests/busy_pfifo_tests.cpp
         tests/busy_pfifo_tests.h
         tests/cpu_floating_point_tests.cpp
@@ -142,6 +168,17 @@ add_library(
         tests/vertex_buffer_allocation_tests.h
 )
 
+if (AUDIO_BOOTSTRAP_SMOKE)
+    target_sources(
+            perf_tests
+            PRIVATE
+            tests/audio_bootstrap_smoke.cpp
+            tests/audio_bootstrap_smoke.h
+            tests/audio_nxaudio_backend.cpp
+            tests/audio_nxaudio_backend.h
+    )
+endif ()
+
 set_compile_and_link_options(perf_tests)
 
 target_include_directories(
@@ -164,6 +201,10 @@ target_link_libraries(
         NXDK::SDL2
         NXDK::SDL2_Image
 )
+
+if (AUDIO_BOOTSTRAP_SMOKE)
+    target_link_libraries(perf_tests PRIVATE nxaudio)
+endif ()
 
 add_dependencies(
         perf_tests
@@ -254,6 +295,9 @@ split_debug(${PROJECT_NAME})
 
 set(EXECUTABLE_BINARY "${CMAKE_CURRENT_BINARY_DIR}/${PROJECT_NAME}.exe")
 set_compile_and_link_options(${PROJECT_NAME})
+if (AUDIO_BOOTSTRAP_SMOKE)
+    target_compile_definitions(${PROJECT_NAME} PRIVATE XEMU_PERF_TESTS_AUDIO_BOOTSTRAP_SMOKE=1)
+endif ()
 target_include_directories(
         ${PROJECT_NAME}
         PRIVATE
