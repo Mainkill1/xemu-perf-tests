@@ -1,5 +1,7 @@
 {
   "settings": {
+    "enable_autorun_immediately": true,
+    "enable_xemu_only_tests": true,
     "skip_tests_by_default": true,
     "warmup_iterations": 0,
     "measurement_iterations_multiplier": 1,
@@ -8,12 +10,12 @@
   },
   "resolved_plan": {
     "schema_version": 2,
-    "plan_id": "sha256:bde5381fedd2448f36962df7e1b213693afb73723118983582e74d41d10eac21",
+    "plan_id": "sha256:72a3633d0820ff568a5f20c5871286c44a3d912851a225cfeeb23788e31996dc",
     "catalog_id": "sha256:34b0dd575eeca9fe861638b6551b4212ad4d80d3fec605779132db250ceb52d8",
     "selected_leaf_count": 1,
     "tests": [
       {
-        "id": "vertex_buffer_allocation.rising_transient_growth"
+        "id": "pvideo.steady_upload"
       }
     ]
   }

@@ -38,7 +38,7 @@ def category(test: dict) -> str:
         return 'geometry'
     if 'texture' in suite or 's3tc_sync_factor' in identity:
         return 'textures'
-    if suite in ('surface', 'surface_rendering', 'fill_rate'):
+    if suite in ('surface', 'surface_rendering', 'fill_rate', 'pvideo'):
         return 'surfaces'
     if suite == 'game_load' or suite.startswith('game_load_'):
         return 'scenarios'
