@@ -100,6 +100,14 @@ bool McpxApuDevice::Open(std::string &error) {
     Close();
     return false;
   }
+  KeStallExecutionProcessor(3000);
+  const uint32_t later_counter = Read32(kNvPapuXgscnt);
+  if (!ApuCounterQuiet(initial.registers.xgscnt, later_counter)) {
+    error = "APU sample counter advanced during ownership admission" +
+            DescribeApuState(initial);
+    Close();
+    return false;
+  }
   ownership_admitted_ = true;
   return true;
 }

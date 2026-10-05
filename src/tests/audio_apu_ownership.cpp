@@ -49,17 +49,33 @@ bool IsApuRegisterWriteAllowed(uint32_t offset) {
 
 ApuOwnershipDecision CheckApuOwnership(const McpxApuRegisterSnapshot &registers,
                                        const VoiceListSnapshot &lists) {
-  if (registers.fectl != 0 || registers.sectl != 0) {
+  const bool cold = registers.fectl == 0 && registers.sectl == 0 &&
+                    lists.gp_reset == 0 && lists.ep_reset == 0;
+  const auto aligned_table = [](uint32_t address) {
+    return address != 0 && (address & 0xFFFU) == 0;
+  };
+  // Retail startup can leave preallocated BIOS tables in a halted FE and
+  // sample-counter-off SE state. This exact profile is admitted only with
+  // empty lists; the hardware adapter also samples XGSCNT for quiescence.
+  const bool firmware_quiescent =
+      registers.fectl == 0x1F8FU && registers.sectl == 0x7U &&
+      lists.gp_reset == 0 && lists.ep_reset == 1 &&
+      aligned_table(registers.vpvaddr) &&
+      aligned_table(registers.vpsgeaddr) &&
+      aligned_table(registers.vpssladdr) &&
+      aligned_table(registers.gpsaddr) && registers.epsaddr == 0;
+  if (!cold && !firmware_quiescent) {
     return {false, "APU engine is not in the idle control state"};
   }
   for (uint32_t head : lists.vp_lists) {
     // 0xFFFF is the empty-list sentinel; voice index zero is valid.
     if (head != 0xFFFFU) return {false, "APU voice list is not empty"};
   }
-  if (lists.gp_reset != 0 || lists.ep_reset != 0) {
-    return {false, "GP or EP is released from reset"};
-  }
   return {true, nullptr};
+}
+
+bool ApuCounterQuiet(uint32_t first, uint32_t second) {
+  return first == second && first != 0xFFFFFFFFU;
 }
 
 std::string DescribeApuState(const ApuStateSnapshot &state) {
@@ -70,6 +86,7 @@ std::string DescribeApuState(const ApuStateSnapshot &state) {
   };
   word("fectl", state.registers.fectl);
   word("sectl", state.registers.sectl);
+  word("xgscnt", state.registers.xgscnt);
   word("vpvaddr", state.registers.vpvaddr);
   word("vpsgeaddr", state.registers.vpsgeaddr);
   word("vpssladdr", state.registers.vpssladdr);
