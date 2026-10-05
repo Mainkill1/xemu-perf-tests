@@ -176,6 +176,8 @@ if (AUDIO_BOOTSTRAP_SMOKE)
             tests/audio_bootstrap_smoke.h
             tests/audio_nxaudio_backend.cpp
             tests/audio_nxaudio_backend.h
+            tests/audio_nxaudio_bridge.c
+            tests/audio_nxaudio_bridge.h
     )
 endif ()
 
