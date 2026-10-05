@@ -41,6 +41,35 @@ the guest descriptor table, catalog, and selected plans use the same IDs and
 parameters. A host contract test compares the generated descriptors with all
 138 matrix entries, including the zero-voice control and 257-allocation denial.
 
+The 15 existing matrix families become 15 independently selectable `TestSuite`
+sections, with each of their 138 cases remaining an individual leaf. Thin
+family suites dispatch to family-specific handlers and oracles; the shared
+layer owns only descriptors, device lifecycle, and result emission. No single
+138-way test body or giant mode switch is permitted. The sections are:
+
+| Section | Leaves | Responsibility |
+| --- | ---: | --- |
+| `audio.ac97_dma` | 10 | AC'97 descriptors, refill and locality |
+| `audio.vp_scaling` | 45 | Voice-count and allocation boundaries |
+| `audio.format_rate` | 29 | PCM/ADPCM formats and source rates |
+| `audio.pitch_resample` | 2 | Near-Nyquist resampling |
+| `audio.buffer_boundary` | 9 | Buffer/SGE boundaries |
+| `audio.streaming_dma` | 8 | Refill and streaming DMA |
+| `audio.mixbin_fanout` | 4 | Routing fanout |
+| `audio.filter_envelope` | 3 | Filter/envelope paths |
+| `audio.hrtf_3d` | 4 | 3D/HRTF paths |
+| `audio.voice_modes` | 8 | Stream, loop and linked modes |
+| `audio.voice_control` | 4 | Lock, on/off, pause and release |
+| `audio.voice_churn` | 4 | Repeated voice turnover |
+| `audio.memory_locality` | 3 | Shared/unique/scattered sources |
+| `audio.gp_ep` | 4 | VP, GP and EP routing |
+| `audio.everything_max` | 1 | Optional combined ceiling after focused cases pass |
+
+The ceiling leaf is not part of the default or fast gate. It does not replace
+or summarize any focused leaf, and a failure there must be reduced to a
+specific family before attribution. Plans may select a whole section or any
+single leaf without running unrelated audio work.
+
 The guest runner owns a bounded device session for each selected case. It
 checks whether the device is available, records relevant pre-test state,
 allocates guarded DMA memory, submits the fixed workload, observes completion,

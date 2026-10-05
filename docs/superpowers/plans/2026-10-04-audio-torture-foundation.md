@@ -4,7 +4,7 @@
 
 **Goal:** Establish hardware-compatible case identity, safe raw MCPX ownership, and one executable S16 control leaf on PR #55; this is partition 1 of the approved 138-case design, not completion of the other 137 cases.
 
-**Architecture:** Generate immutable guest descriptors from the existing 138-case matrix. Keep register admission/teardown policy independent of Xbox APIs so host tests can exercise failures; use the existing PCI/BAR probe as the hardware adapter. Register one opt-in S16 leaf only after device-observed progress, output checking, and cleanup are available.
+**Architecture:** Generate immutable guest descriptors from the existing 138-case matrix and route each family to a separate `TestSuite` section. Keep register admission/teardown policy independent of Xbox APIs so host tests can exercise failures; use the existing PCI/BAR probe as the hardware adapter. Register one opt-in S16 leaf in the VP-scaling section only after device-observed progress, output checking, and cleanup are available.
 
 **Tech Stack:** Python 3 host contracts, C++17/NXDK guest code, CMake Release XISO, Deck xemu through Xemu-Test-Runner.
 
@@ -19,6 +19,7 @@
 - Preserve the user-owned dirty `third_party/nxdk` checkout; build in a separate directory and stage only explicit files.
 - Current available native host is Deck/xemu; original-Xbox execution is not claimed.
 - The full PR still requires all 138 cases, including 0-voice and 257-allocation boundary cases, on the same branch in later plans.
+- Use 15 independently selectable family suites with individual leaves, not one 138-way test body. `audio.everything_max` remains a separate optional ceiling leaf outside the fast gate.
 
 ## Review Focus
 
@@ -42,12 +43,12 @@
 
 **Interfaces:**
 - Consumes: `build_cases(matrix)` and `validate(matrix, cases)` from `utils/audio_torture_cases.py`.
-- Produces: `const AudioTorture::AudioCaseDescriptor *AudioTorture::FindAudioCase(const char *id)` and a generated table with exactly 138 IDs. `AudioCaseDescriptor` holds `const char *id`, `BackendKind backend`, typed `WorkloadSpec workload`, `bool expected_allocation_denial`, `uint32_t allocation_attempt_count`, a 15-family `OracleProfile` enum, and `const char *intended_paths_json`.
+- Produces: `const AudioTorture::AudioCaseDescriptor *AudioTorture::FindAudioCase(const char *id)` and a generated table with exactly 138 IDs. `AudioCaseDescriptor` holds `const char *id`, `AudioFamily family`, `BackendKind backend`, typed `WorkloadSpec workload`, `bool expected_allocation_denial`, `uint32_t allocation_attempt_count`, `bool optional_ceiling`, a 15-family `OracleProfile` enum, and `const char *intended_paths_json`.
 - Extends `WorkloadSpec` with the matrix's missing typed fields: buffer/refill sample counts, 3D voice count, pipeline mode, mixed-format/rate flags, and allocation-attempt count. Extend `SignalKind` for the two near-Nyquist inputs. Existing fields keep their meanings.
 
 - [ ] **Step 1: Write failing host contract tests**
 
-  In `tests/test_audio_guest_case_contract.py`, require `--check` to reject a stale generated file; compile and run `tests/audio_case_catalog_probe.cpp` with `g++ -std=c++17` and assert 138 unique IDs, both backends, exact `audio.vp_scaling.s16_mono.v001`, the 0-voice descriptor, and `allocation_attempt_count == 257` with expected denial. Assert that no descriptor is marked executable by default.
+  In `tests/test_audio_guest_case_contract.py`, require `--check` to reject a stale generated file; compile and run `tests/audio_case_catalog_probe.cpp` with `g++ -std=c++17` and assert 138 unique IDs, exact counts across 15 family sections, both backends, exact `audio.vp_scaling.s16_mono.v001`, the 0-voice descriptor, and `allocation_attempt_count == 257` with expected denial. Assert that no descriptor is marked executable by default and that the ceiling case is flagged optional.
 
 - [ ] **Step 2: Verify red**
 
@@ -136,25 +137,27 @@
 
   Stage only Task 3 paths and commit `Add observed raw S16 audio control`.
 
-### Task 4: Expose one truthful opt-in leaf and preserve failures
+### Task 4: Expose one truthful VP-scaling leaf and preserve failures
 
 **Files:**
-- Create: `src/tests/audio_torture_tests.h`
-- Create: `src/tests/audio_torture_tests.cpp`
+- Create: `src/tests/audio_vp_scaling_tests.h`
+- Create: `src/tests/audio_vp_scaling_tests.cpp`
 - Create: `tests/test_audio_s16_leaf_contract.py`
 - Modify: `src/main.cpp`
 - Modify: `src/runtime_config.cpp`
 - Modify: `src/CMakeLists.txt`
 - Modify: `utils/test_catalog.py`
+- Modify: `utils/package_runner_suite.py`
+- Modify: `tests/test_runner_bundle.py`
 - Modify: `resources/catalog.json` and generated catalog/plan artifacts through the repository generator only
 
 **Interfaces:**
 - Consumes: Task 1 descriptor and Task 3 backend/result.
-- Produces: `AudioTortureTests::S16MonoControl()` selected by `audio.vp_scaling.s16_mono.v001`, gated by the existing xemu-only opt-in only for Deck development while the guest implementation remains hardware-compatible. The leaf records oracle, observed completion, and cleanup metadata in the normal `TestHost::FinishDraw` result path.
+- Produces: `AudioVpScalingTests::S16MonoV001()` selected by `audio.vp_scaling.s16_mono.v001`, gated by the existing xemu-only opt-in only for Deck development while the guest implementation remains hardware-compatible. The VP-scaling suite owns only its family route and calls the shared backend; future families get their own suites and handlers. The leaf records oracle, observed completion, and cleanup metadata in the normal `TestHost::FinishDraw` result path.
 
 - [ ] **Step 1: Write failing host contract tests**
 
-  Assert that the default plan excludes the new leaf, the opt-in resolved plan includes exactly this implemented audio ID, 137 planned IDs remain absent, and setup/output/teardown failures each call the result-record path with `oracle_status=FAIL`. Assert an ordinary failure cannot exit through `ASSERT` before a record.
+  Assert that the default plan excludes the new leaf, the opt-in resolved plan includes exactly this implemented audio ID under `audio.vp_scaling`, 137 planned IDs remain absent, and setup/output/teardown failures each call the result-record path with `oracle_status=FAIL`. Assert an ordinary failure cannot exit through `ASSERT` before a record or dispatch through an unrelated family. Assert the runner bundle accepts the new audio suite as an explicit category instead of dropping it.
 
 - [ ] **Step 2: Verify red**
 
@@ -200,4 +203,4 @@
 
 ## Subsequent plans required for the same PR
 
-After this foundation passes, write separate detailed plans for the remaining four partitions in the approved spec: raw VP format/rate/scaling/memory; streaming/modes/DSP; test-owned AC'97; and ceiling/full 138-case qualification. Every plan must retain TDD, lifecycle, portable oracle and native evidence gates. PR #55 does not become ready or merge from completion of this foundation alone.
+After this foundation passes, write separate detailed plans for the remaining four partitions in the approved spec: raw VP format/rate/scaling/memory; streaming/modes/DSP; test-owned AC'97; and ceiling/full 138-case qualification. Each family gets its own suite and case handler; shared code contains no giant test dispatcher. Every plan must retain TDD, lifecycle, portable oracle and native evidence gates. PR #55 does not become ready or merge from completion of this foundation alone.
