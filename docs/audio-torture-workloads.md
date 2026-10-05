@@ -305,6 +305,12 @@ queried service endpoints. No original Xbox was available; hardware
 qualification remains withheld. Do not promote this PR or the other 137 cases
 from these two runs.
 
+After this capture, branch commit `4e04027149e024dceb5de0b704a9ac6cc493c1be`
+added restore-write/readback checks and a process-lifetime lockout after unsafe
+teardown. The 251-test host suite and both Release XISO builds pass for that
+commit, but the new XISO has **not** had a Deck rerun. The native receipts above
+apply to the earlier exact image only; the latest image is not native-qualified.
+
 ## Path-proof contract
 
 Each proposed audio leaf declares the paths it intends to cover; family-level
