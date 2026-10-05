@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:9c6c8d5202116ba2aecd899e06491e6d223373fa455df580a3cb8ce0f2643c21` contains 180 leaves and 5 groups.
+Catalog `sha256:ef400e60062987f6b8f738ee433c424b5130c034218586b85dee76e88e2de500` contains 185 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -15,6 +15,11 @@ Catalog `sha256:9c6c8d5202116ba2aecd899e06491e6d223373fa455df580a3cb8ce0f2643c21
 | `pfifo_packet_boundary.incrementing_inline_fallback` | leaf | `PFIFOPacketBoundary::pfifo.incrementing-inline-fallback` |
 | `cpu_floating_point.sse_scalar` | leaf | `CpuFloatingPoint::SSEScalar` |
 | `cpu_floating_point.x87_scalar` | leaf | `CpuFloatingPoint::X87Scalar` |
+| `cpu_floating_point.x87_status_vectors` | leaf | `CpuFloatingPoint::X87StatusVectors` |
+| `cpu_floating_point.x87_status_ax` | leaf | `CpuFloatingPoint::X87StatusAX` |
+| `cpu_floating_point.x87_compare_status_ax` | leaf | `CpuFloatingPoint::X87CompareStatusAX` |
+| `cpu_floating_point.x87_exception_status` | leaf | `CpuFloatingPoint::X87ExceptionStatus` |
+| `cpu_floating_point.x87_fault_checkpoint` | leaf | `CpuFloatingPoint::X87FaultCheckpoint` |
 | `cpu_translation_blocks.direct_loop` | leaf | `CpuTranslationBlocks::DirectLoop` |
 | `cpu_translation_blocks.indirect_dispatch` | leaf | `CpuTranslationBlocks::IndirectDispatch` |
 | `cpu_translation_blocks.indirect_dispatch_stress` | leaf | `CpuTranslationBlocks::IndirectDispatchStress` |

@@ -1,10 +1,13 @@
 #include "cpu_floating_point_tests.h"
 
 #include <cstdint>
+#include <cstdio>
 #include <cstring>
 
 #include "debug_output.h"
 #include "test_host.h"
+#include "x87_fault_workload.h"
+#include "x87_status_workload.h"
 
 static constexpr char kX87ScalarTest[] = "X87Scalar";
 static constexpr char kSseScalarTest[] = "SSEScalar";
@@ -83,6 +86,87 @@ CpuFloatingPointTests::CpuFloatingPointTests(TestHost &host, std::string output_
     : TestSuite(host, std::move(output_dir), "CpuFloatingPoint", config) {
   tests_[kX87ScalarTest] = [this]() { TestX87Scalar(); };
   tests_[kSseScalarTest] = [this]() { TestSseScalar(); };
+  tests_["X87StatusVectors"] = [this]() { TestX87StatusVectors(); };
+  tests_["X87ExceptionStatus"] = [this]() { TestX87ExceptionStatus(); };
+  tests_["X87FaultCheckpoint"] = [this]() { TestX87FaultCheckpoint(); };
+  tests_["X87StatusAX"] = [this]() { TestX87StatusWork(false); };
+  tests_["X87CompareStatusAX"] = [this]() { TestX87StatusWork(true); };
+}
+
+void CpuFloatingPointTests::TestX87StatusVectors() {
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  auto results = Profile("X87StatusVectors", kProfileIterations, [&]() {
+    failures |= CheckX87StatusVectors();
+  });
+  // FinishDraw records oracle_status=FAIL as a failed leaf; a fatal assertion
+  // here would discard the diagnostic result and prevent plan completion.
+  PrintMsg("CPU_WORK CpuFloatingPoint::X87StatusVectors cases=%lu failures=%lu\n",
+           kX87StatusVectorCases, failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"source_kat\":\"00001809\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           failures, failures ? "FAIL" : "PASS");
+  host_.PrepareDraw(0xFF102030);
+  host_.FinishDraw(suite_name_, "X87StatusVectors", results, metadata);
+}
+
+void CpuFloatingPointTests::TestX87ExceptionStatus() {
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  X87StatusVectorResult result = {};
+  auto results = Profile("X87ExceptionStatus", kProfileIterations, [&]() {
+    result = CheckX87ExceptionStatusVectors();
+    failures |= result.failures || result.cases != kX87ExceptionStatusCases;
+  });
+  PrintMsg("CPU_WORK CpuFloatingPoint::X87ExceptionStatus cases=%lu failures=%lu\n", result.cases,
+           failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"source_kat\":\"%08lx\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           result.cases, failures, failures ? "FAIL" : "PASS");
+  host_.PrepareDraw(0xFF403020);
+  host_.FinishDraw(suite_name_, "X87ExceptionStatus", results, metadata);
+}
+
+void CpuFloatingPointTests::TestX87FaultCheckpoint() {
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  X87StatusVectorResult result = {};
+  auto results = Profile("X87FaultCheckpoint", kProfileIterations, [&]() {
+    result = CheckX87GuestFaultVectors();
+    failures |= result.failures;
+    failures |= result.cases != 4 ? 128 : 0;
+  });
+  PrintMsg("CPU_WORK CpuFloatingPoint::X87FaultCheckpoint cases=%lu failures=%lu\n", result.cases,
+           failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"source_kat\":\"%08lx\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           result.cases, failures, failures ? "FAIL" : "PASS");
+  host_.PrepareDraw(0xFF203040);
+  host_.FinishDraw(suite_name_, "X87FaultCheckpoint", results, metadata);
+}
+
+void CpuFloatingPointTests::TestX87StatusWork(bool compare) {
+  const char* name = compare ? "X87CompareStatusAX" : "X87StatusAX";
+  const uint32_t expected = compare ? kX87CompareStatusExpected : kX87StatusExpected;
+  const uint32_t expected_eax = compare ? 0xa5a57000U : 0xa5a50000U;
+  host_.PrepareDraw(0xFF101010);
+  uint32_t failures = 0;
+  X87StatusWorkResult value = {};
+  auto results = Profile(name, kProfileIterations, [&]() {
+    value = RunX87StatusWork(compare);
+    failures |= value.checksum != expected || value.eax != expected_eax;
+  });
+  PrintMsg("CPU_WORK CpuFloatingPoint::%s operations=%lu checksum=%08lx eax=%08lx failures=%lu\n",
+           name, kX87StatusOperations, value.checksum, value.eax, failures);
+  char metadata[192];
+  snprintf(metadata, sizeof(metadata),
+           "{\"work_checksum\":\"%08lx\",\"result_checksum\":\"%08lx\",\"oracle_status\":\"%s\"}",
+           value.checksum, value.eax, failures ? "FAIL" : "PASS");
+  host_.PrepareDraw(0xFF000000 | (value.checksum & 0x00FFFFFF));
+  host_.FinishDraw(suite_name_, name, results, metadata);
 }
 
 void CpuFloatingPointTests::TestX87Scalar() {
