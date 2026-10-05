@@ -9,6 +9,7 @@
 
 #include "audio_case_descriptor.h"
 #include "audio_mcpx_raw_backend.h"
+#include "audio_s16_control_oracle.h"
 
 namespace {
 struct FakeIo : AudioTorture::ApuRegisterIo {
@@ -130,6 +131,21 @@ int main(int argc, char **argv) {
   std::vector<uint8_t> source((std::istreambuf_iterator<char>(stream)),
                               std::istreambuf_iterator<char>());
   assert(source.size() == 512);
+  AudioTorture::S16ControlObservation native_observation{};
+  native_observation.source = source.data();
+  native_observation.source_bytes = source.size();
+  native_observation.observed_engine_frames = 12;
+  // Exact guest GP mix words from upstream Deck run
+  // 20261005-070955222-06780d14af5d4fb0a8ffe319a30a320a.
+  native_observation.mix_words = {
+      4450138, 3919055, 3403305, 2876183, 2355583, 1832528, 1308855, 787511,
+      263715, 16518871, 15995360, 15473686, 14950404, 14427164, 13906480,
+      13379573, 12863328, 12332902, 11816751, 11290944, 10766486, 10730253,
+      11241008, 11778384, 12286281, 12821226, 13335655, 13862868, 14384254,
+      14906087, 15430748, 15951736};
+  assert(AudioTorture::S16ControlOracle::Check(native_observation));
+  native_observation.mix_words[10] = 0x123456;
+  assert(!AudioTorture::S16ControlOracle::Check(native_observation));
   const auto *descriptor = AudioTorture::FindAudioCase("audio.vp_scaling.s16_mono.v001");
   assert(descriptor);
   assert(RunScenario(*descriptor, source, false, false, false, false, false));

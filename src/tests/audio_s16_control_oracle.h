@@ -19,13 +19,16 @@ class S16ControlOracle {
   static bool Check(const S16ControlObservation &observation) {
     if (!observation.source || observation.source_bytes != 512 ||
         observation.observed_engine_frames < 8) return false;
-    // A looping 256-sample source can be captured at any of eight frame
-    // boundaries. Accept only an entire 32-sample window, not one matching
-    // sample or a nonzero checksum.
-    for (size_t base = 0; base < 256; base += 32) {
+    // A stopped mix buffer may retain a frame captured at any sample offset,
+    // not just a source-aligned 32-sample boundary. The 24-bit fixed-point
+    // mix path permits at most 32 S16 levels of numerical error per sample.
+    // Still require all 32 consecutive source samples, not a checksum or a
+    // permissive aggregate error.
+    constexpr int32_t kMaxMixError = 32 * 256;
+    for (size_t base = 0; base < 256; ++base) {
       bool window_matches = true;
       for (size_t i = 0; i < 32; ++i) {
-        const size_t index = base + i;
+        const size_t index = (base + i) % 256;
         const uint16_t bits = static_cast<uint16_t>(observation.source[2 * index]) |
                               (static_cast<uint16_t>(observation.source[2 * index + 1]) << 8U);
         const int32_t expected = static_cast<int16_t>(bits) * 256;
@@ -34,7 +37,10 @@ class S16ControlOracle {
         const int32_t actual = (word & 0x800000U) ?
             static_cast<int32_t>(word) - 0x1000000 : static_cast<int32_t>(word);
         const int32_t difference = actual - expected;
-        if (difference < -64 || difference > 64) { window_matches = false; break; }
+        if (difference < -kMaxMixError || difference > kMaxMixError) {
+          window_matches = false;
+          break;
+        }
       }
       if (window_matches) return true;
     }
