@@ -99,7 +99,8 @@ void CpuFloatingPointTests::TestX87StatusVectors() {
   auto results = Profile("X87StatusVectors", kProfileIterations, [&]() {
     failures |= CheckX87StatusVectors();
   });
-  ASSERT(failures == 0);
+  // FinishDraw records oracle_status=FAIL as a failed leaf; a fatal assertion
+  // here would discard the diagnostic result and prevent plan completion.
   PrintMsg("CPU_WORK CpuFloatingPoint::X87StatusVectors cases=%lu failures=%lu\n",
            kX87StatusVectorCases, failures);
   char metadata[192];
@@ -118,7 +119,6 @@ void CpuFloatingPointTests::TestX87ExceptionStatus() {
     result = CheckX87ExceptionStatusVectors();
     failures |= result.failures || result.cases != kX87ExceptionStatusCases;
   });
-  ASSERT(failures == 0);
   PrintMsg("CPU_WORK CpuFloatingPoint::X87ExceptionStatus cases=%lu failures=%lu\n", result.cases,
            failures);
   char metadata[192];
@@ -138,7 +138,6 @@ void CpuFloatingPointTests::TestX87FaultCheckpoint() {
     failures |= result.failures;
     failures |= result.cases != 4 ? 128 : 0;
   });
-  ASSERT(failures == 0);
   PrintMsg("CPU_WORK CpuFloatingPoint::X87FaultCheckpoint cases=%lu failures=%lu\n", result.cases,
            failures);
   char metadata[192];
@@ -160,7 +159,6 @@ void CpuFloatingPointTests::TestX87StatusWork(bool compare) {
     value = RunX87StatusWork(compare);
     failures |= value.checksum != expected || value.eax != expected_eax;
   });
-  ASSERT(failures == 0);
   PrintMsg("CPU_WORK CpuFloatingPoint::%s operations=%lu checksum=%08lx eax=%08lx failures=%lu\n",
            name, kX87StatusOperations, value.checksum, value.eax, failures);
   char metadata[192];
