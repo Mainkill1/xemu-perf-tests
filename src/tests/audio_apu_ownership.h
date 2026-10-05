@@ -28,6 +28,7 @@ struct ApuOwnershipDecision {
 
 ApuOwnershipDecision CheckApuOwnership(const McpxApuRegisterSnapshot &registers,
                                        const VoiceListSnapshot &lists);
+std::string DescribeApuState(const ApuStateSnapshot &state);
 bool ApuStateRestored(const ApuStateSnapshot &before, const ApuStateSnapshot &after);
 bool ValidateApuPciResource(uint32_t vendor_device, uint32_t raw_bar0,
                             uint16_t command, std::string &error);

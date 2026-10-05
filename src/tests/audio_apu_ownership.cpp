@@ -1,5 +1,8 @@
 #include "audio_apu_ownership.h"
 
+#include <iomanip>
+#include <sstream>
+
 namespace AudioTorture {
 namespace {
 constexpr uint32_t kApuAperture = 0x80000;
@@ -59,6 +62,30 @@ ApuOwnershipDecision CheckApuOwnership(const McpxApuRegisterSnapshot &registers,
   return {true, nullptr};
 }
 
+std::string DescribeApuState(const ApuStateSnapshot &state) {
+  std::ostringstream out;
+  out << std::hex << std::setfill('0');
+  auto word = [&out](const char *name, uint32_t value) {
+    out << ' ' << name << "=0x" << std::setw(8) << value;
+  };
+  word("fectl", state.registers.fectl);
+  word("sectl", state.registers.sectl);
+  word("vpvaddr", state.registers.vpvaddr);
+  word("vpsgeaddr", state.registers.vpsgeaddr);
+  word("vpssladdr", state.registers.vpssladdr);
+  word("gpsaddr", state.registers.gpsaddr);
+  word("epsaddr", state.registers.epsaddr);
+  word("gp_reset", state.lists.gp_reset);
+  word("ep_reset", state.lists.ep_reset);
+  out << " lists=[";
+  for (size_t index = 0; index < state.lists.vp_lists.size(); ++index) {
+    if (index) out << ',';
+    out << "0x" << std::setw(8) << state.lists.vp_lists[index];
+  }
+  out << ']';
+  return out.str();
+}
+
 bool ApuStateRestored(const ApuStateSnapshot &before, const ApuStateSnapshot &after) {
   const auto &a = before.registers;
   const auto &b = after.registers;
@@ -103,7 +130,7 @@ bool OpenAndCheckApuOwnership(ApuRegisterIo &io, ApuStateSnapshot &initial,
   }
   const auto decision = CheckApuOwnership(initial.registers, initial.lists);
   if (!decision.admitted) {
-    error = decision.reason;
+    error = std::string(decision.reason) + DescribeApuState(initial);
     io.Close();
     return false;
   }

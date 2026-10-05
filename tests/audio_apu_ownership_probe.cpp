@@ -34,6 +34,14 @@ int main() {
   assert(!CheckApuOwnership(registers, lists).admitted);
   lists.vp_lists.fill(0xFFFF);
   assert(CheckApuOwnership(registers, lists).admitted);
+  ApuStateSnapshot diagnostic{};
+  diagnostic.registers.fectl = 0x100F;
+  diagnostic.registers.sectl = 0xF;
+  diagnostic.lists.vp_lists.fill(0xFFFF);
+  const std::string diagnostic_text = DescribeApuState(diagnostic);
+  assert(diagnostic_text.find("fectl=0x0000100f") != std::string::npos);
+  assert(diagnostic_text.find("sectl=0x0000000f") != std::string::npos);
+  assert(diagnostic_text.find("lists=[0x0000ffff") != std::string::npos);
   registers.fectl = 0x80;
   assert(!CheckApuOwnership(registers, lists).admitted);
   registers.fectl = 0;

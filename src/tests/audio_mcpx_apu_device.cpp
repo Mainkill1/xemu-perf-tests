@@ -96,7 +96,7 @@ bool McpxApuDevice::Open(std::string &error) {
   }
   const auto decision = CheckApuOwnership(initial.registers, initial.lists);
   if (!decision.admitted) {
-    error = decision.reason;
+    error = std::string(decision.reason) + DescribeApuState(initial);
     Close();
     return false;
   }
