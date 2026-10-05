@@ -530,6 +530,7 @@ bool RuntimeConfig::LoadConfigBuffer(const std::string& config_content, std::vec
       ASSERT(descriptor);
       const std::string legacy_suite = descriptor->legacy_suite;
       if (legacy_suite == "PFIFOPacketBoundary" || legacy_suite == "McpxVoice" ||
+          legacy_suite == "AudioVpScaling" ||
           legacy_suite == "Pvideo") {
         errors.emplace_back(
             "xemu-only resolved plan requires enable_xemu_only_tests");

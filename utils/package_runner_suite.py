@@ -26,7 +26,7 @@ CATEGORIES = {
 
 def category(test: dict) -> str:
     suite, identity = test['suite_id'].lower(), test['id'].lower()
-    if suite == 'mcpx_voice':
+    if suite == 'mcpx_voice' or suite == 'audio.vp_scaling':
         return 'audio'
     if 'shader' in suite or suite in ('uniform_thrash', 'pipeline_texture_switch'):
         return 'shaders'

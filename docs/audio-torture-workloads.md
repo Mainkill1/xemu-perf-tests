@@ -1,6 +1,10 @@
 # Audio torture workload plan
 
-> **Status: draft / implementation framework.**
+> **Status: draft / 45 executable VP-scaling leaves, 93 cases still planned.**
+>
+> Four boundary leaves have targeted guest PASS evidence on both pinned xemu
+> builds; the full family is not natively qualified. See the
+> [PR #55 handoff](pr55-audio-handoff.md) for current coverage and next steps.
 >
 > This document deliberately separates proven capabilities from planned coverage.
 > A test must not advertise an APU code path until the guest workload actually
@@ -35,7 +39,8 @@ The suite is split into two explicit backends:
 | Backend | Initial status | Legitimate coverage |
 | --- | --- | --- |
 | `ac97_dma` | workload is implementable, full-suite registration blocked on teardown | 16-bit stereo PCM output, descriptor/ring pressure, refill cadence, callback/interrupt pressure, buffer locality, underrun/drain behavior |
-| `mcpx_apu_raw` | framework defined; low-level guest driver required | VP voices, mono/stereo voice formats, PCM8/16/24/32, ADPCM, pitch/resampling, voice modes/control, SGE/SSL fetch, mixbins, filters/envelopes/LFO, 3D/HRTF, GP/EP DSP and related DMA |
+| `mcpx_apu_raw` | 45 S16 mono/stereo scaling leaves implemented; non-scaling cases remain planned | Current: S16 static VP count/channel correctness. Target: other formats, rates, modes/control, SGE/SSL, mixbins, filters/envelopes/LFO, HRTF and DSP |
+| `nxaudio_reference` | optional bootstrap backend implemented; execution validation pending | full MCPX/GP/AC97 initialization and teardown plus static U8/S16/S24/S32/ADPCM reference voices |
 
 The xemu APU model currently defines 256 hardware voices, 64 3D voices, 32
 samples per VP frame, 32 mixbins, eight voice-bin selectors, U8/S16/S24/S32
@@ -109,6 +114,20 @@ permits it.
 PCM "bitrate" is derived from sample rate, sample width, and channel count; the
 suite must not invent a separate bitrate knob for PCM. Codec tests should use
 the codec's real block/format semantics.
+
+## Checked-in audio fixtures
+
+The XISO carries 10 deterministic fixtures under `resources/audio/` (10,358
+bytes total): three audible PCM16 WAV files, raw S16/S24-in-B32/S32 samples,
+mono/stereo Xbox ADPCM blocks, and decoded ADPCM S16 goldens. They are generated
+by `utils/generate_audio_fixtures.py`, contain no third-party recordings, and
+are covered by the repository's Unlicense dedication.
+
+Every checked-in fixture has a size, SHA-256, and FNV-1a64 value in
+`resources/audio/manifest.json`; CI regenerates the set byte-for-byte. U8 is
+generated deterministically at runtime from the integer S16 signal source.
+MIDI remains out of scope for this phase because it primarily adds a
+sequencer/synth software path before PCM reaches MCPX.
 
 ## Deterministic source signals
 
@@ -211,35 +230,181 @@ suite until either (a) a test-owned teardown-capable AC'97 backend exists, or
 audio last is useful during development but is not a substitute for a documented
 isolation contract.
 
+## Safe discovery and reference bootstrap
+
+`McpxApuDevice::ProbeAndMap()` remains read-only: it scans PCI bus 0 for
+`10de:01b0`, validates/maps BAR0, and snapshots key APU registers.
+`McpxApuDevice::Open()` admits only a stopped, empty-list cold state or the
+exact quiescent firmware profile observed on the Deck, including a quiet sample
+counter across a 3 ms interval. Its narrow register-write allowlist becomes
+available only after admission. `ProbeAudioInfrastructure()` combines read-only
+discovery with fixture checksum validation.
+
+For an end-to-end development smoke, build with
+`-DAUDIO_BOOTSTRAP_SMOKE=ON`. That opt-in build pins
+Ryzee119/nxdk-audio at `fc2deca2cc1e434805ac03ca7c2f500b3b028f36` (MIT),
+runs the read-only discovery probe, submits one 48 kHz S16 mono static voice,
+waits for completion, destroys the voice, and calls `nxAudioShutdown()`.
+The switch defaults OFF and the smoke is not catalog coverage.
+
+A dedicated CI job builds this bootstrap XISO separately so normal qualification
+builds do not acquire the Cargo/DSP-assembler dependency.
+
 ## Raw MCPX APU milestone
 
-The raw backend must resolve the APU PCI BAR at runtime and program only
+The raw backend resolves the APU PCI BAR at runtime and programs only
 documented/validated guest-visible state. Hard-coded xemu host addresses are
 not acceptable.
 
 The implementation should be layered:
 
 ```text
-AudioTortureTests
+15 catalog families with independently selectable suites
+  +-- AudioVpScalingTests (45 individually selectable leaves)
+  +-- other family suites (planned)
   |
-  +-- deterministic source generator
-  +-- workload/case descriptor
-  +-- oracle accumulator
-  |
-  +-- Ac97DmaBackend
-  |
-  +-- McpxApuBackend
-        +-- PCI/MMIO discovery
-        +-- SGE/SSL allocator
-        +-- voice descriptor builder
-        +-- FE method writer
-        +-- GP/EP helpers
-        +-- teardown/reset
+  +-- shared typed 138-case descriptor and deterministic fixtures
+  +-- guarded raw MCPX and future test-owned AC'97 backends
+  +-- family-specific output/state oracles and teardown
 ```
 
 The backend must have a real teardown/reset path before it is enabled in the
 full suite. Leaving the audio device in a modified state for later unrelated
 tests is a suite correctness bug.
+
+### Historical first VP-scaling leaf: Deck evidence, 2026-10-05 UTC
+
+Historical Deck artifact URLs below were retired during the requested cleanup
+on 2026-10-05. Only the latest candidate package/run remains on the device.
+The final paired boundary receipts are preserved byte-exact in
+[the repository evidence directory](evidence/pr55-audio-2026-10-05/README.md).
+
+At this foundation checkpoint only `audio.vp_scaling.s16_mono.v001` was executable
+in the new hardware-safe family catalog. The other 137 matrix cases were planned; this leaf was
+correctness-only, opt-in for current Deck development, and excluded from the
+default smoke plan. Its guest oracle requires observed engine progress, all
+32 stopped-frame GP mix samples to match a fixed nonzero S16 control level
+within 32 S16 levels of fixed-point error, and verified stop, register
+restoration, quiet counter, and DMA guard before memory release.
+
+The exact normal XISO was built from source commit
+`29185f2054771802a2bd8018895d42bcc142cb0c`, SHA-256
+`deca474cf431e20e66dcc3f8868516928dda45f00ff4fb0a28464136a0fa499c`.
+Its catalog ID is
+`sha256:cdc52c104b4d48d5a86d644a16de7e0ae69a71159a8c11d2b31c19989eb24193`
+and catalog-file SHA-256 is
+`f0b4b51a2167c117ace9c2d402609019ed07721c2e568e3b91fae72bd45b4e23`.
+Both campaigns selected this leaf alone with zero warmups, multiplier 1,
+per-iteration GPU completion, the same configuration SHA-256
+`0318e8887b2144ba6a5cb6536df14b04b80eadf8a21debb242f4e80904034dce`,
+and the same resolved chunk plan
+`sha256:31d0ea61d406bb3801215651872f1061f4a849cc9bd75d7314472ec65598acbc`.
+
+| Deck executable | Exact executable SHA-256 | Observed guest result |
+| --- | --- | --- |
+| Upstream xemu `ee5ce48b48784f999af374c1452003f8b2b1230f` | `5b6ccf357cfab428e92692b82dc3a5cc75cb50e4065608defbf1cc66b68a597c` | [Run `20261005-071324531-f9499e62b4fb417c8c5c730c3fa036ba`](http://10.0.0.123:9368/api/v1/runs/20261005-071324531-f9499e62b4fb417c8c5c730c3fa036ba/artifacts/guest/results.txt): guest `PASS`, 19 observed engine frames, output and teardown pass |
+| Candidate xemu `c4cdef6cad3dd22d516e16ec2cb1aa9c06ec11f6` | `95f81f33d932cb297d6f637eb0635ac2faa2b895d330bae6871e3012d6353667` | [Run `20261005-071414774-abe49da94d904d298218103da8a4ac7d`](http://10.0.0.123:9368/api/v1/runs/20261005-071414774-abe49da94d904d298218103da8a4ac7d/artifacts/guest/results.txt): guest `PASS`, 13 observed engine frames, output and teardown pass |
+
+These are complete selected-leaf guest receipts, **not** runner-qualified
+baseline or performance comparisons. The runner API v1 reports the new leaf
+has no pinned runner-side reference oracle, so both unpaired campaigns have
+`xiso_oracle_coverage=false` and an overall failed/ineligible assessment even
+though each guest leaf passed. Runner binary version was not exposed by the
+queried service endpoints. No original Xbox was available; hardware
+qualification remains withheld. Do not promote this PR or the other 137 cases
+from these two runs.
+
+The captures above are historical triangle-source evidence. Two later targeted
+runs at `4e04027` passed teardown but failed that oracle because a filtered,
+fractionally shifted triangle window does not reliably match integer source
+samples. That oracle was replaced with a fixed S16 +4096 control input for the
+scaling leaf; changing-waveform resampling requires its own family oracle.
+
+The final single-voice foundation source commit was
+`cef52da71fbbbc0820600b1ef3fa791cc1963231`, with normal-XISO SHA-256
+`370f38401c666e76e201fc01544060d588e090fb7abc029d336d84caefff1a2b`.
+Catalog/configuration identities and effective settings remain those listed
+above; the new resolved chunk plan is
+`sha256:4cabf57913464d645e624e117589b1c9ce699e87a49bd6cc1bff29edf4f74d55`.
+It includes restore-write/readback checks for every modified control
+and a process-lifetime audio lockout after unsafe teardown. Host fault
+injection checks failed writes, ineffective restore writes, retained DMA, and
+subsequent-case rejection; all 251 host tests and both Release XISO builds pass.
+
+| Current exact image | Retained guest result |
+| --- | --- |
+| Upstream | [Run `20261005-080026986-8ce5e2444fa8421dbbc4d4ad6625548e`](http://10.0.0.123:9368/api/v1/runs/20261005-080026986-8ce5e2444fa8421dbbc4d4ad6625548e/artifacts/guest/results.txt): `PASS`, 14 engine frames, all 32 mix words `1048577`, every cleanup check passes |
+| Candidate | [Run `20261005-080119187-ff2cf36b52b44108b66f088914dd0bef`](http://10.0.0.123:9368/api/v1/runs/20261005-080119187-ff2cf36b52b44108b66f088914dd0bef/artifacts/guest/results.txt): `PASS`, 14 engine frames, all 32 mix words `1048577`, every cleanup check passes |
+
+The expected mix level is `1048576`; tolerance remains 32 S16 levels. These
+receipts still have missing runner-side oracle coverage and do not establish
+timing eligibility, analog fidelity, or original-Xbox qualification.
+
+### VP-scaling section: 45 selectable leaves
+
+All 45 `audio.vp_scaling` cases now have independent routes in
+`AudioVpScalingTests`; `resources/audio-vp-scaling.json` selects only this
+section. The remaining 93 audio descriptors stay planned. PR #55 stays draft.
+The normal and optional-audio Release images build, and all 253 host checks pass.
+
+Active cases use a 257-frame source, amplitude `4096 / voice_count`, positive
+mono/left and negative stereo right. Every submitted voice must advance its
+uncached source offset, and the engine must advance at least eight frames.
+Slots 64..255 use ordinary routes 0/1; slots 0..63 use ordinary routes 4/5,
+with HRTF-specific routes muted and null HRTF handles. This avoids depending
+on write-only global HRTF routing and headroom settings.
+
+Submix headroom methods also lack a readable prior value. The session leaves
+them untouched. Each active case first observes an independent one-voice S16
+4096 reference, accepting only stable signed output with a gain divisor that
+is a power of two from 1 through 128. It then stops and proves counter quiescence
+before reusing DMA for the requested count. The case oracle checks its actual
+mix against the independently inferred divisor, with tight scaled tolerance.
+The reference samples, observed progress, divisor, and source checksum are
+recorded separately. This proves count/channel correctness relative to a
+recorded fixture gain, not absolute analog gain; a uniform gain defect could
+match a different allowed divisor. Zero/denial controls submit neither a
+reference nor case work and preserve device/mix state.
+
+Two diagnostic revisions were retained before the final targeted pass.
+At `82303cc`, all 256 voice offsets advanced, but output matched only 192
+contributing voices because the lower slots' first four routes were overridden.
+At `1c3e83c`, corrected routing and preserved firmware headroom produced a
+half-scale mix, demonstrating why a unity assumption was invalid. These are
+attributed guest-setup/oracle failures, not candidate-only emulator regressions.
+
+The validated source is `69eb30e367f584da9f3754608b395753c2e008dd`.
+Normal-XISO SHA-256:
+`449d36d4ce699690810efbd44c21c629ea023df80f523202e89aae84127547c8`.
+Catalog ID:
+`sha256:6db2528a4daf04c37a193b77f761b39eeb3b8168332b0cbdd58a06bf3a8d3709`;
+catalog-file SHA-256:
+`e928773511a16155e1693f6b952e90954fab86bbdcc90d323696fc7de8bb6a96`.
+Both runs use the pinned upstream/candidate executables listed above,
+configuration SHA-256 `0318e8887b2144ba6a5cb6536df14b04b80eadf8a21debb242f4e80904034dce`,
+warmup 0, multiplier 1, per-iteration completion, and resolved plan
+`sha256:77f24fbc43d9a16f3119c62e4a7115e7cb5681c0e329fd545606143c57eea2e4`.
+
+| Exact run (receipts retained in this repository) | Selected guest results |
+| --- | --- |
+| [Upstream `20261005-085633811-73f576269693440bbcbe72e27c230c90`](evidence/pr55-audio-2026-10-05/upstream-results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 14/10 |
+| [Candidate `20261005-085722185-03bf09d8dd5f49da895bbae551bd8c44`](evidence/pr55-audio-2026-10-05/candidate-results.txt) | All four PASS; mono/stereo 256 observe 256 voices and 8 case frames; reference frames 11/10 |
+
+The four selections are mono zero, mono 256, stereo 256, and the 257-slot denial.
+Each active reference infers divisor 2 in both lanes. Mono case mix is
+`524288` in both lanes; stereo case mix is `524288` left and `16252928`
+(signed 24-bit `-524288`) right. The denial accepts 256 guest-pool slots and
+refuses exactly one, while observing/submitting no device voices. All teardown
+flags pass in all eight selected receipts. Runner receipt matching and exact
+four-leaf coverage pass, but pinned oracles for these selections remain absent:
+`xiso_oracle_coverage=false`, overall failed/ineligible. Only these four leaves
+were run natively in this partition, not all 45. Full 138-case comparison,
+runner qualification, original-Xbox execution and timing claims remain withheld.
+
+Independent review caught the low-slot routing issue and the inherited
+write-only headroom mutation; regression tests cover both corrections. A
+minor diagnostic gap remains: admission/poison failures report requested count
+zero, while retaining the correct selected case ID and a FAIL verdict.
 
 ## Path-proof contract
 
@@ -353,7 +518,7 @@ benchmarking.
 
 ## Curated initial case set
 
-The machine-readable matrix expands to **138 planned cases**. This is
+The machine-readable matrix expands to **138 cases: 45 executable and 93 planned**. This is
 deliberately not the full Cartesian product. It fixes the first implementation
 targets so another agent cannot quietly reduce or multiply the workload while
 claiming the same test semantics.
@@ -377,9 +542,9 @@ The initial expansion includes:
 - 1 all-path ceiling case
 
 Run `python3 utils/audio_torture_cases.py --check` to validate the proposed
-case set or `--json` to inspect every fixed parameter set. These are proposed
-leaves only; the catalog remains intentionally unchanged until their hardware
-backends are real.
+case set or `--json` to inspect every fixed parameter set. Only the 45 VP-scaling
+leaves are promoted into the executable catalog. Other families remain planned
+until their hardware backends, per-case oracles and teardown exist.
 
 ## Maximum-load case
 

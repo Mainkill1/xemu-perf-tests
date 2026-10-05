@@ -12,6 +12,7 @@
 .DS_Store
 .vscode/
 .idea/
+.worktrees/
 bin/
 __pycache__/
 *.py[cod]

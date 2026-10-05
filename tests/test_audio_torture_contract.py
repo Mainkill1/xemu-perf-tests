@@ -4,6 +4,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
+from utils.audio_torture_cases import build_cases
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -215,7 +216,11 @@ class AudioTortureContractTests(unittest.TestCase):
 
         catalog = json.loads((ROOT / "resources" / "catalog.json").read_text(encoding="utf-8"))
         catalog_ids = {entry["id"] for entry in catalog["tests"]}
-        self.assertFalse(any(test_id.startswith("audio.") for test_id in catalog_ids))
+        self.assertEqual(
+            {test_id for test_id in catalog_ids if test_id.startswith("audio.")},
+            {case["id"] for case in build_cases(self.matrix)
+             if case["family"] == "audio.vp_scaling"},
+        )
 
         main_source = (ROOT / "src" / "main.cpp").read_text(encoding="utf-8")
         self.assertNotIn("REG_TEST(AudioTortureTests)", main_source)
