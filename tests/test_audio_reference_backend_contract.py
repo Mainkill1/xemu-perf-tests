@@ -13,6 +13,7 @@ class AudioReferenceBackendContractTests(unittest.TestCase):
         self.assertIn("fc2deca2cc1e434805ac03ca7c2f500b3b028f36", cmake)
         self.assertIn("set(NXAUDIO_BUILD_EXAMPLES OFF", cmake)
         self.assertIn("nxaudio", cmake)
+        self.assertIn("target_compile_options(nxaudio PRIVATE -include string.h)", cmake)
 
         notice = (ROOT / "third_party" / "nxdk-audio-NOTICE.txt").read_text(
             encoding="utf-8"

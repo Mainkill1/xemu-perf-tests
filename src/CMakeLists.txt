@@ -53,6 +53,9 @@ if (AUDIO_BOOTSTRAP_SMOKE)
             GIT_TAG fc2deca2cc1e434805ac03ca7c2f500b3b028f36
     )
     FetchContent_MakeAvailable(nxaudio_source)
+    # The pinned upstream audio_core.c uses C string routines without including
+    # string.h. Keep this compatibility shim scoped to the optional reference lib.
+    target_compile_options(nxaudio PRIVATE -include string.h)
 endif ()
 
 configure_file(configure.h.in configure.h)
