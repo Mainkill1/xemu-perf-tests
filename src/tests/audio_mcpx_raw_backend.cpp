@@ -146,6 +146,7 @@ bool McpxRawBackend::Run(const AudioCaseDescriptor &descriptor,
     if (progressed >= kRequiredEngineSamples) {
       for (uint32_t i = 0; i < observed.mix_words.size(); ++i)
         observed.mix_words[i] = io_.Read32(kMix + i * 4);
+      result.observed_mix_words = observed.mix_words;
       result.output_oracle_passed = S16ControlOracle::Check(observed);
     }
   }

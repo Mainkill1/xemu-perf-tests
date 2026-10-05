@@ -1,6 +1,7 @@
 #ifndef XEMU_PERF_TESTS_AUDIO_TORTURE_BACKEND_H
 #define XEMU_PERF_TESTS_AUDIO_TORTURE_BACKEND_H
 
+#include <array>
 #include <cstddef>
 #include <cstdint>
 
@@ -73,6 +74,7 @@ struct WorkloadResult {
   uint32_t completion_timeouts{0};
   uint32_t backend_errors{0};
   uint32_t observed_engine_frames{0};
+  std::array<uint32_t, 32> observed_mix_words{};
   bool observed_voice_terminal{false};
   bool output_oracle_passed{false};
   bool cleanup_passed{false};

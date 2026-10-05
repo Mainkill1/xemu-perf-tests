@@ -43,7 +43,12 @@ inline std::string BuildS16LeafMetadata(bool ran, const WorkloadResult &result,
       << ",\"observed_voice_terminal\":" << (result.observed_voice_terminal ? "true" : "false")
       << ",\"output_oracle_passed\":" << (result.output_oracle_passed ? "true" : "false")
       << ",\"cleanup_passed\":" << (result.cleanup_passed ? "true" : "false")
-      << ",\"timing_comparable\":false}";
+      << ",\"observed_mix_words\":[";
+  for (size_t index = 0; index < result.observed_mix_words.size(); ++index) {
+    if (index) out << ',';
+    out << result.observed_mix_words[index];
+  }
+  out << "],\"timing_comparable\":false}";
   return out.str();
 }
 
