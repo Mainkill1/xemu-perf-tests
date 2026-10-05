@@ -5,6 +5,16 @@ Deterministic Xbox workloads for finding xemu correctness and performance
 changes. Fixed work, checksums, known-answer values, and framebuffer hashes
 prevent a faster result from silently hiding changed output.
 
+## Experimental MCPX voice correctness tests
+
+The [MCPX voice fixture](docs/mcpx-adpcm-voices.md) drives nonstreaming ADPCM
+through the guest APU and observes decoded mix output, with a signed-16 PCM
+control. Select `resources/mcpx-voice-correctness.json` for its five generated
+input cases. It is xemu-only and requires full DSP mode; GP/EP stay reset and
+no proprietary DSP firmware is needed. Timer-paced completion latency is
+**NOT COMPARABLE** as throughput. Focused Deck guest mix checks have passed;
+framebuffer references, audible output, retail behavior, and throughput remain unqualified.
+
 ## Choose your goal
 
 | Goal | Start here |

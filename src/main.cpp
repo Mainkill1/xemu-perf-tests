@@ -26,6 +26,7 @@
 #include "tests/busy_pfifo_tests.h"
 #include "tests/cpu_floating_point_tests.h"
 #include "tests/cpu_translation_block_tests.h"
+#include "tests/mcpx_voice_tests.h"
 #include "tests/fill_rate_tests.h"
 #include "tests/game_load_composite_tests.h"
 #include "tests/high_vertex_count_tests.h"
@@ -241,6 +242,7 @@ static void RegisterSuites(TestHost& host, RuntimeConfig& runtime_config,
   REG_TEST(HighVertexCountTests)
   REG_TEST(PfifoArrayElementTests)
   if (runtime_config.enable_xemu_only_tests()) {
+    REG_TEST(McpxVoiceTests)
     REG_TEST(PfifoPacketBoundaryTests)
     REG_TEST(ShaderLifecycleTests)
     REG_TEST(TextureCubemapFallbackTests)

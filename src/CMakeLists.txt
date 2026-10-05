@@ -104,6 +104,9 @@ add_library(
         tests/cpu_code_rewrite_workload.h
         tests/cpu_jump_cache_workload.h
         tests/cpu_translation_block_tests.h
+        tests/mcpx_voice_recipe.h
+        tests/mcpx_voice_tests.cpp
+        tests/mcpx_voice_tests.h
         tests/fill_rate_tests.cpp
         tests/fill_rate_tests.h
         tests/game_load_composite_tests.cpp
