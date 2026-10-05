@@ -195,7 +195,11 @@ bool AudioNxBridgeRun(const AudioNxBridgeRequest *request,
         nxAudioVoiceDestroy(&voices[i]);
     }
 
-    if (request->format == AUDIO_NX_BRIDGE_ADPCM) {
+    if (request->loop) {
+        result->completed_frames_per_voice =
+            (uint64_t)(request->audio_frames ? request->audio_frames : 1U) *
+            AUDIO_NX_SAMPLES_PER_FRAME;
+    } else if (request->format == AUDIO_NX_BRIDGE_ADPCM) {
         result->completed_frames_per_voice =
             (source_size / (36U * request->channels)) * 64ULL;
     } else {
