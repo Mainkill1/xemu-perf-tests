@@ -557,6 +557,7 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
   texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  const auto stage_without_image_override = texture_stage;
   texture_stage.SetImageDimensions(kLargeWidth, kLargeHeight);
   texture_stage.SetEnabled(true);
   host_.SetupTextureStages();
@@ -573,6 +574,9 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   host_.FinishDraw(suite_name_, kXemuFullClearElisionGuardTestName, results,
                    CheckSurfaceClearGuardPixels(
                        host_, kXemuFullClearElisionGuardTestName, 0x4060B0));
+  // Following leaves may deliberately inherit the earlier linear image size.
+  texture_stage = stage_without_image_override;
+  texture_stage.SetEnabled(false);
 }
 
 void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
@@ -611,6 +615,7 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
   texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  const auto stage_without_image_override = texture_stage;
   texture_stage.SetImageDimensions(kLargeWidth, kLargeHeight);
   texture_stage.SetEnabled(true);
   host_.SetupTextureStages();
@@ -627,6 +632,8 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   host_.FinishDraw(suite_name_, kXemuPartialChannelClearGuardTestName, results,
                    CheckSurfaceClearGuardPixels(
                        host_, kXemuPartialChannelClearGuardTestName, 0xB04040));
+  texture_stage = stage_without_image_override;
+  texture_stage.SetEnabled(false);
 }
 
 void SurfaceRenderingTests::TestXemuSurfaceListLookup(
