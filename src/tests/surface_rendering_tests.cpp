@@ -557,6 +557,7 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
   texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  texture_stage.SetImageDimensions(kLargeWidth, kLargeHeight);
   texture_stage.SetEnabled(true);
   host_.SetupTextureStages();
   host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
@@ -609,6 +610,7 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   texture_stage.SetFormat(PBKitPlusPlus::GetTextureFormatInfo(
       NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
   texture_stage.SetTextureDimensions(kLargeWidth, kLargeHeight);
+  texture_stage.SetImageDimensions(kLargeWidth, kLargeHeight);
   texture_stage.SetEnabled(true);
   host_.SetupTextureStages();
   host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
