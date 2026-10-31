@@ -562,6 +562,7 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   host_.SetupTextureStages();
   host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.SetBlend(false);
   host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
                                kLargeWidth, kLargeHeight);
   host_.SetTextureStageEnabled(0, false);
@@ -615,6 +616,7 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   host_.SetupTextureStages();
   host_.SetShaderStageProgram(TestHost::STAGE_2D_PROJECTIVE);
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_TEX0);
+  host_.SetBlend(false);
   host_.DrawTexturedScreenQuad(160.f, 120.f, 480.f, 360.f, 1.f,
                                kLargeWidth, kLargeHeight);
   host_.SetTextureStageEnabled(0, false);
