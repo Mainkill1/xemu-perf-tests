@@ -444,6 +444,83 @@ void SurfaceRenderingTests::TestXemuOverlappingSurfaceChurn(
   host_.FinishDraw(suite_name_, test_name, results);
 }
 
+static std::string CheckSurfaceClearGuardPixels(TestHost &host,
+                                               const char *test_name,
+                                               uint32_t center_rgb) {
+  // Observe the tested texture draw before FinishDraw adds its overlay. These
+  // interior colors follow from the clear recipe, not a recorded image hash.
+  host.WaitForGpu();
+  const std::array<std::array<uint32_t, 3>, 6> samples{{
+      {120, 100, 0x202020},
+      {176, 136, 0xB04040},
+      {464, 136, 0xB04040},
+      {176, 344, 0x393939},
+      {464, 344, 0x393939},
+      {320, 240, center_rgb},
+  }};
+  uint32_t source_kat = 2166136261U;
+  for (const auto &sample : samples) {
+    for (uint32_t value : sample) {
+      for (uint32_t byte = 0; byte < 4; ++byte) {
+        source_kat ^= (value >> (byte * 8)) & 0xFF;
+        source_kat *= 16777619U;
+      }
+    }
+  }
+  const auto *base =
+      reinterpret_cast<volatile const uint8_t *>(pb_back_buffer());
+  const uint32_t width = pb_back_buffer_width();
+  const uint32_t height = pb_back_buffer_height();
+  const uint32_t pitch = pb_back_buffer_pitch();
+  std::array<uint32_t, 6> observed{};
+  std::array<bool, 6> in_bounds{};
+  uint32_t failure_count = 0;
+  for (size_t i = 0; i < samples.size(); ++i) {
+    const auto &sample = samples[i];
+    in_bounds[i] = base && sample[0] < width && sample[1] < height &&
+                   pitch >= width * sizeof(uint32_t);
+    observed[i] = 0xFFFFFFFFU;
+    if (in_bounds[i]) {
+      const auto *pixel = base + sample[1] * pitch + sample[0] * sizeof(uint32_t);
+      observed[i] = (static_cast<uint32_t>(pixel[2]) << 16) |
+                    (static_cast<uint32_t>(pixel[1]) << 8) | pixel[0];
+    }
+    if (!in_bounds[i] || observed[i] != sample[2]) {
+      ++failure_count;
+      PrintMsg("SURFACE_CLEAR_GUARD %s (%lu,%lu) expected=%06lx "
+               "observed=%08lx in_bounds=%lu\n",
+               test_name, static_cast<unsigned long>(sample[0]),
+               static_cast<unsigned long>(sample[1]),
+               static_cast<unsigned long>(sample[2]),
+               static_cast<unsigned long>(observed[i]),
+               static_cast<unsigned long>(in_bounds[i]));
+    }
+  }
+
+  std::ostringstream metadata;
+  metadata << "{\"schema_version\":1,\"kind\":\"surface_clear_guard_pixels\","
+           << "\"color_contract\":\"surface-clear-linear-v2\","
+           << "\"source_kat\":" << source_kat << ","
+           << "\"oracle_status\":\"" << (failure_count ? "FAIL" : "PASS")
+           << "\",\"failure_count\":" << failure_count << ",\"samples\":[";
+  for (size_t i = 0; i < samples.size(); ++i) {
+    if (i) metadata << ",";
+    metadata << "{\"x\":" << samples[i][0] << ",\"y\":" << samples[i][1]
+             << ",\"expected_rgb\":" << samples[i][2]
+             << ",\"observed_rgb\":" << observed[i]
+             << ",\"in_bounds\":" << (in_bounds[i] ? "true" : "false") << "}";
+  }
+  metadata << "]}";
+  if (failure_count) {
+    EmitXemuPerfEvent(XemuPerfEventType::FAIL,
+                     static_cast<uint16_t>(XemuPerfAssertion::GENERIC_ASSERT),
+                     0, failure_count);
+  } else {
+    EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, 0, 0);
+  }
+  return metadata.str();
+}
+
 void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   host_.SetupFixedFunctionPassthrough();
   host_.PrepareDraw(0xFF202020);
@@ -491,7 +568,9 @@ void SurfaceRenderingTests::TestXemuFullClearElisionGuard() {
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
-  host_.FinishDraw(suite_name_, kXemuFullClearElisionGuardTestName, results);
+  host_.FinishDraw(suite_name_, kXemuFullClearElisionGuardTestName, results,
+                   CheckSurfaceClearGuardPixels(
+                       host_, kXemuFullClearElisionGuardTestName, 0x4060B0));
 }
 
 void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
@@ -541,7 +620,9 @@ void SurfaceRenderingTests::TestXemuPartialChannelClearGuard() {
   host_.SetShaderStageProgram(TestHost::STAGE_NONE);
   host_.SetFinalCombiner0Just(PBKitPlusPlus::NV2AState::SRC_DIFFUSE);
 
-  host_.FinishDraw(suite_name_, kXemuPartialChannelClearGuardTestName, results);
+  host_.FinishDraw(suite_name_, kXemuPartialChannelClearGuardTestName, results,
+                   CheckSurfaceClearGuardPixels(
+                       host_, kXemuPartialChannelClearGuardTestName, 0xB04040));
 }
 
 void SurfaceRenderingTests::TestXemuSurfaceListLookup(
