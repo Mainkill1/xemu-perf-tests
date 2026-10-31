@@ -9,7 +9,7 @@ ExternalProject_Add(
         printf_project
         GIT_REPOSITORY "https://github.com/mpaland/printf.git"
         GIT_TAG "d3b984684bb8a8bdc48cc7a1abecb93ce59bbe3e"
-        GIT_SHALLOW TRUE
+        GIT_SHALLOW FALSE
 
         SOURCE_DIR "${PRINTF_SOURCE_DIR}"
         BINARY_DIR "${PRINTF_BINARY_DIR}"
