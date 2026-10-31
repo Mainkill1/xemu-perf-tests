@@ -1,0 +1,40 @@
+[
+  {
+    "schema_version": 1,
+    "id": "surface.full_clear_elision_guard",
+    "revision": 2,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 100,
+    "sample_count": 100,
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "metadata": {
+      "kind": "surface_clear_guard_pixels",
+      "color_contract": "surface-clear-linear-v2",
+      "source_kat": 2442352862,
+      "oracle_status": "PASS",
+      "failure_count": 0
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "surface.partial_channel_clear_guard",
+    "revision": 2,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 100,
+    "sample_count": 100,
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "metadata": {
+      "kind": "surface_clear_guard_pixels",
+      "color_contract": "surface-clear-linear-v2",
+      "source_kat": 1539736542,
+      "oracle_status": "PASS",
+      "failure_count": 0
+    }
+  }
+]
