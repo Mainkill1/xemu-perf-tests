@@ -41,7 +41,7 @@ constexpr uint32_t kPaletteSourceKats[] = {
     0x5C491B36, 0x7A17D2A4, 0xC00D98F0, 0xDFF1316B
 };
 constexpr uint32_t kR6G5B5SourceKats[] = {
-    0x7CB76AD2, 0x7D92DBC5, 0xA3451B31, 0x6B1248B9
+    0xB2603FEB, 0x225F2BF0, 0xB0013A18, 0x68217E6E
 };
 constexpr uint32_t kTileLeft = 28;
 constexpr uint32_t kTileTop = 68;
@@ -133,12 +133,16 @@ uint32_t ExpandRgb565(uint16_t value) {
          ((green << 2 | green >> 4) << 8) | (blue << 3 | blue >> 2);
 }
 
-// Positive signed known-answer pairs avoid the -128/-127 endpoint ambiguity.
-// This xemu regression oracle does not establish original Xbox SNORM semantics.
-constexpr uint16_t kSignedWords[] = {0x0000, 0xFC00, 0x01E0, 0x000F, 0x7CEB};
-constexpr uint8_t kSignedRgb[][3] = {
-    {0, 3, 3}, {127, 3, 3}, {0, 127, 3}, {0, 3, 127}, {62, 61, 94},
+// Unsigned packed colors and literal outputs; never learned from xemu output.
+constexpr uint16_t kR6G5B5Words[] = {
+    0x0000, 0xFFFF, 0xFC00, 0x03E0, 0x001F, 0x8210, 0x7CEB, 0x0001,
 };
+constexpr uint8_t kR6G5B5Rgb[][3] = {
+    {0, 0, 0}, {255, 255, 255}, {255, 0, 0}, {0, 255, 0},
+    {0, 0, 255}, {130, 132, 132}, {125, 57, 90}, {0, 0, 8},
+};
+constexpr uint32_t kR6G5B5ColorCount =
+    sizeof(kR6G5B5Words) / sizeof(kR6G5B5Words[0]);
 
 uint32_t ConvertedPattern(uint32_t face, uint32_t level,
                           uint32_t x, uint32_t y) {
@@ -156,22 +160,12 @@ uint16_t ConvertedColor(uint32_t format, uint32_t face, uint32_t level,
   if (format == NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8) {
     return PaletteColor(pattern);
   }
-  const auto &rgb = kSignedRgb[pattern % 5];
-  const uint32_t red = (rgb[0] * 255 + 63) / 127;
-  const uint32_t green = (rgb[1] * 255 + 63) / 127;
-  const uint32_t blue = (rgb[2] * 255 + 63) / 127;
+  const auto &rgb = kR6G5B5Rgb[pattern % kR6G5B5ColorCount];
+  const uint32_t red = rgb[0];
+  const uint32_t green = rgb[1];
+  const uint32_t blue = rgb[2];
   return static_cast<uint16_t>(((red >> 3) << 11) |
                               ((green >> 2) << 5) | (blue >> 3));
-}
-
-bool SignedColorMatches(uint16_t observed, uint16_t expected) {
-  for (const auto shift : {0U, 5U, 11U}) {
-    const uint32_t mask = shift == 5 ? 63 : 31;
-    const int a = (observed >> shift) & mask;
-    const int b = (expected >> shift) & mask;
-    if (std::abs(a - b) > 1) return false;
-  }
-  return true;
 }
 
 void FillConvertedSource(std::vector<uint8_t> *source, uint32_t size,
@@ -194,7 +188,8 @@ void FillConvertedSource(std::vector<uint8_t> *source, uint32_t size,
           if (bytes == 1) {
             *pixel = static_cast<uint8_t>(pattern);
           } else {
-            const uint16_t word = inside ? kSignedWords[pattern % 5] : 0;
+            const uint16_t word = inside ?
+                kR6G5B5Words[pattern % kR6G5B5ColorCount] : 0;
             std::memcpy(pixel, &word, 2);
           }
         }
@@ -258,9 +253,9 @@ TextureCubemapFallbackTests::TextureCubemapFallbackTests(
       RunBorderedTexture(size, palette.c_str(),
                          NV097_SET_TEXTURE_FORMAT_COLOR_SZ_I8_A8R8G8B8);
     };
-    const std::string signed_rgb = "BorderedR6G5B5Size" + std::to_string(size);
-    tests_[signed_rgb] = [this, size, signed_rgb]() {
-      RunBorderedTexture(size, signed_rgb.c_str(),
+    const std::string rgb655 = "BorderedR6G5B5Size" + std::to_string(size);
+    tests_[rgb655] = [this, size, rgb655]() {
+      RunBorderedTexture(size, rgb655.c_str(),
                          NV097_SET_TEXTURE_FORMAT_COLOR_SZ_R6G5B5);
     };
   }
@@ -515,8 +510,7 @@ void TextureCubemapFallbackTests::RunBorderedTexture(
             BorderedCellColor(face, level, sample_x, sample_y) :
             ConvertedColor(format, face, level, sample_x, sample_y);
         observed_cells[cell * kBorderedSamplesPerCell + sample] = observed;
-        const bool color_matches = !rgba && !palette_format ?
-            SignedColorMatches(observed, expected) : observed == expected;
+        const bool color_matches = observed == expected;
         if (!color_matches || alpha != 0xFF) {
           ++failure_count;
           failure_mask |= 1U << cell;
@@ -537,6 +531,9 @@ void TextureCubemapFallbackTests::RunBorderedTexture(
            << (failure_count ? "FAIL" : "PASS") << "\",";
   metadata << "\"source_kat\":" << source_kat << ",";
   metadata << "\"guest_format\":" << format << ",";
+  if (!rgba && !palette_format) {
+    metadata << "\"color_contract\":\"r6g5b5_unsigned_v2\",";
+  }
   metadata << "\"logical_size\":" << logical_size << ",";
   metadata << "\"levels\":" << levels << ",";
   metadata << "\"faces\":6,\"face_stride\":" << face_stride << ",";
