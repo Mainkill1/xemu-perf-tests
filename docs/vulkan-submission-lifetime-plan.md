@@ -35,3 +35,40 @@ Performance evidence is the per-leaf control/candidate distribution, not the
 aggregate wall time of this mixed plan. Report medians and p95 values and flag
 any leaf whose candidate p95 regresses by more than 5% across at least five
 paired runs. The threshold is a triage gate, not a universal hardware claim.
+## Completed and pending CPU-read capsules
+
+`surface.cpu_read_completed_surface` and `surface.cpu_read_pending_surface`
+use three nonoverlapping 32×32 linear A8R8G8B8 surfaces in the existing
+stage backing allocations. They save and restore those bytes outside profiling.
+The resolved plan is `resources/surface-completion-readback.json`.
+
+Both cases clear B, then A, drain guest commands, and read B. On Vulkan,
+that read completes the batch while A, its final write, remains GPU-dirty.
+They then clear C and drain guest commands. The completed case reads A
+without another write. The pending control first clears A with a new color.
+Both finish by reading C. These CPU reads validate every word against the
+iteration's literal ARGB values, including warmups; colors change each iteration
+so preceding contents cannot satisfy the next observation. A mismatch records
+an oracle failure and remains visible to the runner.
+
+`resources/surface-completion-reference.json` is independently derived from
+the clear recipe, not from observed emulator output. It applies only to two
+warmups, 20 measured bodies, multiplier 1, and `enqueue`: each case checks
+67,584 words. The FNV32 observations are `7d41fdc5` (completed) and
+`6105fdc5` (pending), in CPU observation order B, A, C. No captured framebuffer
+is approved by these references. The same XBE can run on physical Xbox;
+such execution has not yet been recorded.
+
+Profile times include clears, command drains, downloads, and full CPU word
+validation. Passing pixels establish the recipe's output, not the absence of
+a redundant Vulkan completion. Use the existing Vulkan performance log to
+check whether the completed case avoids a finish and whether the pending
+control retains one. **This is not a reproducer for xemu #366's equality
+boundary:** C's clear advances the recording epoch before starting its
+command buffer on the parent too. Both builds are expected to skip an
+unnecessary completion for A. Native equality-boundary coverage still needs
+a proven operation that starts recording without first advancing that epoch.
+Counter logs cover startup and finalization too, so
+totals need that limitation. Instrumented, unpaired runs are diagnostics,
+not performance qualification. Existing workloads and their old timing
+evidence remain separate.
