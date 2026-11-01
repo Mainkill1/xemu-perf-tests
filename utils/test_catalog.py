@@ -161,6 +161,12 @@ def entries():
         "pipeline.palette-dma-remap",
         "Remaps clean stage 0's palette DMA source while stage 1 receives an unrelated sampler write; checks both rendered stages.",
         ("texture", "gpu", "correctness", "hardware-safe")))
+    out.append(leaf(
+        "pipeline_texture_switch.cache_pressure",
+        "pipeline_texture_switch", "PipelineTextureSwitch",
+        "pipeline.cache-pressure",
+        "Draws 272 tiles with four enabled 8x8 textures and 1088 sampler identities before a completion fence; checks all stage colors after cache pressure.",
+        ("texture", "gpu", "correctness", "hardware-safe")))
     simple("report_query", "ReportQuery", [
         ("zero_query", "report.zero-query"),
         ("single_boundary", "report.single-boundary"),
@@ -921,6 +927,11 @@ def render():
         }
         output[ROOT / f"resources/vulkan-submission-lifetimes-{profile}.json"] = \
             resolved_plan(doc, settings, submission_ids)
+    output[ROOT / "resources/texture-cache-pressure.json"] = resolved_plan(
+        doc, {"skip_tests_by_default": True, "warmup_iterations": 2,
+              "measurement_iterations_multiplier": 1, "gpu_completion_mode": "enqueue",
+              "output_directory_path": "e:/xemu_perf_tests"},
+        ["pipeline_texture_switch.cache_pressure"])
     output[ROOT / "resources/surface-completion-readback.json"] = resolved_plan(
         doc, {"skip_tests_by_default": True, "warmup_iterations": 2,
               "measurement_iterations_multiplier": 1, "gpu_completion_mode": "enqueue",

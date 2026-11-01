@@ -5,6 +5,7 @@
 
 #include <array>
 #include <cstddef>
+#include <cstring>
 #include <sstream>
 
 #include "debug_output.h"
@@ -28,6 +29,7 @@ static constexpr char kSharedPageOverlapName[] =
     "pipeline.shared-page-overlap";
 static constexpr char kTextureDmaRemapName[] = "pipeline.texture-dma-remap";
 static constexpr char kPaletteDmaRemapName[] = "pipeline.palette-dma-remap";
+static constexpr char kCachePressureName[] = "pipeline.cache-pressure";
 
 static constexpr uint32_t kSeed = 0x50545357;  // "PTSW"
 static constexpr uint32_t kFnvOffsetBasis = 2166136261U;
@@ -291,6 +293,7 @@ PipelineTextureSwitchTests::PipelineTextureSwitchTests(TestHost &host,
   tests_[kPaletteOnlyUpdateName] = [this]() { RunPaletteOnlyUpdate(); };
   tests_[kSharedPageOverlapName] = [this]() { RunSharedPageOverlap(); };
   tests_[kTextureDmaRemapName] = [this]() { RunTextureDmaRemap(); };
+  tests_[kCachePressureName] = [this]() { RunCachePressure(); };
   tests_[kPaletteDmaRemapName] = [this]() { RunPaletteDmaRemap(); };
 }
 
@@ -1517,6 +1520,138 @@ void PipelineTextureSwitchTests::RunPaletteDmaRemap() {
   metadata << "\"terminal_fence\":\"F2 after F1\"}";
   EmitXemuPerfEvent(XemuPerfEventType::PASS, 0, expected_kat, actual_kat);
   host_.FinishDraw(suite_name_, kPaletteDmaRemapName, results, metadata.str());
+  ClearXemuPerfEventContext();
+}
+
+void PipelineTextureSwitchTests::RunCachePressure() {
+  static constexpr uint32_t kDimension = 8;
+  static constexpr uint32_t kWords = kDimension * kDimension;
+  static constexpr uint32_t kDraws = 272;
+  static constexpr uint32_t kColumns = 17;
+  static constexpr uint32_t kColors[] = {
+      0xFFFF0000, 0xFF00FF00, 0xFF0000FF, 0xFFFFFF00};
+  static constexpr TestHost::CombinerSource kSources[] = {
+      TestHost::SRC_TEX0, TestHost::SRC_TEX1,
+      TestHost::SRC_TEX2, TestHost::SRC_TEX3};
+  const TextureStage saved_stages[] = {
+      host_.GetTextureStage(0), host_.GetTextureStage(1),
+      host_.GetTextureStage(2), host_.GetTextureStage(3)};
+  std::array<std::array<uint32_t, kWords>, 4> saved_pixels{};
+  host_.WaitForGpu();
+  for (uint32_t stage = 0; stage < 4; ++stage) {
+    auto *pixels = reinterpret_cast<uint32_t *>(
+        host_.GetTextureMemoryForStage(stage));
+    std::memcpy(saved_pixels[stage].data(), pixels, sizeof(saved_pixels[stage]));
+    for (uint32_t i = 0; i < kWords; ++i) {
+      pixels[i] = kColors[stage];
+    }
+    auto &texture = host_.GetTextureStage(stage);
+    texture.SetFormat(GetTextureFormatInfo(
+        NV097_SET_TEXTURE_FORMAT_COLOR_LU_IMAGE_A8R8G8B8));
+    texture.SetTextureDimensions(kDimension, kDimension);
+    texture.SetImageDimensions(kDimension, kDimension);
+    texture.SetMipMapLevels(1);
+    texture.SetLODClamp(0, 0);
+    texture.SetUWrap(TextureStage::WRAP_REPEAT, false);
+    texture.SetVWrap(TextureStage::WRAP_REPEAT, false);
+    texture.SetPWrap(TextureStage::WRAP_REPEAT, false);
+    texture.SetFilter();
+    texture.SetEnabled(true);
+  }
+  host_.SetVertexShaderProgram(nullptr);
+  host_.SetupFixedFunctionPassthrough();
+  host_.SetShaderStageProgram(
+      TestHost::STAGE_2D_PROJECTIVE, TestHost::STAGE_2D_PROJECTIVE,
+      TestHost::STAGE_2D_PROJECTIVE, TestHost::STAGE_2D_PROJECTIVE);
+  host_.SetupTextureStages();
+  host_.SetBlend(false);
+  host_.SetFinalCombiner1Just(TestHost::SRC_ZERO, true, true);
+  Pushbuffer::Begin();
+  Pushbuffer::Push(NV097_SET_CULL_FACE_ENABLE, false);
+  Pushbuffer::Push(NV097_SET_DEPTH_TEST_ENABLE, false);
+  Pushbuffer::End();
+
+  uint32_t invocation = 0;
+  uint32_t checked_words = 0;
+  uint32_t failure_count = 0;
+  uint32_t source_kat = kFnvOffsetBasis;
+  SetXemuPerfEventContext(0x1509, 0);
+  auto results = Profile(kCachePressureName, 1, [&] {
+    host_.PrepareDraw(kBackgroundColor);
+    for (uint32_t draw = 0; draw < kDraws; ++draw) {
+      Pushbuffer::Begin();
+      for (uint32_t stage = 0; stage < 4; ++stage) {
+        // Repeat addressing keeps border color out of the pixel oracle while
+        // each write selects another texture/sampler identity. Small images
+        // avoid requiring a large texture-staging allocation for this stream.
+        Pushbuffer::Push(
+            NV097_SET_TEXTURE_BORDER_COLOR + stage * kTextureStageStride,
+            0xFF000000U | ((invocation * kDraws + draw + 1) * 4 + stage));
+      }
+      Pushbuffer::End();
+      host_.SetFinalCombiner0Just(kSources[draw % 4]);
+      const float left = 32.f + (draw % kColumns) * 16.f;
+      const float top = 32.f + (draw / kColumns) * 16.f;
+      host_.DrawTexturedScreenQuadEx(left, top, left + 8.f, top + 8.f,
+                                     1.f, 0.f, 0.f, 8.f, 0.f, 8.f, 8.f,
+                                     0.f, 8.f);
+    }
+
+    // No completion request or CPU framebuffer read splits the pressure
+    // stream. Check every tile only after its final GPU fence.
+    SynchronizeCorrectness(host_);
+    const auto *frame = reinterpret_cast<volatile const uint8_t *>(
+        pb_back_buffer());
+    for (uint32_t draw = 0; draw < kDraws; ++draw) {
+      for (uint32_t y = 2; y < 6; ++y) {
+        const auto *row = reinterpret_cast<volatile const uint32_t *>(
+            frame + (32 + (draw / kColumns) * 16 + y) * pb_back_buffer_pitch());
+        for (uint32_t x = 2; x < 6; ++x) {
+          const uint32_t actual = row[32 + (draw % kColumns) * 16 + x];
+          const uint32_t expected = kColors[draw % 4];
+          if (actual != expected) {
+            if (!failure_count) {
+              PrintMsg("TEXTURE_CACHE_PRESSURE invocation=%lu draw=%lu "
+                       "expected=%08lx observed=%08lx\n",
+                       invocation, draw, expected, actual);
+            }
+            ++failure_count;
+          }
+          source_kat = Fnv1aAddWord(source_kat, actual);
+          ++checked_words;
+        }
+      }
+    }
+    ++invocation;
+  });
+
+  host_.WaitForGpu();
+  for (uint32_t stage = 0; stage < 4; ++stage) {
+    host_.GetTextureStage(stage) = saved_stages[stage];
+    std::memcpy(host_.GetTextureMemoryForStage(stage),
+                saved_pixels[stage].data(), sizeof(saved_pixels[stage]));
+  }
+  host_.SetShaderStageProgram(TestHost::STAGE_NONE);
+  host_.SetFinalCombiner0Just(TestHost::SRC_DIFFUSE);
+  host_.SetupTextureStages();
+  Pushbuffer::Begin();
+  for (uint32_t stage = 0; stage < 4; ++stage) {
+    Pushbuffer::Push(
+        NV097_SET_TEXTURE_BORDER_COLOR + stage * kTextureStageStride,
+        saved_stages[stage].GetBorderColor());
+  }
+  Pushbuffer::End();
+  std::ostringstream metadata;
+  metadata << "{\"kind\":\"texture_cache_pressure\",\"oracle_status\":\""
+           << (failure_count ? "FAIL" : "PASS")
+           << "\",\"failure_count\":" << failure_count
+           << ",\"draws_per_invocation\":" << kDraws
+           << ",\"identities_per_invocation\":" << kDraws * 4
+           << ",\"checked_words\":" << checked_words
+           << ",\"source_kat\":" << source_kat << "}";
+  EmitXemuPerfEvent(failure_count ? XemuPerfEventType::FAIL : XemuPerfEventType::PASS,
+                    0, 0, failure_count);
+  host_.FinishDraw(suite_name_, kCachePressureName, results, metadata.str());
   ClearXemuPerfEventContext();
 }
 
