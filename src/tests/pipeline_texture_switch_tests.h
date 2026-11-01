@@ -36,6 +36,7 @@ class PipelineTextureSwitchTests : public TestSuite {
   void RunSharedPageOverlap();
   void RunTextureDmaRemap();
   void RunPaletteDmaRemap();
+  void RunCachePressure();
   void ResetCanonicalTextureBacking() const;
   void ConfigureTexturePipeline() const;
   void ConfigurePalettePipeline() const;
