@@ -1,0 +1,42 @@
+[
+  {
+    "schema_version": 1,
+    "id": "surface.cpu_read_completed_surface",
+    "revision": 1,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 20,
+    "sample_count": 20,
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "metadata": {
+      "kind": "surface_completion_readback",
+      "case": "completed",
+      "oracle_status": "PASS",
+      "failure_count": 0,
+      "checked_words": 67584,
+      "observed_kat": 2101476805
+    }
+  },
+  {
+    "schema_version": 1,
+    "id": "surface.cpu_read_pending_surface",
+    "revision": 1,
+    "kind": "leaf",
+    "outcome": "PASS",
+    "iterations": 20,
+    "sample_count": 20,
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "metadata": {
+      "kind": "surface_completion_readback",
+      "case": "pending",
+      "oracle_status": "PASS",
+      "failure_count": 0,
+      "checked_words": 67584,
+      "observed_kat": 1627782597
+    }
+  }
+]

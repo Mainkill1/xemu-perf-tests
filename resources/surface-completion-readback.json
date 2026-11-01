@@ -1,0 +1,23 @@
+{
+  "settings": {
+    "skip_tests_by_default": true,
+    "warmup_iterations": 2,
+    "measurement_iterations_multiplier": 1,
+    "gpu_completion_mode": "enqueue",
+    "output_directory_path": "e:/xemu_perf_tests"
+  },
+  "resolved_plan": {
+    "schema_version": 2,
+    "plan_id": "sha256:eb21aee714d9c690089fa0a01d9aeaf49d81a966a7dfdc094414964d1e62c823",
+    "catalog_id": "sha256:3449830e1c18920e2b421f860b1217740b6412a2f9e485a0ecf817c66bb753f6",
+    "selected_leaf_count": 2,
+    "tests": [
+      {
+        "id": "surface.cpu_read_completed_surface"
+      },
+      {
+        "id": "surface.cpu_read_pending_surface"
+      }
+    ]
+  }
+}

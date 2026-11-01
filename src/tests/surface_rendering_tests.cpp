@@ -48,6 +48,10 @@ static constexpr char kXemuCpuReadCleanSurfaceTestName[] =
     "XemuCpuReadCleanSurface";
 static constexpr char kXemuCpuReadAfterGpuWriteTestName[] =
     "XemuCpuReadAfterGpuWrite";
+static constexpr char kXemuCpuReadCompletedSurfaceTestName[] =
+    "XemuCpuReadCompletedSurface";
+static constexpr char kXemuCpuReadPendingSurfaceTestName[] =
+    "XemuCpuReadPendingSurface";
 static constexpr char kXemuVulkanMemoryPressureRepresentativeTestName[] =
     "XemuVulkanMemoryPressureRepresentative";
 static constexpr char kXemuVulkanMemoryPressureStressTestName[] =
@@ -144,6 +148,12 @@ SurfaceRenderingTests::SurfaceRenderingTests(TestHost &host, std::string output_
   };
   tests_[kXemuCpuReadAfterGpuWriteTestName] = [this]() {
     TestXemuCpuReadAfterGpuWrite();
+  };
+  tests_[kXemuCpuReadCompletedSurfaceTestName] = [this]() {
+    TestXemuCpuReadSurfaceCompletion(false);
+  };
+  tests_[kXemuCpuReadPendingSurfaceTestName] = [this]() {
+    TestXemuCpuReadSurfaceCompletion(true);
   };
   tests_[kXemuVulkanMemoryPressureRepresentativeTestName] = [this]() {
     TestXemuVulkanMemoryPressure(kXemuVulkanMemoryPressureRepresentativeTestName, 1);
@@ -846,6 +856,96 @@ void SurfaceRenderingTests::TestXemuCpuReadAfterGpuWrite() {
                          static_cast<uint32_t>(host_.GetFramebufferWidthF()),
                          static_cast<uint32_t>(host_.GetFramebufferHeightF()));
   host_.FinishDraw(suite_name_, kXemuCpuReadAfterGpuWriteTestName, results);
+}
+
+void SurfaceRenderingTests::TestXemuCpuReadSurfaceCompletion(bool rewrite_subject) {
+  const char *test_name = rewrite_subject ? kXemuCpuReadPendingSurfaceTestName
+                                        : kXemuCpuReadCompletedSurfaceTestName;
+  host_.SetupFixedFunctionPassthrough();
+  host_.PrepareDraw(0xFF202020);
+  static constexpr uint32_t kWidth = 32;
+  static constexpr uint32_t kHeight = 32;
+  static constexpr uint32_t kWordCount = kWidth * kHeight;
+  static constexpr uint32_t kProfileIterations = 20;
+  uint8_t *const subject = host_.GetTextureMemoryForStage(0);
+  uint8_t *const completion_trigger = host_.GetTextureMemoryForStage(1);
+  uint8_t *const successor = host_.GetTextureMemoryForStage(2);
+  uint8_t *const surfaces[] = {subject, completion_trigger, successor};
+  static constexpr uint32_t kSurfaceBytes = kWordCount * sizeof(uint32_t);
+  auto saved = std::make_unique<uint8_t[]>(3 * kSurfaceBytes);
+  for (uint32_t i = 0; i < 3; ++i) {
+    std::memcpy(saved.get() + i * kSurfaceBytes, surfaces[i], kSurfaceBytes);
+  }
+  uint32_t invocation = 0;
+  uint32_t checked_words = 0;
+  uint32_t failure_count = 0;
+  uint32_t observed_kat = 2166136261U;
+
+  auto clear = [this](uint8_t *address, uint32_t color) {
+    host_.RenderToSurfaceStart(address, TestHost::SCF_A8R8G8B8,
+                               kWidth, kHeight, false);
+    host_.ClearColorRegion(color, 0, 0, kWidth, kHeight);
+    host_.RenderToSurfaceEnd();
+  };
+  auto check = [&](const uint8_t *address, uint32_t expected) {
+    const auto *words = reinterpret_cast<volatile const uint32_t *>(address);
+    for (uint32_t i = 0; i < kWordCount; ++i) {
+      const uint32_t actual = words[i];
+      if (actual != expected) {
+        if (!failure_count) {
+          PrintMsg("SURFACE_COMPLETION %s iteration=%lu word=%lu "
+                   "expected=%08lx observed=%08lx\n",
+                   test_name, invocation, i, expected, actual);
+        }
+        ++failure_count;
+      }
+      observed_kat = HashVulkanMemoryPressureU32(observed_kat, actual);
+      ++checked_words;
+    }
+  };
+
+  auto results = Profile(test_name, kProfileIterations, [&] {
+    const uint32_t delta = invocation * 0x010101U;
+    const uint32_t trigger_color = 0xFF506070U + delta;
+    const uint32_t subject_color = 0xFF102030U + delta;
+    const uint32_t successor_color = 0xFF90A0B0U + delta;
+    const uint32_t rewritten_color = 0xFF204080U + delta;
+
+    // The subject is the final write in this batch. Reading the other surface
+    // completes that batch in Vulkan while leaving the subject GPU-dirty.
+    clear(completion_trigger, trigger_color);
+    clear(subject, subject_color);
+    host_.WaitForGpu();
+    check(completion_trigger, trigger_color);
+
+    // The successor clear already advances Vulkan's recording epoch on the
+    // parent implementation. This is completed-readback coverage, not a
+    // reproducer for equal completed/recording epochs. The pending control
+    // must still wait when a new clear rewrites the subject.
+    clear(successor, successor_color);
+    if (rewrite_subject) {
+      clear(subject, rewritten_color);
+    }
+    host_.WaitForGpu();
+    check(subject, rewrite_subject ? rewritten_color : subject_color);
+    check(successor, successor_color);
+    ++invocation;
+  });
+
+  std::ostringstream metadata;
+  metadata << "{\"kind\":\"surface_completion_readback\",\"case\":\""
+           << (rewrite_subject ? "pending" : "completed")
+           << "\",\"oracle_status\":\"" << (failure_count ? "FAIL" : "PASS")
+           << "\",\"failure_count\":" << failure_count
+           << ",\"checked_words\":" << checked_words
+           << ",\"observed_kat\":" << observed_kat << "}";
+  EmitXemuPerfEvent(failure_count ? XemuPerfEventType::FAIL : XemuPerfEventType::PASS,
+                    0, 0, failure_count);
+  host_.WaitForGpu();
+  for (uint32_t i = 0; i < 3; ++i) {
+    std::memcpy(surfaces[i], saved.get() + i * kSurfaceBytes, kSurfaceBytes);
+  }
+  host_.FinishDraw(suite_name_, test_name, results, metadata.str());
 }
 
 void SurfaceRenderingTests::TestXemuVulkanMemoryPressure(const char *test_name,

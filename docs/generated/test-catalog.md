@@ -1,6 +1,6 @@
 # Generated test catalog
 
-Catalog `sha256:cf795fe8369c547c0ef017bd46c5f6b3b97e1b794f05d27d3fbea7f0ea301a89` contains 192 leaves and 5 groups.
+Catalog `sha256:3449830e1c18920e2b421f860b1217740b6412a2f9e485a0ecf817c66bb753f6` contains 194 leaves and 5 groups.
 
 | Stable ID | Kind | Legacy ID |
 | --- | --- | --- |
@@ -154,6 +154,8 @@ Catalog `sha256:cf795fe8369c547c0ef017bd46c5f6b3b97e1b794f05d27d3fbea7f0ea301a89
 | `surface.basic` | leaf | `SurfaceRendering::SurfaceRendering` |
 | `surface.cpu_read_after_gpu_write` | leaf | `SurfaceRendering::XemuCpuReadAfterGpuWrite` |
 | `surface.cpu_read_clean_surface` | leaf | `SurfaceRendering::XemuCpuReadCleanSurface` |
+| `surface.cpu_read_completed_surface` | leaf | `SurfaceRendering::XemuCpuReadCompletedSurface` |
+| `surface.cpu_read_pending_surface` | leaf | `SurfaceRendering::XemuCpuReadPendingSurface` |
 | `surface.framebuffer_working_set_002` | leaf | `SurfaceRendering::XemuFramebufferWorkingSet002` |
 | `surface.framebuffer_working_set_008` | leaf | `SurfaceRendering::XemuFramebufferWorkingSet008` |
 | `surface.framebuffer_working_set_032` | leaf | `SurfaceRendering::XemuFramebufferWorkingSet032` |

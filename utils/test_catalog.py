@@ -275,6 +275,8 @@ def entries():
     simple("surface", "SurfaceRendering", [("basic", "SurfaceRendering"),
            ("cpu_read_after_gpu_write", "XemuCpuReadAfterGpuWrite"),
            ("cpu_read_clean_surface", "XemuCpuReadCleanSurface"),
+           ("cpu_read_completed_surface", "XemuCpuReadCompletedSurface"),
+           ("cpu_read_pending_surface", "XemuCpuReadPendingSurface"),
            ("framebuffer_working_set_002", "XemuFramebufferWorkingSet002"),
            ("framebuffer_working_set_008", "XemuFramebufferWorkingSet008"),
            ("framebuffer_working_set_032", "XemuFramebufferWorkingSet032"),
@@ -516,6 +518,10 @@ def failure_diagnosis(test):
             "The CPU did not observe the GPU's newest surface bytes. Check GPU-to-RAM synchronization, dirty ownership, fence waits, download range, and cache invalidation.",
         "surface.cpu_read_clean_surface":
             "Reading an already synchronized surface changed data or performed the wrong path. Check clean/dirty state, redundant download elision, RAM validity, and surface ownership epochs.",
+        "surface.cpu_read_completed_surface":
+            "Three32x32 ARGB8 surfaces separate a completed GPU-dirty subject from successor recording. Reading B completes the batch whose final write is A; after clearing C, reading A must preserve its literal pixels. C's clear already advances the epoch on the parent: this is not an equality-boundary reproducer for xemu366. CPU pixels alone do not prove completion counts. The recipe-only reference requires two warmups, multiplier1 and enqueue; physical Xbox validation is not yet recorded.",
+        "surface.cpu_read_pending_surface":
+            "The completed-surface recipe rewrites A after starting successor C. Every word of A must contain its new clear, and C must remain correct. This rejects eliding a wait for an actual pending write. The recipe-only reference requires two warmups, multiplier1 and enqueue; timings include CPU validation and do not prove whole-game performance.",
         "surface.full_clear_elision_guard":
             "Revision2 checks literal RGB pixels before the overlay, with blending disabled and an explicit160x120 linear image pitch. The recipe-only reference is resources/surface-clear-guard-reference.json (two warmups, multiplier1, enqueue). A preserved small-clear pixel, never-written tail, center clear or background differs. Check clear coverage, alias upload/download, image pitch and attachment extent. Run the same XBE on physical Xbox to validate the recipe; historical revision1 hashes are not this oracle.",
         "surface.partial_channel_clear_guard":
@@ -915,6 +921,11 @@ def render():
         }
         output[ROOT / f"resources/vulkan-submission-lifetimes-{profile}.json"] = \
             resolved_plan(doc, settings, submission_ids)
+    output[ROOT / "resources/surface-completion-readback.json"] = resolved_plan(
+        doc, {"skip_tests_by_default": True, "warmup_iterations": 2,
+              "measurement_iterations_multiplier": 1, "gpu_completion_mode": "enqueue",
+              "output_directory_path": "e:/xemu_perf_tests"},
+        ["surface.cpu_read_completed_surface", "surface.cpu_read_pending_surface"])
     output[ROOT / "resources/x87-status-qualification.json"] = resolved_plan(
         doc, {"skip_tests_by_default": True, "enable_autorun_immediately": True,
               "warmup_iterations": 3, "measurement_iterations_multiplier": 4,
