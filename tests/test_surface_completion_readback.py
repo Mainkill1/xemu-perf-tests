@@ -14,6 +14,13 @@ spec.loader.exec_module(catalog)
 
 
 class SurfaceCompletionReadbackTests(unittest.TestCase):
+    def test_reference_exposes_a_hash_supported_by_the_runner(self):
+        rows = json.loads((ROOT / "resources/surface-completion-reference.json").read_text())
+        for row in rows:
+            hashes = {key: value for key, value in row["metadata"].items()
+                      if key in {"source_kat", "work_checksum", "result_checksum"}}
+            self.assertEqual(len(hashes), 1, "leaf needs a pinned hash, not outcome alone")
+
     def test_independent_routes_keep_the_completed_and_pending_cases_separate(self):
         tests = {test["id"]: test for test in catalog.catalog(catalog.entries())["tests"]}
         for suffix, legacy in [("completed", "XemuCpuReadCompletedSurface"),
@@ -45,7 +52,7 @@ class SurfaceCompletionReadbackTests(unittest.TestCase):
             self.assertEqual(row["metadata"], {
                 "kind": "surface_completion_readback", "case": suffix,
                 "oracle_status": "PASS", "failure_count": 0,
-                "checked_words": 67584, "observed_kat": checksum})
+                "checked_words": 67584, "source_kat": checksum})
             self.assertNotIn("framebuffer_hash", row)
 
 

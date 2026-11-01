@@ -16,7 +16,7 @@
       "oracle_status": "PASS",
       "failure_count": 0,
       "checked_words": 67584,
-      "observed_kat": 2101476805
+      "source_kat": 2101476805
     }
   },
   {
@@ -36,7 +36,7 @@
       "oracle_status": "PASS",
       "failure_count": 0,
       "checked_words": 67584,
-      "observed_kat": 1627782597
+      "source_kat": 1627782597
     }
   }
 ]

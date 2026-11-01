@@ -879,7 +879,7 @@ void SurfaceRenderingTests::TestXemuCpuReadSurfaceCompletion(bool rewrite_subjec
   uint32_t invocation = 0;
   uint32_t checked_words = 0;
   uint32_t failure_count = 0;
-  uint32_t observed_kat = 2166136261U;
+  uint32_t source_kat = 2166136261U;
 
   auto clear = [this](uint8_t *address, uint32_t color) {
     host_.RenderToSurfaceStart(address, TestHost::SCF_A8R8G8B8,
@@ -899,7 +899,7 @@ void SurfaceRenderingTests::TestXemuCpuReadSurfaceCompletion(bool rewrite_subjec
         }
         ++failure_count;
       }
-      observed_kat = HashVulkanMemoryPressureU32(observed_kat, actual);
+      source_kat = HashVulkanMemoryPressureU32(source_kat, actual);
       ++checked_words;
     }
   };
@@ -938,7 +938,7 @@ void SurfaceRenderingTests::TestXemuCpuReadSurfaceCompletion(bool rewrite_subjec
            << "\",\"oracle_status\":\"" << (failure_count ? "FAIL" : "PASS")
            << "\",\"failure_count\":" << failure_count
            << ",\"checked_words\":" << checked_words
-           << ",\"observed_kat\":" << observed_kat << "}";
+           << ",\"source_kat\":" << source_kat << "}";
   EmitXemuPerfEvent(failure_count ? XemuPerfEventType::FAIL : XemuPerfEventType::PASS,
                     0, 0, failure_count);
   host_.WaitForGpu();
