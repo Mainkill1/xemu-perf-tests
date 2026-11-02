@@ -101,6 +101,8 @@ The host independently validates counter consistency. `guest_status` retains
 the original guest verdict when a shadow candidate fails. The host uses the
 final paused, idle APU snapshot after allowing normal shutdown to finish;
 all snapshots are validated and their counters must never decrease.
+An enabled fault on a selected route must cause a mismatch in every admitted
+job; merely reporting the configured fault index cannot pass the control.
 
 ## Negative controls
 

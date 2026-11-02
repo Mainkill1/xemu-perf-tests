@@ -97,6 +97,9 @@ def validate_shadow(shadow, mask, fault):
                 raise ValueError('missing first difference')
         elif first is not None:
             raise ValueError('unexpected first difference')
+        if (fault is not None and fault // 64 == index and selected and
+                route['mismatched_calls'] != jobs):
+            raise ValueError('selected injected fault was not observed in every job')
         words += route['compared_words']
         differences += route['differing_words']
     expected = 'MISMATCH' if differences else 'BASELINE_MATCH' if words else 'NO_COMPARISONS'

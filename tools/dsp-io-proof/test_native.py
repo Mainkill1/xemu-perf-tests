@@ -69,6 +69,10 @@ class NativeTests(unittest.TestCase):
                                      'matched_calls': 1, 'mismatched_calls': 0, 'native_wall_ns': 100,
                                      'first_difference': None})
         run_guest.validate_shadow(report, 7, None)
+        ignored_fault = copy.deepcopy(report)
+        ignored_fault['fault_index'] = 65
+        with self.assertRaises(ValueError):
+            run_guest.validate_shadow(ignored_fault, 7, 65)
         empty = copy.deepcopy(report)
         empty.update(status='NO_COMPARISONS', admitted_jobs=0)
         for route in empty['routes']:
