@@ -86,7 +86,11 @@ int main(void)
     voice[0x54 / 4] = (1 << 21) | (5 << 24) | (5u << 28);
     voice[0x58 / 4] = 0xff000000;
     voice[0x5c / 4] = 0xff000000 | (LOOP_FRAMES - 1);
+#ifdef AUDIO_PROOF_ASYMMETRIC
+    voice[0x60 / 4] = 0x180f000f; /* Right: 6 dB attenuation. */
+#else
     voice[0x60 / 4] = 0x000f000f;
+#endif
     voice[0x64 / 4] = 0xffffffff;
     voice[0x68 / 4] = 0xffffffff;
     voice[0x7c / 4] = 0xffff;
@@ -105,7 +109,9 @@ int main(void)
     write_reg(0x30fd8, 0);
     write_reg(0x50fd8, 0);
     write_reg(0x3fffc, 3);
+#ifndef AUDIO_PROOF_GP_ONLY
     write_reg(0x5fffc, 3);
+#endif
     write_reg(tops[0], VOICE);
     write_reg(0x2000, (old_engine & ~0x18u) | 0x8);
     uint32_t before = read_reg(0x200c);

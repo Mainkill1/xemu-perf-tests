@@ -6,11 +6,12 @@ import unittest
 from analyze_capture import analyze
 
 
-def pcm(swap=False, silent=False, clipped=False):
+def pcm(swap=False, silent=False, clipped=False, right_gain=1):
     data = bytearray()
     for i in range(48000 * 3):
         left = 8192 if i % 100 < 50 else -8192
         right = 8192 if i % 50 < 25 else -8192
+        right = int(right * right_gain)
         if swap:
             left, right = right, left
         if silent:
@@ -32,6 +33,10 @@ class AnalysisTests(unittest.TestCase):
     def test_silence_swapped_and_clipped_are_rejected(self):
         for payload in (pcm(silent=True), pcm(swap=True), pcm(clipped=True)):
             self.assertEqual(analyze(payload)['status'], 'FAIL')
+
+    def test_asymmetric_right_gain_is_preserved(self):
+        self.assertEqual(analyze(pcm(right_gain=.5), .5)['status'], 'PASS')
+        self.assertEqual(analyze(pcm(right_gain=1), .5)['status'], 'FAIL')
 
     def test_partial_audio_is_incomplete(self):
         self.assertEqual(analyze(b'\0' * 7)['status'], 'INCOMPLETE')

@@ -24,6 +24,26 @@ fixed post-marker interval. Tick granularity is reported; CPU usage may exceed
 100% because xemu uses multiple threads. This fixture is timer-paced and its
 CPU numbers do not establish game FPS or effect performance.
 
+For a controlled comparison of the front-channel mix, build the GP-only,
+asymmetric-gain variant. Its right voice output has 6 dB attenuation; the
+expected right/left fundamental ratio is approximately 0.5. The EP is held
+disabled, and the GP program leaves the front mixbins in place for JIT output.
+The HLE and JIT captures can therefore be checked against the same PCM input
+without attributing effect behavior to either path.
+
+```sh
+make NXDK_DIR="$NXDK_DIR" AUDIO_PROOF_ASYMMETRIC=1 AUDIO_PROOF_GP_ONLY=1 -W "$PWD/main.c"
+python3 run_capture.py --emulator /path/to/xemu --iso "$PWD/hle-audio-proof.iso" \
+  --config /path/to/xemu.toml --output /path/to/new-result \
+  --engine 2 --ep-disabled --right-left-ratio .5 --capture-seconds 5
+```
+
+Use `--engine 1` in a separate run for the JIT comparison. The runner requires
+GP/EP sentinels appropriate to the selected engine and the EP-disabled fixture.
+The legacy Default VP monitor intentionally uses a maximum-gain heuristic and
+is expected to fail this asymmetric-gain oracle; preserve that negative
+control rather than silently accepting identical channels.
+
 This fixture tests a simple PCM voice only. It does not validate DSP effects,
 guest-visible DSP state, interrupts, DirectSound APIs, or any real game.
 The register setup follows the existing `mcpx_voice` synthetic tests; these

@@ -112,9 +112,10 @@ def run(args):
             gp_sentinel = qmp.words(0xfe830fd8, 1)[0]
             ep_sentinel = qmp.words(0xfe850fd8, 1)[0]
             expected_sentinel = 0 if args.engine == 2 else 0x123456
+            expected_ep = 0 if args.engine == 2 or args.ep_disabled else 0x123456
             report.update(gp_sentinel=gp_sentinel, ep_sentinel=ep_sentinel,
-                          expected_dsp_sentinel=expected_sentinel)
-            if gp_sentinel != expected_sentinel or ep_sentinel != expected_sentinel:
+                          expected_gp_sentinel=expected_sentinel, expected_ep_sentinel=expected_ep)
+            if gp_sentinel != expected_sentinel or ep_sentinel != expected_ep:
                 report['status'] = 'FAIL'
                 raise ValueError('DSP execution sentinel mismatch')
             sinks = subprocess.check_output(['pactl', 'list', 'short', 'sinks'], text=True, env=env)
@@ -176,7 +177,7 @@ def run(args):
         (private / 'hdd_path').unlink(missing_ok=True)
         if report['status'] == 'CAPTURED':
             capture = args.output / 'capture.s16le'
-            report['audio'] = analyze(capture.read_bytes())
+            report['audio'] = analyze(capture.read_bytes(), args.right_left_ratio)
             report['capture_sha256'] = proof_runner.sha(capture)
             report['status'] = report['audio']['status']
         (args.output / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
@@ -194,4 +195,6 @@ if __name__ == '__main__':
     parser.add_argument('--engine', type=int, choices=(0, 1, 2), default=2)
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture-seconds', type=float, default=4)
+    parser.add_argument('--right-left-ratio', type=float, default=1.0)
+    parser.add_argument('--ep-disabled', action='store_true', help='fixture intentionally leaves EP disabled')
     raise SystemExit(run(parser.parse_args()))
