@@ -71,6 +71,13 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(fault['XEMU_DSP_GAIN_SHADOW_FAULT'], '0')
         self.assertEqual(inherited['XEMU_DSP_GAIN_SHADOW_FAULT'], '65')
 
+    def test_missing_resources_preserve_independent_guest_verdict(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = {'status': 'PASS'}
+            run_guest.add_resources(report, Path(directory) / 'missing.json')
+            self.assertEqual(report['guest_status'], 'PASS')
+            self.assertEqual(report['status'], 'INCOMPLETE')
+
     def test_shadow_stats_cannot_hide_zero_coverage_or_inconsistent_counts(self):
         import copy
         report = {'status': 'BASELINE_MATCH', 'authoritative': 'dsp', 'live_native_commits': 0,

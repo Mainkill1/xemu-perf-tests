@@ -106,6 +106,68 @@ job; merely reporting the configured fault index cannot pass the control.
 The runner clears inherited shadow enable/mask/fault settings before applying
 its command-line options, so an off control cannot silently inherit shadow work.
 
+## Performance and resource measurements
+
+Build ``dsp-gain-bench`` from the companion emulator shadow branch. This
+benchmark links both the production block JIT and the same native kernel
+used by the shadow worker. Use a passing public guest report:
+
+```sh
+python3 bench_gain.py --worker /absolute/path/to/dsp-gain-bench \
+  --guest-report /path/to/result/report.json --program-header program.h \
+  --output /path/to/new-benchmark --iterations 50000 --warmup 100 \
+  --pairs 16 --cpu 3
+```
+
+A loader wrapper also requires `--worker-binary /path/to/actual/ELF`.
+Sixteen alternating ABBA/BAAB cycles give 32 samples per engine, each doing
+the same fixed work. `taskset` pins the selected CPU; omit `--cpu` if needed
+and record that difference. Choose the iteration count once before the
+campaign. Retain every sample and report variation rather than repeating
+until a preferred result appears.
+
+The original full DSP program is admitted by hash and its first execution
+must match the guest's outputs. For warm repeated blocks the benchmark
+changes only the post-halt backedge to entry; it records the original
+identity, and this repeat variant is not the historical XISO image. Every
+timed block feeds 64 inputs, checks 192 outputs and 192 modeled scratch-DMA
+words, and exports 768 bytes. An untimed step trace counts actual guest
+instructions; timed execution uses the shipping block JIT. Native uses the
+exact shadow gain kernel and an explicit export adapter, not emulated DMA.
+This validates an output/export projection, not all DSP state and I/O.
+
+`report.json` retains per-sample CPU/wall ns, current/executable peak RSS,
+cold setup/first-block time, checked words, semantic operations, exports and
+instruction counts. Summary values include median CPU/wall cost per block,
+CPU cost per output word, one-core utilization, and p95/p99 of **batch cost
+per block**. These are not individual block/frame tails. CPU usage can be
+near100% for both busy workers while one consumes much less CPU per block.
+`VmHWM` is the executable RSS high water; `ru_maxrss` is separately retained
+because it can include the launcher before exec. An isolated native process
+using less RAM does not establish RAM savings in a live emulator retaining DSP.
+
+For separate whole-emulator shadow observer cost, add `--resources` to
+`run_guest.py` with and without `--shadow`, using balanced order and identical
+inputs/settings. `measure_process.py` records child CPU time and samples its
+executable RSS high water every50ms. The resulting launch/quit wall time
+includes boot, guest completion polling and up to50ms exit observation;
+it is not a DSP kernel timing or game FPS measurement. Missing/failed resource
+records make the campaign INCOMPLETE and preserve the original guest verdict.
+
+Focused checks, including actual linked worker rejection controls:
+
+```sh
+DSP_GAIN_BENCH=/absolute/path/to/dsp-gain-bench \
+DSP_GAIN_GUEST_REPORT=/path/to/result/report.json python3 test_gain_benchmark.py
+python3 test_measure_process.py
+python3 test_native.py
+```
+
+Hardware host instruction/cycle counters, if collected separately with
+`perf stat`, must state whether they include process startup, JIT compilation
+and warmup. Guest instruction counts are not host hardware counters. Always
+retain correctness and any failed/incomplete evidence with measured results.
+
 ## Negative controls
 
 ```sh

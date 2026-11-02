@@ -6,9 +6,11 @@ import json
 import os
 from pathlib import Path
 import re
+import signal
 import socket
 import struct
 import subprocess
+import sys
 import time
 import tomllib
 
@@ -137,6 +139,36 @@ def shadow_environment(inherited, enabled, mask, fault):
     return env
 
 
+def terminate_group(process):
+    try:
+        os.killpg(process.pid, signal.SIGTERM)
+        process.wait(timeout=8)
+    except ProcessLookupError:
+        pass
+    except subprocess.TimeoutExpired:
+        pass
+    finally:
+        # The group leader may exit before a child that ignored SIGTERM.
+        try:
+            os.killpg(process.pid, signal.SIGKILL)
+        except ProcessLookupError:
+            pass
+        process.wait()
+
+
+def add_resources(report, path):
+    report.setdefault('guest_status', report['status'])
+    try:
+        usage = json.loads(path.read_text())
+        if (usage['exit'] != 0 or usage['wall_seconds'] <= 0 or
+                usage['cpu_seconds'] < 0 or usage['sampled_peak_rss_kib'] <= 0):
+            raise ValueError('invalid process resource data')
+        usage['scope'] = 'whole emulator launch through quit; includes boot and host polling; not DSP kernel or game throughput'
+        report['resources'] = usage
+    except (OSError, ValueError, TypeError, KeyError, ZeroDivisionError):
+        report.update(status='INCOMPLETE', resource_error='missing or invalid resource record')
+
+
 def run(args):
     args.output.mkdir(mode=0o700)
     config = tomllib.loads(args.config.read_text())
@@ -187,10 +219,15 @@ def run(args):
               'authority': 'EMULATOR_BASELINE',
               'timing_comparable': False, 'audio_device': 'dummy'}
     with (private / 'emulator.log').open('wb') as log:
-        process = subprocess.Popen([str(args.emulator), '-config_path', str(cfg),
-                                    '-dvd_path', str(args.iso), '-qmp',
-                                    f'unix:{qmp_path},server=on,wait=off'],
-                                   env=env, stdout=log, stderr=subprocess.STDOUT)
+        command = [str(args.emulator), '-config_path', str(cfg),
+                   '-dvd_path', str(args.iso), '-qmp',
+                   f'unix:{qmp_path},server=on,wait=off']
+        if args.resources:
+            command = [sys.executable, str(Path(__file__).with_name('measure_process.py')),
+                       str(private / 'resources.json'),
+                       *command]
+        process = subprocess.Popen(command, env=env, stdout=log,
+                                   stderr=subprocess.STDOUT, start_new_session=True)
         qmp = None
         try:
             deadline = time.monotonic() + args.timeout
@@ -248,14 +285,11 @@ def run(args):
                 try:
                     process.wait(timeout=8)
                 except subprocess.TimeoutExpired:
-                    process.terminate()
-                    try:
-                        process.wait(timeout=8)
-                    except subprocess.TimeoutExpired:
-                        process.kill()
-                        process.wait()
+                    terminate_group(process)
+    if args.resources:
+        add_resources(report, private / 'resources.json')
     if args.shadow:
-        report['guest_status'] = report['status']
+        report.setdefault('guest_status', report['status'])
         lines = (private / 'emulator.log').read_text(errors='replace').splitlines()
         records = [line[len('DSP_GAIN_SHADOW '):] for line in lines if line.startswith('DSP_GAIN_SHADOW ')]
         try:
@@ -283,6 +317,7 @@ if __name__ == '__main__':
     parser.add_argument('--engine', choices=('jit', 'interpreter'), default='jit')
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture', action='store_true')
+    parser.add_argument('--resources', action='store_true', help='collect child CPU, wall time and sampled RSS')
     parser.add_argument('--shadow', action='store_true')
     parser.add_argument('--shadow-routes', type=int, choices=range(8), default=7)
     parser.add_argument('--shadow-fault', type=int, choices=range(192))
