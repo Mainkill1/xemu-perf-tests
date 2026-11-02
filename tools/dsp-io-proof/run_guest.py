@@ -104,6 +104,25 @@ def validate_shadow(shadow, mask, fault):
         raise ValueError('shadow verdict disagrees with counters')
 
 
+def parse_shadow_records(records, mask, fault):
+    if not records:
+        raise ValueError('shadow report required')
+    snapshots = [json.loads(record) for record in records]
+    previous = None
+    for snapshot in snapshots:
+        validate_shadow(snapshot, mask, fault)
+        if previous is not None:
+            if snapshot['admitted_jobs'] < previous['admitted_jobs']:
+                raise ValueError('decreasing job count')
+            for old, new in zip(previous['routes'], snapshot['routes']):
+                for key in ('native_calls', 'fallback_calls', 'compared_words',
+                            'matching_words', 'differing_words'):
+                    if new[key] < old[key]:
+                        raise ValueError('decreasing route counter')
+        previous = snapshot
+    return snapshots
+
+
 def run(args):
     args.output.mkdir(mode=0o700)
     config = tomllib.loads(args.config.read_text())
@@ -230,21 +249,7 @@ def run(args):
         lines = (private / 'emulator.log').read_text(errors='replace').splitlines()
         records = [line[len('DSP_GAIN_SHADOW '):] for line in lines if line.startswith('DSP_GAIN_SHADOW ')]
         try:
-            if not records:
-                raise ValueError('shadow report required')
-            snapshots = [json.loads(record) for record in records]
-            previous = None
-            for snapshot in snapshots:
-                validate_shadow(snapshot, args.shadow_routes, args.shadow_fault)
-                if previous is not None:
-                    if snapshot['admitted_jobs'] < previous['admitted_jobs']:
-                        raise ValueError('decreasing job count')
-                    for old, new in zip(previous['routes'], snapshot['routes']):
-                        for key in ('native_calls', 'fallback_calls', 'compared_words',
-                                    'matching_words', 'differing_words'):
-                            if new[key] < old[key]:
-                                raise ValueError('decreasing route counter')
-                previous = snapshot
+            snapshots = parse_shadow_records(records, args.shadow_routes, args.shadow_fault)
             shadow = snapshots[-1]
             report['shadow'] = shadow
             report['shadow_snapshots'] = len(snapshots)

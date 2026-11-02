@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Portable boundary, rounding and rejection checks for the native prototype."""
 import importlib.util
+import json
 from pathlib import Path
 import struct
 import subprocess
@@ -68,6 +69,17 @@ class NativeTests(unittest.TestCase):
                                      'matched_calls': 1, 'mismatched_calls': 0, 'native_wall_ns': 100,
                                      'first_difference': None})
         run_guest.validate_shadow(report, 7, None)
+        empty = copy.deepcopy(report)
+        empty.update(status='NO_COMPARISONS', admitted_jobs=0)
+        for route in empty['routes']:
+            for key in ('native_calls', 'compared_words', 'matching_words', 'matched_calls'):
+                route[key] = 0
+        snapshots = run_guest.parse_shadow_records([json.dumps(empty), json.dumps(report)], 7, None)
+        self.assertEqual(snapshots[-1], report)
+        for records in ([], [json.dumps(report), json.dumps(empty)], ['{}', json.dumps(report)],
+                        [json.dumps(report), 'invalid-json']):
+            with self.subTest(records=records), self.assertRaises(ValueError):
+                run_guest.parse_shadow_records(records, 7, None)
         for change in ('no_coverage', 'lost_word', 'wrong_mask', 'live_commit'):
             modified = copy.deepcopy(report)
             if change == 'no_coverage':
