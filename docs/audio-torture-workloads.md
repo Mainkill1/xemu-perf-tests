@@ -36,6 +36,7 @@ The suite is split into two explicit backends:
 | --- | --- | --- |
 | `ac97_dma` | workload is implementable, full-suite registration blocked on teardown | 16-bit stereo PCM output, descriptor/ring pressure, refill cadence, callback/interrupt pressure, buffer locality, underrun/drain behavior |
 | `mcpx_apu_raw` | framework defined; low-level guest driver required | VP voices, mono/stereo voice formats, PCM8/16/24/32, ADPCM, pitch/resampling, voice modes/control, SGE/SSL fetch, mixbins, filters/envelopes/LFO, 3D/HRTF, GP/EP DSP and related DMA |
+| `nxaudio_reference` | optional bootstrap backend implemented; execution validation pending | full MCPX/GP/AC97 initialization and teardown plus static U8/S16/S24/S32/ADPCM reference voices |
 
 The xemu APU model currently defines 256 hardware voices, 64 3D voices, 32
 samples per VP frame, 32 mixbins, eight voice-bin selectors, U8/S16/S24/S32
@@ -109,6 +110,20 @@ permits it.
 PCM "bitrate" is derived from sample rate, sample width, and channel count; the
 suite must not invent a separate bitrate knob for PCM. Codec tests should use
 the codec's real block/format semantics.
+
+## Checked-in audio fixtures
+
+The XISO carries 10 deterministic fixtures under `resources/audio/` (10,358
+bytes total): three audible PCM16 WAV files, raw S16/S24-in-B32/S32 samples,
+mono/stereo Xbox ADPCM blocks, and decoded ADPCM S16 goldens. They are generated
+by `utils/generate_audio_fixtures.py`, contain no third-party recordings, and
+are covered by the repository's Unlicense dedication.
+
+Every checked-in fixture has a size, SHA-256, and FNV-1a64 value in
+`resources/audio/manifest.json`; CI regenerates the set byte-for-byte. U8 is
+generated deterministically at runtime from the integer S16 signal source.
+MIDI remains out of scope for this phase because it primarily adds a
+sequencer/synth software path before PCM reaches MCPX.
 
 ## Deterministic source signals
 
@@ -210,6 +225,23 @@ suite until either (a) a test-owned teardown-capable AC'97 backend exists, or
 (b) the runner gives this workload terminal-process/reboot isolation. Running
 audio last is useful during development but is not a substitute for a documented
 isolation contract.
+
+## Safe discovery and reference bootstrap
+
+`McpxApuDevice` provides a read-only bring-up path: scan PCI bus 0 for
+`10de:01b0`, validate/map BAR0, and snapshot key APU registers without
+exposing a register-write API. `ProbeAudioInfrastructure()` combines that with
+fixture checksum validation.
+
+For an end-to-end development smoke, build with
+`-DAUDIO_BOOTSTRAP_SMOKE=ON`. That opt-in build pins
+Ryzee119/nxdk-audio at `fc2deca2cc1e434805ac03ca7c2f500b3b028f36` (MIT),
+runs the read-only discovery probe, submits one 48 kHz S16 mono static voice,
+waits for completion, destroys the voice, and calls `nxAudioShutdown()`.
+The switch defaults OFF and the smoke is not catalog coverage.
+
+A dedicated CI job builds this bootstrap XISO separately so normal qualification
+builds do not acquire the Cargo/DSP-assembler dependency.
 
 ## Raw MCPX APU milestone
 

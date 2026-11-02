@@ -36,7 +36,27 @@
         "s32",
         "adpcm"
       ],
-      "notes": "Pinned xemu constants are implementation targets; presence in xemu does not itself prove guest test coverage."
+      "notes": "Pinned xemu constants are implementation targets; presence in xemu does not itself prove guest test coverage.",
+      "pci_vendor_id": "0x10de",
+      "pci_device_id": "0x01b0",
+      "bar0_mmio_bytes": 524288,
+      "pci_discovery": "scan bus 0 using HalReadWritePCISpace; do not hardcode the device slot"
+    },
+    "nxdk_audio_reference": {
+      "repository": "Ryzee119/nxdk-audio",
+      "revision": "fc2deca2cc1e434805ac03ca7c2f500b3b028f36",
+      "license": "MIT (SPDX headers in source)",
+      "role": "bootstrap/reference MCPX hardware backend",
+      "features": [
+        "256 hardware voice slots",
+        "2D/3D static and streaming voices",
+        "PCM U8/S16/S24-in-B32/S32",
+        "Xbox ADPCM",
+        "sample-rate pitch conversion",
+        "filters and ADSR",
+        "HRTF",
+        "explicit nxAudioShutdown teardown"
+      ]
     }
   },
   "backends": {
@@ -139,6 +159,76 @@
       "teardown_required": true,
       "full_suite_registration_allowed": false,
       "registration_blocker": "Raw guest-visible PCI/MMIO setup, completion proof, and state restoration are not implemented yet."
+    },
+    "nxaudio_reference": {
+      "implementation_state": "static_reference_backend_implemented_unvalidated",
+      "source_revision": "fc2deca2cc1e434805ac03ca7c2f500b3b028f36",
+      "supported_formats": [
+        {
+          "sample_format": "u8",
+          "channels": 1
+        },
+        {
+          "sample_format": "u8",
+          "channels": 2
+        },
+        {
+          "sample_format": "s16",
+          "channels": 1
+        },
+        {
+          "sample_format": "s16",
+          "channels": 2
+        },
+        {
+          "sample_format": "s24",
+          "channels": 1
+        },
+        {
+          "sample_format": "s24",
+          "channels": 2
+        },
+        {
+          "sample_format": "s32",
+          "channels": 1
+        },
+        {
+          "sample_format": "s32",
+          "channels": 2
+        },
+        {
+          "sample_format": "adpcm",
+          "channels": 1
+        },
+        {
+          "sample_format": "adpcm",
+          "channels": 2
+        }
+      ],
+      "implemented_workload_scope": [
+        "static buffer",
+        "mono/stereo",
+        "2D/3D allocation",
+        "U8/S16/S24/S32/ADPCM",
+        "source sample-rate pitch setup",
+        "static looping"
+      ],
+      "intentionally_rejected_for_now": [
+        "streaming",
+        "HRTF",
+        "filter sweeps",
+        "mixbin fanout overrides",
+        "voice churn/control sequences",
+        "multipass"
+      ],
+      "reference_allocator_policy": {
+        "ordinary_2d_slots": 192,
+        "three_d_capable_slots": 64,
+        "total_slots": 256,
+        "note": "nxdk-audio reserves indices 0-63 for 3D-capable voices; this is a reference-backend allocation policy, not a replacement for the raw 256-slot torture plan."
+      },
+      "full_suite_registration_allowed": false,
+      "registration_blocker": "Backend code is wired and teardown-capable but needs Release XISO compile plus xemu/retail execution before catalog promotion."
     }
   },
   "axes": {
@@ -578,5 +668,16 @@
       "normal_gate_allowed": false,
       "notes": "Pinned xemu routes GET_VOICE_POSITION into the unhandled-method assertion. Track as a known-gap probe; do not place it in the normal audio gate until implemented."
     }
+  },
+  "fixture_contract": {
+    "manifest": "resources/audio/manifest.json",
+    "generator": "utils/generate_audio_fixtures.py",
+    "fixture_count": 10,
+    "checked_in_payload_bytes": 10358,
+    "license": "Unlicense (repository LICENSE)",
+    "runtime_generated_formats": [
+      "u8"
+    ],
+    "midi_in_scope": false
   }
 }

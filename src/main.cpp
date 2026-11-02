@@ -23,6 +23,7 @@
 #include "runtime_config.h"
 #include "test_driver.h"
 #include "test_host.h"
+#include "tests/audio_bootstrap_smoke.h"
 #include "tests/busy_pfifo_tests.h"
 #include "tests/cpu_floating_point_tests.h"
 #include "tests/cpu_translation_block_tests.h"
@@ -109,6 +110,23 @@ int main() {
     return 1;
   };
   TestHost::EnsureFolderExists(config.output_directory_path());
+#ifdef XEMU_PERF_TESTS_AUDIO_BOOTSTRAP_SMOKE
+  {
+    debugClearScreen();
+    debugPrint("Audio bootstrap smoke...\n");
+    pb_show_debug_screen();
+    std::string audio_report;
+    const bool audio_ok = AudioTorture::RunAudioBootstrapSmoke(audio_report);
+    debugPrint("%s\n%s\n", audio_ok ? "AUDIO BOOTSTRAP PASS" : "AUDIO BOOTSTRAP FAIL",
+               audio_report.c_str());
+    pb_show_debug_screen();
+    Sleep(audio_ok ? 2000 : kDelayOnFailureMilliseconds);
+    if (!audio_ok) {
+      pb_kill();
+      return 3;
+    }
+  }
+#endif
   std::vector<std::shared_ptr<TestSuite>> test_suites;
   TestHost host(kFramebufferWidth, kFramebufferHeight);
   host.SetWarmupIterations(config.warmup_iterations());
