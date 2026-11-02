@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import os
 from pathlib import Path
+import subprocess
 import tempfile
 import unittest
 
@@ -30,7 +31,7 @@ class MetricsTests(unittest.TestCase):
             private.mkdir()
             files = {'bootrom_path': source, 'flashrom_path': source,
                      'eeprom_path': source, 'hdd_path': root / 'missing'}
-            with self.assertRaises(Exception):
+            with self.assertRaises(subprocess.CalledProcessError):
                 copy_private_images(files, private)
             self.assertFalse((private / 'hdd_path').exists())
             self.assertEqual(source.read_bytes(), b'fixture')
