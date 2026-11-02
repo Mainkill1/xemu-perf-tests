@@ -44,6 +44,19 @@ The legacy Default VP monitor intentionally uses a maximum-gain heuristic and
 is expected to fail this asymmetric-gain oracle; preserve that negative
 control rather than silently accepting identical channels.
 
+Compare captured PCM directly after both runs pass the frequency/level oracle:
+
+```sh
+python3 compare_capture.py /path/to/jit/capture.s16le \
+  /path/to/hle/capture.s16le --right-left-ratio .5
+```
+
+The comparator finds a single shared phase shift within the 100-frame period,
+then compares one valid second of both channels at a tolerance of one signed
+16-bit unit. It rejects unadmitted, silent or distorted captures and detects
+single-sample corruption. This is a narrow periodic-fixture comparison; it
+does not prove DSP effects, timing under games, or Xbox hardware accuracy.
+
 This fixture tests a simple PCM voice only. It does not validate DSP effects,
 guest-visible DSP state, interrupts, DirectSound APIs, or any real game.
 The register setup follows the existing `mcpx_voice` synthetic tests; these
