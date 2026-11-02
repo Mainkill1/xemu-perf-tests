@@ -11,4 +11,7 @@ endif
 ifeq ($(AUDIO_PROOF_GP_ONLY),1)
 CFLAGS += -DAUDIO_PROOF_GP_ONLY
 endif
+ifeq ($(AUDIO_PROOF_ADPCM),1)
+CFLAGS += -DAUDIO_PROOF_ADPCM
+endif
 include $(NXDK_DIR)/Makefile

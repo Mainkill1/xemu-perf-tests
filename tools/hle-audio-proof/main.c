@@ -10,7 +10,11 @@
 #define APU 0xfe800000u
 #define MAXRAM 0x03ffafffu
 #define VOICE 64u
+#ifdef AUDIO_PROOF_ADPCM
+#define LOOP_FRAMES 4096u
+#else
 #define LOOP_FRAMES 4000u
+#endif
 
 static uint32_t read_reg(unsigned offset)
 {
@@ -70,17 +74,30 @@ int main(void)
     memcpy(dsp_program, program, sizeof(program));
     dsp_sge[0] = physical(dsp_program);
     dsp_sge[2] = physical((uint8_t *)dsp_program + 4096);
+#ifdef AUDIO_PROOF_ADPCM
+    memset(pcm, 0, 4 * 4096);
+    for (unsigned i = 0; i < 64; i++) {
+        uint8_t *block = (uint8_t *)pcm + i * 72;
+        block[1] = 0x10; /* Left predictor +4096. */
+        block[5] = 0xf0; /* Right predictor -4096. */
+    }
+#else
     for (unsigned i = 0; i < LOOP_FRAMES; i++) {
         pcm[2 * i] = i % 100 < 50 ? 8192 : -8192;      /* 480 Hz */
         pcm[2 * i + 1] = i % 50 < 25 ? 8192 : -8192;  /* 960 Hz */
     }
+#endif
     for (unsigned i = 0; i < 4; i++) {
         sge[i * 2] = physical((uint8_t *)pcm + i * 4096);
     }
     uint32_t *voice = (uint32_t *)(voices + VOICE * 128);
     voice[0x00 / 4] = (1 << 5) | (31 << 10) | (31 << 16) | (31 << 21) | (31u << 26);
     voice[0x04 / 4] = 31 | (31 << 5) | (1 << 25) | (1 << 28) |
+#ifdef AUDIO_PROOF_ADPCM
+                      (2u << 30) | (1 << 27) | (1 << 16);
+#else
                       (1u << 30) | (1 << 27) | (1 << 16);
+#endif
     voice[0x0c / 4] = 0xff000000;
     voice[0x14 / 4] = 0xff000000;
     voice[0x54 / 4] = (1 << 21) | (5 << 24) | (5u << 28);
@@ -122,7 +139,11 @@ int main(void)
         debugPrint("HLE audio proof: voice did not advance\n");
         write_reg(0x30fc4, 0xbad);
     } else {
+#ifdef AUDIO_PROOF_ADPCM
+        debugPrint("HLE audio proof: stereo ADPCM predictors active\n");
+#else
         debugPrint("HLE audio proof: stereo 480/960 Hz square waves active\n");
+#endif
         write_reg(0x30fc4, 0x600d);
     }
     /* Keep all buffers alive until emulator exit. */

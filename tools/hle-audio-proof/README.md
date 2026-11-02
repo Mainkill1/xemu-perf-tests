@@ -44,6 +44,21 @@ The legacy Default VP monitor intentionally uses a maximum-gain heuristic and
 is expected to fail this asymmetric-gain oracle; preserve that negative
 control rather than silently accepting identical channels.
 
+An additional public variant exercises the Xbox ADPCM decoder with stereo
++4096/-4096 constant predictors and zero nibbles. The GP-only passthrough
+allows JIT and HLE comparisons. Three consecutive seconds must have channel
+mean and RMS between 3900 and 4200, correct polarity and no clipping.
+
+```sh
+make NXDK_DIR="$NXDK_DIR" AUDIO_PROOF_ADPCM=1 AUDIO_PROOF_GP_ONLY=1 -W "$PWD/main.c"
+python3 run_capture.py --emulator /path/to/xemu --iso "$PWD/hle-audio-proof.iso" \
+  --config /path/to/xemu.toml --output /path/to/new-adpcm-result \
+  --engine 2 --ep-disabled --signal adpcm-dc --capture-seconds 5
+```
+
+Run with `--engine 1` separately for a GP JIT control. This checks constant
+predictors, not encoded transients or compression quality.
+
 Compare captured PCM directly after both runs pass the frequency/level oracle:
 
 ```sh
@@ -57,7 +72,7 @@ then compares one valid second of both channels at a tolerance of one signed
 single-sample corruption. This is a narrow periodic-fixture comparison; it
 does not prove DSP effects, timing under games, or Xbox hardware accuracy.
 
-This fixture tests a simple PCM voice only. It does not validate DSP effects,
+These fixtures test individual PCM and ADPCM voices. They do not validate DSP effects,
 guest-visible DSP state, interrupts, DirectSound APIs, or any real game.
 The register setup follows the existing `mcpx_voice` synthetic tests; these
 settings need independent Xbox hardware verification before hardware claims.

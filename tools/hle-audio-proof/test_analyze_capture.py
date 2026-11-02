@@ -38,6 +38,13 @@ class AnalysisTests(unittest.TestCase):
         self.assertEqual(analyze(pcm(right_gain=.5), .5)['status'], 'PASS')
         self.assertEqual(analyze(pcm(right_gain=1), .5)['status'], 'FAIL')
 
+    def test_constant_adpcm_predictors_and_channel_polarity(self):
+        payload = struct.pack('<hh', 4096, -4096) * (48000 * 3)
+        swapped = struct.pack('<hh', -4096, 4096) * (48000 * 3)
+        self.assertEqual(analyze(payload, signal='adpcm-dc')['status'], 'PASS')
+        self.assertEqual(analyze(swapped, signal='adpcm-dc')['status'], 'FAIL')
+        self.assertEqual(analyze(bytes(len(payload)), signal='adpcm-dc')['status'], 'FAIL')
+
     def test_partial_audio_is_incomplete(self):
         self.assertEqual(analyze(b'\0' * 7)['status'], 'INCOMPLETE')
         self.assertEqual(analyze(b'')['status'], 'INCOMPLETE')

@@ -177,7 +177,7 @@ def run(args):
         (private / 'hdd_path').unlink(missing_ok=True)
         if report['status'] == 'CAPTURED':
             capture = args.output / 'capture.s16le'
-            report['audio'] = analyze(capture.read_bytes(), args.right_left_ratio)
+            report['audio'] = analyze(capture.read_bytes(), args.right_left_ratio, args.signal)
             report['capture_sha256'] = proof_runner.sha(capture)
             report['status'] = report['audio']['status']
         (args.output / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
@@ -196,5 +196,6 @@ if __name__ == '__main__':
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture-seconds', type=float, default=4)
     parser.add_argument('--right-left-ratio', type=float, default=1.0)
+    parser.add_argument('--signal', choices=('tone', 'adpcm-dc'), default='tone')
     parser.add_argument('--ep-disabled', action='store_true', help='fixture intentionally leaves EP disabled')
     raise SystemExit(run(parser.parse_args()))
