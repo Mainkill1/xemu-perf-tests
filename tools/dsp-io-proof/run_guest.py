@@ -126,6 +126,17 @@ def parse_shadow_records(records, mask, fault):
     return snapshots
 
 
+def shadow_environment(inherited, enabled, mask, fault):
+    env = inherited.copy()
+    for key in ('XEMU_DSP_GAIN_SHADOW', 'XEMU_DSP_GAIN_SHADOW_ROUTES', 'XEMU_DSP_GAIN_SHADOW_FAULT'):
+        env.pop(key, None)
+    if enabled:
+        env.update(XEMU_DSP_GAIN_SHADOW='1', XEMU_DSP_GAIN_SHADOW_ROUTES=str(mask))
+        if fault is not None:
+            env['XEMU_DSP_GAIN_SHADOW_FAULT'] = str(fault)
+    return env
+
+
 def run(args):
     args.output.mkdir(mode=0o700)
     config = tomllib.loads(args.config.read_text())
@@ -144,12 +155,8 @@ def run(args):
                  ('bootrom_path', 'flashrom_path', 'eeprom_path', 'hdd_path')]
     cfg = private / 'xemu.toml'
     cfg.write_text('\n'.join(settings) + '\n')
-    env = os.environ.copy()
+    env = shadow_environment(os.environ, args.shadow, args.shadow_routes, args.shadow_fault)
     env.update(SDL_AUDIODRIVER='dummy', SDL_VIDEODRIVER='x11')
-    if args.shadow:
-        env.update(XEMU_DSP_GAIN_SHADOW='1', XEMU_DSP_GAIN_SHADOW_ROUTES=str(args.shadow_routes))
-        if args.shadow_fault is not None:
-            env['XEMU_DSP_GAIN_SHADOW_FAULT'] = str(args.shadow_fault)
     if args.capture:
         words = [int(word, 16) for word in re.findall(r'0x([0-9a-fA-F]+)', args.program_header.read_text())]
         if not words or len(words) > 2048 or any(word > 0xffffff for word in words):

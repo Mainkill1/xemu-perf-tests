@@ -103,6 +103,8 @@ final paused, idle APU snapshot after allowing normal shutdown to finish;
 all snapshots are validated and their counters must never decrease.
 An enabled fault on a selected route must cause a mismatch in every admitted
 job; merely reporting the configured fault index cannot pass the control.
+The runner clears inherited shadow enable/mask/fault settings before applying
+its command-line options, so an off control cannot silently inherit shadow work.
 
 ## Negative controls
 

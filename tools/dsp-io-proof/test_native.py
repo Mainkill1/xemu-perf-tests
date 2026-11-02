@@ -59,6 +59,18 @@ class NativeTests(unittest.TestCase):
         report['program_matches'] = False
         self.assertEqual(compare_native.compare(report, self.worker)['status'], 'INCOMPLETE')
 
+    def test_cli_shadow_controls_override_inherited_experiment_settings(self):
+        inherited = {'KEEP': 'unchanged', 'XEMU_DSP_GAIN_SHADOW': '1',
+                     'XEMU_DSP_GAIN_SHADOW_ROUTES': '0', 'XEMU_DSP_GAIN_SHADOW_FAULT': '65'}
+        off = run_guest.shadow_environment(inherited, False, 7, None)
+        self.assertEqual(off, {'KEEP': 'unchanged'})
+        on = run_guest.shadow_environment(inherited, True, 5, None)
+        self.assertEqual(on, {'KEEP': 'unchanged', 'XEMU_DSP_GAIN_SHADOW': '1',
+                              'XEMU_DSP_GAIN_SHADOW_ROUTES': '5'})
+        fault = run_guest.shadow_environment(inherited, True, 7, 0)
+        self.assertEqual(fault['XEMU_DSP_GAIN_SHADOW_FAULT'], '0')
+        self.assertEqual(inherited['XEMU_DSP_GAIN_SHADOW_FAULT'], '65')
+
     def test_shadow_stats_cannot_hide_zero_coverage_or_inconsistent_counts(self):
         import copy
         report = {'status': 'BASELINE_MATCH', 'authoritative': 'dsp', 'live_native_commits': 0,
