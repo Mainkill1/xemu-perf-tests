@@ -79,6 +79,28 @@ Reconstruction retains INCOMPLETE authority for unobserved RAM/provenance.
 Repeated replay can establish BASELINE_MATCH for the modeled input; it does
 not silently seal an authoritative corpus.
 
+## Concurrent DSP/native shadow
+
+An emulator with the experimental gain shadow worker can compare the three
+routes during the real XISO frame. The emulated DSP remains authoritative;
+native code executes on a separate precreated worker with copied inputs.
+
+```sh
+python3 run_guest.py --emulator /path/to/shadow-xemu \
+  --iso "$PWD/dsp-io-proof.iso" --program-header "$PWD/program.h" \
+  --config /path/to/xemu.toml --output /path/to/new-shadow-result --shadow
+```
+
+`--shadow-routes 5` runs half/quarter natively and counts inverted-half as
+LLE-only fallback. `--shadow-routes 0` must report NO_COMPARISONS, not success.
+`--shadow-fault 65` deliberately corrupts inverted-half sample 1: the original
+guest checks must still pass while the shadow campaign reports MISMATCH and
+returns nonzero. Stats include native/fallback calls, compared/matching/
+different words, first difference and diagnostic native wall time per route.
+The host independently validates counter consistency. `guest_status` retains
+the original guest verdict when a shadow candidate fails. Normal shutdown is
+allowed to finish before parsing the single stderr stats record.
+
 ## Negative controls
 
 ```sh

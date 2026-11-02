@@ -67,6 +67,43 @@ def sha(path):
     return digest.hexdigest()
 
 
+def validate_shadow(shadow, mask, fault):
+    if not isinstance(shadow, dict) or shadow.get('authoritative') != 'dsp' or shadow.get('live_native_commits') != 0:
+        raise ValueError('DSP authority contract missing')
+    if shadow.get('route_mask') != mask or shadow.get('fault_index') != (-1 if fault is None else fault):
+        raise ValueError('shadow configuration mismatch')
+    jobs = shadow.get('admitted_jobs')
+    if type(jobs) is not int or jobs < 0 or not isinstance(shadow.get('routes'), list) or len(shadow['routes']) != 3:
+        raise ValueError('invalid shadow coverage')
+    words, differences = 0, 0
+    for index, route in enumerate(shadow['routes']):
+        if not isinstance(route, dict) or route.get('name') != ('gain_half', 'invert_half', 'gain_quarter')[index]:
+            raise ValueError('wrong shadow route')
+        for key in ('native_calls', 'fallback_calls', 'compared_words', 'matching_words', 'differing_words',
+                    'matched_calls', 'mismatched_calls', 'native_wall_ns'):
+            if type(route.get(key)) is not int or route[key] < 0:
+                raise ValueError('invalid route counter')
+        selected = bool(mask & (1 << index))
+        if (route['native_calls'] != (jobs if selected else 0) or
+                route['fallback_calls'] != (0 if selected else jobs) or
+                route['compared_words'] != route['native_calls'] * 64 or
+                route['matching_words'] + route['differing_words'] != route['compared_words'] or
+                route['matched_calls'] + route['mismatched_calls'] != route['native_calls'] or
+                not route['mismatched_calls'] <= route['differing_words'] <= route['mismatched_calls'] * 64):
+            raise ValueError('inconsistent shadow counters')
+        first = route.get('first_difference')
+        if route['differing_words']:
+            if not isinstance(first, dict) or type(first.get('sample')) is not int or not 0 <= first['sample'] < 64:
+                raise ValueError('missing first difference')
+        elif first is not None:
+            raise ValueError('unexpected first difference')
+        words += route['compared_words']
+        differences += route['differing_words']
+    expected = 'MISMATCH' if differences else 'BASELINE_MATCH' if words else 'NO_COMPARISONS'
+    if shadow.get('status') != expected:
+        raise ValueError('shadow verdict disagrees with counters')
+
+
 def run(args):
     args.output.mkdir(mode=0o700)
     config = tomllib.loads(args.config.read_text())
@@ -87,6 +124,10 @@ def run(args):
     cfg.write_text('\n'.join(settings) + '\n')
     env = os.environ.copy()
     env.update(SDL_AUDIODRIVER='dummy', SDL_VIDEODRIVER='x11')
+    if args.shadow:
+        env.update(XEMU_DSP_GAIN_SHADOW='1', XEMU_DSP_GAIN_SHADOW_ROUTES=str(args.shadow_routes))
+        if args.shadow_fault is not None:
+            env['XEMU_DSP_GAIN_SHADOW_FAULT'] = str(args.shadow_fault)
     if args.capture:
         words = [int(word, 16) for word in re.findall(r'0x([0-9a-fA-F]+)', args.program_header.read_text())]
         if not words or len(words) > 2048 or any(word > 0xffffff for word in words):
@@ -175,12 +216,29 @@ def run(args):
                 except (OSError, ValueError, EOFError):
                     pass
             if process.poll() is None:
-                process.terminate()
                 try:
                     process.wait(timeout=8)
                 except subprocess.TimeoutExpired:
-                    process.kill()
-                    process.wait()
+                    process.terminate()
+                    try:
+                        process.wait(timeout=8)
+                    except subprocess.TimeoutExpired:
+                        process.kill()
+                        process.wait()
+    if args.shadow:
+        report['guest_status'] = report['status']
+        lines = (private / 'emulator.log').read_text(errors='replace').splitlines()
+        records = [line[len('DSP_GAIN_SHADOW '):] for line in lines if line.startswith('DSP_GAIN_SHADOW ')]
+        try:
+            if len(records) != 1:
+                raise ValueError('one shadow report required')
+            shadow = json.loads(records[0])
+            report['shadow'] = shadow
+            validate_shadow(shadow, args.shadow_routes, args.shadow_fault)
+            if report['status'] == 'PASS' and shadow.get('status') != 'BASELINE_MATCH':
+                report['status'] = shadow.get('status', 'INCOMPLETE')
+        except (ValueError, TypeError):
+            report.update(status='INCOMPLETE', shadow_error='missing or invalid shadow report')
     (args.output / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
     print(json.dumps(report, sort_keys=True))
     return 0 if report['status'] == 'PASS' else 1
@@ -197,6 +255,9 @@ if __name__ == '__main__':
     parser.add_argument('--engine', choices=('jit', 'interpreter'), default='jit')
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture', action='store_true')
+    parser.add_argument('--shadow', action='store_true')
+    parser.add_argument('--shadow-routes', type=int, choices=range(8), default=7)
+    parser.add_argument('--shadow-fault', type=int, choices=range(192))
     options = parser.parse_args()
     for field in ('emulator', 'iso', 'config', 'output'):
         setattr(options, field, getattr(options, field).resolve())

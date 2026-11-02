@@ -11,6 +11,9 @@ ROOT = Path(__file__).parent
 spec = importlib.util.spec_from_file_location('compare_native', ROOT / 'compare_native.py')
 compare_native = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(compare_native)
+guest_spec = importlib.util.spec_from_file_location('run_guest', ROOT / 'run_guest.py')
+run_guest = importlib.util.module_from_spec(guest_spec)
+guest_spec.loader.exec_module(run_guest)
 
 
 class NativeTests(unittest.TestCase):
@@ -54,6 +57,32 @@ class NativeTests(unittest.TestCase):
         self.assertEqual(failed['first_difference'], {'route': 0, 'sample': 0, 'expected': 0, 'actual': 1})
         report['program_matches'] = False
         self.assertEqual(compare_native.compare(report, self.worker)['status'], 'INCOMPLETE')
+
+    def test_shadow_stats_cannot_hide_zero_coverage_or_inconsistent_counts(self):
+        import copy
+        report = {'status': 'BASELINE_MATCH', 'authoritative': 'dsp', 'live_native_commits': 0,
+                  'route_mask': 7, 'fault_index': -1, 'admitted_jobs': 1, 'routes': []}
+        for name in ('gain_half', 'invert_half', 'gain_quarter'):
+            report['routes'].append({'name': name, 'native_calls': 1, 'fallback_calls': 0,
+                                     'compared_words': 64, 'matching_words': 64, 'differing_words': 0,
+                                     'matched_calls': 1, 'mismatched_calls': 0, 'native_wall_ns': 100,
+                                     'first_difference': None})
+        run_guest.validate_shadow(report, 7, None)
+        for change in ('no_coverage', 'lost_word', 'wrong_mask', 'live_commit'):
+            modified = copy.deepcopy(report)
+            if change == 'no_coverage':
+                modified['admitted_jobs'] = 0
+                for route in modified['routes']:
+                    for key in ('native_calls', 'compared_words', 'matching_words', 'matched_calls'):
+                        route[key] = 0
+            elif change == 'lost_word':
+                modified['routes'][0]['matching_words'] = 63
+            elif change == 'wrong_mask':
+                modified['route_mask'] = 5
+            else:
+                modified['live_native_commits'] = 1
+            with self.subTest(change=change), self.assertRaises(ValueError):
+                run_guest.validate_shadow(modified, 7, None)
 
 
 if __name__ == '__main__':
