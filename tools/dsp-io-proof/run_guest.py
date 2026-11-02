@@ -59,6 +59,11 @@ def inputs():
     return edges + [((i * 7919) & 0x7fffff) - 0x400000 for i in range(8, 64)]
 
 
+def mailbox_terminal(mailbox, guest_ready):
+    return ((guest_ready and mailbox[1] == 0xbad) or
+            (mailbox[0] == 0x51d00d and mailbox[1] in (0x600d, 0xbad)))
+
+
 def sha(path):
     digest = hashlib.sha256()
     with path.open('rb') as stream:
@@ -81,6 +86,8 @@ def run(args):
     settings = ['[general]', 'show_welcome = false', '[audio]', 'use_dsp = true',
                 f'use_dsp_jit = {str(args.engine == "jit").lower()}', '[net]',
                 'enable = false', '[sys.files]']
+    if args.audio_engine == 'hle':
+        settings.insert(3, 'engine = 2')
     settings += [key + ' = ' + json.dumps(files[key]) for key in
                  ('bootrom_path', 'flashrom_path', 'eeprom_path', 'hdd_path')]
     cfg = private / 'xemu.toml'
@@ -111,7 +118,8 @@ def run(args):
         except (OSError, ValueError):
             continue
     qmp_path = args.output / 'qmp.sock'
-    report = {'status': 'INCOMPLETE', 'engine': args.engine, 'iso_sha256': sha(args.iso),
+    report = {'status': 'INCOMPLETE', 'engine': args.engine, 'audio_engine': args.audio_engine,
+              'iso_sha256': sha(args.iso),
               'launcher_sha256': sha(args.emulator),
               'emulator_sha256': sha(args.emulator_binary or args.emulator),
               'authority': 'EMULATOR_BASELINE',
@@ -128,15 +136,17 @@ def run(args):
                 time.sleep(.1)
             qmp = Qmp(qmp_path)
             mailbox = [0, 0, 0, 0]
+            guest_ready = False
             while time.monotonic() < deadline and process.poll() is None:
                 try:
                     mailbox = qmp.words(0xfe830fc0, 4)
+                    guest_ready |= qmp.words(0xfe830fd8, 1)[0] == 0x5a07e1
                 except ValueError as error:
                     if 'Cannot access memory' not in str(error):
                         raise
                     time.sleep(.1)
                     continue
-                if mailbox[0] == 0x51d00d and mailbox[1] in (0x600d, 0xbad):
+                if mailbox_terminal(mailbox, guest_ready):
                     break
                 time.sleep(.1)
             qmp.call('stop')
@@ -160,6 +170,7 @@ def run(args):
             differences = [i for i, (a, b) in enumerate(zip(actual, want)) if a != b]
             success = mailbox[0] == 0x51d00d and mailbox[1] == 0x600d and mailbox[3] == 0 and actual_input == want_input and not differences and dma_output == want and program_matches
             report.update(status='PASS' if success else 'FAIL', mailbox=mailbox,
+                          guest_ready=guest_ready,
                           input_preserved=actual_input == want_input,
                           input_words=actual_input, program_matches=program_matches,
                           program_sha256=program_sha256,
@@ -195,6 +206,8 @@ if __name__ == '__main__':
     parser.add_argument('--program-header', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--engine', choices=('jit', 'interpreter'), default='jit')
+    parser.add_argument('--audio-engine', choices=('default', 'hle'), default='default',
+                        help='select the experimental HLE path for the same DSP/DMA oracle')
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture', action='store_true')
     options = parser.parse_args()

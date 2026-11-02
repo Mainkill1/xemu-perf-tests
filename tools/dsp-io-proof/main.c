@@ -69,6 +69,8 @@ int main(void) {
   write_reg(GPX + 0x3f1 * 4, 0);
   write_reg(GPX + 0x3f4 * 4, (uint32_t)MmGetPhysicalAddress(scratch) + 0x1800);
   write_reg(GPX + 0x3f5 * 4, ((uint32_t)MmGetPhysicalAddress(scratch) + 0x1800) >> 24);
+  /* The host can distinguish this guest's failure verdict from boot state. */
+  write_reg(GPX + 0x3f6 * 4, 0x5a07e1);
   write_reg(0x1100, read_reg(0x1100) & ~0xe0u);
   /* Bootstrap/enable only after every input and descriptor is ready. */
   write_reg(GP_RESET, 3);

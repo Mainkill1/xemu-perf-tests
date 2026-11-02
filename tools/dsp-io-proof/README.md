@@ -57,6 +57,19 @@ owning emulator PR instead of source commits. The mailbox is GP X:$3f0..$3f5:
 completion $51d00d, verdict $600d/$bad, poll count, failure count and low-24 /
 high-8 DMA pointer. Scratch/SGE buffers stay allocated until process exit.
 Physical-Xbox execution is unqualified; this is an xemu fixture.
+The current guest also writes a readiness marker at GP X:$3f6, allowing the
+host to recognize a failed guest verdict even if the DSP never completes.
+Older fixtures can still finish when their DSP completion marker is present.
+
+To run the same GP arithmetic and guest-memory DMA oracle against an xemu
+build with the experimental audio selector, add `--audio-engine hle` and
+use a separate output directory. The default is `default`, preserving legacy
+runner behavior. `--engine` still controls which DSP backend is configured;
+it does not imply that HLE executed that backend. The current experimental
+full-bypass branch does not yet implement this program's arithmetic or DMA and
+is expected to fail this oracle. A failure is evidence of missing functionality,
+not a valid comparison or speed measurement. The runner does not measure CPU
+or memory cost for this fixture.
 
 ## Capture then replay 100 times
 
