@@ -25,6 +25,20 @@ def process_sample(pid):
             'peak_rss_kib': int(status['VmHWM'].split()[0])}
 
 
+def copy_private_images(files, private):
+    result = {}
+    try:
+        for key in ('bootrom_path', 'flashrom_path', 'eeprom_path', 'hdd_path'):
+            target = private / key
+            subprocess.run(['cp', '--reflink=auto', '--sparse=always', str(files[key]), str(target)], check=True)
+            result[key] = str(target)
+    except (OSError, KeyError, subprocess.SubprocessError):
+        # A failed or partial copy is owned by this run, including ENOSPC.
+        (private / 'hdd_path').unlink(missing_ok=True)
+        raise
+    return result
+
+
 def run(args):
     args.output.mkdir(mode=0o700)
     private = args.output / 'private'
@@ -47,12 +61,14 @@ def run(args):
             break
         except (OSError, ValueError):
             continue
-    config = tomllib.loads(args.config.read_text())
-    files = config['sys']['files']
-    for key in ('bootrom_path', 'flashrom_path', 'eeprom_path', 'hdd_path'):
-        target = private / key
-        subprocess.run(['cp', '--reflink=auto', '--sparse=always', str(files[key]), str(target)], check=True)
-        files[key] = str(target)
+    try:
+        config = tomllib.loads(args.config.read_text())
+        files = copy_private_images(config['sys']['files'], private)
+    except (OSError, KeyError, ValueError, subprocess.SubprocessError) as error:
+        report.update(reason=type(error).__name__, detail=str(error))
+        (args.output / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
+        print(json.dumps(report, sort_keys=True))
+        return 1
     settings = ['[general]', 'show_welcome = false', '[audio]', f'engine = {args.engine}',
                 'use_dsp = false', 'use_dsp_jit = true', '[net]', 'enable = false', '[sys.files]']
     settings += [key + ' = ' + json.dumps(files[key]) for key in
@@ -149,7 +165,11 @@ def run(args):
                 emulator.wait()
         if recorder is not None and recorder.poll() is None:
             recorder.terminate()
-            recorder.wait(timeout=5)
+            try:
+                recorder.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                recorder.kill()
+                recorder.wait()
         if module is not None and module.isdecimal():
             subprocess.run(['pactl', 'unload-module', module], env=env, check=False)
         # This run owns this copy; preserve logs/config and free the 1+ GiB HDD copy.
