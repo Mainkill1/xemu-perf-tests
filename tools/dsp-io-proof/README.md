@@ -98,8 +98,9 @@ guest checks must still pass while the shadow campaign reports MISMATCH and
 returns nonzero. Stats include native/fallback calls, compared/matching/
 different words, first difference and diagnostic native wall time per route.
 The host independently validates counter consistency. `guest_status` retains
-the original guest verdict when a shadow candidate fails. Normal shutdown is
-allowed to finish before parsing the single stderr stats record.
+the original guest verdict when a shadow candidate fails. The host uses the
+final paused, idle APU snapshot after allowing normal shutdown to finish;
+all snapshots are validated and their counters must never decrease.
 
 ## Negative controls
 

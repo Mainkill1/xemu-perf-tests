@@ -230,11 +230,24 @@ def run(args):
         lines = (private / 'emulator.log').read_text(errors='replace').splitlines()
         records = [line[len('DSP_GAIN_SHADOW '):] for line in lines if line.startswith('DSP_GAIN_SHADOW ')]
         try:
-            if len(records) != 1:
-                raise ValueError('one shadow report required')
-            shadow = json.loads(records[0])
+            if not records:
+                raise ValueError('shadow report required')
+            snapshots = [json.loads(record) for record in records]
+            previous = None
+            for snapshot in snapshots:
+                validate_shadow(snapshot, args.shadow_routes, args.shadow_fault)
+                if previous is not None:
+                    if snapshot['admitted_jobs'] < previous['admitted_jobs']:
+                        raise ValueError('decreasing job count')
+                    for old, new in zip(previous['routes'], snapshot['routes']):
+                        for key in ('native_calls', 'fallback_calls', 'compared_words',
+                                    'matching_words', 'differing_words'):
+                            if new[key] < old[key]:
+                                raise ValueError('decreasing route counter')
+                previous = snapshot
+            shadow = snapshots[-1]
             report['shadow'] = shadow
-            validate_shadow(shadow, args.shadow_routes, args.shadow_fault)
+            report['shadow_snapshots'] = len(snapshots)
             if report['status'] == 'PASS' and shadow.get('status') != 'BASELINE_MATCH':
                 report['status'] = shadow.get('status', 'INCOMPLETE')
         except (ValueError, TypeError):
