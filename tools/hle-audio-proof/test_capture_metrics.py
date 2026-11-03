@@ -5,10 +5,16 @@ import subprocess
 import tempfile
 import unittest
 
-from run_capture import copy_private_images, process_sample
+from run_capture import copy_private_images, process_sample, expected_sentinels
 
 
 class MetricsTests(unittest.TestCase):
+    def test_sentinel_expectations_distinguish_old_and_hybrid_hle(self):
+        self.assertEqual(expected_sentinels(2, False, False), (0, 0))
+        self.assertEqual(expected_sentinels(2, False, True), (0x123456, 0x123456))
+        self.assertEqual(expected_sentinels(2, True, True), (0x123456, 0))
+        self.assertEqual(expected_sentinels(1, False, False), (0x123456, 0x123456))
+
     def test_samples_running_process_cpu_and_memory(self):
         before = process_sample(os.getpid())
         for _ in range(200000):

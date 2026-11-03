@@ -16,6 +16,12 @@ proof_runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(proof_runner)
 
 
+def expected_sentinels(engine, ep_disabled, hle_dsp_fallback):
+    running = engine != 2 or hle_dsp_fallback
+    return (0x123456 if running else 0,
+            0x123456 if running and not ep_disabled else 0)
+
+
 def process_sample(pid):
     # stat comm is parenthesized and can contain spaces; field 3 starts after it.
     fields = Path(f'/proc/{pid}/stat').read_text().rsplit(')', 1)[1].split()
@@ -43,7 +49,8 @@ def run(args):
     args.output.mkdir(mode=0o700)
     private = args.output / 'private'
     private.mkdir(mode=0o700)
-    report = {'status': 'INCOMPLETE', 'engine': args.engine, 'iso_sha256': proof_runner.sha(args.iso),
+    report = {'status': 'INCOMPLETE', 'engine': args.engine,
+              'hle_dsp_fallback': args.hle_dsp_fallback, 'iso_sha256': proof_runner.sha(args.iso),
               'emulator_sha256': proof_runner.sha(args.emulator_binary or args.emulator)}
     env = os.environ.copy()
     # Select the SDL3 Pulse backend explicitly for the isolated sink.
@@ -111,8 +118,8 @@ def run(args):
                 raise ValueError('voice fixture did not report progress')
             gp_sentinel = qmp.words(0xfe830fd8, 1)[0]
             ep_sentinel = qmp.words(0xfe850fd8, 1)[0]
-            expected_sentinel = 0 if args.engine == 2 else 0x123456
-            expected_ep = 0 if args.engine == 2 or args.ep_disabled else 0x123456
+            expected_sentinel, expected_ep = expected_sentinels(
+                args.engine, args.ep_disabled, args.hle_dsp_fallback)
             report.update(gp_sentinel=gp_sentinel, ep_sentinel=ep_sentinel,
                           expected_gp_sentinel=expected_sentinel, expected_ep_sentinel=expected_ep)
             if gp_sentinel != expected_sentinel or ep_sentinel != expected_ep:
@@ -198,4 +205,6 @@ if __name__ == '__main__':
     parser.add_argument('--right-left-ratio', type=float, default=1.0)
     parser.add_argument('--signal', choices=('tone', 'adpcm-dc'), default='tone')
     parser.add_argument('--ep-disabled', action='store_true', help='fixture intentionally leaves EP disabled')
+    parser.add_argument('--hle-dsp-fallback', action='store_true',
+                        help='expect controlled DSP programs to execute in hybrid HLE mode')
     raise SystemExit(run(parser.parse_args()))

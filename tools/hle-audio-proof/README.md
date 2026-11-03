@@ -8,7 +8,11 @@ sample progress; `0xbad` means the voice did not advance. Progress is not an
 audio-output verdict. Two public microprograms also write a sentinel in GP
 and EP X:$3f6 when executed; in HLE both must remain zero, while legacy mode
 must produce `0x123456` in each. This checks these controlled DSP programs,
-not arbitrary microcode. Capture host PCM separately and check each channel's
+not arbitrary microcode. For the newer experimental hybrid HLE route, pass
+`--hle-dsp-fallback`: it expects the GP and EP sentinel programs to execute
+through DSP fallback. The flag must match the tested emulator behavior; the
+original no-fallback expectation remains the default for older candidates.
+Capture host PCM separately and check each channel's
 frequency, amplitude, continuity and cross-talk before calling it audible.
 `run_capture.py` creates an owned, temporary Pulse null sink and moves only
 audio streams belonging to the emulator process to that sink. It validates
