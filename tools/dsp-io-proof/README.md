@@ -51,8 +51,10 @@ python3 compare_native.py --guest-report /path/to/new-owned-result/report.json \
 ```
 
 For a launcher wrapping an ELF, add `--emulator-binary /path/to/ELF`. Reports
-identify both binaries, the ISO/program and all compared words. Private images
-and logs stay under the private subdirectory. Keep raw evidence with the
+identify both binaries, the ISO/program and all compared words. Private logs
+and firmware copies stay under the private subdirectory; the owned writable HDD
+copy is deleted after the process stops, including when staging or launch fails.
+Keep raw evidence with the
 owning emulator PR instead of source commits. The mailbox is GP X:$3f0..$3f5:
 completion $51d00d, verdict $600d/$bad, poll count, failure count and low-24 /
 high-8 DMA pointer. Scratch/SGE buffers stay allocated until process exit.

@@ -74,6 +74,15 @@ def sha(path):
 
 def run(args):
     args.output.mkdir(mode=0o700)
+    try:
+        return run_owned(args)
+    finally:
+        # The output directory was created by this invocation, so only its
+        # private writable disk copy may be removed here.
+        (args.output / 'private' / 'hdd_path').unlink(missing_ok=True)
+
+
+def run_owned(args):
     config = tomllib.loads(args.config.read_text())
     files = config['sys']['files']
     private = args.output / 'private'
