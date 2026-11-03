@@ -10,10 +10,20 @@
 #include "program.h"
 
 #define APU 0xfe800000u
-#define GPX 0x30000u
 #define GP_RESET 0x3fffcu
 #define EP_RESET 0x5fffcu
 #define ENGINE 0x2000u
+#ifdef DSP_PROOF_EP
+#define DSPX 0x50000u
+#define DSP_RESET EP_RESET
+#define DSP_SADDR 0x2048u
+#define DSP_SMAXSGE 0x20dcu
+#else
+#define DSPX 0x30000u
+#define DSP_RESET GP_RESET
+#define DSP_SADDR 0x2040u
+#define DSP_SMAXSGE 0x20d4u
+#endif
 
 static uint32_t read_reg(unsigned offset) { return *(volatile uint32_t *)(APU + offset); }
 
@@ -54,40 +64,40 @@ int main(void) {
   write_reg(ENGINE, 0);
   write_reg(GP_RESET, 0);
   write_reg(EP_RESET, 0);
-  write_reg(0x2040, (uint32_t)MmGetPhysicalAddress(sge));
-  write_reg(0x20d4, 1);
-  /* Empty voice lists ensure that only this synthetic GP program runs. */
+  write_reg(DSP_SADDR, (uint32_t)MmGetPhysicalAddress(sge));
+  write_reg(DSP_SMAXSGE, 1);
+  /* Empty voice lists ensure that only this synthetic DSP program runs. */
   for (unsigned base = 0x2054; base <= 0x206c; base += 12) {
     for (unsigned i = 0; i < 3; i++) write_reg(base + i * 4, 0xffff);
   }
-  /* One 32-bit GP scratch DMA exports all arithmetic outputs. */
+  /* One 32-bit scratch DMA exports all arithmetic outputs. */
 #ifdef DSP_PROOF_CIRCULAR
   /* Start near the end so this transfer crosses the ring boundary once. */
   static const uint32_t node[] = {0x4000, 0x19d2, 192, 0x200, 800, 0x1800, 1023};
 #else
   static const uint32_t node[] = {0x4000, 0x19e2, 192, 0x200, 0x1800, 0, 0};
 #endif
-  for (unsigned i = 0; i < 7; i++) write_reg(GPX + (0x20 + i) * 4, node[i]);
-  for (unsigned i = 0; i < 64; i++) write_reg(GPX + (0x100 + i) * 4, (uint32_t)input(i) & 0xffffff);
-  for (unsigned i = 0; i < 192; i++) write_reg(GPX + (0x200 + i) * 4, 0x555555);
-  write_reg(GPX + 0x3f0 * 4, 0);
-  write_reg(GPX + 0x3f1 * 4, 0);
-  write_reg(GPX + 0x3f4 * 4, (uint32_t)MmGetPhysicalAddress(scratch) + 0x1800);
-  write_reg(GPX + 0x3f5 * 4, ((uint32_t)MmGetPhysicalAddress(scratch) + 0x1800) >> 24);
+  for (unsigned i = 0; i < 7; i++) write_reg(DSPX + (0x20 + i) * 4, node[i]);
+  for (unsigned i = 0; i < 64; i++) write_reg(DSPX + (0x100 + i) * 4, (uint32_t)input(i) & 0xffffff);
+  for (unsigned i = 0; i < 192; i++) write_reg(DSPX + (0x200 + i) * 4, 0x555555);
+  write_reg(DSPX + 0x3f0 * 4, 0);
+  write_reg(DSPX + 0x3f1 * 4, 0);
+  write_reg(DSPX + 0x3f4 * 4, (uint32_t)MmGetPhysicalAddress(scratch) + 0x1800);
+  write_reg(DSPX + 0x3f5 * 4, ((uint32_t)MmGetPhysicalAddress(scratch) + 0x1800) >> 24);
   /* The host can distinguish this guest's failure verdict from boot state. */
-  write_reg(GPX + 0x3f6 * 4, 0x5a07e1);
+  write_reg(DSPX + 0x3f6 * 4, 0x5a07e1);
   write_reg(0x1100, read_reg(0x1100) & ~0xe0u);
   /* Bootstrap/enable only after every input and descriptor is ready. */
-  write_reg(GP_RESET, 3);
+  write_reg(DSP_RESET, 3);
   write_reg(ENGINE, 8);
   unsigned wait;
-  for (wait = 0; wait < 10000 && read_reg(GPX + 0x3f0 * 4) != 0x51d00d; wait++) Sleep(1);
+  for (wait = 0; wait < 10000 && read_reg(DSPX + 0x3f0 * 4) != 0x51d00d; wait++) Sleep(1);
   /* Let an armed first-frame capture finish before the guest changes SECTL. */
   Sleep(100);
   write_reg(ENGINE, 0);
-  /* GP writes acquire the APU execution lock in xemu. Keep buffers alive
+  /* DSP writes acquire the APU execution lock in xemu. Keep buffers alive
    * until emulator exit: a late frame can never read freed DMA memory. */
-  write_reg(GPX + 0x3f2 * 4, wait);
+  write_reg(DSPX + 0x3f2 * 4, wait);
   unsigned failures = wait == 10000;
   for (unsigned route = 0; route < 3; route++) {
     for (unsigned i = 0; i < 64; i++) {
@@ -95,7 +105,7 @@ int main(void) {
 #ifdef INJECT_FAILURE
       if (!route && !i) want ^= 1;
 #endif
-      failures += read_reg(GPX + (0x200 + route * 64 + i) * 4) != want;
+      failures += read_reg(DSPX + (0x200 + route * 64 + i) * 4) != want;
       unsigned index = route * 64 + i;
 #ifdef DSP_PROOF_CIRCULAR
       unsigned offset = (800 + index * 4) % 1024;
@@ -103,22 +113,22 @@ int main(void) {
 #else
       failures += ((volatile uint32_t *)(scratch + 0x1800))[index] != want;
 #endif
-      failures += read_reg(GPX + (0x100 + i) * 4) != ((uint32_t)input(i) & 0xffffff);
+      failures += read_reg(DSPX + (0x100 + i) * 4) != ((uint32_t)input(i) & 0xffffff);
     }
   }
 #ifdef DSP_PROOF_CIRCULAR
-  failures += read_reg(GPX + (0x20 + 4) * 4) != 544;
+  failures += read_reg(DSPX + (0x20 + 4) * 4) != 544;
 #endif
 #ifdef DSP_PROOF_INJECT_OFFSET
 #ifndef DSP_PROOF_CIRCULAR
 #error DSP_PROOF_INJECT_OFFSET requires DSP_PROOF_CIRCULAR
 #endif
   /* Corrupt only the host-observed descriptor after the guest's own check. */
-  write_reg(GPX + (0x20 + 4) * 4, 545);
+  write_reg(DSPX + (0x20 + 4) * 4, 545);
 #endif
-  write_reg(GPX + 0x3f3 * 4, failures);
-  write_reg(GPX + 0x3f1 * 4, failures ? 0xbad : 0x600d);
+  write_reg(DSPX + 0x3f3 * 4, failures);
+  write_reg(DSPX + 0x3f1 * 4, failures ? 0xbad : 0x600d);
   debugPrint("%s: 192 exact output words, input preserved, failures=%u\n", failures ? "FAIL" : "PASS", failures);
-  debugPrint("Mailbox GP X:$3f0..3f3; no throughput or hardware qualification.\n");
+  debugPrint("Mailbox DSP X:$3f0..3f3; no throughput or hardware qualification.\n");
   for (;;) Sleep(1000);
 }

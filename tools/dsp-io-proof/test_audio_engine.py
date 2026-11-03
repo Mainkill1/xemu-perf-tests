@@ -24,6 +24,17 @@ class AudioEngineCliTest(unittest.TestCase):
         self.assertIn('--audio-engine', output)
         self.assertIn('hle', output)
 
+    def test_processor_selects_distinct_mmio_windows(self):
+        module = self.load_runner()
+        self.assertEqual(module.processor_base('gp'), 0xfe830000)
+        self.assertEqual(module.processor_base('ep'), 0xfe850000)
+        with self.assertRaises(ValueError):
+            module.processor_base('unknown')
+        runner = Path(__file__).with_name('run_guest.py')
+        output = subprocess.check_output([sys.executable, str(runner), '--help'], text=True)
+        self.assertIn('--processor', output)
+        self.assertIn('--replay-capture', output)
+
     def test_guest_failure_finishes_without_a_dsp_completion_marker(self):
         module = self.load_runner()
         self.assertFalse(module.mailbox_terminal([0, 0xbad, 0, 0], False))

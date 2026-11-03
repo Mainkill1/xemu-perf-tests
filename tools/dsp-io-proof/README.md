@@ -13,6 +13,11 @@ live APU dispatcher or qualify scheduling, register transitions, persistent
 state, fallback or game filters. xemu PRs #379/#380 remain separate game-filter
 work. This standalone tool is separate from the main test-suite catalog.
 
+The same source also builds an EP variant with `DSP_PROOF_EP=1`; it uses the
+EP memory window and EP scratch scatter/gather registers. Select `--processor
+ep` when running that ISO. The default remains GP. Both variants require a
+dedicated test boot and have not been qualified on physical Xbox hardware.
+
 ## Build
 
 Use a built nxdk checkout; committed `program.h` permits rebuilding without
@@ -62,6 +67,30 @@ Physical-Xbox execution is unqualified; this is an xemu fixture.
 The current guest also writes a readiness marker at GP X:$3f6, allowing the
 host to recognize a failed guest verdict even if the DSP never completes.
 Older fixtures can still finish when their DSP completion marker is present.
+
+To build and run the EP variant without reusing a GP object built with
+different preprocessor flags:
+
+```sh
+ep_build=$(mktemp -d)
+cp main.c program.h Makefile "$ep_build/"
+make -C "$ep_build" NXDK_DIR="$NXDK_DIR" DSP_PROOF_EP=1 GEN_XISO=dsp-ep-proof.iso
+python3 run_guest.py --emulator /path/to/xemu --iso "$ep_build/dsp-ep-proof.iso" \
+  --program-header "$ep_build/program.h" --config /path/to/xemu.toml \
+  --output /path/to/new-ep-result --engine jit --processor ep
+```
+
+Add `DSP_PROOF_CIRCULAR=1` when building, and `--circular` when running, to
+exercise EP circular DMA and the offset writeback. Add `--audio-engine hle`
+in a separate run to check the experimental bypass. The fixture reports
+correctness only; its runtime is not a performance metric.
+
+An emulator build with frame-replay support can also use `--replay-capture`
+to save the first selected processor's JIT frame as `replay.bin` in the owned
+output directory. It may capture firmware rather than this fixture: run the
+emulator's replay verifier and compare its program hash with the fixture
+identity before claiming fixture coverage. Recordings can contain firmware,
+program, state and audio data and should remain private.
 
 To run the same GP arithmetic and guest-memory DMA oracle against an xemu
 build with the experimental audio selector, add `--audio-engine hle` and

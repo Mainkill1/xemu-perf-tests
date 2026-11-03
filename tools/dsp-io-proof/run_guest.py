@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Run the public DSP XISO on Linux; verify guest verdict and all GP words."""
+"""Run the public DSP XISO on Linux; verify guest verdict and DSP words."""
 import argparse
 import hashlib
 import json
@@ -59,6 +59,12 @@ def inputs():
     return edges + [((i * 7919) & 0x7fffff) - 0x400000 for i in range(8, 64)]
 
 
+def processor_base(processor):
+    if processor not in ('gp', 'ep'):
+        raise ValueError('unknown DSP processor')
+    return 0xfe830000 if processor == 'gp' else 0xfe850000
+
+
 def mailbox_terminal(mailbox, guest_ready):
     return ((guest_ready and mailbox[1] == 0xbad) or
             (mailbox[0] == 0x51d00d and mailbox[1] in (0x600d, 0xbad)))
@@ -90,6 +96,10 @@ def run(args):
 
 
 def run_owned(args):
+    processor = getattr(args, 'processor', 'gp')
+    base = processor_base(processor)
+    if args.capture and processor != 'gp':
+        raise ValueError('legacy shadow capture supports GP only')
     config = tomllib.loads(args.config.read_text())
     files = config['sys']['files']
     private = args.output / 'private'
@@ -110,6 +120,8 @@ def run_owned(args):
     cfg.write_text('\n'.join(settings) + '\n')
     env = os.environ.copy()
     env.update(SDL_AUDIODRIVER='dummy', SDL_VIDEODRIVER='x11')
+    if getattr(args, 'replay_capture', False):
+        env[f'XEMU_{processor.upper()}_REPLAY_PATH'] = str(args.output / 'replay.bin')
     if args.capture:
         words = [int(word, 16) for word in re.findall(r'0x([0-9a-fA-F]+)', args.program_header.read_text())]
         if not words or len(words) > 2048 or any(word > 0xffffff for word in words):
@@ -135,6 +147,7 @@ def run_owned(args):
             continue
     qmp_path = args.output / 'qmp.sock'
     report = {'status': 'INCOMPLETE', 'engine': args.engine, 'audio_engine': args.audio_engine,
+              'processor': processor,
               'dma_layout': 'circular' if args.circular else 'linear',
               'iso_sha256': sha(args.iso),
               'launcher_sha256': sha(args.emulator),
@@ -156,8 +169,8 @@ def run_owned(args):
             guest_ready = False
             while time.monotonic() < deadline and process.poll() is None:
                 try:
-                    mailbox = qmp.words(0xfe830fc0, 4)
-                    guest_ready |= qmp.words(0xfe830fd8, 1)[0] == 0x5a07e1
+                    mailbox = qmp.words(base + 0xfc0, 4)
+                    guest_ready |= qmp.words(base + 0xfd8, 1)[0] == 0x5a07e1
                 except ValueError as error:
                     if 'Cannot access memory' not in str(error):
                         raise
@@ -167,16 +180,16 @@ def run_owned(args):
                     break
                 time.sleep(.1)
             qmp.call('stop')
-            actual_input = qmp.words(0xfe830400, 64)
-            actual = qmp.words(0xfe830800, 192)
-            actual_program = qmp.words(0xfe83a000, 4096)
+            actual_input = qmp.words(base + 0x400, 64)
+            actual = qmp.words(base + 0x800, 192)
+            actual_program = qmp.words(base + 0xa000, 4096)
             program = [int(word, 16) for word in re.findall(r'0x([0-9a-fA-F]+)', args.program_header.read_text())]
             if len(program) > 2048:
                 raise ValueError('program exceeds bootstrap size')
             program += [0] * (4096 - len(program))
             program_matches = actual_program == program
             program_sha256 = hashlib.sha256(struct.pack('<4096I', *actual_program)).hexdigest()
-            dma_parts = qmp.words(0xfe830fd0, 2)
+            dma_parts = qmp.words(base + 0xfd0, 2)
             dma_address = dma_parts[0] | (dma_parts[1] << 24)
             extent = 1024 if args.circular else 192 * 4
             if not 0 <= dma_address <= 67108864 - extent:
@@ -185,7 +198,7 @@ def run_owned(args):
                 spans = circular_spans(800, 192 * 4, 1024)
                 dma_output = [word for start, size in spans
                               for word in qmp.words(dma_address + start, size // 4)]
-                dma_offset = qmp.words(0xfe830090, 1)[0]
+                dma_offset = qmp.words(base + 0x90, 1)[0]
                 offset_matches = dma_offset == 544
             else:
                 dma_output = qmp.words(dma_address, 192)
@@ -220,6 +233,9 @@ def run_owned(args):
                 except subprocess.TimeoutExpired:
                     process.kill()
                     process.wait()
+    if getattr(args, 'replay_capture', False):
+        report['replay_capture_created'] = (args.output / 'replay.bin').is_file()
+        report['replay_capture_program_verified'] = False
     (args.output / 'report.json').write_text(json.dumps(report, sort_keys=True, indent=2) + '\n')
     print(json.dumps(report, sort_keys=True))
     return 0 if report['status'] == 'PASS' else 1
@@ -234,6 +250,10 @@ if __name__ == '__main__':
     parser.add_argument('--program-header', type=Path, required=True)
     parser.add_argument('--output', type=Path, required=True)
     parser.add_argument('--engine', choices=('jit', 'interpreter'), default='jit')
+    parser.add_argument('--processor', choices=('gp', 'ep'), default='gp',
+                        help='match the processor used to build the fixture ISO')
+    parser.add_argument('--replay-capture', action='store_true',
+                        help='record the first selected JIT frame; verify its program identity separately')
     parser.add_argument('--audio-engine', choices=('default', 'hle'), default='default',
                         help='select the experimental HLE path for the same DSP/DMA oracle')
     parser.add_argument('--circular', action='store_true',
