@@ -64,6 +64,13 @@ def mailbox_terminal(mailbox, guest_ready):
             (mailbox[0] == 0x51d00d and mailbox[1] in (0x600d, 0xbad)))
 
 
+def circular_spans(start, length, size):
+    if size <= 0 or start < 0 or start >= size or length <= 0 or length > size:
+        raise ValueError('invalid circular DMA range')
+    first = min(length, size - start)
+    return [(start, first)] + ([(0, length - first)] if first < length else [])
+
+
 def sha(path):
     digest = hashlib.sha256()
     with path.open('rb') as stream:
@@ -128,6 +135,7 @@ def run_owned(args):
             continue
     qmp_path = args.output / 'qmp.sock'
     report = {'status': 'INCOMPLETE', 'engine': args.engine, 'audio_engine': args.audio_engine,
+              'dma_layout': 'circular' if args.circular else 'linear',
               'iso_sha256': sha(args.iso),
               'launcher_sha256': sha(args.emulator),
               'emulator_sha256': sha(args.emulator_binary or args.emulator),
@@ -170,14 +178,24 @@ def run_owned(args):
             program_sha256 = hashlib.sha256(struct.pack('<4096I', *actual_program)).hexdigest()
             dma_parts = qmp.words(0xfe830fd0, 2)
             dma_address = dma_parts[0] | (dma_parts[1] << 24)
-            if not 0 <= dma_address <= 67108864 - 192 * 4:
+            extent = 1024 if args.circular else 192 * 4
+            if not 0 <= dma_address <= 67108864 - extent:
                 raise ValueError('DMA output outside guest RAM')
-            dma_output = qmp.words(dma_address, 192)
+            if args.circular:
+                spans = circular_spans(800, 192 * 4, 1024)
+                dma_output = [word for start, size in spans
+                              for word in qmp.words(dma_address + start, size // 4)]
+                dma_offset = qmp.words(0xfe830090, 1)[0]
+                offset_matches = dma_offset == 544
+            else:
+                dma_output = qmp.words(dma_address, 192)
+                dma_offset = None
+                offset_matches = True
             want_input = [value & 0xffffff for value in inputs()]
             want = [(value * numerator // denominator) & 0xffffff
                     for numerator, denominator in ((1, 2), (-1, 2), (1, 4)) for value in inputs()]
             differences = [i for i, (a, b) in enumerate(zip(actual, want)) if a != b]
-            success = mailbox[0] == 0x51d00d and mailbox[1] == 0x600d and mailbox[3] == 0 and actual_input == want_input and not differences and dma_output == want and program_matches
+            success = mailbox[0] == 0x51d00d and mailbox[1] == 0x600d and mailbox[3] == 0 and actual_input == want_input and not differences and dma_output == want and program_matches and offset_matches
             report.update(status='PASS' if success else 'FAIL', mailbox=mailbox,
                           guest_ready=guest_ready,
                           input_preserved=actual_input == want_input,
@@ -185,6 +203,7 @@ def run_owned(args):
                           program_sha256=program_sha256,
                           output_words=actual, expected_words=want,
                           dma_output_words=dma_output, dma_matches=dma_output == want,
+                          dma_offset=dma_offset, dma_offset_matches=offset_matches,
                           mismatching_outputs=differences, output_count=192)
         except (OSError, ValueError, EOFError) as error:
             report.update(reason=type(error).__name__, detail=str(error))
@@ -217,6 +236,8 @@ if __name__ == '__main__':
     parser.add_argument('--engine', choices=('jit', 'interpreter'), default='jit')
     parser.add_argument('--audio-engine', choices=('default', 'hle'), default='default',
                         help='select the experimental HLE path for the same DSP/DMA oracle')
+    parser.add_argument('--circular', action='store_true',
+                        help='expect the matching circular DMA fixture and offset writeback')
     parser.add_argument('--timeout', type=float, default=90)
     parser.add_argument('--capture', action='store_true')
     options = parser.parse_args()

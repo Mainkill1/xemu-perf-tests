@@ -32,6 +32,16 @@ class AudioEngineCliTest(unittest.TestCase):
         self.assertTrue(module.mailbox_terminal([0x51d00d, 0x600d, 0, 0], True))
         self.assertTrue(module.mailbox_terminal([0x51d00d, 0xbad, 0, 0], False))
 
+    def test_circular_dma_wraps_once_and_preserves_data_order(self):
+        module = self.load_runner()
+        self.assertEqual(module.circular_spans(800, 768, 1024), [(800, 224), (0, 544)])
+        self.assertEqual(module.circular_spans(0, 16, 1024), [(0, 16)])
+        self.assertEqual(module.circular_spans(256, 1024, 1024), [(256, 768), (0, 256)])
+        with self.assertRaises(ValueError):
+            module.circular_spans(1024, 4, 1024)
+        with self.assertRaises(ValueError):
+            module.circular_spans(0, 1028, 1024)
+
     def test_failed_launch_deletes_only_the_new_private_hdd(self):
         module = self.load_runner()
         with tempfile.TemporaryDirectory() as directory:
@@ -46,7 +56,7 @@ class AudioEngineCliTest(unittest.TestCase):
             executable.write_bytes(b'not executable')
             args = SimpleNamespace(output=root / 'result', config=config, engine='jit',
                                    audio_engine='default', capture=False, iso=source,
-                                   emulator=executable, emulator_binary=None, timeout=1)
+                                   emulator=executable, emulator_binary=None, timeout=1, circular=False)
             with self.assertRaises(PermissionError):
                 module.run(args)
             self.assertFalse((args.output / 'private/hdd_path').exists())

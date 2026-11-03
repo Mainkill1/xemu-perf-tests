@@ -73,6 +73,32 @@ is expected to fail this oracle. A failure is evidence of missing functionality,
 not a valid comparison or speed measurement. The runner does not measure CPU
 or memory cost for this fixture.
 
+To test circular scratch DMA, build the separate variant and tell the host
+runner to expect it:
+
+```sh
+make NXDK_DIR="$NXDK_DIR" DSP_PROOF_CIRCULAR=1 GEN_XISO=dsp-circular.iso \
+  OUTPUT_DIR=circular-bin -W "$PWD/main.c"
+python3 run_guest.py --emulator /path/to/xemu --iso "$PWD/dsp-circular.iso" \
+  --program-header "$PWD/program.h" --config /path/to/xemu.toml \
+  --output /path/to/new-circular-result --engine jit --circular
+```
+
+The transfer writes 192 words into a 1,024-byte ring starting at offset 800,
+crosses the boundary, and must write the updated offset 544 into its DMA
+descriptor. The guest and host independently check the data; the host also
+checks descriptor writeback. Add `--audio-engine hle` in a separate run to
+test the bypass. The current experimental HLE path fails this case because it
+does not yet execute the GP program or its DMA side effects. A passing emulator
+result does not establish original-hardware parity; no physical Xbox result
+has been collected for this variant.
+
+To check that the host rejects an incorrect descriptor even if the guest
+verdict and transfer data pass, build with both `DSP_PROOF_CIRCULAR=1` and
+`DSP_PROOF_INJECT_OFFSET=1`, then run it with `--circular`. This negative
+fixture changes the offset after the guest's check; the host must report
+`FAIL`, matching DMA data, and a nonmatching offset of 545.
+
 ## Capture then replay 100 times
 
 Use xemu PR #384's tools plus the exact GP program trigger. `--capture` creates

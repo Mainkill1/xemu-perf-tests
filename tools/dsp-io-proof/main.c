@@ -60,8 +60,13 @@ int main(void) {
   for (unsigned base = 0x2054; base <= 0x206c; base += 12) {
     for (unsigned i = 0; i < 3; i++) write_reg(base + i * 4, 0xffff);
   }
-  /* One linear 32-bit GP scratch DMA exports all arithmetic outputs. */
+  /* One 32-bit GP scratch DMA exports all arithmetic outputs. */
+#ifdef DSP_PROOF_CIRCULAR
+  /* Start near the end so this transfer crosses the ring boundary once. */
+  static const uint32_t node[] = {0x4000, 0x19d2, 192, 0x200, 800, 0x1800, 1023};
+#else
   static const uint32_t node[] = {0x4000, 0x19e2, 192, 0x200, 0x1800, 0, 0};
+#endif
   for (unsigned i = 0; i < 7; i++) write_reg(GPX + (0x20 + i) * 4, node[i]);
   for (unsigned i = 0; i < 64; i++) write_reg(GPX + (0x100 + i) * 4, (uint32_t)input(i) & 0xffffff);
   for (unsigned i = 0; i < 192; i++) write_reg(GPX + (0x200 + i) * 4, 0x555555);
@@ -91,10 +96,26 @@ int main(void) {
       if (!route && !i) want ^= 1;
 #endif
       failures += read_reg(GPX + (0x200 + route * 64 + i) * 4) != want;
-      failures += ((volatile uint32_t *)(scratch + 0x1800))[route * 64 + i] != want;
+      unsigned index = route * 64 + i;
+#ifdef DSP_PROOF_CIRCULAR
+      unsigned offset = (800 + index * 4) % 1024;
+      failures += *(volatile uint32_t *)(scratch + 0x1800 + offset) != want;
+#else
+      failures += ((volatile uint32_t *)(scratch + 0x1800))[index] != want;
+#endif
       failures += read_reg(GPX + (0x100 + i) * 4) != ((uint32_t)input(i) & 0xffffff);
     }
   }
+#ifdef DSP_PROOF_CIRCULAR
+  failures += read_reg(GPX + (0x20 + 4) * 4) != 544;
+#endif
+#ifdef DSP_PROOF_INJECT_OFFSET
+#ifndef DSP_PROOF_CIRCULAR
+#error DSP_PROOF_INJECT_OFFSET requires DSP_PROOF_CIRCULAR
+#endif
+  /* Corrupt only the host-observed descriptor after the guest's own check. */
+  write_reg(GPX + (0x20 + 4) * 4, 545);
+#endif
   write_reg(GPX + 0x3f3 * 4, failures);
   write_reg(GPX + 0x3f1 * 4, failures ? 0xbad : 0x600d);
   debugPrint("%s: 192 exact output words, input preserved, failures=%u\n", failures ? "FAIL" : "PASS", failures);
